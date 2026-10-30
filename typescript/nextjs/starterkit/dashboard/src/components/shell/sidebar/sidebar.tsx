@@ -20,14 +20,24 @@ export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
 
 export function Sidebar({
   collapsed,
+  onCollapsedChange,
   variant = 'single',
   className,
   children,
   ...props
 }: SidebarProps) {
-  const { isSidebarCollapsed, isSidebarOpenMobile, setSidebarOpenMobile } = useLayout();
+  const { isSidebarCollapsed, isSidebarOpenMobile, setSidebarOpenMobile, isMobile } = useLayout();
   const isCollapsed = collapsed !== undefined ? collapsed : isSidebarCollapsed;
   const sidebarRef = useRef<HTMLElement | null>(null);
+
+  // Invoke controlled change callback if collapse changes
+  const prevCollapsedRef = useRef(isCollapsed);
+  useEffect(() => {
+    if (prevCollapsedRef.current !== isCollapsed) {
+      prevCollapsedRef.current = isCollapsed;
+      onCollapsedChange?.(isCollapsed);
+    }
+  }, [isCollapsed, onCollapsedChange]);
 
   // Mobile drawer Escape key handler, focus trap, and body scroll lock
   useEffect(() => {
@@ -115,6 +125,7 @@ export function Sidebar({
         aria-label="Sidebar navigation"
         role={isSidebarOpenMobile ? 'dialog' : undefined}
         aria-modal={isSidebarOpenMobile ? 'true' : undefined}
+        inert={isMobile && !isSidebarOpenMobile ? true : undefined}
         {...props}
       >
         {children}
@@ -192,11 +203,7 @@ export function SidebarLogo({
       <span className={styles.logoIcon}>{icon || title.charAt(0).toUpperCase()}</span>
       <div className={styles.logoText}>
         <div>{title}</div>
-        {subtitle && (
-          <div className={styles.logoSubtitle}>
-            {subtitle}
-          </div>
-        )}
+        {subtitle && <div className={styles.logoSubtitle}>{subtitle}</div>}
       </div>
     </Component>
   );
@@ -382,7 +389,9 @@ export function SidebarTrigger({
   className,
   ...props
 }: SidebarTriggerProps) {
-  const { toggleSidebar, toggleSidebarMobile, isSidebarOpenMobile } = useLayout();
+  const { toggleSidebar, toggleSidebarMobile, isSidebarOpenMobile, isSidebarCollapsed, isMobile } =
+    useLayout();
+  const isExpanded = isMobile ? isSidebarOpenMobile : !isSidebarCollapsed;
 
   return (
     <button
@@ -390,7 +399,7 @@ export function SidebarTrigger({
       type="button"
       className={cn(styles.trigger, className)}
       onClick={() => {
-        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+        if (isMobile) {
           toggleSidebarMobile();
         } else {
           toggleSidebar();
@@ -398,7 +407,7 @@ export function SidebarTrigger({
       }}
       aria-label="Toggle navigation sidebar"
       aria-controls="app-sidebar"
-      aria-expanded={isSidebarOpenMobile}
+      aria-expanded={isExpanded}
       {...props}
     >
       <Icon name="sidebar-left" size={16} />

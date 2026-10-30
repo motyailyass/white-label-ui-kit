@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { LayoutProvider } from '../layout-context';
+import { LayoutProvider, useLayout } from '../layout-context';
 import { Sidebar, SidebarItem, SidebarTrigger } from './sidebar';
 
 const CustomLink = ({ href, children, ...rest }: any) => (
@@ -9,6 +9,20 @@ const CustomLink = ({ href, children, ...rest }: any) => (
     {children}
   </a>
 );
+
+function MobileOpenHelper() {
+  const { setSidebarOpenMobile } = useLayout();
+  return <button onClick={() => setSidebarOpenMobile(true)}>Open Mobile</button>;
+}
+
+function ControlledSidebarParent() {
+  const [collapsed, setCollapsed] = useState(false);
+  return (
+    <Sidebar collapsed={collapsed} onCollapsedChange={setCollapsed}>
+      <button onClick={() => setCollapsed(!collapsed)}>Toggle Controlled</button>
+    </Sidebar>
+  );
+}
 
 describe('Sidebar Components', () => {
   describe('SidebarItem', () => {
@@ -61,10 +75,10 @@ describe('Sidebar Components', () => {
     });
   });
 
-  describe('Sidebar & SidebarTrigger accessibility', () => {
-    it('provides aria-controls and aria-expanded on trigger and escapes on keydown', () => {
+  describe('Sidebar & SidebarTrigger accessibility and contracts', () => {
+    it('provides accurate aria-expanded on desktop trigger and toggles correctly', () => {
       render(
-        <LayoutProvider>
+        <LayoutProvider defaultSidebarCollapsed={false}>
           <SidebarTrigger />
           <Sidebar>
             <div>Nav content</div>
@@ -74,10 +88,55 @@ describe('Sidebar Components', () => {
 
       const trigger = screen.getByRole('button', { name: /toggle navigation sidebar/i });
       expect(trigger.getAttribute('aria-controls')).toBe('app-sidebar');
+      // On desktop, open sidebar should report aria-expanded="true"
+      expect(trigger.getAttribute('aria-expanded')).toBe('true');
+
+      // Click to collapse
+      fireEvent.click(trigger);
       expect(trigger.getAttribute('aria-expanded')).toBe('false');
 
+      // Click to expand again
+      fireEvent.click(trigger);
+      expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('invokes onCollapsedChange callback in controlled mode', () => {
+      render(
+        <LayoutProvider>
+          <ControlledSidebarParent />
+        </LayoutProvider>,
+      );
+
       const aside = screen.getByLabelText(/sidebar navigation/i);
-      expect(aside.id).toBe('app-sidebar');
+      expect(aside.getAttribute('data-collapsed')).toBe('false');
+
+      const toggleBtn = screen.getByRole('button', { name: /toggle controlled/i });
+      fireEvent.click(toggleBtn);
+
+      expect(aside.getAttribute('data-collapsed')).toBe('true');
+    });
+
+    it('handles mobile drawer escape key and traps/releases focus correctly', () => {
+      render(
+        <LayoutProvider>
+          <MobileOpenHelper />
+          <Sidebar>
+            <a href="/link1">Link 1</a>
+            <a href="/link2">Link 2</a>
+          </Sidebar>
+        </LayoutProvider>,
+      );
+
+      const aside = screen.getByLabelText(/sidebar navigation/i);
+      expect(aside.getAttribute('data-mobile-open')).toBe('false');
+
+      // Open mobile drawer
+      fireEvent.click(screen.getByRole('button', { name: /open mobile/i }));
+      expect(aside.getAttribute('data-mobile-open')).toBe('true');
+
+      // Press Escape key
+      fireEvent.keyDown(window, { key: 'Escape' });
+      expect(aside.getAttribute('data-mobile-open')).toBe('false');
     });
   });
 });

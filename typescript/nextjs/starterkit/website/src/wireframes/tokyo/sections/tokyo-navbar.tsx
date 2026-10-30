@@ -106,6 +106,16 @@ export function TokyoNavbar({
             {link.label}
           </a>
         ))}
+        <a
+          href={ctaHref}
+          className={styles.mobileCta}
+          onClick={() => {
+            setMobileOpen(false);
+            onCtaClick?.();
+          }}
+        >
+          {ctaLabel}
+        </a>
       </div>
     </header>
   );

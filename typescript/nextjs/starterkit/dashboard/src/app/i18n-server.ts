@@ -1,10 +1,5 @@
 import { cookies } from 'next/headers';
-import {
-  Direction,
-  SupportedLocale,
-  getDirectionForLocale,
-  isSupportedLocale,
-} from '@/i18n';
+import { Direction, SupportedLocale, getDirectionForLocale, isSupportedLocale } from '@/i18n';
 
 export interface ServerI18nState {
   locale: SupportedLocale;

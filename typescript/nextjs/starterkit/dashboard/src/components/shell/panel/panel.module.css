@@ -31,6 +31,21 @@
   z-index: calc(var(--z-panel) + 10);
 }
 
+/* Mobile & Tablet responsive overlay: prevent panel from squishing content width */
+@media (max-width: 1024px) {
+  .panel {
+    position: fixed;
+    top: 0;
+    inset-inline-end: 0;
+    inset-inline-start: auto;
+    width: min(100vw, var(--panel-width, 340px)) !important;
+    min-width: 0 !important;
+    max-width: 100vw;
+    box-shadow: var(--shadow-lg);
+    z-index: calc(var(--z-panel) + 10);
+  }
+}
+
 .header {
   display: flex;
   align-items: center;

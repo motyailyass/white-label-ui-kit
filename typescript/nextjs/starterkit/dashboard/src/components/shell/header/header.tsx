@@ -97,10 +97,7 @@ export function HeaderBreadcrumbs({
                   <a href={item.href || '#'} className={styles.breadcrumbLink}>
                     {item.label}
                   </a>
-                  <span
-                    className={styles.breadcrumbSeparator}
-                    aria-hidden="true"
-                  >
+                  <span className={styles.breadcrumbSeparator} aria-hidden="true">
                     {separator}
                   </span>
                 </>

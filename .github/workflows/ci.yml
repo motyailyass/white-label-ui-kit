@@ -1,0 +1,52 @@
+name: CI Quality Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.16.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Verify shared code synchronization (zero drift)
+        run: pnpm run sync:shared:check
+
+      - name: Verify code formatting
+        run: pnpm run format:check
+
+      - name: Lint codebase
+        run: pnpm run lint
+
+      - name: Type check (tsc --noEmit)
+        run: pnpm run type-check
+
+      - name: Run unit & component tests (vitest)
+        run: pnpm run test
+
+      - name: Build applications (next build)
+        run: pnpm run build
+

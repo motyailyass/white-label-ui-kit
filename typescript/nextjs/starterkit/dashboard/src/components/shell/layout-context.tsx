@@ -17,6 +17,7 @@ export interface LayoutContextValue {
   isPanelOpen: boolean;
   setPanelOpen: (open: boolean) => void;
   togglePanel: () => void;
+  isMobile: boolean;
 }
 
 const LayoutContext = createContext<LayoutContextValue | undefined>(undefined);
@@ -40,6 +41,25 @@ export function LayoutProvider({
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(defaultSidebarCollapsed);
   const [isSidebarOpenMobile, setSidebarOpenMobile] = useState(false);
   const [isPanelOpen, setPanelOpen] = useState(defaultPanelOpen);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Track viewport width for responsive sidebar and panel state
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const checkViewport = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      // On narrow mobile/tablet screens (< 1024px), keep contextual inspector closed by default
+      if (window.innerWidth < 1024 && defaultPanelOpen) {
+        setPanelOpen(false);
+      }
+    };
+
+    checkViewport();
+    window.addEventListener('resize', checkViewport);
+    return () => window.removeEventListener('resize', checkViewport);
+  }, [defaultPanelOpen]);
 
   const toggleSidebar = useCallback(() => {
     setSidebarCollapsed((prev) => !prev);
@@ -100,6 +120,7 @@ export function LayoutProvider({
         isPanelOpen,
         setPanelOpen,
         togglePanel,
+        isMobile,
       }}
     >
       {children}

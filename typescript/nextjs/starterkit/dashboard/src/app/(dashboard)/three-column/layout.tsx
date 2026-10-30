@@ -2,20 +2,11 @@
 
 import type React from 'react';
 import { demoLayoutConfig } from '@/fixtures/config/site';
-import {
-  demoBreadcrumbs,
-  demoLogo,
-  demoNavigation,
-  demoUser,
-} from '@/fixtures/dashboard-data';
+import { demoBreadcrumbs, demoLogo, demoNavigation, demoUser } from '@/fixtures/dashboard-data';
 import { ThreeColumnLayout } from '@/layouts';
 import { useActiveNavigation } from '../../use-active-navigation';
 
-export default function ThreeColumnDashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function ThreeColumnDashboardLayout({ children }: { children: React.ReactNode }) {
   const activeNavigation = useActiveNavigation(demoNavigation);
 
   return (

@@ -11,11 +11,7 @@ import {
 import { DualSidebarLayout } from '@/layouts';
 import { useActiveSecondaryNav } from '../../use-active-navigation';
 
-export default function DualSidebarDashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DualSidebarDashboardLayout({ children }: { children: React.ReactNode }) {
   const activeSecondaryNav = useActiveSecondaryNav(demoSecondaryNav);
 
   return (

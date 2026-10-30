@@ -13,7 +13,7 @@ describe('AppToolbar', () => {
     );
 
     expect(screen.getByRole('combobox')).toBeDefined();
-    expect(screen.getByRole('button', { name: /switch to dark mode/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /toggle theme|switch to/i })).toBeDefined();
   });
 
   it('renders custom children when provided', () => {

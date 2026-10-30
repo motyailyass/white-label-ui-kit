@@ -13,12 +13,7 @@ import {
   SidebarPrimary,
   SidebarSecondary,
 } from '@/components/shell';
-import type {
-  BaseLayoutProps,
-  LayoutUser,
-  PrimaryRailItem,
-  SecondaryNavGroup,
-} from '../types';
+import type { BaseLayoutProps, LayoutUser, PrimaryRailItem, SecondaryNavGroup } from '../types';
 import styles from './dual-sidebar-layout.module.css';
 
 export interface DualSidebarLayoutProps extends BaseLayoutProps {

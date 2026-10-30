@@ -30,9 +30,7 @@ export function ErrorState({
   const { t } = useI18n();
 
   const displayTitle = title || t('errors.genericTitle');
-  const displayDescription =
-    description ||
-    t('errors.genericDescription');
+  const displayDescription = description || t('errors.genericDescription');
 
   return (
     <div className={cn(styles.container, className)} {...props}>

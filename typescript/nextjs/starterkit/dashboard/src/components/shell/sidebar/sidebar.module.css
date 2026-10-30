@@ -289,8 +289,12 @@
     inset-inline-end: auto;
     height: 100vh;
     transform: translateX(-100%);
-    transition: transform var(--transition-normal);
+    transition:
+      transform var(--transition-normal),
+      visibility var(--transition-normal);
     box-shadow: var(--shadow-lg);
+    visibility: hidden;
+    pointer-events: none;
   }
 
   [dir="rtl"] .sidebar {
@@ -300,6 +304,8 @@
   .sidebar[data-mobile-open="true"],
   [dir="rtl"] .sidebar[data-mobile-open="true"] {
     transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
   }
 
   .backdrop[data-open="true"] {

@@ -18,9 +18,7 @@ export function AppProviders({
 }: AppProvidersProps) {
   return (
     <ThemeProvider defaultTheme={defaultTheme}>
-      <I18nProvider initialLocale={initialLocale}>
-        {children}
-      </I18nProvider>
+      <I18nProvider initialLocale={initialLocale}>{children}</I18nProvider>
     </ThemeProvider>
   );
 }

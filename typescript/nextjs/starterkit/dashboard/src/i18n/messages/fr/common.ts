@@ -3,8 +3,11 @@ import type { CommonMessages } from '../en/common';
 export const common = {
   theme: 'Thème',
   direction: 'Direction',
-  toggleTheme: 'Basculer le thème',
-  toggleDirection: 'Basculer la direction',
+  toggleTheme: 'Changer de thème',
+  toggleDirection: 'Changer de direction',
+  light: 'Clair',
+  dark: 'Sombre',
+  system: 'Système',
   search: 'Rechercher...',
   close: 'Fermer',
   back: 'Retour',

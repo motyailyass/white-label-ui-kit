@@ -1,11 +1,15 @@
 {
   "name": "@starterkit/monorepo",
   "private": true,
+  "packageManager": "pnpm@12.16.1",
   "scripts": {
-    "sync": "node scripts/sync-shared.mjs",
+    "sync:shared": "node scripts/sync-shared.mjs",
+    "sync:shared:check": "node scripts/sync-shared.mjs --check",
     "lint": "pnpm --recursive run lint",
     "type-check": "pnpm --recursive run type-check",
     "test": "pnpm --recursive run test",
-    "build": "pnpm --recursive run build"
+    "build": "pnpm --recursive run build",
+    "format": "biome format --write .",
+    "format:check": "biome format ."
   }
 }

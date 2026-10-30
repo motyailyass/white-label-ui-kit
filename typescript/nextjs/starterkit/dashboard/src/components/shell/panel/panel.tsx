@@ -1,10 +1,22 @@
 'use client';
 
 import type React from 'react';
+import { createContext, useCallback, useContext, useMemo } from 'react';
 import { cn } from '@/lib/cn';
 import { Icon } from '@/components/icons';
 import { useLayout } from '../layout-context';
 import styles from './panel.module.css';
+
+/* -------------------------------------------------------------------------- */
+/*                                Panel Context                               */
+/* -------------------------------------------------------------------------- */
+
+interface PanelContextValue {
+  isOpen: boolean;
+  requestClose: () => void;
+}
+
+const PanelContext = createContext<PanelContextValue | undefined>(undefined);
 
 /* -------------------------------------------------------------------------- */
 /*                                    Panel                                   */
@@ -20,6 +32,7 @@ export interface PanelProps extends React.HTMLAttributes<HTMLElement> {
 
 export function Panel({
   open,
+  onOpenChange,
   mode = 'inline',
   width,
   className,
@@ -27,8 +40,20 @@ export function Panel({
   children,
   ...props
 }: PanelProps) {
-  const { isPanelOpen } = useLayout();
-  const isOpen = open !== undefined ? open : isPanelOpen;
+  const { isPanelOpen, setPanelOpen } = useLayout();
+  const isControlled = open !== undefined;
+  const isOpen = isControlled ? open : isPanelOpen;
+
+  const requestClose = useCallback(() => {
+    if (isControlled) {
+      onOpenChange?.(false);
+    } else {
+      setPanelOpen(false);
+      onOpenChange?.(false);
+    }
+  }, [isControlled, onOpenChange, setPanelOpen]);
+
+  const contextValue = useMemo(() => ({ isOpen, requestClose }), [isOpen, requestClose]);
 
   const dynamicStyle = width
     ? {
@@ -39,16 +64,18 @@ export function Panel({
     : style;
 
   return (
-    <aside
-      className={cn(styles.panel, className)}
-      data-open={isOpen}
-      data-mode={mode}
-      style={dynamicStyle}
-      aria-label="Contextual panel"
-      {...props}
-    >
-      {children}
-    </aside>
+    <PanelContext.Provider value={contextValue}>
+      <aside
+        className={cn(styles.panel, className)}
+        data-open={isOpen}
+        data-mode={mode}
+        style={dynamicStyle}
+        aria-label="Contextual panel"
+        {...props}
+      >
+        {children}
+      </aside>
+    </PanelContext.Provider>
   );
 }
 
@@ -70,8 +97,18 @@ export function PanelHeader({
   children,
   ...props
 }: PanelHeaderProps) {
-  const { togglePanel } = useLayout();
-  const handleClose = onClose || togglePanel;
+  const panelContext = useContext(PanelContext);
+  const { setPanelOpen } = useLayout();
+
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else if (panelContext) {
+      panelContext.requestClose();
+    } else {
+      setPanelOpen(false);
+    }
+  };
 
   return (
     <div className={cn(styles.header, className)} {...props}>

@@ -8,38 +8,41 @@ export interface ThemeToggleProps extends React.ButtonHTMLAttributes<HTMLButtonE
   resolvedTheme?: 'light' | 'dark';
   onToggle?: () => void;
   showLabel?: boolean;
+  lightLabel?: string;
+  darkLabel?: string;
+  ariaLabel?: string;
 }
 
 /**
  * Pure ThemeToggle UI primitive.
- * Receives current theme and onToggle callback via native props with zero context lock-in.
+ * Receives current theme, labels, and onToggle callback via native props with zero context lock-in.
  */
 export function ThemeToggle({
   theme = 'system',
   resolvedTheme = 'light',
   onToggle,
   showLabel = true,
+  lightLabel = 'Light',
+  darkLabel = 'Dark',
+  ariaLabel,
   className,
   ...props
 }: ThemeToggleProps) {
   const isDark = resolvedTheme === 'dark';
+  const currentLabel = isDark ? lightLabel : darkLabel;
+  const computedAriaLabel = ariaLabel || `Switch to ${isDark ? 'light' : 'dark'} mode`;
 
   return (
     <button
       type="button"
       className={cn(styles.toggle, className)}
       onClick={onToggle}
-      aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-      title={`Current: ${theme} (${resolvedTheme}). Click to toggle`}
+      aria-label={computedAriaLabel}
+      title={`Current: ${theme} (${resolvedTheme})`}
       {...props}
     >
-      <Icon
-        name={isDark ? 'sun' : 'moon'}
-        size={14}
-        className={styles.icon}
-        aria-hidden="true"
-      />
-      {showLabel && <span>{isDark ? 'Light' : 'Dark'}</span>}
+      <Icon name={isDark ? 'sun' : 'moon'} size={14} className={styles.icon} aria-hidden="true" />
+      {showLabel && <span>{currentLabel}</span>}
     </button>
   );
 }

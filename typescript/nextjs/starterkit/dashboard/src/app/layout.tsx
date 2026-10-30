@@ -21,9 +21,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ThemeScript />
       </head>
       <body>
-        <AppProviders initialLocale={locale}>
-          {children}
-        </AppProviders>
+        <AppProviders initialLocale={locale}>{children}</AppProviders>
       </body>
     </html>
   );

@@ -24,13 +24,7 @@ export function BidiText({
   ...props
 }: BidiTextProps) {
   return (
-    <Component
-      dir={dir}
-      data-bidi="isolate"
-      className={className}
-      style={style}
-      {...props}
-    >
+    <Component dir={dir} data-bidi="isolate" className={className} style={style} {...props}>
       {children}
     </Component>
   );

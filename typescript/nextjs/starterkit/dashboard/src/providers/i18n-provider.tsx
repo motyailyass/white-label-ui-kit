@@ -37,9 +37,7 @@ export function I18nProvider({
   syncHtmlAttributes = true,
 }: I18nProviderProps) {
   const validatedInitialLocale =
-    initialLocale && isSupportedLocale(initialLocale)
-      ? initialLocale
-      : defaultLocale;
+    initialLocale && isSupportedLocale(initialLocale) ? initialLocale : defaultLocale;
 
   const [locale, setLocaleState] = useState<SupportedLocale>(validatedInitialLocale);
   const direction = getDirectionForLocale(locale);
@@ -100,11 +98,8 @@ export function I18nProvider({
   );
 
   const formatRelativeTime = useCallback(
-    (
-      value: number,
-      unit: Intl.RelativeTimeFormatUnit,
-      options?: Intl.RelativeTimeFormatOptions,
-    ) => baseFormatRelativeTime(value, unit, locale, options),
+    (value: number, unit: Intl.RelativeTimeFormatUnit, options?: Intl.RelativeTimeFormatOptions) =>
+      baseFormatRelativeTime(value, unit, locale, options),
     [locale],
   );
 

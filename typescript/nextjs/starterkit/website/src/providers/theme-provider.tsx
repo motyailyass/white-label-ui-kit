@@ -1,7 +1,15 @@
 'use client';
 
 import type React from 'react';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { setCookie } from '@/lib/cookie';
 
 export type Theme = 'light' | 'dark' | 'system';
@@ -36,19 +44,38 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(defaultTheme);
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>('light');
+  const isHydratedRef = useRef(false);
 
-  // Initialize theme from storage or system on client mount
+  // Initialize theme from storage or system on client mount without triggering an overwrite
   useEffect(() => {
+    let resolvedInitialTheme: Theme = defaultTheme;
+
     try {
       const stored = localStorage.getItem(storageKey) as Theme | null;
       if (stored === 'light' || stored === 'dark' || stored === 'system') {
-        setThemeState(stored);
+        resolvedInitialTheme = stored;
       }
     } catch {
-      // Storage unavailable
+      // Storage unavailable (e.g. sandboxed iframe or private browsing)
     }
-    setSystemTheme(getSystemTheme());
-  }, [storageKey]);
+
+    const currentSysTheme = getSystemTheme();
+    setSystemTheme(currentSysTheme);
+    setThemeState(resolvedInitialTheme);
+
+    // If the document attribute was not pre-set by ThemeScript, synchronize it now
+    if (typeof document !== 'undefined') {
+      const currentAttr = document.documentElement.getAttribute(attribute);
+      const effectiveTheme: ResolvedTheme =
+        resolvedInitialTheme === 'system' ? currentSysTheme : resolvedInitialTheme;
+
+      if (!currentAttr) {
+        document.documentElement.setAttribute(attribute, effectiveTheme);
+      }
+    }
+
+    isHydratedRef.current = true;
+  }, [attribute, defaultTheme, storageKey]);
 
   // Listen to system preference changes when theme === 'system'
   useEffect(() => {
@@ -65,8 +92,9 @@ export function ThemeProvider({
 
   const resolvedTheme: ResolvedTheme = theme === 'system' ? systemTheme : theme;
 
-  // Apply theme to document element and persist
+  // Apply theme to document element and persist ONLY when theme actually changes post-hydration
   useEffect(() => {
+    if (!isHydratedRef.current) return;
     if (typeof document === 'undefined') return;
 
     const root = document.documentElement;

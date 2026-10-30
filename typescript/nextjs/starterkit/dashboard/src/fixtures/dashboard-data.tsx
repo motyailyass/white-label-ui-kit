@@ -37,7 +37,12 @@ export const demoNavigation: NavGroup[] = [
   {
     label: 'Management',
     items: [
-      { label: 'Analytics', href: '/classic/analytics', badge: 'Live', icon: <Icon name="inbox" /> },
+      {
+        label: 'Analytics',
+        href: '/classic/analytics',
+        badge: 'Live',
+        icon: <Icon name="inbox" />,
+      },
       { label: 'Reports', href: '/classic/reports' },
       { label: 'Settings', href: '/classic/settings' },
     ],
@@ -92,6 +97,7 @@ export const demoMetrics = [
     titleKey: 'dashboard.metrics.monthlyRevenue' as const,
     value: 28450,
     type: 'currency' as const,
+    currency: 'USD' as const,
     changeText: '',
     changeKey: 'dashboard.metrics.updatedToday' as const,
     changeType: 'neutral' as const,

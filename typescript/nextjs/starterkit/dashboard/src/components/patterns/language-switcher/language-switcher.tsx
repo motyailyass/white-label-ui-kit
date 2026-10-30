@@ -3,6 +3,7 @@
 import React from 'react';
 import { cn } from '@/lib/cn';
 import { useI18n } from '@/providers/i18n-provider';
+import type { SupportedLocale } from '@/i18n';
 import { Icon } from '@/components/icons';
 import styles from './language-switcher.module.css';
 
@@ -11,7 +12,11 @@ export interface LanguageSwitcherProps {
   showIcon?: boolean;
 }
 
-export const supportedLocales = [
+export const supportedLocales: readonly {
+  code: SupportedLocale;
+  label: string;
+  short: string;
+}[] = [
   { code: 'en', label: 'English (LTR)', short: 'EN' },
   { code: 'fr', label: 'Français (LTR)', short: 'FR' },
   { code: 'ar', label: 'العربية (RTL)', short: 'AR' },
@@ -27,28 +32,15 @@ export function LanguageSwitcher({ className, showIcon = true }: LanguageSwitche
 
   return (
     <div className={cn(styles.container, className)}>
-      <label
-        htmlFor="language-switcher-select"
-        className="sr-only"
-        style={{
-          position: 'absolute',
-          width: 1,
-          height: 1,
-          padding: 0,
-          margin: -1,
-          overflow: 'hidden',
-          clip: 'rect(0, 0, 0, 0)',
-          border: 0,
-        }}
-      >
-        {t('common.language', 'Language')}
+      <label htmlFor="language-switcher-select" className="sr-only">
+        {t('common.language')}
       </label>
       <select
         id="language-switcher-select"
         value={locale}
-        onChange={(e) => setLocale(e.target.value)}
+        onChange={(e) => setLocale(e.target.value as SupportedLocale)}
         className={styles.select}
-        aria-label={t('common.language', 'Language')}
+        aria-label={t('common.language')}
       >
         {supportedLocales.map((loc) => (
           <option key={loc.code} value={loc.code}>

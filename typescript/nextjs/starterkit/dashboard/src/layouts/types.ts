@@ -1,9 +1,21 @@
+import type React from 'react';
+import type { BreadcrumbItem } from '@/components/shell';
+
 export interface DashboardLayoutConfig {
   contentLayout?: 'boxed' | 'compact' | 'full';
   sidebarWidth?: number;
   panelWidth?: number;
   density?: 'comfortable' | 'compact';
   headerSticky?: boolean;
+}
+
+export interface BaseLayoutProps {
+  children: React.ReactNode;
+  breadcrumbs?: BreadcrumbItem[];
+  pageTitle?: string;
+  pageDescription?: string;
+  headerActions?: React.ReactNode;
+  config?: DashboardLayoutConfig;
 }
 
 export interface NavItem {

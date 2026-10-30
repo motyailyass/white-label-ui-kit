@@ -1,44 +1,32 @@
 'use client';
 
-import type React from 'react';
-import { LanguageSwitcher, ThemeSwitcher } from '@/components/patterns';
+import { DashboardHeader } from '@/components/patterns';
 import {
   AppShell,
   AppShellMain,
-  type BreadcrumbItem,
   Content,
   ContentBody,
-  Header,
-  HeaderBreadcrumbs,
-  HeaderHeading,
-  HeaderToolbar,
   Sidebar,
   SidebarGroup,
   SidebarItem,
   SidebarNav,
   SidebarPrimary,
   SidebarSecondary,
-  SidebarTrigger,
 } from '@/components/shell';
 import type {
-  DashboardLayoutConfig,
+  BaseLayoutProps,
   LayoutUser,
   PrimaryRailItem,
   SecondaryNavGroup,
 } from '../types';
+import styles from './dual-sidebar-layout.module.css';
 
-export interface DualSidebarLayoutProps {
-  children: React.ReactNode;
+export interface DualSidebarLayoutProps extends BaseLayoutProps {
   railItems: PrimaryRailItem[];
   secondaryTitle: string;
   secondarySubtitle?: string;
   secondaryNavigation: SecondaryNavGroup[];
-  breadcrumbs: BreadcrumbItem[];
-  pageTitle?: string;
-  pageDescription?: string;
   user?: LayoutUser;
-  headerActions?: React.ReactNode;
-  config?: DashboardLayoutConfig;
 }
 
 export function DualSidebarLayout({
@@ -47,74 +35,34 @@ export function DualSidebarLayout({
   secondaryTitle,
   secondarySubtitle,
   secondaryNavigation,
-  breadcrumbs,
+  breadcrumbs = [],
   pageTitle,
   pageDescription,
   user,
   headerActions,
   config = {},
 }: DualSidebarLayoutProps) {
-  const { contentLayout = 'full' } = config;
+  const { contentLayout = 'full', sidebarWidth, density, headerSticky } = config;
 
   return (
-    <AppShell variant="dual-sidebar">
+    <AppShell variant="dual-sidebar" sidebarWidth={sidebarWidth} density={density}>
       {/* Wrapped in <Sidebar variant="dual"> to ensure mobile drawer backdrop, Escape key, and focus trap work */}
       <Sidebar variant="dual">
         {/* Tier 1: Primary Icon / Workspace Rail */}
         <SidebarPrimary>
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: 'var(--radius-md)',
-              backgroundColor: 'var(--color-primary)',
-              color: 'var(--color-primary-foreground)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 'var(--font-weight-bold)',
-              marginBottom: 'var(--space-4)',
-            }}
-            title="App Home"
-          >
+          <div className={styles.railHome} title="App Home">
             P
           </div>
 
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 'var(--space-2)',
-              flex: 1,
-              width: '100%',
-              alignItems: 'center',
-            }}
-          >
+          <div className={styles.railList}>
             {railItems.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={item.onClick}
                 title={item.label}
-                style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: 'var(--radius-md)',
-                  border: item.isActive
-                    ? '2px solid var(--color-primary)'
-                    : '1px solid var(--color-border-subtle)',
-                  backgroundColor: item.isActive
-                    ? 'var(--color-surface-active)'
-                    : 'var(--color-surface)',
-                  color: 'var(--color-text-primary)',
-                  fontWeight: 'var(--font-weight-semibold)',
-                  fontSize: 'var(--font-size-xs)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'border-color var(--transition-fast)',
-                }}
+                data-active={item.isActive}
+                className={styles.railButton}
               >
                 {item.icon || item.initials || item.label.slice(0, 2).toUpperCase()}
               </button>
@@ -122,21 +70,7 @@ export function DualSidebarLayout({
           </div>
 
           {user && (
-            <div
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: 'var(--radius-full)',
-                backgroundColor: 'var(--color-surface-active)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 'var(--font-size-xs)',
-                fontWeight: 'var(--font-weight-semibold)',
-                color: 'var(--color-text-secondary)',
-              }}
-              title={user.name}
-            >
+            <div className={styles.railAvatar} title={user.name}>
               {user.initials || user.name.slice(0, 2).toUpperCase()}
             </div>
           )}
@@ -144,29 +78,10 @@ export function DualSidebarLayout({
 
         {/* Tier 2: Sub-Navigation / Channel Tree */}
         <SidebarSecondary>
-          <div
-            style={{
-              padding: 'var(--space-4)',
-              height: 'var(--header-height)',
-              borderBottom: '1px solid var(--color-border-subtle)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-            }}
-          >
-            <div
-              style={{
-                fontSize: 'var(--font-size-sm)',
-                fontWeight: 'var(--font-weight-semibold)',
-                color: 'var(--color-text-primary)',
-              }}
-            >
-              {secondaryTitle}
-            </div>
+          <div className={styles.secondaryHeader}>
+            <div className={styles.secondaryTitle}>{secondaryTitle}</div>
             {secondarySubtitle && (
-              <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
-                {secondarySubtitle}
-              </div>
+              <div className={styles.secondarySubtitle}>{secondarySubtitle}</div>
             )}
           </div>
 
@@ -190,22 +105,14 @@ export function DualSidebarLayout({
       </Sidebar>
 
       <AppShellMain>
-        <Header>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-            <SidebarTrigger />
-            <HeaderBreadcrumbs items={breadcrumbs} />
-          </div>
-
-          <HeaderToolbar>
-            {headerActions || (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                {pageTitle && <HeaderHeading title={pageTitle} description={pageDescription} />}
-                <LanguageSwitcher />
-                <ThemeSwitcher />
-              </div>
-            )}
-          </HeaderToolbar>
-        </Header>
+        <DashboardHeader
+          breadcrumbs={breadcrumbs}
+          pageTitle={pageTitle}
+          pageDescription={pageDescription}
+          actions={headerActions}
+          sticky={headerSticky}
+          density={density}
+        />
 
         <Content>
           <ContentBody layout={contentLayout}>{children}</ContentBody>

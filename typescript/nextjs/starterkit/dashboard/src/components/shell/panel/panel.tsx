@@ -80,7 +80,7 @@ export function PanelHeader({
         {description && <p className={styles.subtitle}>{description}</p>}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+      <div className={styles.headerActions}>
         {children}
         <button
           type="button"

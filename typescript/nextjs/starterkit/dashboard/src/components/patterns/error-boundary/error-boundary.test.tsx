@@ -21,7 +21,7 @@ describe('ErrorBoundary Pattern', () => {
       </I18nProvider>,
     );
 
-    expect(screen.getByText('Explosion in widget')).toBeDefined();
+    expect(screen.getByText('Something went wrong')).toBeDefined();
     spy.mockRestore();
   });
 });

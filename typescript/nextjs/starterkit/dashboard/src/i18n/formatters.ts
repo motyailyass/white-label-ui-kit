@@ -1,4 +1,4 @@
-import type { DateFormatOptions, Direction, Locale, NumberFormatOptions } from './types';
+import type { DateFormatOptions, Direction, NumberFormatOptions, SupportedLocale } from './types';
 
 /**
  * Common RTL language codes.
@@ -6,9 +6,9 @@ import type { DateFormatOptions, Direction, Locale, NumberFormatOptions } from '
 const RTL_LOCALES = new Set(['ar', 'fa', 'he', 'ur', 'ckb', 'ps', 'sd', 'ug', 'yi']);
 
 /**
- * Determines whether a given locale or language tag is RTL.
+ * Determines whether a given locale is RTL. Strictly derives RTL for supported Arabic locale.
  */
-export function getDirectionForLocale(locale: string): Direction {
+export function getDirectionForLocale(locale: SupportedLocale | string): Direction {
   if (!locale) return 'ltr';
   const baseLanguage = locale.toLowerCase().split(/[-_]/)[0];
   return RTL_LOCALES.has(baseLanguage) ? 'rtl' : 'ltr';
@@ -28,7 +28,7 @@ export function isRtlDirection(localeOrDir: string): boolean {
  */
 export function formatNumber(
   value: number,
-  locale: Locale = 'en',
+  locale: SupportedLocale | string = 'en',
   options: NumberFormatOptions = {},
 ): string {
   try {
@@ -45,7 +45,7 @@ export function formatNumber(
 export function formatCurrency(
   amount: number,
   currency = 'USD',
-  locale: Locale = 'en',
+  locale: SupportedLocale | string = 'en',
   options: Intl.NumberFormatOptions = {},
 ): string {
   try {
@@ -64,7 +64,7 @@ export function formatCurrency(
  */
 export function formatPercent(
   value: number,
-  locale: Locale = 'en',
+  locale: SupportedLocale | string = 'en',
   options: Intl.NumberFormatOptions = {},
 ): string {
   try {
@@ -84,7 +84,7 @@ export function formatPercent(
  */
 export function formatDate(
   date: Date | string | number,
-  locale: Locale = 'en',
+  locale: SupportedLocale | string = 'en',
   options: DateFormatOptions = { dateStyle: 'medium' },
 ): string {
   try {
@@ -104,7 +104,7 @@ export function formatDate(
 export function formatRelativeTime(
   value: number,
   unit: Intl.RelativeTimeFormatUnit,
-  locale: Locale = 'en',
+  locale: SupportedLocale | string = 'en',
   options: Intl.RelativeTimeFormatOptions = { numeric: 'auto' },
 ): string {
   try {
@@ -119,7 +119,7 @@ export function formatRelativeTime(
  */
 export function formatList(
   items: string[],
-  locale: Locale = 'en',
+  locale: SupportedLocale | string = 'en',
   options: Intl.ListFormatOptions = { style: 'long', type: 'conjunction' },
 ): string {
   try {

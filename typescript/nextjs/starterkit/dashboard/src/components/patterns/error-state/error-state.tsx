@@ -19,7 +19,7 @@ export interface ErrorStateProps extends React.HTMLAttributes<HTMLDivElement> {
 export function ErrorState({
   title,
   description,
-  error,
+  error: _error,
   onRetry,
   showHome = true,
   homeHref = '/',
@@ -29,15 +29,10 @@ export function ErrorState({
 }: ErrorStateProps) {
   const { t } = useI18n();
 
-  const displayTitle = title || t('errors.genericTitle', 'Something went wrong');
+  const displayTitle = title || t('errors.genericTitle');
   const displayDescription =
     description ||
-    (error?.message
-      ? error.message
-      : t(
-          'errors.genericDescription',
-          'An unexpected error occurred while processing your request.',
-        ));
+    t('errors.genericDescription');
 
   return (
     <div className={cn(styles.container, className)} {...props}>
@@ -51,12 +46,12 @@ export function ErrorState({
       <div className={styles.actions}>
         {onRetry && (
           <button type="button" onClick={onRetry} className={styles.retryButton}>
-            {t('errors.retryAction', 'Try again')}
+            {t('errors.retryAction')}
           </button>
         )}
         {showHome && (
           <LinkComponent href={homeHref} className={styles.secondaryButton}>
-            {t('errors.goHomeAction', 'Return to dashboard')}
+            {t('errors.goHomeAction')}
           </LinkComponent>
         )}
       </div>

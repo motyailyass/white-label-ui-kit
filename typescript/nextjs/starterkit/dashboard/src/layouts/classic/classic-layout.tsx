@@ -1,49 +1,41 @@
 'use client';
 
-import type React from 'react';
-import { LanguageSwitcher, ThemeSwitcher } from '@/components/patterns';
+import { DashboardHeader } from '@/components/patterns';
 import {
   AppShell,
   AppShellMain,
-  type BreadcrumbItem,
   Content,
   ContentBody,
-  Header,
-  HeaderBreadcrumbs,
-  HeaderToolbar,
   Sidebar,
   SidebarAvatar,
   SidebarGroup,
   SidebarItem,
   SidebarLogo,
   SidebarNav,
-  SidebarTrigger,
 } from '@/components/shell';
-import type { DashboardLayoutConfig, LayoutLogo, LayoutUser, NavGroup } from '../types';
+import type { BaseLayoutProps, LayoutLogo, LayoutUser, NavGroup } from '../types';
 
-export interface ClassicLayoutProps {
-  children: React.ReactNode;
+export interface ClassicLayoutProps extends BaseLayoutProps {
   logo: LayoutLogo;
   navigation: NavGroup[];
-  breadcrumbs: BreadcrumbItem[];
   user: LayoutUser;
-  headerActions?: React.ReactNode;
-  config?: DashboardLayoutConfig;
 }
 
 export function ClassicLayout({
   children,
   logo,
   navigation,
-  breadcrumbs,
+  breadcrumbs = [],
+  pageTitle,
+  pageDescription,
   user,
   headerActions,
   config = {},
 }: ClassicLayoutProps) {
-  const { contentLayout = 'full' } = config;
+  const { contentLayout = 'full', sidebarWidth, density, headerSticky } = config;
 
   return (
-    <AppShell variant="classic">
+    <AppShell variant="classic" sidebarWidth={sidebarWidth} density={density}>
       <Sidebar>
         <SidebarLogo
           title={logo.title}
@@ -76,23 +68,14 @@ export function ClassicLayout({
       </Sidebar>
 
       <AppShellMain>
-        <Header>
-          <div
-            style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', minWidth: 0 }}
-          >
-            <SidebarTrigger />
-            <HeaderBreadcrumbs items={breadcrumbs} />
-          </div>
-
-          <HeaderToolbar>
-            {headerActions || (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <LanguageSwitcher />
-                <ThemeSwitcher />
-              </div>
-            )}
-          </HeaderToolbar>
-        </Header>
+        <DashboardHeader
+          breadcrumbs={breadcrumbs}
+          pageTitle={pageTitle}
+          pageDescription={pageDescription}
+          actions={headerActions}
+          sticky={headerSticky}
+          density={density}
+        />
 
         <Content>
           <ContentBody layout={contentLayout}>{children}</ContentBody>

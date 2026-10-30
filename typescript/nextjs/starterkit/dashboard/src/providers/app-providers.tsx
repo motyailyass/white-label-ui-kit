@@ -1,26 +1,24 @@
 'use client';
 
-import type React from 'react';
-import type { Direction, Locale } from '@/i18n';
+import React from 'react';
+import { ThemeProvider, Theme } from './theme-provider';
 import { I18nProvider } from './i18n-provider';
-import { type Theme, ThemeProvider } from './theme-provider';
+import { SupportedLocale } from '@/i18n';
 
 export interface AppProvidersProps {
   children: React.ReactNode;
-  initialLocale?: Locale;
-  initialDirection?: Direction;
+  initialLocale?: SupportedLocale;
   defaultTheme?: Theme;
 }
 
 export function AppProviders({
   children,
   initialLocale = 'en',
-  initialDirection = 'ltr',
   defaultTheme = 'system',
 }: AppProvidersProps) {
   return (
     <ThemeProvider defaultTheme={defaultTheme}>
-      <I18nProvider initialLocale={initialLocale} initialDirection={initialDirection}>
+      <I18nProvider initialLocale={initialLocale}>
         {children}
       </I18nProvider>
     </ThemeProvider>

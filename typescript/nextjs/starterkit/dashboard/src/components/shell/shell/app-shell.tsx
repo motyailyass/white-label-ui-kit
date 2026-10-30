@@ -10,6 +10,9 @@ export interface AppShellProps extends React.HTMLAttributes<HTMLDivElement> {
   defaultSidebarCollapsed?: boolean;
   defaultPanelOpen?: boolean;
   enableShortcuts?: boolean;
+  sidebarWidth?: number;
+  panelWidth?: number;
+  density?: 'comfortable' | 'compact';
   children: React.ReactNode;
 }
 
@@ -28,9 +31,19 @@ export function AppShell({
   defaultSidebarCollapsed = false,
   defaultPanelOpen = false,
   enableShortcuts = true,
+  sidebarWidth,
+  panelWidth,
+  density,
+  style,
   children,
   ...props
 }: AppShellProps) {
+  const customStyles: React.CSSProperties = {
+    ...style,
+    ...(sidebarWidth ? { '--sidebar-width': `${sidebarWidth}px` } : {}),
+    ...(panelWidth ? { '--panel-width': `${panelWidth}px` } : {}),
+  };
+
   return (
     <LayoutProvider
       defaultVariant={variant}
@@ -38,7 +51,9 @@ export function AppShell({
       defaultPanelOpen={defaultPanelOpen}
       enableShortcuts={enableShortcuts}
     >
-      <AppShellInner {...props}>{children}</AppShellInner>
+      <AppShellInner data-density={density} style={customStyles} {...props}>
+        {children}
+      </AppShellInner>
     </LayoutProvider>
   );
 }

@@ -26,14 +26,9 @@ export function NotFoundState({
 }: NotFoundStateProps) {
   const { t } = useI18n();
 
-  const displayTitle = title || t('errors.notFoundTitle', 'Page not found');
-  const displayDescription =
-    description ||
-    t(
-      'errors.notFoundDescription',
-      'The page you are looking for does not exist or has been moved.',
-    );
-  const displayAction = homeLabel || t('errors.goHomeAction', 'Return to dashboard');
+  const displayTitle = title || t('errors.notFoundTitle');
+  const displayDescription = description || t('errors.notFoundDescription');
+  const displayAction = homeLabel || t('errors.goHomeAction');
 
   return (
     <div className={cn(styles.container, className)} {...props}>

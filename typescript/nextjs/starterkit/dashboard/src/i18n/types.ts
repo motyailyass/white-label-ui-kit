@@ -1,8 +1,12 @@
+export const SUPPORTED_LOCALES = ['en', 'fr', 'ar'] as const;
+
+export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
+
 export type Direction = 'ltr' | 'rtl';
 
-export type SupportedLocale = 'en' | 'fr' | 'ar';
-
-export type Locale = SupportedLocale | string;
+export function isSupportedLocale(value: unknown): value is SupportedLocale {
+  return typeof value === 'string' && (SUPPORTED_LOCALES as readonly string[]).includes(value);
+}
 
 export type NumberingSystem = 'latn' | 'arab' | 'arabext';
 
@@ -25,12 +29,10 @@ export interface DateFormatOptions extends Intl.DateTimeFormatOptions {
 
 export interface I18nContextValue {
   direction: Direction;
-  setDirection: (direction: Direction) => void;
-  toggleDirection: () => void;
-  locale: Locale;
-  setLocale: (locale: Locale) => void;
+  locale: SupportedLocale;
+  setLocale: (locale: SupportedLocale) => void;
   isRtl: boolean;
-  t: (key: string, fallback?: string, params?: Record<string, string | number>) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
   formatNumber: (value: number, options?: NumberFormatOptions) => string;
   formatCurrency: (amount: number, currency?: string, options?: Intl.NumberFormatOptions) => string;
   formatPercent: (value: number, options?: Intl.NumberFormatOptions) => string;

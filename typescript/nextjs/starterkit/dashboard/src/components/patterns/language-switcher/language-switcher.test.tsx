@@ -7,7 +7,7 @@ import { LanguageSwitcher } from './language-switcher';
 describe('LanguageSwitcher (Connected Pattern)', () => {
   it('renders locale options and switches locale & direction on change', () => {
     render(
-      <I18nProvider initialLocale="en" initialDirection="ltr">
+      <I18nProvider initialLocale="en">
         <LanguageSwitcher />
       </I18nProvider>,
     );

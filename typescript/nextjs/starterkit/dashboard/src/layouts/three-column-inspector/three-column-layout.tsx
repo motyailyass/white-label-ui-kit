@@ -1,16 +1,12 @@
 'use client';
 
 import type React from 'react';
-import { LanguageSwitcher, ThemeSwitcher } from '@/components/patterns';
+import { DashboardHeader } from '@/components/patterns';
 import {
   AppShell,
   AppShellMain,
-  type BreadcrumbItem,
   Content,
   ContentBody,
-  Header,
-  HeaderBreadcrumbs,
-  HeaderToolbar,
   Panel,
   PanelBody,
   PanelFooter,
@@ -21,15 +17,12 @@ import {
   SidebarItem,
   SidebarLogo,
   SidebarNav,
-  SidebarTrigger,
 } from '@/components/shell';
-import type { DashboardLayoutConfig, LayoutLogo, LayoutUser, NavGroup } from '../types';
+import type { BaseLayoutProps, LayoutLogo, LayoutUser, NavGroup } from '../types';
 
-export interface ThreeColumnLayoutProps {
-  children: React.ReactNode;
+export interface ThreeColumnLayoutProps extends BaseLayoutProps {
   logo: LayoutLogo;
   navigation: NavGroup[];
-  breadcrumbs: BreadcrumbItem[];
   user: LayoutUser;
   inspectorTitle?: string;
   inspectorDescription?: string;
@@ -37,15 +30,15 @@ export interface ThreeColumnLayoutProps {
   inspectorFooter?: React.ReactNode;
   isInspectorOpen?: boolean;
   onInspectorClose?: () => void;
-  headerActions?: React.ReactNode;
-  config?: DashboardLayoutConfig;
 }
 
 export function ThreeColumnLayout({
   children,
   logo,
   navigation,
-  breadcrumbs,
+  breadcrumbs = [],
+  pageTitle,
+  pageDescription,
   user,
   inspectorTitle = 'Properties & Details',
   inspectorDescription = 'Select an item to view metadata',
@@ -56,10 +49,16 @@ export function ThreeColumnLayout({
   headerActions,
   config = {},
 }: ThreeColumnLayoutProps) {
-  const { contentLayout = 'full', panelWidth = 340 } = config;
+  const { contentLayout = 'full', sidebarWidth, panelWidth = 340, density, headerSticky } = config;
 
   return (
-    <AppShell variant="three-column" defaultPanelOpen={true}>
+    <AppShell
+      variant="three-column"
+      defaultPanelOpen={true}
+      sidebarWidth={sidebarWidth}
+      panelWidth={panelWidth}
+      density={density}
+    >
       {/* Column 1: Left Navigation Sidebar */}
       <Sidebar>
         <SidebarLogo
@@ -94,21 +93,14 @@ export function ThreeColumnLayout({
 
       {/* Column 2: Center Main Work Area */}
       <AppShellMain>
-        <Header>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-            <SidebarTrigger />
-            <HeaderBreadcrumbs items={breadcrumbs} />
-          </div>
-
-          <HeaderToolbar>
-            {headerActions || (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <LanguageSwitcher />
-                <ThemeSwitcher />
-              </div>
-            )}
-          </HeaderToolbar>
-        </Header>
+        <DashboardHeader
+          breadcrumbs={breadcrumbs}
+          pageTitle={pageTitle}
+          pageDescription={pageDescription}
+          actions={headerActions}
+          sticky={headerSticky}
+          density={density}
+        />
 
         <Content>
           <ContentBody layout={contentLayout}>{children}</ContentBody>

@@ -9,12 +9,25 @@ import styles from './header.module.css';
 /* -------------------------------------------------------------------------- */
 
 export interface HeaderProps extends React.HTMLAttributes<HTMLElement> {
+  sticky?: boolean;
+  density?: 'comfortable' | 'compact';
   children: React.ReactNode;
 }
 
-export function Header({ className, children, ...props }: HeaderProps) {
+export function Header({
+  sticky = true,
+  density = 'comfortable',
+  className,
+  children,
+  ...props
+}: HeaderProps) {
   return (
-    <header className={cn(styles.header, className)} {...props}>
+    <header
+      className={cn(styles.header, className)}
+      data-sticky={sticky}
+      data-density={density}
+      {...props}
+    >
       {children}
     </header>
   );
@@ -39,7 +52,7 @@ export function HeaderHeading({
 }: HeaderHeadingProps) {
   return (
     <div className={cn(styles.heading, className)} {...props}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+      <div className={styles.titleRow}>
         <h1 className={styles.title}>{title}</h1>
         {badge}
       </div>

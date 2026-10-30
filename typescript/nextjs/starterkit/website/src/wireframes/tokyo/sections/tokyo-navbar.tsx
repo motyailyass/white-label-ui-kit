@@ -2,8 +2,6 @@
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/cn';
-import { DirectionToggle } from '@/components/ui/direction-toggle';
-import { useDirection, useI18n } from '@/lib/i18n';
 import styles from './tokyo-navbar.module.css';
 
 export interface NavLink {
@@ -38,13 +36,6 @@ export function TokyoNavbar({
   ...props
 }: TokyoNavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { direction, toggleDirection, isRtl } = useDirection();
-  const { setLocale } = useI18n();
-
-  const handleDirectionToggle = () => {
-    toggleDirection();
-    setLocale(isRtl ? 'en' : 'ar');
-  };
 
   return (
     <header className={cn(styles.wrapper, className)} {...props}>
@@ -65,7 +56,6 @@ export function TokyoNavbar({
         </ul>
 
         <div className={styles.actions}>
-          <DirectionToggle direction={direction} isRtl={isRtl} onToggle={handleDirectionToggle} />
           <a href={ctaHref} className={styles.ctaButton} onClick={onCtaClick}>
             {ctaLabel}
           </a>

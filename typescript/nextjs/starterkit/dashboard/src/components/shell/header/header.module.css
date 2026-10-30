@@ -12,6 +12,20 @@
   gap: var(--space-4);
 }
 
+.header[data-sticky="false"] {
+  position: static;
+}
+
+.header[data-density="compact"] {
+  height: 48px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .left {
   display: flex;
   align-items: center;

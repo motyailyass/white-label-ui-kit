@@ -1,3 +1,5 @@
+export * from './app-toolbar';
+export * from './dashboard-header';
 export * from './error-boundary';
 export * from './error-state';
 export * from './language-switcher';

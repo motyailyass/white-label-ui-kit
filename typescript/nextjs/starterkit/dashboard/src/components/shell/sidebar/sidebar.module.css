@@ -91,6 +91,11 @@
   transition: opacity var(--transition-fast);
 }
 
+.logoSubtitle {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
 .sidebar[data-collapsed="true"] .logoText {
   opacity: 0;
   pointer-events: none;

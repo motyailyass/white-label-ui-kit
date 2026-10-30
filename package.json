@@ -1,9 +1,11 @@
 {
   "name": "@starterkit/monorepo",
   "private": true,
-  "workspaces": [
-    "typescript/nextjs/starterkit/*",
-    "typescript/vite/starterkit/*"
-  ]
+  "scripts": {
+    "sync": "node scripts/sync-shared.mjs",
+    "lint": "pnpm --recursive run lint",
+    "type-check": "pnpm --recursive run type-check",
+    "test": "pnpm --recursive run test",
+    "build": "pnpm --recursive run build"
+  }
 }
-

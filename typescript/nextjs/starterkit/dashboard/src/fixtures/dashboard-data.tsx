@@ -45,7 +45,7 @@ export const demoNavigation: NavGroup[] = [
 ];
 
 export const demoRailItems: PrimaryRailItem[] = [
-  { id: '1', label: 'Engineering', initials: 'EN', isActive: true },
+  { id: '1', label: 'Engineering', initials: 'EN' },
   { id: '2', label: 'Design System', initials: 'DS' },
   { id: '3', label: 'Marketing', initials: 'MK' },
 ];
@@ -54,7 +54,7 @@ export const demoSecondaryNav: SecondaryNavGroup[] = [
   {
     label: 'Layouts',
     items: [
-      { label: 'Dual Sidebar', href: '/dual-sidebar', isActive: true },
+      { label: 'Dual Sidebar', href: '/dual-sidebar' },
       { label: 'Classic Layout', href: '/classic' },
       { label: 'Three Column', href: '/three-column' },
     ],
@@ -101,4 +101,5 @@ export const demoMetrics = [
 export const demoBidiInfo = {
   trackingCode: '#US-8942-BIDI',
   supportPhone: '+1 (800) 555-0199',
+  lastUpdated: '2026-10-30T12:00:00Z',
 };

@@ -193,7 +193,7 @@ export function SidebarLogo({
       <div className={styles.logoText}>
         <div>{title}</div>
         {subtitle && (
-          <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+          <div className={styles.logoSubtitle}>
             {subtitle}
           </div>
         )}

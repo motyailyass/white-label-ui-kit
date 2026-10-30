@@ -40,8 +40,8 @@ export function ThreeColumnLayout({
   pageTitle,
   pageDescription,
   user,
-  inspectorTitle = 'Properties & Details',
-  inspectorDescription = 'Select an item to view metadata',
+  inspectorTitle,
+  inspectorDescription,
   inspectorContent,
   inspectorFooter,
   isInspectorOpen,
@@ -109,11 +109,13 @@ export function ThreeColumnLayout({
 
       {/* Column 3: Right Inspector Panel */}
       <Panel width={panelWidth} open={isInspectorOpen}>
-        <PanelHeader
-          title={inspectorTitle}
-          description={inspectorDescription}
-          onClose={onInspectorClose}
-        />
+        {inspectorTitle && (
+          <PanelHeader
+            title={inspectorTitle}
+            description={inspectorDescription}
+            onClose={onInspectorClose}
+          />
+        )}
         {inspectorContent && <PanelBody>{inspectorContent}</PanelBody>}
         {inspectorFooter && <PanelFooter>{inspectorFooter}</PanelFooter>}
       </Panel>

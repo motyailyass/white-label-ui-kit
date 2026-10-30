@@ -1,4 +1,7 @@
+'use client';
+
 import type React from 'react';
+import { demoLayoutConfig } from '@/fixtures/config/site';
 import {
   demoBreadcrumbs,
   demoRailItems,
@@ -6,25 +9,27 @@ import {
   demoUser,
 } from '@/fixtures/dashboard-data';
 import { DualSidebarLayout } from '@/layouts';
+import { useActiveSecondaryNav } from '../../use-active-navigation';
 
 export default function DualSidebarDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const activeSecondaryNav = useActiveSecondaryNav(demoSecondaryNav);
+
   return (
     <DualSidebarLayout
       railItems={demoRailItems}
-      secondaryTitle="Workspace"
-      secondarySubtitle="Engineering Team"
-      secondaryNavigation={demoSecondaryNav}
+      secondaryTitle={demoLayoutConfig.dualSidebar.secondaryTitle}
+      secondarySubtitle={demoLayoutConfig.dualSidebar.secondarySubtitle}
+      secondaryNavigation={activeSecondaryNav}
       breadcrumbs={demoBreadcrumbs}
-      pageTitle="Dual Sidebar"
-      pageDescription="Two-tiered primary icon rail and nested sub-tree navigation"
+      pageTitle={demoLayoutConfig.dualSidebar.pageTitle}
+      pageDescription={demoLayoutConfig.dualSidebar.pageDescription}
       user={demoUser}
     >
       {children}
     </DualSidebarLayout>
   );
 }
-

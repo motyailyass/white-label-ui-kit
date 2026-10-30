@@ -4,9 +4,11 @@ import { AppProviders } from '@/providers';
 import { ThemeScript } from '@/providers/theme-provider';
 import { getServerI18nState } from './i18n-server';
 
+import { siteConfig } from '@/fixtures/config/site';
+
 export const metadata = {
-  title: 'Control Hub - Dashboard Starter Kit',
-  description: 'A non-branded software and dashboard starter kit.',
+  title: `${siteConfig.name} - Dashboard Starter Kit`,
+  description: siteConfig.description,
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

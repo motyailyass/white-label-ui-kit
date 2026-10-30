@@ -28,10 +28,7 @@ export function BidiText({
       dir={dir}
       data-bidi="isolate"
       className={className}
-      style={{
-        unicodeBidi: 'isolate',
-        ...style,
-      }}
+      style={style}
       {...props}
     >
       {children}

@@ -1,16 +1,9 @@
 import { NotFoundState } from '@/components/patterns';
+import styles from './status-page.module.css';
 
 export default function RootNotFound() {
   return (
-    <main
-      style={{
-        display: 'flex',
-        minHeight: '100vh',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'var(--color-bg-base)',
-      }}
-    >
+    <main className={styles.statusContainer}>
       <NotFoundState />
     </main>
   );

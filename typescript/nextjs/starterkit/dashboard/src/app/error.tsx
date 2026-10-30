@@ -1,6 +1,7 @@
 'use client';
 
 import { ErrorState } from '@/components/patterns';
+import styles from './status-page.module.css';
 
 export interface ErrorProps {
   error: Error & { digest?: string };
@@ -9,15 +10,7 @@ export interface ErrorProps {
 
 export default function RootError({ error, reset }: ErrorProps) {
   return (
-    <main
-      style={{
-        display: 'flex',
-        minHeight: '100vh',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'var(--color-bg-base)',
-      }}
-    >
+    <main className={styles.statusContainer}>
       <ErrorState error={error} onRetry={reset} />
     </main>
   );

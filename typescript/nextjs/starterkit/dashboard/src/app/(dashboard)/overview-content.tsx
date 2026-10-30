@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { BidiText } from '@/i18n';
+import { BidiText, getCurrencyForLocale } from '@/i18n';
 import { useI18n } from '@/providers/i18n-provider';
 import { demoBidiInfo, demoMetrics } from '@/fixtures/dashboard-data';
 import styles from './dashboard.module.css';
@@ -9,7 +9,7 @@ import styles from './dashboard.module.css';
 export function OverviewContent() {
   const { t, formatNumber, formatCurrency, formatDate, locale } = useI18n();
 
-  const currency = locale === 'ar' ? 'SAR' : locale === 'fr' ? 'EUR' : 'USD';
+  const currency = getCurrencyForLocale(locale);
 
   return (
     <div className={styles.pageContainer}>
@@ -33,7 +33,8 @@ export function OverviewContent() {
               </span>
             ) : (
               <span className={styles.metricChangeNeutral}>
-                {t(metric.changeKey)}: <BidiText dir="auto">{formatDate(new Date())}</BidiText>
+                {t(metric.changeKey)}:{' '}
+                <BidiText dir="auto">{formatDate(demoBidiInfo.lastUpdated)}</BidiText>
               </span>
             )}
           </div>
@@ -57,4 +58,3 @@ export function OverviewContent() {
     </div>
   );
 }
-

@@ -49,10 +49,10 @@ For any product serving the Middle East & North Africa (MENA) or global multi-li
 
 ---
 
-## 3. Direction & Locale Management (`src/lib/i18n/`)
+## 3. Direction & Locale Management (`src/providers/` & `src/i18n/`)
 
 ### A. Document & Container Level `dir`
-The HTML `dir` attribute is the single source of truth for browser layout engines:
+The HTML `dir` attribute is strictly derived from the validated `SupportedLocale` (`ar` -> `rtl`, `en`/`fr` -> `ltr`):
 - Document root: `<html lang="ar" dir="rtl">` or `<html lang="en" dir="ltr">`.
 - Sub-trees: Isolated components (e.g., code editors, LTR snippets) may specify `<div dir="ltr">` locally.
 
@@ -60,42 +60,41 @@ The HTML `dir` attribute is the single source of truth for browser layout engine
 Setting `dir` solely in a client-side `useEffect` results in an unacceptable layout shift (flash of LTR) on the first paint when Arabic is active.
 
 **The Solution:**
-1. In Next.js App Router (Server Component `layout.tsx`), read the `dir` and `locale` cookies via `getI18nServerState()`:
+1. In Next.js App Router (Server Component `layout.tsx`), read the validated `locale` cookie via `getServerI18nState()`:
    ```tsx
    // src/app/layout.tsx
    export default async function RootLayout({ children }: { children: React.ReactNode }) {
-     const { locale, direction } = await getI18nServerState('en', 'ltr');
+     const { locale, direction } = await getServerI18nState('en');
      return (
        <html lang={locale} dir={direction} suppressHydrationWarning>
          <body>
-           <I18nProvider initialLocale={locale} initialDirection={direction}>
+           <AppProviders initialLocale={locale}>
              {children}
-           </I18nProvider>
+           </AppProviders>
          </body>
        </html>
      );
    }
    ```
-2. When the user switches direction or language on the client, `I18nProvider` immediately persists the preference to `document.cookie` (`dir=${direction}; path=/; max-age=31536000; SameSite=Lax`). Subsequent server requests stream the correct `dir` and `lang` on the very first byte.
+2. When the user switches language on the client, `I18nProvider` immediately persists the preference to `document.cookie` (`locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`). Direction is strictly derived, eliminating drift between language and layout direction. Subsequent server requests stream the correct `dir` and `lang` on the very first byte.
 
 ### C. The `I18nProvider` & React Hooks
-Direction and locale state is consumed through zero-dependency React context in `src/lib/i18n/`:
+Direction and locale state is consumed through zero-dependency React context in `src/providers/`:
 
 ```tsx
-import { I18nProvider, useDirection, useI18n, useLocale } from '@/lib/i18n';
+import { useI18n } from '@/providers/i18n-provider';
 
-// Inside any feature / layout component:
-const { isRtl, direction, toggleDirection } = useDirection();
-const { t, formatNumber, formatCurrency, formatDate } = useI18n();
+// Inside any feature / pattern component:
+const { locale, direction, isRtl, setLocale, t, formatNumber, formatCurrency, formatDate } = useI18n();
 ```
 
 ---
 
-## 4. Translation Strategy: Dictionary + `t()` vs. Inline Ternaries
+## 4. Translation Strategy: Namespaced Messages + `t()`
 
 > [!IMPORTANT]
 > **Architectural Decision:**
-> The starter kit ships a lightweight, typed **Dictionary + `t(key, fallback, params)`** engine (`src/lib/i18n/dictionary.ts`) rather than relying on brittle inline ternary operators (`isRtl ? 'عربي' : 'English'`).
+> The starter kit ships typed, namespaced messages (`src/i18n/messages/`) rather than relying on brittle inline ternary operators (`isRtl ? 'عربي' : 'English'`). Missing translations fail loudly rather than masking bugs behind invisible or corrupted fallbacks.
 
 ### Why Inline Ternaries Fail:
 - They couple copy directly to direction (`isRtl`) rather than locale (e.g., Arabic vs Urdu vs Persian all share RTL but require different translations).
@@ -229,42 +228,28 @@ formatRelativeTime(2, 'day', 'en-US'); // "in 2 days"
 
 ---
 
-## 9. Mirrored Icons Classification System
+## 9. Semantic Icon Registry & Directional Mirroring
 
-Not all icons should mirror in RTL. Mirroring the wrong icon produces jarring UX (e.g., an unreadable clock or inverted search icon).
+Not all icons should mirror in RTL. Directional glyphs (chevrons, navigation arrows, layout triggers) must flip under `[dir="rtl"]`, while real-world objects, brand logos, search lenses, and status indicators must never mirror.
 
-### Classification Matrix:
-
-| Category | Must Mirror in RTL? | Examples | Implementation |
-| :--- | :--- | :--- | :--- |
-| **Directional Navigation** | **YES** | Chevrons, back/forward arrows, pagination controls, next/prev step | `<MirroredIcon>` or `data-mirror-rtl="true"` |
-| **Layout Controls** | **YES** | Sidebar collapse/expand trigger, drawer toggle, split panes | `<MirroredIcon>` or `data-mirror-rtl="true"` |
-| **Progress / History** | **YES** | Undo / Redo arrows, journey steppers | `<MirroredIcon>` or `data-mirror-rtl="true"` |
-| **Status & Affirmation** | **NO** | Checkmarks, info (i), warning, error (X) | Default / unmirrored |
-| **Search & Discovery** | **NO** | Magnifying glass (holds right-handed lens standard) | Default / unmirrored |
-| **Media Playback** | **NO** | Play, pause, fast-forward, volume (flows physically LTR) | Default / unmirrored |
-| **Real-world Objects** | **NO** | Clock, calendar, lock, key, battery, camera | Default / unmirrored |
-| **Brand Logos** | **NO** | Company / product brand SVGs | Never mirror |
-
-### Usage Example:
+### The Semantic Icon Standard (`src/components/icons/`):
+- All vendor icon glyphs (Hugeicons) are encapsulated exclusively within `src/components/icons/registry.ts`.
+- Directional glyphs are marked via `directional(IconGlyph)`.
+- `<Icon name="..." />` automatically applies `.mirror` styling under `[dir="rtl"]`:
 ```tsx
-import { MirroredIcon } from '@/lib/i18n';
+import { Icon } from '@/components/icons';
 
 // Inside UI component:
 <button type="button">
   <span>{t('common.next')}</span>
-  <MirroredIcon>
-    <ChevronRightIcon />
-  </MirroredIcon>
+  <Icon name="chevron-right" />
 </button>
 ```
 
-In CSS:
+In `icon.module.css`:
 ```css
-[dir="rtl"] [data-mirror-rtl="true"],
-[dir="rtl"] .mirror-rtl {
+[dir="rtl"] .mirror {
   transform: scaleX(-1);
-  display: inline-block;
 }
 ```
 

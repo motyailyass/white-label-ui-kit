@@ -24,6 +24,20 @@ export function isRtlDirection(localeOrDir: string): boolean {
 }
 
 /**
+ * Returns default ISO 4217 currency code for a given locale.
+ */
+export function getCurrencyForLocale(locale: SupportedLocale | string): string {
+  switch (locale) {
+    case 'ar':
+      return 'SAR';
+    case 'fr':
+      return 'EUR';
+    default:
+      return 'USD';
+  }
+}
+
+/**
  * Formats a number using the native Intl.NumberFormat API.
  */
 export function formatNumber(

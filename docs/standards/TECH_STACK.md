@@ -57,8 +57,8 @@ The base starter kit contains only **3 runtime dependencies**, guaranteeing zero
 | **Core UI Runtime** | `react`, `react-dom` | `^19.1.0` | 100% internally developed primitives. Zero external UI component libraries. |
 | **Web Styling** | CSS Modules + Custom Properties | Native W3C | Component-scoped styles (`*.module.css`) + semantic tokens (`src/styles/tokens/`). Strict CSS Logical Properties. |
 | **Class Name Utility** | Zero-Dependency `cn` | Internal | Pure TypeScript helper (`src/lib/cn.ts`) for merging CSS module classes without `clsx`. |
-| **RTL & Internationalization** | Native `Intl` + W3C Bidi + Logical CSS | Internal Engine | Zero external dependencies (`src/lib/i18n/`). `I18nProvider`, `useDirection`, `BidiText`, `MirroredIcon`, and native formatters. |
-| **Icons** | Native Accessible SVG System | Internal | Stroke-based accessible SVG icons with automatic RTL mirroring capability. |
+| **RTL & Internationalization** | Native `Intl` + W3C Bidi + Logical CSS | Internal Engine | Zero external runtime dependencies (`src/i18n/`, `src/providers/`). `I18nProvider`, `BidiText`, and native formatters. |
+| **Icons** | Semantic Registry + Hugeicons | Free Icons Tier | Semantic name mapping (`src/components/icons/`) with automatic RTL mirroring. |
 | **Code Formatting** | `@biomejs/biome` | `^2.6.3` | Formatter across all TypeScript, CSS, and JSON files. |
 | **Linter** | `oxlint` | `^0.15.10` | High-performance linter across the entire repository. |
 | **Type Checking** | `typescript` (`tsc`) | `^7.0.2` | Standalone strict type verification (`tsc --noEmit`). |
@@ -103,10 +103,10 @@ These libraries are **never forced** in the base starter kit. When a specific pr
                                     │ consumes via CSS variables
 ┌───────────────────────────────────▼────────────────────────────────────┐
 │              DESIGN TOKENS & INTERNATIONALIZATION ENGINE               │
-│  src/styles/tokens/*                       src/lib/i18n/*              │
-│  • Semantic colors, radii, shadows         • I18nProvider, useDirection│
-│  • Arabic & Latin typography tokens        • BidiText, MirroredIcon    │
-│  • Line-height compensation tokens         • Native Intl formatters    │
+│  src/styles/tokens/*                       src/i18n/* & src/providers/*│
+│  • Semantic colors, radii, shadows         • I18nProvider, ThemeProvider│
+│  • Arabic & Latin typography tokens        • BidiText, formatters      │
+│  • Line-height compensation tokens         • Namespaced messages       │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -144,7 +144,6 @@ src/components/ui/[component-name]/
 // src/components/ui/button/button.tsx
 import React, { forwardRef } from 'react';
 import { cn } from '@/lib/cn';
-import { MirroredIcon } from '@/lib/i18n';
 import styles from './button.module.css';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -153,7 +152,6 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   isLoading?: boolean;
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
-  mirrorIcons?: boolean;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -164,7 +162,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       isLoading = false,
       startIcon,
       endIcon,
-      mirrorIcons = false,
       className,
       children,
       disabled,
@@ -183,17 +180,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {isLoading && <span className={styles.spinner} aria-hidden="true" />}
-        {startIcon && (
-          <span className={styles.startIcon}>
-            {mirrorIcons ? <MirroredIcon>{startIcon}</MirroredIcon> : startIcon}
-          </span>
-        )}
+        {startIcon && <span className={styles.startIcon}>{startIcon}</span>}
         <span className={styles.label}>{children}</span>
-        {endIcon && (
-          <span className={styles.endIcon}>
-            {mirrorIcons ? <MirroredIcon>{endIcon}</MirroredIcon> : endIcon}
-          </span>
-        )}
+        {endIcon && <span className={styles.endIcon}>{endIcon}</span>}
       </button>
     );
   },

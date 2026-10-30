@@ -100,7 +100,6 @@ export function HeaderBreadcrumbs({
                   <span
                     className={styles.breadcrumbSeparator}
                     aria-hidden="true"
-                    data-mirror-rtl="true"
                   >
                     {separator}
                   </span>

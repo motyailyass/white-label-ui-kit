@@ -22,3 +22,4 @@ export function AppToolbar({ children, className, ...props }: AppToolbarProps) {
     </div>
   );
 }
+

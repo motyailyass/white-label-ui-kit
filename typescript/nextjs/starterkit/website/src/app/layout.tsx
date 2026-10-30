@@ -1,7 +1,8 @@
-import React from 'react';
+import type React from 'react';
 import '../styles/globals.css';
-import { I18nProvider, getI18nServerState } from '@/lib/i18n';
-import { ThemeProvider, ThemeScript } from '@/lib/theme';
+import { AppProviders } from '@/providers/app-providers';
+import { ThemeScript } from '@/providers/theme-provider';
+import { getServerI18nState } from './i18n-server';
 
 export const metadata = {
   title: 'Tokyo Wireframe - Website Starter Kit',
@@ -11,7 +12,7 @@ export const metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Read initial locale and direction from cookies on the server to prevent any first-paint layout shift/flash
-  const { locale, direction } = await getI18nServerState('en', 'ltr');
+  const { locale, direction } = await getServerI18nState('en');
 
   return (
     <html lang={locale} dir={direction} suppressHydrationWarning>
@@ -19,11 +20,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ThemeScript />
       </head>
       <body>
-        <ThemeProvider defaultTheme="system">
-          <I18nProvider initialLocale={locale} initialDirection={direction}>
-            {children}
-          </I18nProvider>
-        </ThemeProvider>
+        <AppProviders initialLocale={locale} defaultTheme="system">
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

@@ -36,16 +36,26 @@ bdi,
   unicode-bidi: isolate;
 }
 
-/* Directional Icon Mirroring System */
-[dir="rtl"] [data-mirror-rtl="true"],
-[dir="rtl"] .mirror-rtl {
-  transform: scaleX(-1);
-  display: inline-block;
+/* Screen Reader Only Utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
-[data-mirror-rtl="true"],
-.mirror-rtl {
-  transition: transform var(--transition-fast);
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 a {

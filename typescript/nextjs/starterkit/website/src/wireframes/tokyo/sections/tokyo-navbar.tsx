@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/cn';
+import { AppToolbar } from '@/components/patterns';
 import styles from './tokyo-navbar.module.css';
 
 export interface NavLink {
@@ -56,6 +57,7 @@ export function TokyoNavbar({
         </ul>
 
         <div className={styles.actions}>
+          <AppToolbar />
           <a href={ctaHref} className={styles.ctaButton} onClick={onCtaClick}>
             {ctaLabel}
           </a>

@@ -14,3 +14,4 @@ export default function ClassicDashboardLayout({ children }: { children: React.R
     </ClassicLayout>
   );
 }
+

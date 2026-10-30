@@ -16,22 +16,24 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@hugeicons/core-free-icons": "^4.4.0",
+    "@hugeicons/react": "^1.1.10",
     "next": "^16.4.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "typescript": "^7.0.2",
+    "@biomejs/biome": "^2.6.3",
+    "@playwright/test": "^1.50.1",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^22.13.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
-    "@biomejs/biome": "^2.6.3",
-    "oxlint": "^0.15.10",
-    "vitest": "^5.0.5",
-    "@testing-library/react": "^16.2.0",
-    "@testing-library/user-event": "^14.6.1",
-    "@testing-library/dom": "^10.4.0",
     "jsdom": "^26.0.0",
-    "@playwright/test": "^1.50.1"
+    "oxlint": "^0.15.10",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
   }
 }

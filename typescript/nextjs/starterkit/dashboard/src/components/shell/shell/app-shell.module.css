@@ -1,0 +1,41 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 100vh;
+  position: relative;
+  transition: margin-inline-start var(--transition-normal);
+}
+
+/* Horizontal top-nav layout */
+.shell[data-variant="horizontal"] {
+  flex-direction: column;
+}
+
+/* Dual sidebar variant */
+.shell[data-variant="dual-sidebar"] {
+  display: flex;
+}
+
+/* Three column split variant */
+.shell[data-variant="three-column"] {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.shell[data-variant="three-column"] .main {
+  height: 100vh;
+  overflow: hidden;
+}

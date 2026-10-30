@@ -1,0 +1,44 @@
+/**
+ * Interactive Control Sizing Tokens (Buttons, Inputs, Selects, Triggers)
+ * Proportional binding of height + horizontal padding + font size + icon dimensions.
+ */
+
+:root {
+  /* Control Heights */
+  --control-height-xs: 28px; /* Dense data tables, micro tags, action chips */
+  --control-height-sm: 32px; /* Compact toolbars, filter pills, search bars */
+  --control-height-md: 36px; /* Standard Dashboard Default (Linear / GitHub style) */
+  --control-height-lg: 40px; /* Modal actions, form dialogs, prominent inputs */
+  --control-height-xl: 48px; /* High-touch / Mobile / Marketing primary CTA */
+  --control-height-2xl: 56px; /* High-impact hero input / conversion button */
+
+  /* Horizontal Control Padding */
+  --control-padding-xs: var(--space-2); /* 8px */
+  --control-padding-sm: var(--space-3); /* 12px */
+  --control-padding-md: var(--space-3-5); /* 14px */
+  --control-padding-lg: var(--space-4); /* 16px */
+  --control-padding-xl: var(--space-5); /* 20px */
+  --control-padding-2xl: var(--space-6); /* 24px */
+
+  /* Control Typography */
+  --control-font-size-xs: var(--font-size-xs); /* 12px */
+  --control-font-size-sm: 0.8125rem; /* 13px */
+  --control-font-size-md: var(--font-size-sm); /* 14px */
+  --control-font-size-lg: var(--font-size-sm); /* 14px */
+  --control-font-size-xl: var(--font-size-base); /* 16px */
+  --control-font-size-2xl: var(--font-size-lg); /* 18px */
+
+  /* Control Icon Dimensions */
+  --control-icon-size-xs: 14px;
+  --control-icon-size-sm: 16px;
+  --control-icon-size-md: 16px;
+  --control-icon-size-lg: 18px;
+  --control-icon-size-xl: 20px;
+  --control-icon-size-2xl: 24px;
+
+  /* Dashboard Default Semantic Aliases (36px Compact Default) */
+  --control-height-default: var(--control-height-md);
+  --control-padding-default: var(--control-padding-md);
+  --control-font-size-default: var(--control-font-size-md);
+  --control-icon-size-default: var(--control-icon-size-md);
+}

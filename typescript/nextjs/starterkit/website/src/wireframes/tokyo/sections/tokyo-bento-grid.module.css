@@ -1,0 +1,118 @@
+.section {
+  padding: var(--space-12) var(--space-4);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto var(--space-10);
+}
+
+.tag {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-2);
+}
+
+.title {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-3);
+}
+
+.description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.card:hover {
+  border-color: var(--color-border-strong);
+  transform: translateY(-2px);
+}
+
+.span2 {
+  grid-column: span 2;
+}
+
+.span3 {
+  grid-column: span 3;
+}
+
+.cardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-active);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.cardTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.cardText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.cardVisual {
+  margin-top: var(--space-6);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-subtle);
+  border: 1px dashed var(--color-border-subtle);
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .span2,
+  .span3 {
+    grid-column: span 1;
+  }
+}

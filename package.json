@@ -1,0 +1,9 @@
+{
+  "name": "@starterkit/monorepo",
+  "private": true,
+  "workspaces": [
+    "typescript/nextjs/starterkit/*",
+    "typescript/vite/starterkit/*"
+  ]
+}
+

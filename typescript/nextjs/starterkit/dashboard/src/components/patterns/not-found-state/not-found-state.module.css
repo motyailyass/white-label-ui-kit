@@ -1,0 +1,55 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-12) var(--space-4);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.badge {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-active);
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--space-6);
+}
+
+.homeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.homeButton:hover {
+  opacity: 0.9;
+}

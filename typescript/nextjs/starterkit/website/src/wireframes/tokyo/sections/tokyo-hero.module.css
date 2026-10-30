@@ -1,0 +1,142 @@
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-12) var(--space-4) var(--space-8);
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  box-shadow: var(--shadow-xs);
+  margin-bottom: var(--space-6);
+}
+
+.badgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-success);
+}
+
+.title {
+  font-size: clamp(2rem, 5vw, 3.75rem);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--color-text-primary);
+  max-width: 840px;
+  margin: 0 auto var(--space-5);
+}
+
+.subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  max-width: 640px;
+  margin: 0 auto var(--space-8);
+}
+
+.ctaGroup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-12);
+}
+
+.primaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 var(--space-6);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.primaryCta:hover {
+  opacity: 0.9;
+}
+
+.secondaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 var(--space-6);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-strong);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--transition-fast);
+}
+
+.secondaryCta:hover {
+  background-color: var(--color-surface-hover);
+}
+
+/* Product Mockup Container (Code / App Window) */
+.mockup {
+  width: 100%;
+  max-width: 1040px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  text-align: start;
+}
+
+.mockupHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-surface-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.windowDot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-border-strong);
+}
+
+.mockupTitle {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-family: var(--font-family-mono);
+  margin-inline-start: var(--space-2);
+}
+
+.mockupContent {
+  padding: var(--space-8);
+  min-height: 280px;
+  background-color: var(--color-surface);
+}

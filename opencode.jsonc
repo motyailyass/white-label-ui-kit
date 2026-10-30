@@ -1,0 +1,23 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    ".agents/rules/00-workflow.md",
+    ".agents/rules/10-architecture.md",
+    ".agents/rules/20-typescript-react.md",
+    ".agents/rules/30-ui-primitives.md",
+    ".agents/rules/32-icons.md",
+    ".agents/rules/35-layouts-shell.md",
+    ".agents/rules/40-styling-rtl.md",
+    ".agents/rules/50-i18n.md",
+    ".agents/rules/60-testing.md",
+    ".agents/rules/70-nextjs.md",
+    ".agents/rules/80-security.md"
+  ],
+  "permissions": [
+    { "action": "shell", "resource": "git push *", "effect": "ask" },
+    { "action": "shell", "resource": "rm -rf *", "effect": "deny" },
+    { "action": "edit", "resource": ".env*", "effect": "ask" },
+    { "action": "edit", "resource": "**/next-env.d.ts", "effect": "deny" },
+    { "action": "edit", "resource": "**/tsconfig.tsbuildinfo", "effect": "deny" }
+  ]
+}

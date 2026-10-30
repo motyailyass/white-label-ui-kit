@@ -1,0 +1,98 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: var(--panel-width);
+  min-width: var(--panel-width);
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  inset-inline-end: 0;
+  inset-inline-start: auto;
+  background-color: var(--color-surface);
+  border-inline-start: 1px solid var(--color-border-subtle);
+  transition:
+    transform var(--transition-normal),
+    width var(--transition-normal);
+  z-index: var(--z-panel);
+  overflow: hidden;
+}
+
+.panel[data-open="false"] {
+  display: none;
+}
+
+/* Floating overlay drawer mode */
+.panel[data-mode="overlay"] {
+  position: fixed;
+  top: 0;
+  inset-inline-end: 0;
+  inset-inline-start: auto;
+  box-shadow: var(--shadow-lg);
+  z-index: calc(var(--z-panel) + 10);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+  padding: 0 var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.closeButton:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.body {
+  flex: 1;
+  padding: var(--space-4);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface-subtle);
+}

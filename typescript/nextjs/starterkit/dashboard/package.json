@@ -1,0 +1,39 @@
+{
+  "name": "@starterkit/dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start",
+    "format": "biome format --write src",
+    "format:check": "biome format src",
+    "lint": "oxlint src",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@hugeicons/core-free-icons": "^4.4.0",
+    "@hugeicons/react": "^1.1.10",
+    "next": "^16.4.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.3",
+    "@playwright/test": "^1.50.1",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^22.13.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "jsdom": "^26.0.0",
+    "oxlint": "^0.15.10",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

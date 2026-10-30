@@ -33,10 +33,22 @@ describe('ThemeProvider', () => {
     expect(screen.getByTestId('theme').textContent).toBe('system');
   });
 
-  it('preserves pre-existing dark theme attribute on mount without flash overwrite', async () => {
+  it('preserves pre-existing dark theme attribute on mount with zero intermediate light writes', async () => {
     // Simulate ThemeScript having already executed in <head>
     document.documentElement.setAttribute('data-theme', 'dark');
     localStorage.setItem('theme', 'dark');
+
+    // Intercept every write to attribute to detect intermediate flashes
+    const attributeWrites: string[] = [];
+    const originalSetAttribute = document.documentElement.setAttribute.bind(
+      document.documentElement,
+    );
+    vi.spyOn(document.documentElement, 'setAttribute').mockImplementation((attr, val) => {
+      if (attr === 'data-theme') {
+        attributeWrites.push(val);
+      }
+      return originalSetAttribute(attr, val);
+    });
 
     render(
       <ThemeProvider defaultTheme="system">
@@ -44,7 +56,8 @@ describe('ThemeProvider', () => {
       </ThemeProvider>,
     );
 
-    // Initial mount should NOT have reset document attribute to light
+    // Initial mount must NEVER write "light" to document attribute when dark was pre-set
+    expect(attributeWrites).not.toContain('light');
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });
 

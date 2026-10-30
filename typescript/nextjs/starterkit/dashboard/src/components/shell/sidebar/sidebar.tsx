@@ -26,18 +26,29 @@ export function Sidebar({
   children,
   ...props
 }: SidebarProps) {
-  const { isSidebarCollapsed, isSidebarOpenMobile, setSidebarOpenMobile, isMobile } = useLayout();
-  const isCollapsed = collapsed !== undefined ? collapsed : isSidebarCollapsed;
-  const sidebarRef = useRef<HTMLElement | null>(null);
+  const {
+    isSidebarCollapsed,
+    isSidebarOpenMobile,
+    setSidebarOpenMobile,
+    isMobile,
+    registerSidebarController,
+  } = useLayout();
 
-  // Invoke controlled change callback if collapse changes
-  const prevCollapsedRef = useRef(isCollapsed);
+  const isControlled = collapsed !== undefined;
+
+  // Register controlled sidebar state & callback with LayoutContext so triggers/shortcuts share one source of truth
   useEffect(() => {
-    if (prevCollapsedRef.current !== isCollapsed) {
-      prevCollapsedRef.current = isCollapsed;
-      onCollapsedChange?.(isCollapsed);
+    if (isControlled) {
+      registerSidebarController({
+        collapsed,
+        onCollapsedChange,
+      });
+      return () => registerSidebarController(null);
     }
-  }, [isCollapsed, onCollapsedChange]);
+  }, [isControlled, collapsed, onCollapsedChange, registerSidebarController]);
+
+  const isCollapsed = isControlled ? collapsed : isSidebarCollapsed;
+  const sidebarRef = useRef<HTMLElement | null>(null);
 
   // Mobile drawer Escape key handler, focus trap, and body scroll lock
   useEffect(() => {

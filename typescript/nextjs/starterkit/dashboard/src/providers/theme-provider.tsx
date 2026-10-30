@@ -1,15 +1,7 @@
 'use client';
 
 import type React from 'react';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { setCookie } from '@/lib/cookie';
 
 export type Theme = 'light' | 'dark' | 'system';
@@ -44,9 +36,10 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(defaultTheme);
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>('light');
-  const isHydratedRef = useRef(false);
+  // Render-aware restoration state: false during initial render effect closure to guarantee zero intermediate DOM writes
+  const [isRestored, setIsRestored] = useState(false);
 
-  // Initialize theme from storage or system on client mount without triggering an overwrite
+  // Phase 1: Initialize theme from storage or system on client mount
   useEffect(() => {
     let resolvedInitialTheme: Theme = defaultTheme;
 
@@ -63,7 +56,7 @@ export function ThemeProvider({
     setSystemTheme(currentSysTheme);
     setThemeState(resolvedInitialTheme);
 
-    // If the document attribute was not pre-set by ThemeScript, synchronize it now
+    // If the document attribute was not pre-set by ThemeScript, apply it now
     if (typeof document !== 'undefined') {
       const currentAttr = document.documentElement.getAttribute(attribute);
       const effectiveTheme: ResolvedTheme =
@@ -74,7 +67,8 @@ export function ThemeProvider({
       }
     }
 
-    isHydratedRef.current = true;
+    // Schedule transition to restored phase (triggers re-render with restored state before any persistence write)
+    setIsRestored(true);
   }, [attribute, defaultTheme, storageKey]);
 
   // Listen to system preference changes when theme === 'system'
@@ -92,13 +86,16 @@ export function ThemeProvider({
 
   const resolvedTheme: ResolvedTheme = theme === 'system' ? systemTheme : theme;
 
-  // Apply theme to document element and persist ONLY when theme actually changes post-hydration
+  // Phase 2: Apply theme to document element and persist ONLY after state is restored
   useEffect(() => {
-    if (!isHydratedRef.current) return;
+    if (!isRestored) return;
     if (typeof document === 'undefined') return;
 
     const root = document.documentElement;
-    root.setAttribute(attribute, resolvedTheme);
+    // Only write attribute if it differs from current DOM state
+    if (root.getAttribute(attribute) !== resolvedTheme) {
+      root.setAttribute(attribute, resolvedTheme);
+    }
 
     try {
       localStorage.setItem(storageKey, theme);
@@ -106,7 +103,7 @@ export function ThemeProvider({
     } catch {
       // Storage unavailable
     }
-  }, [theme, resolvedTheme, attribute, storageKey]);
+  }, [isRestored, theme, resolvedTheme, attribute, storageKey]);
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);

@@ -100,6 +100,25 @@ describe('Sidebar Components', () => {
       expect(trigger.getAttribute('aria-expanded')).toBe('true');
     });
 
+    it('requests controlled collapse change when SidebarTrigger is clicked', () => {
+      const handleChange = vi.fn();
+      render(
+        <LayoutProvider>
+          <SidebarTrigger />
+          <Sidebar collapsed={false} onCollapsedChange={handleChange}>
+            <div>Nav content</div>
+          </Sidebar>
+        </LayoutProvider>,
+      );
+
+      const trigger = screen.getByRole('button', { name: /toggle navigation sidebar/i });
+      expect(trigger.getAttribute('aria-expanded')).toBe('true');
+
+      // Click trigger: should request controlled change via onCollapsedChange(true)
+      fireEvent.click(trigger);
+      expect(handleChange).toHaveBeenCalledWith(true);
+    });
+
     it('invokes onCollapsedChange callback in controlled mode', () => {
       render(
         <LayoutProvider>

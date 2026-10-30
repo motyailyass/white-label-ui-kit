@@ -23,6 +23,15 @@ const isCheckMode = process.argv.includes('--check');
 const SOURCE_DIR = path.join(rootDir, 'typescript/nextjs/starterkit/dashboard/src');
 const TARGET_DIR = path.join(rootDir, 'typescript/nextjs/starterkit/website/src');
 
+/**
+ * Managed Directory Ownership Contract:
+ * - dashboard/src is the authoritative canonical source for the shared white-label foundation.
+ * - The directories listed in SHARED_DIRECTORIES are mirrored into website/src.
+ * - Application-specific code must live in app/, wireframes/, or fixtures/, which are
+ *   never touched or pruned by sync-shared.
+ * - Intentional token overrides/presets (such as controls.css) must be registered in
+ *   EXCLUDED_PATTERNS to prevent them from being overwritten.
+ */
 const SHARED_DIRECTORIES = [
   'components/icons',
   'components/patterns',

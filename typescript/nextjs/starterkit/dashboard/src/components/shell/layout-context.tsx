@@ -5,6 +5,11 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 
 export type LayoutVariant = 'classic' | 'dual-sidebar' | 'three-column' | 'horizontal' | 'compact';
 
+export interface SidebarController {
+  collapsed: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
+}
+
 export interface LayoutContextValue {
   layoutVariant: LayoutVariant;
   setLayoutVariant: (variant: LayoutVariant) => void;
@@ -18,6 +23,7 @@ export interface LayoutContextValue {
   setPanelOpen: (open: boolean) => void;
   togglePanel: () => void;
   isMobile: boolean;
+  registerSidebarController: (controller: SidebarController | null) => void;
 }
 
 const LayoutContext = createContext<LayoutContextValue | undefined>(undefined);
@@ -42,6 +48,7 @@ export function LayoutProvider({
   const [isSidebarOpenMobile, setSidebarOpenMobile] = useState(false);
   const [isPanelOpen, setPanelOpen] = useState(defaultPanelOpen);
   const [isMobile, setIsMobile] = useState(false);
+  const [sidebarController, setSidebarController] = useState<SidebarController | null>(null);
 
   // Track viewport width for responsive sidebar and panel state
   useEffect(() => {
@@ -61,9 +68,17 @@ export function LayoutProvider({
     return () => window.removeEventListener('resize', checkViewport);
   }, [defaultPanelOpen]);
 
+  // Unified effective collapsed state: controlled sidebar takes precedence
+  const effectiveSidebarCollapsed =
+    sidebarController !== null ? sidebarController.collapsed : isSidebarCollapsed;
+
   const toggleSidebar = useCallback(() => {
-    setSidebarCollapsed((prev) => !prev);
-  }, []);
+    if (sidebarController && sidebarController.onCollapsedChange) {
+      sidebarController.onCollapsedChange(!sidebarController.collapsed);
+    } else {
+      setSidebarCollapsed((prev) => !prev);
+    }
+  }, [sidebarController]);
 
   const toggleSidebarMobile = useCallback(() => {
     setSidebarOpenMobile((prev) => !prev);
@@ -71,6 +86,10 @@ export function LayoutProvider({
 
   const togglePanel = useCallback(() => {
     setPanelOpen((prev) => !prev);
+  }, []);
+
+  const registerSidebarController = useCallback((controller: SidebarController | null) => {
+    setSidebarController(controller);
   }, []);
 
   // Keyboard shortcuts (Cmd+B for sidebar, Cmd+. for panel)
@@ -111,7 +130,7 @@ export function LayoutProvider({
       value={{
         layoutVariant,
         setLayoutVariant,
-        isSidebarCollapsed,
+        isSidebarCollapsed: effectiveSidebarCollapsed,
         setSidebarCollapsed,
         toggleSidebar,
         isSidebarOpenMobile,
@@ -121,6 +140,7 @@ export function LayoutProvider({
         setPanelOpen,
         togglePanel,
         isMobile,
+        registerSidebarController,
       }}
     >
       {children}

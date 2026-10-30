@@ -9,7 +9,11 @@
     "type-check": "pnpm --recursive run type-check",
     "test": "pnpm --recursive run test",
     "build": "pnpm --recursive run build",
-    "format": "biome format --write .",
-    "format:check": "biome format ."
+    "format": "pnpm --recursive run format",
+    "format:check": "pnpm --recursive run format:check",
+    "test:e2e": "pnpm --recursive run test:e2e"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.4"
   }
 }

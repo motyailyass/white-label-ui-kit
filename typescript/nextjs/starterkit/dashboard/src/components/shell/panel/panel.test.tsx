@@ -73,4 +73,3 @@ describe('Panel Component', () => {
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 });
-

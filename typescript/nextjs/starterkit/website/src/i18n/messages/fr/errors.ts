@@ -6,7 +6,7 @@ export const errors = {
   notFoundTitle: 'Page introuvable',
   notFoundDescription: "La page que vous recherchez n'existe pas ou a été déplacée.",
   retryAction: 'Réessayer',
-  goHomeAction: 'Retour au tableau de bord',
+  goHomeAction: "Retour à l'accueil",
   boundaryTitle: 'Erreur du composant',
   boundaryDescription: 'Cette section n’a pas pu se charger correctement.',
 } satisfies ErrorsMessages;

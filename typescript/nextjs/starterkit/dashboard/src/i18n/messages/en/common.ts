@@ -19,6 +19,8 @@ export const common = {
   goHome: 'Go to Home',
   status: 'Status',
   lastModified: 'Last Modified',
+  filter: 'Filter',
+  exportReport: 'Export Report',
 } as const;
 
 export type CommonMessages = MessageShape<typeof common>;

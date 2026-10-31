@@ -1,0 +1,9 @@
+/**
+ * Shared Accessibility Design Tokens
+ * Shadow-free keyboard focus contract.
+ */
+
+:root {
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+}

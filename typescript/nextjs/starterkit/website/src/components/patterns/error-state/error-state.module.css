@@ -16,8 +16,8 @@
   width: 48px;
   height: 48px;
   border-radius: var(--radius-full);
-  background-color: var(--color-danger-subtle, rgba(239, 68, 68, 0.1));
-  color: var(--color-danger, #ef4444);
+  background-color: var(--color-danger-subtle);
+  color: var(--color-danger);
   margin-bottom: var(--space-4);
 }
 
@@ -45,7 +45,7 @@
   padding: var(--space-2) var(--space-4);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-control);
   border: none;
   background-color: var(--color-primary);
   color: var(--color-primary-foreground);
@@ -61,7 +61,7 @@
   padding: var(--space-2) var(--space-4);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-control);
   border: 1px solid var(--color-border-subtle);
   background-color: var(--color-surface);
   color: var(--color-text-secondary);

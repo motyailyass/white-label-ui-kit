@@ -1,0 +1,20 @@
+.card {
+  padding-block: var(--layout-card-padding);
+  padding-inline: var(--layout-card-padding);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+
+.card[data-elevation="none"] {
+  box-shadow: var(--website-shadow-none);
+}
+
+.card[data-elevation="raised"] {
+  box-shadow: var(--website-shadow-card);
+}
+
+.card[data-elevation="floating"] {
+  box-shadow: var(--website-shadow-menu);
+}

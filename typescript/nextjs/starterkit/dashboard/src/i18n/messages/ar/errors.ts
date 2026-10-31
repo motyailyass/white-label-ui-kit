@@ -6,7 +6,7 @@ export const errors = {
   notFoundTitle: 'الصفحة غير موجودة',
   notFoundDescription: 'الصفحة التي تحاول الوصول إليها غير متاحة أو تم نقلها.',
   retryAction: 'إعادة المحاولة',
-  goHomeAction: 'العودة للوحة التحكم',
+  goHomeAction: 'العودة إلى الصفحة الرئيسية',
   boundaryTitle: 'خطأ في هذا القسم',
   boundaryDescription: 'تعذر تحميل هذا القسم بشكل صحيح.',
 } satisfies ErrorsMessages;

@@ -1,44 +1,86 @@
-/**
- * Interactive Control Sizing Tokens (Buttons, Inputs, Selects, Triggers)
- * Proportional binding of height + horizontal padding + font size + icon dimensions.
+/*
+ * White Label UI Kit — Control dimensions
+ *
+ * Product-owned file.
+ * Do not overwrite through shared-source synchronization.
+ *
+ * Heights are minimum border-box sizes, not fixed heights.
+ * Light/dark themes and LTR/RTL use identical dimensions.
  */
 
 :root {
-  /* Control Heights */
-  --control-height-xs: 28px; /* Dense data tables, micro tags, action chips */
-  --control-height-sm: 32px; /* Compact toolbars, filter pills, search bars */
-  --control-height-md: 36px; /* Standard Dashboard Default (Linear / GitHub style) */
-  --control-height-lg: 40px; /* Modal actions, form dialogs, prominent inputs */
-  --control-height-xl: 48px; /* High-touch / Mobile / Marketing primary CTA */
-  --control-height-2xl: 56px; /* High-impact hero input / conversion button */
+  /* Minimum control heights */
+  --control-height-xs: 1.75rem;
+  --control-height-sm: 2rem;
+  --control-height-md: 2.25rem;
+  --control-height-lg: 2.5rem;
+  --control-height-xl: 3rem;
+  --control-height-2xl: 3.5rem;
 
-  /* Horizontal Control Padding */
-  --control-padding-xs: var(--space-2); /* 8px */
-  --control-padding-sm: var(--space-3); /* 12px */
-  --control-padding-md: var(--space-3-5); /* 14px */
-  --control-padding-lg: var(--space-4); /* 16px */
-  --control-padding-xl: var(--space-5); /* 20px */
-  --control-padding-2xl: var(--space-6); /* 24px */
+  /* Padding on each inline side */
+  --control-padding-xs: 0.5rem;
+  --control-padding-sm: 0.75rem;
+  --control-padding-md: 0.875rem;
+  --control-padding-lg: 1rem;
+  --control-padding-xl: 1.25rem;
+  --control-padding-2xl: 1.5rem;
 
-  /* Control Typography */
-  --control-font-size-xs: var(--font-size-xs); /* 12px */
-  --control-font-size-sm: 0.8125rem; /* 13px */
-  --control-font-size-md: var(--font-size-sm); /* 14px */
-  --control-font-size-lg: var(--font-size-sm); /* 14px */
-  --control-font-size-xl: var(--font-size-base); /* 16px */
-  --control-font-size-2xl: var(--font-size-lg); /* 18px */
+  /*
+   * Minimum padding on each block side.
+   * The minimum height supplies the remaining space.
+   * Wrapped content can grow instead of being clipped.
+   */
+  --control-padding-block-xs: 0.1875rem;
+  --control-padding-block-sm: 0.3125rem;
+  --control-padding-block-md: 0.4375rem;
+  --control-padding-block-lg: 0.5625rem;
+  --control-padding-block-xl: 0.6875rem;
+  --control-padding-block-2xl: 0.9375rem;
 
-  /* Control Icon Dimensions */
-  --control-icon-size-xs: 14px;
-  --control-icon-size-sm: 16px;
-  --control-icon-size-md: 16px;
-  --control-icon-size-lg: 18px;
-  --control-icon-size-xl: 20px;
-  --control-icon-size-2xl: 24px;
+  /* Label typography */
+  --control-font-size-xs: 0.875rem;
+  --control-font-size-sm: 0.875rem;
+  --control-font-size-md: 0.875rem;
+  --control-font-size-lg: 0.875rem;
+  --control-font-size-xl: 1rem;
+  --control-font-size-2xl: 1rem;
 
-  /* Dashboard Default Semantic Aliases (36px Compact Default) */
+  /* Label line heights */
+  --control-line-height-xs: 1.25rem;
+  --control-line-height-sm: 1.25rem;
+  --control-line-height-md: 1.25rem;
+  --control-line-height-lg: 1.25rem;
+  --control-line-height-xl: 1.5rem;
+  --control-line-height-2xl: 1.5rem;
+
+  /* Visible icon dimensions */
+  --control-icon-size-xs: 0.875rem;
+  --control-icon-size-sm: 1rem;
+  --control-icon-size-md: 1rem;
+  --control-icon-size-lg: 1.125rem;
+  --control-icon-size-xl: 1.25rem;
+  --control-icon-size-2xl: 1.5rem;
+
+  /* Space between label, icon, and loading indicator */
+  --control-gap-xs: 0.25rem;
+  --control-gap-sm: 0.375rem;
+  --control-gap-md: 0.5rem;
+  --control-gap-lg: 0.5rem;
+  --control-gap-xl: 0.5rem;
+  --control-gap-2xl: 0.75rem;
+
+  /*
+   * Preferred minimum interaction target for touch-oriented controls.
+   * This is a target policy, not the visible icon size.
+   */
+  --control-touch-target-min: 3rem;
+
+  /* Dashboard defaults */
   --control-height-default: var(--control-height-md);
   --control-padding-default: var(--control-padding-md);
+  --control-padding-block-default: var(--control-padding-block-md);
   --control-font-size-default: var(--control-font-size-md);
+  --control-line-height-default: var(--control-line-height-md);
   --control-icon-size-default: var(--control-icon-size-md);
+  --control-gap-default: var(--control-gap-md);
 }

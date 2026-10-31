@@ -1,8 +1,8 @@
 .footer {
   border-top: 1px solid var(--color-border-subtle);
   background-color: var(--color-surface);
-  padding: var(--space-12) var(--space-4) var(--space-8);
-  margin-top: var(--space-12);
+  padding-block: var(--layout-section-padding-block-compact);
+  padding-inline: var(--layout-page-padding-inline);
 }
 
 .container {
@@ -24,15 +24,15 @@
 }
 
 .brandName {
-  font-size: var(--font-size-lg);
+  font-size: var(--typography-card-title-size);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
 }
 
 .brandTagline {
-  font-size: var(--font-size-sm);
+  font-size: var(--typography-supporting-size);
   color: var(--color-text-secondary);
-  line-height: 1.6;
+  line-height: var(--typography-supporting-line-height);
   max-width: 280px;
 }
 

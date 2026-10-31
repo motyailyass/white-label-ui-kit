@@ -19,4 +19,6 @@ export const common = {
   goHome: 'الانتقال إلى الرئيسية',
   status: 'الحالة',
   lastModified: 'آخر تعديل',
+  filter: 'تصفية',
+  exportReport: 'تصدير التقرير',
 } satisfies CommonMessages;

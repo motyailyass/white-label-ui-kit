@@ -1,4 +1,9 @@
 @import "./tokens/index.css";
+@import "./dashboard/colors.css";
+@import "./dashboard/brand.css";
+@import "./dashboard/spacing.css";
+@import "./dashboard/radius.css";
+@import "./dashboard/typography.css";
 
 *,
 *::before,
@@ -8,21 +13,79 @@
   padding: 0;
 }
 
-html,
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+html {
+  min-height: 100%;
+}
+
 body {
   min-height: 100vh;
   background-color: var(--color-bg-base);
   color: var(--color-text-primary);
   font-family: var(--font-family-sans);
+  font-size: var(--typography-body-size);
+  line-height: var(--typography-body-line-height);
+  font-weight: var(--typography-body-weight);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* RTL Typography & Directional Defaults */
-[dir="rtl"] {
+/* Document Language & Script Defaults */
+:lang(ar),
+[lang="ar"],
+[lang^="ar"] {
   font-family: var(--font-family-arabic);
-  line-height: var(--line-height-arabic-normal);
+  letter-spacing: normal;
+}
+
+/* Script Restoration for Nested Latin Text within Arabic Documents */
+:lang(ar) :lang(en),
+:lang(ar) [lang="en"],
+:lang(ar) [lang^="en"],
+:lang(ar) :lang(fr),
+:lang(ar) [lang="fr"],
+:lang(ar) [lang^="fr"] {
+  font-family: var(--font-family-sans);
+  letter-spacing: normal;
+}
+
+/* Script Tracking Protection: Arabic script cursive ligatures must never have letter-spacing */
+:lang(ar) *,
+[lang="ar"] *,
+[lang^="ar"] * {
+  letter-spacing: normal;
+}
+
+/* Eyebrow and uppercase treatments: prevent uppercase tracking from breaking connected Arabic script */
+:lang(ar) [class*="eyebrow"],
+:lang(ar) [class*="badge"],
+:lang(ar) [class*="tag"],
+[lang="ar"] [class*="eyebrow"],
+[lang="ar"] [class*="badge"],
+[lang="ar"] [class*="tag"] {
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+/* Nested English badges inside Arabic can safely retain Latin styling */
+:lang(ar) [class*="eyebrow"]:lang(en),
+:lang(ar) [class*="badge"]:lang(en),
+:lang(ar) [class*="tag"]:lang(en),
+[lang="ar"] [class*="eyebrow"][lang="en"],
+[lang="ar"] [class*="badge"][lang="en"],
+[lang="ar"] [class*="tag"][lang="en"] {
+  font-family: var(--font-family-sans);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Directional Alignment Defaults */
+[dir="rtl"] {
   text-align: start;
 }
 

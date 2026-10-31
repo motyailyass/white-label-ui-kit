@@ -10,7 +10,7 @@
 
 This starter kit provides a production-grade, unbranded, white-label UI foundation engineered for any website, SaaS platform, or internal software.
 
-### The Six Inviolable Principles
+### The Seven Inviolable Principles
 
 1. **100% Internally Owned UI (Zero UI Libraries)**:
    - **No Radix, no MUI, no Chakra, no shadcn, no third-party headless UI runtimes.**
@@ -43,6 +43,11 @@ This starter kit provides a production-grade, unbranded, white-label UI foundati
    - **Arabic Typography Stacks**: Specialized Arabic font tokens (`--font-family-arabic`, `--font-family-arabic-heading`) with vertical line-height compensation for tall Arabic ascenders and descenders.
    - **Native Formatting Engine**: Native zero-dependency `Intl` utilities (`formatNumber`, `formatCurrency`, `formatDate`, `formatRelativeTime`) supporting Western Latin (`latn`) and Eastern Arabic (`arab`) numbering systems.
    - **Mirrored Icons System**: Systematic classification distinguishing directional icons that must mirror in RTL (`<MirroredIcon>` / `data-mirror-rtl="true"`) from non-directional icons that must never mirror.
+
+7. **Complete Starter Independence (Zero Coupling at Delivery)**:
+   - **Shared Internally Does Not Mean Coupled When Delivered**: Primitives and tokens are maintained centrally at source, but each starter is an independent starting point outside the monorepo.
+   - **Zero Monorepo or Sibling Dependencies**: Starters contain no sibling relative imports (`../../dashboard`), no unpublished internal packages, and no extraneous product routes or assets.
+   - **Dedicated Preset Isolation**: A website starter imports only its `styles/website/` preset; a dashboard starter imports only its `styles/dashboard/` preset. Neither contains the other's files. Every framework/product combination installs, builds, tests, and runs independently in an empty directory.
 
 ---
 
@@ -195,14 +200,53 @@ Button.displayName = 'Button';
 
 ## 5. Token System Specification (`src/styles/tokens/`)
 
-Tokens are pure native CSS custom properties structured across 6 files:
+Tokens are pure native CSS custom properties structured across three decoupled layers:
+1. **Neutral Layer**: Canvas, surfaces, text, borders (nine-step neutral ramp 0–8).
+2. **Brand / Primary Layer**: Main actions, active indicators, links (monochrome default, brand-ready).
+3. **Status Layer**: Functional indicators for Success, Warning, Danger, and Information.
 
-1. **`colors.css`**: Neutral grayscale (`--color-neutral-0` to `--color-neutral-950`), semantic roles (`--color-bg-base`, `--color-surface`, `--color-text-primary`, `--color-border-subtle`, `--color-primary`, `--color-danger`).
-2. **`typography.css`**: Font families (including native Arabic font stacks `--font-family-arabic`, `--font-family-arabic-heading`, and universal fallbacks), fluid scale (`--font-size-xs` through `--font-size-5xl`), line heights with Arabic vertical ascender/descender compensation (`--line-height-arabic-normal: 1.65`), and font weights.
-3. **`spacing.css`**: 4px/8px proportional grid scale (`--space-1` = 4px, `--space-2` = 8px, `--space-4` = 16px, etc.). Consumed exclusively with logical properties (`margin-inline`, `padding-block`).
-4. **`radii.css`**: Border radius scale (`--radius-sm`, `--radius-md`, `--radius-lg`, `--radius-full`).
-5. **`shadows.css`**: Elevation scale (`--shadow-sm`, `--shadow-md`, `--shadow-lg`, `--shadow-xl`).
-6. **`index.css`**: Master token export and `:root` / `[data-theme="dark"]` overrides.
+### Canonical Shared Files
+1. **`colors.css`**: Canonical nine-step neutral primitive ramp (`--color-neutral-0` to `--color-neutral-8`) spanning pure white (`#ffffff`) to pure black (`#000000`). Fixed values, never redefined in dark mode.
+2. **`color-roles.css`**: Shared semantic roles:
+   - **Text Roles**: `--color-text-primary`, `--color-text-secondary`, `--color-text-muted`, `--color-text-placeholder`, `--color-text-disabled`, `--color-text-inverse`, `--color-text-on-active`.
+   - **Borders & Focus**: `--color-border-subtle`, `--color-border-strong`, `--color-border-control`, `--color-border-focus`, `--color-border-disabled`, `--color-border`. Focus styling maintains `--color-border-focus` as its own role, ensuring accessible indicators without forcing brand color alignment.
+   - **Brand / Primary Contract (7 Tokens)**:
+     - `--color-primary`: Main action fill / active accent.
+     - `--color-primary-hover`: Interactive hover state.
+     - `--color-primary-active`: Pressed / active state.
+     - `--color-primary-foreground`: Text/icon color on filled primary backgrounds.
+     - `--color-primary-subtle`: Soft background for active navigation, highlighted sections, and subtle badges.
+     - `--color-primary-subtle-foreground`: Text/icon color on subtle backgrounds.
+     - `--color-primary-border`: Subtle border for highlighted elements.
+   - **Controls & Selection**: `--color-control-bg`, `--color-control-disabled-bg`, `--color-selection-bg`, `--color-selection-text`, `--color-overlay`.
+3. **`status-colors.css`**: Functional status indicators for Success, Warning, Danger, and Information (base, subtle surfaces, and foreground), completely independent of branding.
+4. **Preset Surface Architecture**:
+   - **`styles/dashboard/colors.css`**: Softened canvas (`--color-bg-base`: N1 light / N7 dark) tuned for high-density, prolonged analytical work sessions.
+   - **`styles/website/colors.css`**: Exact contrast canvas (`--color-bg-base`: N0 white light / N8 black dark) with soft surfaces for sections and cards.
+   - Both presets expose identical semantic surface tokens (`--color-bg-base`, `--color-surface`, `--color-surface-subtle`, `--color-surface-raised`, `--color-surface-hover`, `--color-surface-active`).
+5. **Project-Owned Brand Extension Points**:
+   - **`styles/dashboard/brand.css`**: Dashboard identity override. Used selectively for primary actions, active navigation, and key indicators while keeping work surfaces neutral.
+   - **`styles/website/brand.css`**: Website identity override. Allows expressive branding across primary CTAs, links, and hero/marketing sections.
+6. **`typography.css`**: Font families (including native Arabic font stacks `--font-family-arabic`, `--font-family-arabic-heading`, and universal fallbacks), fluid scale (`--font-size-xs` through `--font-size-5xl`), line heights with Arabic vertical ascender/descender compensation (`--line-height-arabic-normal: 1.65`), and font weights.
+7. **`spacing.css` & Spacing Architecture**:
+   - **4px-base primitive scale**: Multiples of 4px in `rem` (`--space-0` = 0, `--space-0-5` = 0.125rem/2px, `--space-1` = 0.25rem/4px, `--space-2` = 0.5rem/8px, `--space-3` = 0.75rem/12px, `--space-4` = 1rem/16px, `--space-5` = 1.25rem/20px, `--space-6` = 1.5rem/24px, `--space-8` = 2rem/32px, `--space-10` = 2.5rem/40px, `--space-12` = 3rem/48px, `--space-16` = 4rem/64px, `--space-20` = 5rem/80px, `--space-24` = 6rem/96px, `--space-32` = 8rem/128px).
+   - **Three separate responsibilities**: Spacing primitives (`tokens/spacing.css`) govern available distances; product spacing roles govern layout density; control dimensions (`tokens/controls.css`) govern internal component sizing.
+   - **Product-owned presets**:
+     - `styles/dashboard/spacing.css`: Compact, structured layout roles (`--layout-page-padding-*`, `--layout-section-gap`, `--layout-card-padding`, `--layout-toolbar-gap`, `--layout-action-gap`).
+     - `styles/website/spacing.css`: Editorial, responsive section rhythm (`--layout-section-padding-block`, `--layout-hero-padding-block`, `--layout-section-content-gap`, `--layout-eyebrow-gap`, `--layout-heading-description-gap`).
+   - Consumed exclusively with logical properties (`margin-inline`, `padding-block`). Single ownership per boundary prevents doubling gutters.
+8. **`radius.css` & Radius Architecture**:
+   - **Primitive scale in pixels**: `--radius-none` (0), `--radius-xs` (2px), `--radius-sm` (4px), `--radius-md` (6px), `--radius-lg` (8px), `--radius-xl` (12px), `--radius-2xl` (16px), `--radius-full` (9999px).
+   - **Product-owned presets**:
+     - `styles/dashboard/radius.css`: Precise, compact defaults (`--radius-control: var(--radius-md)` 6px, `--radius-card: var(--radius-lg)` 8px, `--radius-overlay: var(--radius-lg)` 8px, `--radius-dialog: var(--radius-xl)` 12px, `--radius-navigation: var(--radius-md)` 6px, `--radius-attached: var(--radius-none)` 0).
+     - `styles/website/radius.css`: Softer, rebrandable defaults (`--radius-control: var(--radius-lg)` 8px, `--radius-card: var(--radius-xl)` 12px, `--radius-overlay: var(--radius-xl)` 12px, `--radius-dialog: var(--radius-2xl)` 16px, `--radius-navigation: var(--radius-lg)` 8px, `--radius-attached: var(--radius-none)` 0, `--radius-feature: var(--radius-2xl)` 16px).
+   - Components consume semantic roles rather than hardcoded radii. Stable across themes, directions, and control sizes. Focus rings are never clipped.
+9. **`accessibility.css`**: Shared, shadow-free keyboard focus contract (`--focus-ring-width: 2px`, `--focus-ring-offset: 2px`) consumed with `--color-border-focus`.
+10. **Elevation & Shadow Architecture**:
+   - **Dashboard**: Completely shadow-free across Next.js and Vite (`box-shadow`, `text-shadow`, `drop-shadow()`, and decorative glows are strictly forbidden). Depth is conveyed purely through surface tones, boundary borders, spacing, and layering.
+   - **Website**: Local, opt-in shadow tokens in `styles/website/shadows.css` (`--website-shadow-sm` through `--website-shadow-xl`, `--website-shadow-card`, `--website-shadow-header`, `--website-shadow-menu`, `--website-shadow-dialog`). Restrained neutral black, zero horizontal offset for natural LTR/RTL support.
+11. **`controls.css`**: Complete six-step sizing scale (`xs` through `2xl`) binding minimum heights (`--control-height-*`), inline paddings (`--control-padding-*`), minimum block paddings (`--control-padding-block-*`), font sizes, line heights, icon dimensions, gaps, and minimum touch target (`--control-touch-target-min: 3rem`). Preserved independently per starter (Dashboard defaults to `md` 36px; Website defaults to `xl` 48px).
+12. **`index.css`**: Master token export.
 
 ---
 

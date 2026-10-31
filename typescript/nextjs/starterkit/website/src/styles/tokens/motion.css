@@ -1,0 +1,62 @@
+/**
+ * Shared Motion Design Tokens
+ * Minimal, accessible motion contract for transitions and state changes.
+ *
+ * 1. Minimal Shared Duration Scale:
+ *    --motion-duration-instant: 0ms   (Immediate changes)
+ *    --motion-duration-fast:    120ms (Hover and pressed feedback)
+ *    --motion-duration-normal:  180ms (Small state transitions)
+ *    --motion-duration-slow:    240ms (Drawer/menu entry and exit)
+ *
+ * 2. Easing Tokens:
+ *    --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1)
+ *    --motion-ease-enter:    cubic-bezier(0, 0, 0, 1)
+ *    --motion-ease-exit:     cubic-bezier(0.4, 0, 1, 1)
+ *
+ * 3. Composite Transition Helpers:
+ *    --transition-fast:   var(--motion-duration-fast) var(--motion-ease-standard)
+ *    --transition-normal: var(--motion-duration-normal) var(--motion-ease-standard)
+ *    --transition-slow:   var(--motion-duration-slow) var(--motion-ease-standard)
+ */
+
+:root {
+  /* Motion Durations */
+  --motion-duration-instant: 0ms;
+  --motion-duration-fast: 120ms;
+  --motion-duration-normal: 180ms;
+  --motion-duration-slow: 240ms;
+
+  /* Motion Easings */
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-enter: cubic-bezier(0, 0, 0, 1);
+  --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Composite Transition Helpers */
+  --transition-fast: var(--motion-duration-fast) var(--motion-ease-standard);
+  --transition-normal: var(--motion-duration-normal) var(--motion-ease-standard);
+  --transition-slow: var(--motion-duration-slow) var(--motion-ease-standard);
+}
+
+/* Reduced Motion Mode
+ * When prefers-reduced-motion: reduce is active:
+ * - Collapses duration tokens to 0ms so transitions resolve immediately
+ * - Disables smooth scrolling
+ * - Note: With 0ms durations, transitions do not occur and transitionend does not fire.
+ *   Component lifecycles (focus restoration, backdrop removal, scroll unlocking, inert state)
+ *   must be driven directly by state machines rather than transitionend or animationend events.
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-fast: 0ms;
+    --motion-duration-normal: 0ms;
+    --motion-duration-slow: 0ms;
+
+    --transition-fast: 0ms var(--motion-ease-standard);
+    --transition-normal: 0ms var(--motion-ease-standard);
+    --transition-slow: 0ms var(--motion-ease-standard);
+  }
+
+  html {
+    scroll-behavior: auto !important;
+  }
+}

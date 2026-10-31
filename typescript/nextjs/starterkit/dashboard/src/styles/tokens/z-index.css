@@ -1,0 +1,41 @@
+/**
+ * Z-Index & Layer Design Tokens
+ * Predictable, semantic layer scale for predictable stacking without arbitrary magic numbers.
+ */
+
+:root {
+  /* 1. Base Layer: Normal in-flow and local document elements */
+  --z-base: 0;
+
+  /* 2. Raised Layer: Locally elevated content, floating cards, active tab/drag states */
+  --z-raised: 10;
+
+  /* 3. Sticky Layer: Sticky headers, navigation bars, and toolbars */
+  --z-sticky: 100;
+
+  /* 4. Dropdown Layer: Non-modal popovers, comboboxes, select menus, dropdowns */
+  --z-dropdown: 200;
+
+  /* 5. Overlay (Backdrop) Layer: Scrim/backdrop for modal sidebars and drawers */
+  --z-overlay: 300;
+
+  /* 6. Drawer Layer: Sliding panels, mobile navigation drawers, inspector sidebars */
+  --z-drawer: 310;
+
+  /* 7. Modal Backdrop Layer: Dedicated scrim for modal dialogs and alert dialogs */
+  --z-modal-backdrop: 400;
+
+  /* 8. Modal Surface Layer: Centered modal dialog surfaces, confirmation dialogs */
+  --z-modal: 410;
+
+  /* 9. Toast Layer: Global notifications, status toasts, banner alerts */
+  --z-toast: 500;
+
+  /* 10. Tooltip Layer: Contextual tooltips within their appropriate interaction scope */
+  --z-tooltip: 600;
+
+  /* Semantic Component Aliases for Shell Primitives */
+  --z-header: var(--z-sticky);
+  --z-sidebar: var(--z-drawer);
+  --z-panel: var(--z-drawer);
+}

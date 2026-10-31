@@ -9,6 +9,7 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL: 'http://localhost:3000',
+    channel: process.env.PLAYWRIGHT_CHROME_CHANNEL || undefined,
     trace: 'on-first-retry',
   },
   projects: [
@@ -21,6 +22,7 @@ export default defineConfig({
       use: {
         viewport: { width: 390, height: 844 },
         isMobile: true,
+        hasTouch: true,
       },
     },
   ],

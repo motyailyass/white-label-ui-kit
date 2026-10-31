@@ -14,6 +14,6 @@ describe('NotFoundState Pattern', () => {
 
     expect(screen.getByText('404')).toBeDefined();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Page not found');
-    expect(screen.getByRole('link', { name: /return to dashboard/i })).toBeDefined();
+    expect(screen.getByRole('link', { name: /return to home/i })).toBeDefined();
   });
 });

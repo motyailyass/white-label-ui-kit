@@ -121,6 +121,7 @@ export function Sidebar({
   return (
     <>
       <div
+        id="app-sidebar-backdrop"
         className={styles.backdrop}
         data-open={isSidebarOpenMobile}
         onClick={() => setSidebarOpenMobile(false)}

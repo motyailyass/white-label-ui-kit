@@ -1,10 +1,31 @@
 import type React from 'react';
+import localFont from 'next/font/local';
 import '../styles/globals.css';
 import { AppProviders } from '@/providers';
 import { ThemeScript } from '@/providers/theme-provider';
 import { getServerI18nState } from './i18n-server';
-
 import { siteConfig } from '@/fixtures/config/site';
+
+const geistSans = localFont({
+  src: '../styles/fonts/geist/Geist-Variable.woff2',
+  variable: '--font-geist-sans',
+  display: 'swap',
+  weight: '100 900',
+});
+
+const geistMono = localFont({
+  src: '../styles/fonts/geist/GeistMono-Variable.woff2',
+  variable: '--font-geist-mono',
+  display: 'swap',
+  weight: '100 900',
+});
+
+const notoSansArabic = localFont({
+  src: '../styles/fonts/noto-sans-arabic/NotoSansArabic-Variable.woff2',
+  variable: '--font-noto-arabic',
+  display: 'swap',
+  weight: '100 900',
+});
 
 export const metadata = {
   title: `${siteConfig.name} - Dashboard Starter Kit`,
@@ -16,7 +37,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { locale, direction } = await getServerI18nState('en');
 
   return (
-    <html lang={locale} dir={direction} suppressHydrationWarning>
+    <html
+      lang={locale}
+      dir={direction}
+      className={`${geistSans.variable} ${geistMono.variable} ${notoSansArabic.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <ThemeScript />
       </head>

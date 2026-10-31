@@ -1,0 +1,13 @@
+/*
+ * Dashboard-owned shape defaults.
+ * Compact, precise, and restrained.
+ */
+
+:root {
+  --radius-control: var(--radius-md);
+  --radius-card: var(--radius-lg);
+  --radius-overlay: var(--radius-lg);
+  --radius-dialog: var(--radius-xl);
+  --radius-navigation: var(--radius-md);
+  --radius-attached: var(--radius-none);
+}

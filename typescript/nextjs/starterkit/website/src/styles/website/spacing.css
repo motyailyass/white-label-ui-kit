@@ -1,0 +1,64 @@
+/*
+ * White Label UI Kit — Website-owned Spacing Roles
+ *
+ * Density: Comfortable within components; generous and editorial between sections.
+ * Responsive section rhythm across mobile, tablet, and desktop breakpoints.
+ */
+
+:root {
+  /* Page container */
+  --layout-page-padding-inline: var(--space-4);
+  --layout-page-padding-block: var(--space-4);
+
+  /* Section rhythm */
+  --layout-section-padding-block: var(--space-12);
+  --layout-section-padding-block-compact: var(--space-8);
+  --layout-hero-padding-block: var(--space-16);
+  --layout-section-gap: var(--space-8);
+  --layout-section-content-gap: var(--space-8);
+
+  /* Heading groups */
+  --layout-eyebrow-gap: var(--space-3);
+  --layout-heading-description-gap: var(--space-4);
+  --layout-description-actions-gap: var(--space-6);
+
+  /* Cards and grids */
+  --layout-grid-gap: var(--space-4);
+  --layout-card-padding: var(--space-6);
+
+  /* Forms */
+  --layout-field-label-gap: var(--space-2);
+  --layout-field-message-gap: var(--space-1);
+  --layout-form-field-gap: var(--space-6);
+  --layout-form-group-gap: var(--space-8);
+
+  /* Actions & Toolbars */
+  --layout-toolbar-gap: var(--space-2);
+  --layout-action-gap: var(--space-3);
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --layout-page-padding-inline: var(--space-6);
+    --layout-page-padding-block: var(--space-6);
+    --layout-section-padding-block: var(--space-16);
+    --layout-section-padding-block-compact: var(--space-10);
+    --layout-hero-padding-block: var(--space-20);
+    --layout-section-gap: var(--space-10);
+    --layout-section-content-gap: var(--space-10);
+    --layout-grid-gap: var(--space-6);
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --layout-page-padding-inline: var(--space-8);
+    --layout-page-padding-block: var(--space-8);
+    --layout-section-padding-block: var(--space-24);
+    --layout-section-padding-block-compact: var(--space-12);
+    --layout-hero-padding-block: var(--space-24);
+    --layout-section-gap: var(--space-12);
+    --layout-section-content-gap: var(--space-12);
+    --layout-card-padding: var(--space-8);
+  }
+}

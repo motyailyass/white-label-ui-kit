@@ -35,6 +35,9 @@ jobs:
       - name: Verify shared code synchronization (zero drift)
         run: pnpm run sync:shared:check
 
+      - name: Verify Dashboard shadow prohibition policy
+        run: pnpm run check:shadows
+
       - name: Verify code formatting
         run: pnpm run format:check
 

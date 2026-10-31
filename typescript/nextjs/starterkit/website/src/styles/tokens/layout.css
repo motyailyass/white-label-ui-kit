@@ -1,6 +1,7 @@
 /**
  * Layout & Dimension Design Tokens
- * Structural measurements, z-index hierarchy, and transitions.
+ * Structural measurements.
+ * (Layer stacking hierarchy is governed by ./z-index.css; motion by ./motion.css)
  */
 
 :root {
@@ -10,18 +11,4 @@
   --sidebar-collapsed-width: 68px;
   --sidebar-primary-width: 72px;
   --panel-width: 340px;
-
-  /* Transitions */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* Z-Index Hierarchy */
-  --z-header: 40;
-  --z-sidebar: 50;
-  --z-panel: 45;
-  --z-overlay: 60;
-  --z-modal: 70;
-  --z-toast: 80;
-  --z-tooltip: 90;
 }

@@ -73,7 +73,7 @@ export function TokyoHero({
               <div
                 style={{
                   padding: 'var(--space-4)',
-                  borderRadius: 'var(--radius-md)',
+                  borderRadius: 'var(--radius-card)',
                   border: '1px dashed var(--color-border-strong)',
                 }}
               >
@@ -96,7 +96,7 @@ export function TokyoHero({
               <div
                 style={{
                   padding: 'var(--space-4)',
-                  borderRadius: 'var(--radius-md)',
+                  borderRadius: 'var(--radius-card)',
                   border: '1px dashed var(--color-border-strong)',
                 }}
               >
@@ -119,7 +119,7 @@ export function TokyoHero({
               <div
                 style={{
                   padding: 'var(--space-4)',
-                  borderRadius: 'var(--radius-md)',
+                  borderRadius: 'var(--radius-card)',
                   border: '1px dashed var(--color-border-strong)',
                 }}
               >

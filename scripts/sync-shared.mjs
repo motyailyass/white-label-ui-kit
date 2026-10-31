@@ -39,7 +39,7 @@ const SHARED_DIRECTORIES = [
   'providers',
   'i18n',
   'lib',
-  'styles',
+  'styles/tokens',
 ];
 
 const EXCLUDED_PATTERNS = [

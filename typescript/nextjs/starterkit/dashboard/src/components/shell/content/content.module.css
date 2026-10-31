@@ -12,7 +12,8 @@
 .body {
   flex: 1;
   width: 100%;
-  padding: var(--space-6);
+  padding-block: var(--layout-page-padding-block);
+  padding-inline: var(--layout-page-padding-inline);
   margin: 0 auto;
 }
 
@@ -27,10 +28,4 @@
 
 .body[data-layout="full"] {
   max-width: 100%;
-}
-
-@media (max-width: 768px) {
-  .body {
-    padding: var(--space-4);
-  }
 }

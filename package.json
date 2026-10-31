@@ -5,6 +5,7 @@
   "scripts": {
     "sync:shared": "node scripts/sync-shared.mjs",
     "sync:shared:check": "node scripts/sync-shared.mjs --check",
+    "check:shadows": "node scripts/check-dashboard-shadows.mjs",
     "lint": "pnpm --recursive run lint",
     "type-check": "pnpm --recursive run type-check",
     "test": "pnpm --recursive run test",

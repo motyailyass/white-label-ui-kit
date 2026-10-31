@@ -1,0 +1,43 @@
+/*
+ * White Label UI Kit — Dashboard-owned Spacing Roles
+ *
+ * Density: Compact and structured.
+ * Desktop: 24-32px section gaps and page padding.
+ * Mobile: 16px page padding and card padding.
+ */
+
+:root {
+  /* Page structure */
+  --layout-page-padding-inline: var(--space-4);
+  --layout-page-padding-block: var(--space-4);
+  --layout-page-header-gap: var(--space-6);
+  --layout-section-gap: var(--space-6);
+  --layout-grid-gap: var(--space-4);
+
+  /* Component interiors */
+  --layout-card-padding: var(--space-4);
+  --layout-card-padding-compact: var(--space-4);
+
+  /* Forms */
+  --layout-field-label-gap: var(--space-2);
+  --layout-field-message-gap: var(--space-1);
+  --layout-form-field-gap: var(--space-4);
+  --layout-form-group-gap: var(--space-6);
+
+  /* Actions */
+  --layout-toolbar-gap: var(--space-2);
+  --layout-action-gap: var(--space-2);
+
+  /* Data presentation */
+  --layout-table-cell-padding-inline: var(--space-4);
+  --layout-table-cell-padding-block: var(--space-3);
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --layout-page-padding-inline: var(--space-6);
+    --layout-page-padding-block: var(--space-6);
+    --layout-section-gap: var(--space-8);
+    --layout-card-padding: var(--space-6);
+  }
+}

@@ -1,41 +1,35 @@
 /**
- * Typography Design Tokens
- * Font families, fluid scale, line-heights, and font weights.
- * Native support for both Latin and Arabic / MENA scripts.
+ * White Label UI Kit — Typography Primitives
+ *
+ * Font families, primitive size scale (rem), line-heights, and weights.
+ * Scalable cornerstones for interface and content typography.
+ * Product defaults belong in local product presets (styles/dashboard, styles/website).
  */
 
 :root {
-  /* Latin Font Stacks */
-  --font-family-sans-latin:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-
-  /* Arabic / MENA Font Stacks */
-  --font-family-arabic:
-    "Cairo", "IBM Plex Sans Arabic", "Noto Sans Arabic", "Geeza Pro", "Simplified Arabic", "Tahoma",
-    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-family-arabic-heading:
-    "Cairo", "IBM Plex Sans Arabic", "Noto Kufi Arabic", "Geeza Pro", -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-family-arabic-mono:
-    "IBM Plex Sans Arabic", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-
-  /* Universal Default Font Stacks (Bilingual Fallback) */
+  /* Font Families — Replaceable defaults */
   --font-family-sans:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Geeza Pro",
-    "Simplified Arabic", "Cairo", "Noto Sans Arabic", Arial, sans-serif;
-  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    var(--font-geist-sans), "Geist Sans", "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-arabic:
+    var(--font-noto-arabic), "Noto Sans Arabic", "Geeza Pro", "Simplified Arabic", "Tahoma",
+    sans-serif;
+  --font-family-mono:
+    var(--font-geist-mono), "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
 
-  /* Font Sizes */
-  --font-size-2xs: 0.6875rem; /* 11px */
+  /* Primitive Font Sizes (rem-based, follows root font preference) - 11-step scale */
   --font-size-xs: 0.75rem; /* 12px */
   --font-size-sm: 0.875rem; /* 14px */
   --font-size-base: 1rem; /* 16px */
   --font-size-lg: 1.125rem; /* 18px */
   --font-size-xl: 1.25rem; /* 20px */
   --font-size-2xl: 1.5rem; /* 24px */
-  --font-size-3xl: 1.875rem; /* 30px */
-  --font-size-4xl: 2.25rem; /* 36px */
-  --font-size-5xl: 3rem; /* 48px */
+  --font-size-3xl: 1.75rem; /* 28px */
+  --font-size-4xl: 2rem; /* 32px */
+  --font-size-5xl: 2.5rem; /* 40px */
+  --font-size-6xl: 3rem; /* 48px */
+  --font-size-7xl: 4rem; /* 64px */
 
   /* Line Heights (Latin) */
   --line-height-none: 1;
@@ -44,13 +38,14 @@
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.625;
 
-  /* Line Heights (Arabic - taller ascenders & descenders require adjusted leading) */
+  /* Line Heights (Arabic — adjusted vertical clearance for diacritics/ascenders) */
   --line-height-arabic-tight: 1.35;
   --line-height-arabic-snug: 1.5;
   --line-height-arabic-normal: 1.65;
   --line-height-arabic-relaxed: 1.85;
 
   /* Font Weights */
+  --font-weight-regular: 400;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;

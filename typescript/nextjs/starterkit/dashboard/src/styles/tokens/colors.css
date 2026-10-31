@@ -1,87 +1,17 @@
 /**
- * Color Design Tokens
- * Semantic token architecture with Light & Dark themes.
- * Strict WCAG AA accessibility compliance (minimum 4.5:1 contrast for text).
+ * Primitive Neutral Grayscale Tokens
+ * Exactly nine neutral values (0-8) spanning pure white to pure black.
+ * UI-tuned ramp without color tint. Never redefined in dark mode.
  */
 
 :root {
-  /* Primitive Neutral Grayscale (Slate / Neutral Base) */
   --color-neutral-0: #ffffff;
-  --color-neutral-50: #f8fafc;
-  --color-neutral-100: #f1f5f9;
-  --color-neutral-200: #e2e8f0;
-  --color-neutral-300: #cbd5e1;
-  --color-neutral-400: #94a3b8;
-  --color-neutral-500: #64748b;
-  --color-neutral-600: #475569;
-  --color-neutral-700: #334155;
-  --color-neutral-800: #1e293b;
-  --color-neutral-900: #0f172a;
-  --color-neutral-950: #020617;
-
-  /* Semantic Roles - Light Theme Default */
-  --color-bg-base: var(--color-neutral-50);
-  --color-surface: var(--color-neutral-0);
-  --color-surface-hover: var(--color-neutral-100);
-  --color-surface-active: var(--color-neutral-200);
-  --color-surface-subtle: var(--color-neutral-50);
-
-  --color-text-primary: var(--color-neutral-900);
-  --color-text-secondary: var(--color-neutral-600);
-  --color-text-muted: var(
-    --color-neutral-500
-  ); /* 4.6:1 contrast ratio against #ffffff (WCAG AA pass) */
-  --color-text-inverse: var(--color-neutral-0);
-
-  --color-border: var(--color-neutral-200);
-  --color-border-subtle: var(--color-neutral-200);
-  --color-border-strong: var(--color-neutral-300);
-  --color-border-focus: #3b82f6;
-
-  /* Brand / Primary Accent (Non-Branded Neutral Monochrome) */
-  --color-primary: var(--color-neutral-900);
-  --color-primary-hover: var(--color-neutral-800);
-  --color-primary-foreground: var(--color-neutral-0);
-
-  /* Status Colors */
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
-  --color-info: #3b82f6;
-
-  /* Status Subtle Background Surfaces */
-  --color-success-subtle: rgba(16, 185, 129, 0.12);
-  --color-warning-subtle: rgba(245, 158, 11, 0.12);
-  --color-danger-subtle: rgba(239, 68, 68, 0.12);
-  --color-info-subtle: rgba(59, 130, 246, 0.12);
-}
-
-/* Dark Theme Overrides */
-[data-theme="dark"],
-.dark {
-  --color-bg-base: #090d16;
-  --color-surface: #111827;
-  --color-surface-hover: #1f2937;
-  --color-surface-active: #374151;
-  --color-surface-subtle: #0f172a;
-
-  --color-text-primary: #f8fafc;
-  --color-text-secondary: #cbd5e1;
-  --color-text-muted: #94a3b8; /* 7.3:1 contrast ratio against #111827 (WCAG AA pass) */
-  --color-text-inverse: #0f172a;
-
-  --color-border: #1e293b;
-  --color-border-subtle: #1e293b;
-  --color-border-strong: #334155;
-  --color-border-focus: #60a5fa;
-
-  --color-primary: #f8fafc;
-  --color-primary-hover: #e2e8f0;
-  --color-primary-foreground: #0f172a;
-
-  /* Dark Status Subtle Background Surfaces */
-  --color-success-subtle: rgba(16, 185, 129, 0.2);
-  --color-warning-subtle: rgba(245, 158, 11, 0.2);
-  --color-danger-subtle: rgba(239, 68, 68, 0.2);
-  --color-info-subtle: rgba(59, 130, 246, 0.2);
+  --color-neutral-1: #fafafa;
+  --color-neutral-2: #e5e5e5;
+  --color-neutral-3: #a3a3a3;
+  --color-neutral-4: #737373;
+  --color-neutral-5: #525252;
+  --color-neutral-6: #262626;
+  --color-neutral-7: #141414;
+  --color-neutral-8: #000000;
 }

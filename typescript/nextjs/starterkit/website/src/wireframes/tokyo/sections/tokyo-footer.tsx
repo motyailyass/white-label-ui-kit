@@ -90,7 +90,7 @@ export function TokyoFooter({
             style={{
               padding: '2px 8px',
               fontSize: '11px',
-              borderRadius: 'var(--radius-full)',
+              borderRadius: 'var(--radius-control)',
               border: '1px solid var(--color-border-subtle)',
               background: 'transparent',
               color: 'var(--color-text-secondary)',

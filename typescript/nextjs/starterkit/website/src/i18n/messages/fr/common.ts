@@ -19,4 +19,6 @@ export const common = {
   goHome: "Aller à l'accueil",
   status: 'Statut',
   lastModified: 'Dernière modification',
+  filter: 'Filtrer',
+  exportReport: 'Exporter le rapport',
 } satisfies CommonMessages;

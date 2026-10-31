@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Button } from '@/components/ui/button';
 import { BidiText } from '@/i18n';
 import { useI18n } from '@/providers/i18n-provider';
 import { demoBidiInfo, demoMetrics } from '@/fixtures/dashboard-data';
@@ -11,9 +12,17 @@ export function OverviewContent() {
 
   return (
     <div className={styles.pageContainer}>
-      <div className={styles.headerSection}>
-        <h2 className={styles.title}>{t('dashboard.overview.title')}</h2>
-        <p className={styles.subtitle}>{t('dashboard.overview.subtitle')}</p>
+      <div className={styles.headerRow}>
+        <div className={styles.headerSection}>
+          <h2 className={styles.title}>{t('dashboard.overview.title')}</h2>
+          <p className={styles.subtitle}>{t('dashboard.overview.subtitle')}</p>
+        </div>
+        <div className={styles.actionRow}>
+          <Button variant="secondary" size="sm">
+            {t('common.filter')}
+          </Button>
+          <Button variant="primary">{t('common.exportReport')}</Button>
+        </div>
       </div>
 
       <div className={styles.metricsGrid}>

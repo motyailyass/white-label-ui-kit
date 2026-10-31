@@ -1,0 +1,37 @@
+/**
+ * Website Shadow & Elevation Tokens
+ *
+ * Opt-in, restrained elevation for marketing surfaces.
+ * Neutral black only, zero horizontal offset (LTR/RTL natural).
+ * Dashboard must never import or consume this file.
+ */
+
+:root {
+  --website-shadow-none: none;
+
+  /* Small separation: restrained cards and sticky headers */
+  --website-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 4%), 0 2px 6px 0 rgb(0 0 0 / 3%);
+
+  /* Moderate elevation: interactive cards */
+  --website-shadow-md: 0 2px 4px -2px rgb(0 0 0 / 6%), 0 8px 20px -8px rgb(0 0 0 / 10%);
+
+  /* Floating content: menus and popovers */
+  --website-shadow-lg: 0 4px 8px -4px rgb(0 0 0 / 8%), 0 16px 40px -12px rgb(0 0 0 / 14%);
+
+  /* Highest elevation: dialogs and major floating surfaces */
+  --website-shadow-xl: 0 8px 16px -8px rgb(0 0 0 / 10%), 0 24px 64px -16px rgb(0 0 0 / 18%);
+
+  /* Semantic aliases */
+  --website-shadow-card: var(--website-shadow-sm);
+  --website-shadow-card-hover: var(--website-shadow-md);
+  --website-shadow-header: var(--website-shadow-sm);
+  --website-shadow-menu: var(--website-shadow-lg);
+  --website-shadow-dialog: var(--website-shadow-xl);
+}
+
+:root[data-theme="dark"] {
+  --website-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 24%), 0 2px 6px 0 rgb(0 0 0 / 16%);
+  --website-shadow-md: 0 2px 4px -2px rgb(0 0 0 / 30%), 0 8px 20px -8px rgb(0 0 0 / 32%);
+  --website-shadow-lg: 0 4px 8px -4px rgb(0 0 0 / 32%), 0 16px 40px -12px rgb(0 0 0 / 40%);
+  --website-shadow-xl: 0 8px 16px -8px rgb(0 0 0 / 36%), 0 24px 64px -16px rgb(0 0 0 / 48%);
+}

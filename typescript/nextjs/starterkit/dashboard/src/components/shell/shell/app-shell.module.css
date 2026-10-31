@@ -15,7 +15,6 @@
   min-width: 0;
   min-height: 100vh;
   position: relative;
-  transition: margin-inline-start var(--transition-normal);
 }
 
 /* Horizontal top-nav layout */

@@ -3,7 +3,8 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: var(--space-12) var(--space-4) var(--space-8);
+  padding-block: var(--layout-hero-padding-block);
+  padding-inline: var(--layout-page-padding-inline);
   max-width: 1200px;
   margin: 0 auto;
   position: relative;
@@ -14,13 +15,13 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-1) var(--space-3);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
+  font-size: var(--typography-eyebrow-size);
+  line-height: var(--typography-eyebrow-line-height);
+  font-weight: var(--typography-eyebrow-weight);
   border-radius: var(--radius-full);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
   color: var(--color-text-secondary);
-  box-shadow: var(--shadow-xs);
   margin-bottom: var(--space-6);
 }
 
@@ -32,9 +33,9 @@
 }
 
 .title {
-  font-size: clamp(2rem, 5vw, 3.75rem);
-  font-weight: var(--font-weight-bold);
-  line-height: 1.1;
+  font-size: var(--typography-hero-display-size);
+  line-height: var(--typography-hero-display-line-height);
+  font-weight: var(--typography-hero-display-weight);
   letter-spacing: -0.03em;
   color: var(--color-text-primary);
   max-width: 840px;
@@ -42,8 +43,9 @@
 }
 
 .subtitle {
-  font-size: clamp(1rem, 2vw, 1.25rem);
-  line-height: 1.6;
+  font-size: var(--typography-lead-size);
+  line-height: var(--typography-lead-line-height);
+  font-weight: var(--typography-lead-weight);
   color: var(--color-text-secondary);
   max-width: 640px;
   margin: 0 auto var(--space-8);
@@ -53,9 +55,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-3);
+  gap: var(--layout-action-gap);
   flex-wrap: wrap;
-  margin-bottom: var(--space-12);
+  margin-bottom: var(--layout-section-content-gap);
 }
 
 .primaryCta {
@@ -66,7 +68,7 @@
   padding: 0 var(--space-6);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background-color: var(--color-primary);
   color: var(--color-primary-foreground);
   border: none;
@@ -87,7 +89,7 @@
   padding: 0 var(--space-6);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background-color: var(--color-surface);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border-strong);
@@ -106,8 +108,8 @@
   max-width: 1040px;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-feature);
+  box-shadow: var(--website-shadow-xl);
   overflow: hidden;
   text-align: start;
 }

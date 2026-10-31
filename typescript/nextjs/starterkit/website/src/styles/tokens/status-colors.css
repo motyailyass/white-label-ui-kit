@@ -1,0 +1,41 @@
+/**
+ * Shared Functional Status Colors
+ * Success, Warning, Danger, Information (foreground, base, and subtle surfaces).
+ * Distinct from brand and neutral ramps.
+ */
+
+:root {
+  --color-success: #15803d;
+  --color-success-subtle: #f0fdf4;
+  --color-success-foreground: #ffffff;
+
+  --color-warning: #92400e;
+  --color-warning-subtle: #fffbeb;
+  --color-warning-foreground: #ffffff;
+
+  --color-danger: #b91c1c;
+  --color-danger-subtle: #fef2f2;
+  --color-danger-foreground: #ffffff;
+
+  --color-info: #1d4ed8;
+  --color-info-subtle: #eff6ff;
+  --color-info-foreground: #ffffff;
+}
+
+:root[data-theme="dark"] {
+  --color-success: #86efac;
+  --color-success-subtle: #052e16;
+  --color-success-foreground: #052e16;
+
+  --color-warning: #fcd34d;
+  --color-warning-subtle: #451a03;
+  --color-warning-foreground: #451a03;
+
+  --color-danger: #fca5a5;
+  --color-danger-subtle: #450a0a;
+  --color-danger-foreground: #450a0a;
+
+  --color-info: #93c5fd;
+  --color-info-subtle: #172554;
+  --color-info-foreground: #172554;
+}

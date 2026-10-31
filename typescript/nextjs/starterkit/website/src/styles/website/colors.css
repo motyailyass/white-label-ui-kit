@@ -1,0 +1,27 @@
+/**
+ * Website Surface Preset
+ * Exact white/black canvas for landing pages and marketing,
+ * with softer surfaces for sections and cards.
+ */
+
+:root {
+  --color-bg-base: var(--color-neutral-0);
+
+  --color-surface: var(--color-neutral-1);
+  --color-surface-subtle: var(--color-neutral-1);
+  --color-surface-raised: var(--color-neutral-0);
+
+  --color-surface-hover: var(--color-neutral-2);
+  --color-surface-active: var(--color-neutral-2);
+}
+
+:root[data-theme="dark"] {
+  --color-bg-base: var(--color-neutral-8);
+
+  --color-surface: var(--color-neutral-7);
+  --color-surface-subtle: var(--color-neutral-8);
+  --color-surface-raised: var(--color-neutral-6);
+
+  --color-surface-hover: var(--color-neutral-6);
+  --color-surface-active: var(--color-neutral-6);
+}

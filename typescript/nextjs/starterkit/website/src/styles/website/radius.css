@@ -1,0 +1,16 @@
+/*
+ * Website-owned shape defaults.
+ * Slightly softer, while remaining neutral and rebrandable.
+ */
+
+:root {
+  --radius-control: var(--radius-lg);
+  --radius-card: var(--radius-xl);
+  --radius-overlay: var(--radius-xl);
+  --radius-dialog: var(--radius-2xl);
+  --radius-navigation: var(--radius-lg);
+  --radius-attached: var(--radius-none);
+
+  /* Website-specific large feature/media surfaces */
+  --radius-feature: var(--radius-2xl);
+}

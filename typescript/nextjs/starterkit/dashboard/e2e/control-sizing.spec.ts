@@ -69,19 +69,45 @@ test.describe('Dashboard Control Sizing & Interaction Target Verification', () =
     expect(height).toBeGreaterThan(40);
   });
 
-  test('loading state maintains identical dimensions with zero layout shift', async ({ page }) => {
+  test('loading state maintains identical dimensions with zero layout shift on width and height', async ({
+    page,
+  }) => {
     await page.goto('/sizing-fixture');
-    const defaultBtn = page.locator('#btn-default');
-    const loadingBtn = page.locator('#btn-loading');
+    const dynamicBtn = page.locator('#btn-dynamic-loading');
+    await expect(dynamicBtn).toBeVisible();
 
-    const defaultHeight = await defaultBtn.evaluate((el) =>
-      parseFloat(window.getComputedStyle(el).height),
-    );
-    const loadingHeight = await loadingBtn.evaluate((el) =>
-      parseFloat(window.getComputedStyle(el).height),
-    );
+    // 1. Measure button in resting state
+    const restingBox = await dynamicBtn.boundingBox();
+    expect(restingBox).not.toBeNull();
 
-    expect(loadingHeight).toBeCloseTo(defaultHeight, 1);
+    // 2. Click to toggle loading state
+    await dynamicBtn.click();
+    await expect(dynamicBtn).toHaveAttribute('data-loading', 'true');
+
+    // 3. Measure button in loading state
+    const loadingBox = await dynamicBtn.boundingBox();
+    expect(loadingBox).not.toBeNull();
+
+    // Assert exact zero layout shift across both block and inline axes
+    expect(loadingBox!.width).toBeCloseTo(restingBox!.width, 1);
+    expect(loadingBox!.height).toBeCloseTo(restingBox!.height, 1);
+  });
+
+  test('omitted touchTarget defaults to auto and expands to 48px on coarse pointer devices', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ hasTouch: true });
+    const touchPage = await context.newPage();
+    await touchPage.goto('/sizing-fixture');
+    const defaultBtn = touchPage.locator('#btn-default');
+    await expect(defaultBtn).toBeVisible();
+
+    expect(await defaultBtn.getAttribute('data-touch-target')).toBe('auto');
+    const height = await defaultBtn.evaluate((el) => {
+      return parseFloat(window.getComputedStyle(el).height);
+    });
+    expect(height).toBeGreaterThanOrEqual(48);
+    await context.close();
   });
 
   test('maintains identical dimensions across light and dark themes (theme parity)', async ({

@@ -80,8 +80,8 @@
 }
 
 .saveBadge {
-  font-size: var(--font-size-xs);
-  line-height: var(--line-height-xs);
+  font-size: var(--typography-eyebrow-size);
+  line-height: var(--typography-eyebrow-line-height);
   font-weight: var(--font-weight-semibold);
   color: var(--color-success);
   padding-block: var(--space-0-5);
@@ -121,8 +121,8 @@
   inset-inline: 0;
   margin-inline: auto;
   inline-size: max-content;
-  font-size: var(--font-size-xs);
-  line-height: var(--line-height-xs);
+  font-size: var(--typography-eyebrow-size);
+  line-height: var(--typography-eyebrow-line-height);
   font-weight: var(--font-weight-semibold);
   padding-block: var(--space-1);
   padding-inline: var(--space-3);
@@ -130,7 +130,7 @@
   background-color: var(--color-primary);
   color: var(--color-primary-foreground);
   text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wider);
+  letter-spacing: var(--letter-spacing-wide);
 }
 
 .tierName {

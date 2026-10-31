@@ -54,12 +54,12 @@
 }
 
 .colTitle {
-  font-size: var(--font-size-xs);
-  line-height: var(--line-height-xs);
+  font-size: var(--typography-eyebrow-size);
+  line-height: var(--typography-eyebrow-line-height);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wider);
+  letter-spacing: var(--letter-spacing-wide);
   margin-block-end: var(--space-4);
 }
 

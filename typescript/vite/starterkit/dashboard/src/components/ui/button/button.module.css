@@ -7,6 +7,7 @@
   --_control-icon-size: var(--control-icon-size-default);
   --_control-gap: var(--control-gap-default);
 
+  position: relative;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
@@ -187,6 +188,18 @@
   cursor: not-allowed;
 }
 
+.content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--_control-gap);
+  inline-size: 100%;
+}
+
+.hiddenContent {
+  visibility: hidden;
+}
+
 .icon {
   display: inline-flex;
   align-items: center;
@@ -194,6 +207,15 @@
   inline-size: var(--_control-icon-size);
   block-size: var(--_control-icon-size);
   flex: none;
+}
+
+.spinnerWrapper {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 
 .spinner {
@@ -205,6 +227,15 @@
   border-radius: var(--radius-full);
   animation: spin 0.6s linear infinite;
   flex: none;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

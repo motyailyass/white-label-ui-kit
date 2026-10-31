@@ -14,7 +14,7 @@ export interface PricingTier {
   description: string;
   monthlyPrice: number | string;
   annualPrice: number | string;
-  currency?: string;
+  currency: string;
   isPopular?: boolean;
   ctaLabel?: string;
   ctaHref?: string;
@@ -145,7 +145,7 @@ export function TokyoPricing({
           const rawPrice = billingCycle === 'annual' ? tier.annualPrice : tier.monthlyPrice;
           const formattedPrice =
             typeof rawPrice === 'number'
-              ? formatCurrency(rawPrice, tier.currency ?? 'USD', { maximumFractionDigits: 0 })
+              ? formatCurrency(rawPrice, tier.currency, { maximumFractionDigits: 0 })
               : rawPrice;
 
           return (

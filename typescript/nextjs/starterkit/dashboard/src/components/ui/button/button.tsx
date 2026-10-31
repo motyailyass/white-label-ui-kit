@@ -15,7 +15,7 @@ export interface ButtonProps extends ComponentPropsWithoutRef<'button'>, Control
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   {
     size,
-    touchTarget,
+    touchTarget = 'auto',
     variant = 'secondary',
     loading = false,
     disabled = false,
@@ -43,13 +43,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       data-loading={loading ? 'true' : undefined}
       className={cn(styles.button, className)}
     >
-      {loading ? (
-        <span className={styles.spinner} aria-hidden="true" />
-      ) : (
-        startIcon && <span className={styles.icon}>{startIcon}</span>
+      <span className={cn(styles.content, loading && styles.hiddenContent)}>
+        {startIcon && <span className={styles.icon}>{startIcon}</span>}
+        {children}
+        {endIcon && <span className={styles.icon}>{endIcon}</span>}
+      </span>
+      {loading && (
+        <span className={styles.spinnerWrapper} aria-hidden="true">
+          <span className={styles.spinner} />
+        </span>
       )}
-      {children}
-      {endIcon && <span className={styles.icon}>{endIcon}</span>}
     </button>
   );
 });

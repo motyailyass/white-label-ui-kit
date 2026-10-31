@@ -1,11 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { LanguageSwitcher, ThemeSwitcher } from '@/components/patterns';
 import { Button } from '@/components/ui/button';
 import styles from './control-sizing-fixture.module.css';
 
 export function ControlSizingFixture() {
+  const [isLoadingDynamic, setIsLoadingDynamic] = useState(false);
+
   return (
     <div className={styles.container} data-testid="control-sizing-fixture">
       <header className={styles.header}>
@@ -98,6 +100,13 @@ export function ControlSizingFixture() {
           Loading and disabled controls preserve identical dimensions with zero layout shift.
         </p>
         <div className={styles.row}>
+          <Button
+            id="btn-dynamic-loading"
+            loading={isLoadingDynamic}
+            onClick={() => setIsLoadingDynamic((prev) => !prev)}
+          >
+            Saving Changes
+          </Button>
           <Button id="btn-loading" loading>
             Saving Changes
           </Button>

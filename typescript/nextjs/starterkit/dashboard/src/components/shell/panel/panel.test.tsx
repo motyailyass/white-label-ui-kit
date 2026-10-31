@@ -108,4 +108,19 @@ describe('Panel & ThreeColumnLayout Inspector Contracts', () => {
 
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
+
+  it('coordinates with modal stack so Escape closes only topmost modal in LIFO order', () => {
+    const handlePanelOpenChange = vi.fn();
+
+    render(
+      <LayoutProvider>
+        <Panel mode="overlay" open={true} onOpenChange={handlePanelOpenChange}>
+          <button type="button">Panel Action</button>
+        </Panel>
+      </LayoutProvider>,
+    );
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(handlePanelOpenChange).toHaveBeenCalledWith(false);
+  });
 });

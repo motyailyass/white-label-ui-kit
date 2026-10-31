@@ -10,6 +10,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react';
 
 export type LayoutVariant = 'classic' | 'dual-sidebar' | 'three-column' | 'horizontal' | 'compact';
@@ -61,6 +62,32 @@ export interface LayoutProviderProps {
 const MOBILE_MEDIA_QUERY = '(max-width: 768px)';
 const TABLET_MEDIA_QUERY = '(max-width: 1024px)';
 
+function subscribeMediaQuery(query: string, callback: () => void) {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return () => {};
+  }
+  const mql = window.matchMedia(query);
+  mql.addEventListener('change', callback);
+  return () => mql.removeEventListener('change', callback);
+}
+
+function getMediaQuerySnapshot(query: string): boolean {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return false;
+  }
+  return window.matchMedia(query).matches;
+}
+
+function getMediaQueryServerSnapshot(): boolean {
+  return false;
+}
+
+function useMediaQuery(query: string): boolean {
+  const subscribe = useCallback((cb: () => void) => subscribeMediaQuery(query, cb), [query]);
+  const getSnapshot = useCallback(() => getMediaQuerySnapshot(query), [query]);
+  return useSyncExternalStore(subscribe, getSnapshot, getMediaQueryServerSnapshot);
+}
+
 export function LayoutProvider({
   children,
   variant,
@@ -80,8 +107,8 @@ export function LayoutProvider({
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(defaultSidebarCollapsed);
   const [isSidebarOpenMobile, setSidebarOpenMobile] = useState(false);
   const [uncontrolledPanelOpen, setPanelOpen] = useState(defaultPanelOpen);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
+  const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY);
+  const isTablet = useMediaQuery(TABLET_MEDIA_QUERY);
   const [sidebarController, setSidebarController] = useState<SidebarController | null>(null);
   const [panelController, setPanelController] = useState<PanelController | null>(null);
 
@@ -100,54 +127,21 @@ export function LayoutProvider({
     [variant, onVariantChange],
   );
 
-  // Track viewport breakpoints in exact parity with CSS @media (max-width: 768px / 1024px)
+  // Viewport breakpoint transitions
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const applyViewportState = (mobile: boolean, tablet: boolean) => {
-      setIsMobile(mobile);
-      setIsTablet(tablet);
-
-      // Crossing from mobile (<= 768px) back to desktop (> 768px) must close mobile drawer & unlock scroll
-      if (prevMobileRef.current === true && !mobile) {
-        setSidebarOpenMobile(false);
-      }
-
-      // Crossing from desktop (> 1024px) down to compact/tablet (<= 1024px) closes docked panel
-      if (prevTabletRef.current === false && tablet) {
-        setPanelOpen(false);
-      }
-
-      prevMobileRef.current = mobile;
-      prevTabletRef.current = tablet;
-    };
-
-    if (typeof window.matchMedia === 'function') {
-      const mobileMql = window.matchMedia(MOBILE_MEDIA_QUERY);
-      const tabletMql = window.matchMedia(TABLET_MEDIA_QUERY);
-
-      const handleMediaChange = () => {
-        applyViewportState(mobileMql.matches, tabletMql.matches);
-      };
-
-      handleMediaChange();
-      mobileMql.addEventListener('change', handleMediaChange);
-      tabletMql.addEventListener('change', handleMediaChange);
-      return () => {
-        mobileMql.removeEventListener('change', handleMediaChange);
-        tabletMql.removeEventListener('change', handleMediaChange);
-      };
+    // Crossing from mobile (<= 768px) back to desktop (> 768px) must close mobile drawer
+    if (prevMobileRef.current === true && !isMobile) {
+      setSidebarOpenMobile(false);
     }
 
-    // Fallback for test environments without matchMedia (note JSDOM defaults innerWidth to 1024)
-    const handleResizeFallback = () => {
-      applyViewportState(window.innerWidth <= 768, window.innerWidth < 1024);
-    };
+    // Crossing from desktop (> 1024px) down to compact/tablet (<= 1024px) closes docked panel
+    if (prevTabletRef.current === false && isTablet) {
+      setPanelOpen(false);
+    }
 
-    handleResizeFallback();
-    window.addEventListener('resize', handleResizeFallback);
-    return () => window.removeEventListener('resize', handleResizeFallback);
-  }, []);
+    prevMobileRef.current = isMobile;
+    prevTabletRef.current = isTablet;
+  }, [isMobile, isTablet]);
 
   const effectiveSidebarCollapsed =
     sidebarController !== null ? sidebarController.collapsed : isSidebarCollapsed;
@@ -163,9 +157,22 @@ export function LayoutProvider({
     }
   }, [sidebarController]);
 
+  const handleSetSidebarOpenMobile = useCallback(
+    (open: boolean | ((prev: boolean) => boolean)) => {
+      setSidebarOpenMobile((prev) => {
+        const next = typeof open === 'function' ? open(prev) : open;
+        if (next && isMobile) {
+          setPanelOpen(false);
+        }
+        return next;
+      });
+    },
+    [isMobile],
+  );
+
   const toggleSidebarMobile = useCallback(() => {
-    setSidebarOpenMobile((prev) => !prev);
-  }, []);
+    handleSetSidebarOpenMobile((prev) => !prev);
+  }, [handleSetSidebarOpenMobile]);
 
   const togglePanel = useCallback(() => {
     if (panelController) {
@@ -229,7 +236,7 @@ export function LayoutProvider({
       setSidebarCollapsed,
       toggleSidebar,
       isSidebarOpenMobile,
-      setSidebarOpenMobile,
+      setSidebarOpenMobile: handleSetSidebarOpenMobile,
       toggleSidebarMobile,
       isPanelOpen: effectivePanelOpen,
       setPanelOpen,
@@ -247,6 +254,7 @@ export function LayoutProvider({
       effectiveSidebarCollapsed,
       toggleSidebar,
       isSidebarOpenMobile,
+      handleSetSidebarOpenMobile,
       toggleSidebarMobile,
       effectivePanelOpen,
       togglePanel,

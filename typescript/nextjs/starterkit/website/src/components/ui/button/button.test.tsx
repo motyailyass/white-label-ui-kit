@@ -9,6 +9,7 @@ describe('Button Primitive', () => {
     const button = screen.getByRole('button', { name: /click me/i });
     expect(button.getAttribute('data-size')).toBeNull();
     expect(button.getAttribute('data-variant')).toBe('secondary');
+    expect(button.getAttribute('data-touch-target')).toBe('auto');
     expect(button.getAttribute('type')).toBe('button');
   });
 
@@ -48,7 +49,7 @@ describe('Button Primitive', () => {
     expect(button.getAttribute('data-touch-target')).toBe('auto');
   });
 
-  it('renders startIcon and endIcon in logical slots and preserves endIcon during loading', () => {
+  it('renders startIcon and endIcon in logical slots and preserves content structure during loading', () => {
     const { rerender } = render(
       <Button
         startIcon={<span data-testid="start-icon">S</span>}
@@ -75,9 +76,10 @@ describe('Button Primitive', () => {
     expect(button.hasAttribute('disabled')).toBe(true);
     expect(button.getAttribute('data-loading')).toBe('true');
     expect(button.getAttribute('aria-busy')).toBe('true');
-    // startIcon is replaced by spinner, while endIcon remains rendered
-    expect(screen.queryByTestId('start-icon')).toBeNull();
+    // content is preserved in layout flow for zero layout shift, spinner is displayed
+    expect(screen.getByTestId('start-icon')).toBeTruthy();
     expect(screen.getByTestId('end-icon')).toBeTruthy();
+    expect(button.querySelector('[aria-hidden="true"]')).toBeTruthy();
   });
 
   it('handles click events when enabled', () => {

@@ -23,9 +23,41 @@ describe('Icon component (Hugeicons wrapper)', () => {
     const { container: directionalContainer } = render(<Icon name="chevron-right" />);
     const directionalSvg = directionalContainer.querySelector('svg');
     expect(directionalSvg?.getAttribute('class')).toContain('mirror');
+    expect(directionalSvg?.getAttribute('data-mirror-rtl')).toBe('true');
+
+    const { container: logoutContainer } = render(<Icon name="logout" />);
+    const logoutSvg = logoutContainer.querySelector('svg');
+    expect(logoutSvg?.getAttribute('class')).toContain('mirror');
+    expect(logoutSvg?.getAttribute('data-mirror-rtl')).toBe('true');
+
+    const { container: milestoneContainer } = render(<Icon name="milestone" />);
+    const milestoneSvg = milestoneContainer.querySelector('svg');
+    expect(milestoneSvg?.getAttribute('class')).toContain('mirror');
+    expect(milestoneSvg?.getAttribute('data-mirror-rtl')).toBe('true');
 
     const { container: staticContainer } = render(<Icon name="search" />);
     const staticSvg = staticContainer.querySelector('svg');
     expect(staticSvg?.getAttribute('class')).not.toContain('mirror');
+    expect(staticSvg?.getAttribute('data-mirror-rtl')).toBeNull();
+  });
+
+  it('renders newly added action and system icons', () => {
+    const { container: addContainer } = render(<Icon name="add" />);
+    expect(addContainer.querySelector('svg')).toBeDefined();
+
+    const { container: downloadContainer } = render(<Icon name="download" />);
+    expect(downloadContainer.querySelector('svg')).toBeDefined();
+
+    const { container: uploadContainer } = render(<Icon name="upload" />);
+    expect(uploadContainer.querySelector('svg')).toBeDefined();
+
+    const { container: bellContainer } = render(<Icon name="bell" />);
+    expect(bellContainer.querySelector('svg')).toBeDefined();
+
+    const { container: slidersContainer } = render(<Icon name="sliders" />);
+    expect(slidersContainer.querySelector('svg')).toBeDefined();
+
+    const { container: chartContainer } = render(<Icon name="chart" />);
+    expect(chartContainer.querySelector('svg')).toBeDefined();
   });
 });

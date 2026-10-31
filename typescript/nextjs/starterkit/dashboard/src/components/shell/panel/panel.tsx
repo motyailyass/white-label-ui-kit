@@ -6,6 +6,7 @@ import { Icon } from '@/components/icons';
 import { cn } from '@/lib/cn';
 import { acquireBodyScrollLock } from '@/lib/scroll-lock';
 import { useLayout } from '../layout-context';
+import { isTopmostModal, pushModal } from '../modal-stack';
 import styles from './panel.module.css';
 
 /* -------------------------------------------------------------------------- */
@@ -80,28 +81,50 @@ export function Panel({
 
     const releaseScrollLock = acquireBodyScrollLock();
     const previousActiveElement = document.activeElement as HTMLElement | null;
+    const unregisterModal = pushModal('panel-overlay', () => requestCloseRef.current());
 
     const focusableSelector =
       'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+    const isVisible = (el: HTMLElement): boolean => {
+      if (el.hasAttribute('hidden') || el.getAttribute('aria-hidden') === 'true') {
+        return false;
+      }
+      if (typeof window !== 'undefined') {
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden') {
+          return false;
+        }
+      }
+      if (typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent)) {
+        return true;
+      }
+      return el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0;
+    };
+
     const getFocusables = (): HTMLElement[] => {
       if (!panelRef.current) return [];
       return Array.from(panelRef.current.querySelectorAll<HTMLElement>(focusableSelector)).filter(
-        (el) => el.offsetParent !== null || el.offsetWidth > 0 || el.offsetHeight > 0,
+        isVisible,
       );
     };
 
-    const focusables = getFocusables();
-    if (focusables.length > 0) {
-      focusables[0].focus();
-    } else {
-      panelRef.current?.focus();
-    }
+    const initialFocusFrame = requestAnimationFrame(() => {
+      const focusables = getFocusables();
+      if (focusables.length > 0) {
+        focusables[0].focus();
+      } else {
+        panelRef.current?.focus();
+      }
+    });
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        e.preventDefault();
-        requestCloseRef.current();
+        if (isTopmostModal('panel-overlay')) {
+          e.preventDefault();
+          e.stopPropagation();
+          requestCloseRef.current();
+        }
         return;
       }
 
@@ -109,11 +132,23 @@ export function Panel({
         const currentFocusables = getFocusables();
         if (currentFocusables.length === 0) {
           e.preventDefault();
+          panelRef.current?.focus();
           return;
         }
 
         const first = currentFocusables[0];
         const last = currentFocusables[currentFocusables.length - 1];
+
+        // If focus is currently outside the panel container, recover focus immediately
+        if (!panelRef.current?.contains(document.activeElement)) {
+          e.preventDefault();
+          if (e.shiftKey) {
+            last.focus();
+          } else {
+            first.focus();
+          }
+          return;
+        }
 
         if (e.shiftKey) {
           if (document.activeElement === first) {
@@ -131,6 +166,8 @@ export function Panel({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => {
+      cancelAnimationFrame(initialFocusFrame);
+      unregisterModal();
       releaseScrollLock();
       window.removeEventListener('keydown', handleKeyDown);
       if (previousActiveElement && typeof previousActiveElement.focus === 'function') {

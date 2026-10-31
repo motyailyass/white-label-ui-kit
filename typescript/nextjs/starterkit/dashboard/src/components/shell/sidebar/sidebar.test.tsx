@@ -228,5 +228,38 @@ describe('Sidebar Components', () => {
       releaseSecondOverlay();
       expect(document.body.style.overflow).toBe('');
     });
+
+    it('traps and recovers focus into the mobile drawer when activeElement is outside', () => {
+      render(
+        <LayoutProvider>
+          <MobileOpenHelper />
+          <button type="button" data-testid="outside-button">
+            Outside Button
+          </button>
+          <Sidebar>
+            <a href="/link1" data-testid="drawer-link-1">
+              Link 1
+            </a>
+            <a href="/link2" data-testid="drawer-link-2">
+              Link 2
+            </a>
+          </Sidebar>
+        </LayoutProvider>,
+      );
+
+      const outsideButton = screen.getByTestId('outside-button');
+      outsideButton.focus();
+      expect(document.activeElement).toBe(outsideButton);
+
+      fireEvent.click(screen.getByRole('button', { name: /open mobile/i }));
+
+      // Simulate Tab key while focus is still outside
+      fireEvent.keyDown(window, { key: 'Tab' });
+      expect(document.activeElement).toBe(screen.getByTestId('drawer-link-1'));
+
+      // Simulate Shift+Tab from first element wraps to last
+      fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
+      expect(document.activeElement).toBe(screen.getByTestId('drawer-link-2'));
+    });
   });
 });

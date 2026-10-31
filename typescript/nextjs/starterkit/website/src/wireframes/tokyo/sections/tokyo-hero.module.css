@@ -183,17 +183,17 @@
 }
 
 .metricLabel {
-  font-size: var(--font-size-xs);
-  line-height: var(--line-height-xs);
+  font-size: var(--typography-eyebrow-size);
+  line-height: var(--typography-eyebrow-line-height);
   color: var(--color-text-muted);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--typography-eyebrow-weight);
   text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wider);
+  letter-spacing: var(--letter-spacing-wide);
 }
 
 .metricValue {
   font-size: var(--font-size-2xl);
-  line-height: var(--line-height-2xl);
+  line-height: var(--line-height-tight);
   font-weight: var(--font-weight-bold);
   font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);

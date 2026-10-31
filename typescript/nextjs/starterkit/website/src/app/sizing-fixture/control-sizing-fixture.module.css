@@ -17,8 +17,8 @@
 }
 
 .pageTitle {
-  font-size: var(--type-page-title-size, var(--font-size-2xl));
-  line-height: var(--type-page-title-leading, var(--line-height-2xl));
+  font-size: var(--typography-page-title-size);
+  line-height: var(--typography-page-title-line-height);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
   margin: 0;
@@ -64,10 +64,10 @@
   align-items: center;
   padding-block: var(--space-1);
   padding-inline: var(--space-2);
-  font-size: var(--font-size-xs);
-  line-height: var(--line-height-xs);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: var(--letter-spacing-wider);
+  font-size: var(--typography-eyebrow-size);
+  line-height: var(--typography-eyebrow-line-height);
+  font-weight: var(--typography-eyebrow-weight);
+  letter-spacing: var(--letter-spacing-wide);
   text-transform: uppercase;
   border-radius: var(--radius-sm);
   background-color: var(--color-surface-raised);

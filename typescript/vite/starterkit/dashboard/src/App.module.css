@@ -107,9 +107,9 @@
 }
 
 .metricValue {
-  font-size: var(--typography-metric-size);
-  line-height: var(--typography-metric-line-height);
-  font-weight: var(--typography-metric-weight);
+  font-size: var(--typography-metric-value-size);
+  line-height: var(--typography-metric-value-line-height);
+  font-weight: var(--typography-metric-value-weight);
   font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);
 }
@@ -117,7 +117,7 @@
 .metricDelta {
   font-size: var(--typography-supporting-size);
   line-height: var(--typography-supporting-line-height);
-  color: var(--color-status-success);
+  color: var(--color-success);
 }
 
 .bidiMeta {

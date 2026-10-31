@@ -147,14 +147,18 @@ test.describe('Website Typography Specification Verification', () => {
 
     const fontFacesLoaded = await page.evaluate(async () => {
       await document.fonts.ready;
-      const loaded: { family: string; status: string }[] = [];
+      const results: { family: string; status: string }[] = [];
       document.fonts.forEach((font) => {
-        loaded.push({ family: font.family, status: font.status });
+        results.push({ family: font.family, status: font.status });
       });
-      return loaded;
+      return results;
     });
 
     expect(fontFacesLoaded.length).toBeGreaterThan(0);
+    const loadedFaces = fontFacesLoaded.filter((f) => f.status === 'loaded');
+    expect(loadedFaces.length).toBeGreaterThan(0);
+    const errorFaces = fontFacesLoaded.filter((f) => f.status === 'error');
+    expect(errorFaces.length).toBe(0);
   });
 
   test('verifies role-appropriate line-height adjustments reach actual components in Arabic', async ({

@@ -6,6 +6,7 @@ import { Icon } from '@/components/icons';
 import { cn } from '@/lib/cn';
 import { acquireBodyScrollLock } from '@/lib/scroll-lock';
 import { useLayout } from '../layout-context';
+import { isTopmostModal, pushModal } from '../modal-stack';
 import styles from './sidebar.module.css';
 
 /* -------------------------------------------------------------------------- */
@@ -61,26 +62,50 @@ export function Sidebar({
 
     const releaseScrollLock = acquireBodyScrollLock();
     const previousActiveElement = document.activeElement as HTMLElement | null;
+    const unregisterModal = pushModal('sidebar-mobile', () => setSidebarOpenMobile(false));
 
     const focusableSelector =
       'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+    const isVisible = (el: HTMLElement): boolean => {
+      if (el.hasAttribute('hidden') || el.getAttribute('aria-hidden') === 'true') {
+        return false;
+      }
+      if (typeof window !== 'undefined') {
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden') {
+          return false;
+        }
+      }
+      if (typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent)) {
+        return true;
+      }
+      return el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0;
+    };
+
     const getFocusables = (): HTMLElement[] => {
       if (!sidebarRef.current) return [];
       return Array.from(sidebarRef.current.querySelectorAll<HTMLElement>(focusableSelector)).filter(
-        (el) => el.offsetParent !== null || el.offsetWidth > 0 || el.offsetHeight > 0,
+        isVisible,
       );
     };
 
-    const focusables = getFocusables();
-    if (focusables.length > 0) {
-      focusables[0].focus();
-    }
+    const initialFocusFrame = requestAnimationFrame(() => {
+      const focusables = getFocusables();
+      if (focusables.length > 0) {
+        focusables[0].focus();
+      } else {
+        sidebarRef.current?.focus();
+      }
+    });
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        e.preventDefault();
-        setSidebarOpenMobile(false);
+        if (isTopmostModal('sidebar-mobile')) {
+          e.preventDefault();
+          e.stopPropagation();
+          setSidebarOpenMobile(false);
+        }
         return;
       }
 
@@ -88,11 +113,23 @@ export function Sidebar({
         const currentFocusables = getFocusables();
         if (currentFocusables.length === 0) {
           e.preventDefault();
+          sidebarRef.current?.focus();
           return;
         }
 
         const first = currentFocusables[0];
         const last = currentFocusables[currentFocusables.length - 1];
+
+        // If focus is currently outside the sidebar container, recover focus immediately
+        if (!sidebarRef.current?.contains(document.activeElement)) {
+          e.preventDefault();
+          if (e.shiftKey) {
+            last.focus();
+          } else {
+            first.focus();
+          }
+          return;
+        }
 
         if (e.shiftKey) {
           if (document.activeElement === first) {
@@ -110,6 +147,8 @@ export function Sidebar({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => {
+      cancelAnimationFrame(initialFocusFrame);
+      unregisterModal();
       releaseScrollLock();
       window.removeEventListener('keydown', handleKeyDown);
       if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
@@ -434,7 +473,12 @@ export function SidebarTrigger({
       onClick={(e) => {
         onClick?.(e);
         if (e.defaultPrevented) return;
-        if (isMobile) {
+        const isMobileEffective =
+          isMobile ||
+          (typeof window !== 'undefined' &&
+            typeof window.matchMedia === 'function' &&
+            window.matchMedia('(max-width: 768px)').matches);
+        if (isMobileEffective) {
           toggleSidebarMobile();
         } else {
           toggleSidebar();

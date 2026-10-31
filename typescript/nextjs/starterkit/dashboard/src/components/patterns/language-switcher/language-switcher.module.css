@@ -5,23 +5,91 @@
 }
 
 .select {
+  --_control-height: var(--control-height-default);
+  --_control-padding-inline: var(--control-padding-default);
+  --_control-padding-block: var(--control-padding-block-default);
+  --_control-font-size: var(--control-font-size-default);
+  --_control-line-height: var(--control-line-height-default);
+
   appearance: none;
+  box-sizing: border-box;
   background-color: var(--color-control-bg);
   color: var(--color-text-secondary);
   border: 1px solid var(--color-border-control);
   border-radius: var(--radius-control);
-  min-block-size: var(--control-height-sm);
-  padding-block: var(--control-padding-block-sm);
-  padding-inline-start: var(--control-padding-sm);
-  padding-inline-end: var(--space-6);
-  font-size: var(--control-font-size-sm);
-  line-height: var(--control-line-height-sm);
+  min-block-size: var(--_control-height);
+  padding-block: var(--_control-padding-block);
+  padding-inline-start: var(--_control-padding-inline);
+  padding-inline-end: var(--space-8);
+  font-family: inherit;
+  font-size: var(--_control-font-size);
+  line-height: var(--_control-line-height);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast),
     color var(--transition-fast);
+}
+
+.select[data-size="xs"] {
+  --_control-height: var(--control-height-xs);
+  --_control-padding-inline: var(--control-padding-xs);
+  --_control-padding-block: var(--control-padding-block-xs);
+  --_control-font-size: var(--control-font-size-xs);
+  --_control-line-height: var(--control-line-height-xs);
+}
+
+.select[data-size="sm"] {
+  --_control-height: var(--control-height-sm);
+  --_control-padding-inline: var(--control-padding-sm);
+  --_control-padding-block: var(--control-padding-block-sm);
+  --_control-font-size: var(--control-font-size-sm);
+  --_control-line-height: var(--control-line-height-sm);
+}
+
+.select[data-size="md"] {
+  --_control-height: var(--control-height-md);
+  --_control-padding-inline: var(--control-padding-md);
+  --_control-padding-block: var(--control-padding-block-md);
+  --_control-font-size: var(--control-font-size-md);
+  --_control-line-height: var(--control-line-height-md);
+}
+
+.select[data-size="lg"] {
+  --_control-height: var(--control-height-lg);
+  --_control-padding-inline: var(--control-padding-lg);
+  --_control-padding-block: var(--control-padding-block-lg);
+  --_control-font-size: var(--control-font-size-lg);
+  --_control-line-height: var(--control-line-height-lg);
+}
+
+.select[data-size="xl"] {
+  --_control-height: var(--control-height-xl);
+  --_control-padding-inline: var(--control-padding-xl);
+  --_control-padding-block: var(--control-padding-block-xl);
+  --_control-font-size: var(--control-font-size-xl);
+  --_control-line-height: var(--control-line-height-xl);
+}
+
+.select[data-size="2xl"] {
+  --_control-height: var(--control-height-2xl);
+  --_control-padding-inline: var(--control-padding-2xl);
+  --_control-padding-block: var(--control-padding-block-2xl);
+  --_control-font-size: var(--control-font-size-2xl);
+  --_control-line-height: var(--control-line-height-2xl);
+}
+
+.select[data-touch-target="comfortable"] {
+  min-block-size: max(var(--_control-height), var(--control-touch-target-min));
+  min-inline-size: var(--control-touch-target-min);
+}
+
+@media (any-pointer: coarse), (pointer: coarse) {
+  .select[data-touch-target="auto"] {
+    min-block-size: max(var(--_control-height), var(--control-touch-target-min));
+    min-inline-size: var(--control-touch-target-min);
+  }
 }
 
 .select:hover {
@@ -33,12 +101,6 @@
 .select:focus-visible {
   outline: var(--focus-ring-width) solid var(--color-border-focus);
   outline-offset: var(--focus-ring-offset);
-}
-
-@media (any-pointer: coarse), (pointer: coarse) {
-  .select {
-    min-block-size: max(var(--control-height-sm), var(--control-touch-target-min));
-  }
 }
 
 .icon {

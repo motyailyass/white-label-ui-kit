@@ -19,18 +19,18 @@ test.describe('Dashboard Z-Index & Overlay Architecture Verification', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/classic');
 
-    const sidebarTrigger = page.locator('#app-sidebar-trigger');
+    const sidebarTrigger = page.locator('[data-sidebar-trigger]');
     await sidebarTrigger.click();
 
-    const sidebar = page.locator('#app-sidebar');
+    const sidebar = page.locator('[data-sidebar]');
     await expect(sidebar).toHaveAttribute('data-mobile-open', 'true');
 
-    const backdrop = page.locator('#app-sidebar-backdrop');
+    const backdrop = page.locator('[data-sidebar-backdrop]');
     await expect(backdrop).toHaveAttribute('data-open', 'true');
 
     const { sidebarZ, backdropZ } = await page.evaluate(() => {
-      const sb = document.querySelector('#app-sidebar');
-      const bd = document.querySelector('#app-sidebar-backdrop');
+      const sb = document.querySelector('[data-sidebar]');
+      const bd = document.querySelector('[data-sidebar-backdrop]');
       return {
         sidebarZ: sb ? window.getComputedStyle(sb).zIndex : null,
         backdropZ: bd ? window.getComputedStyle(bd).zIndex : null,
@@ -39,7 +39,7 @@ test.describe('Dashboard Z-Index & Overlay Architecture Verification', () => {
 
     expect(sidebarZ).toBe('310');
     expect(backdropZ).toBe('300');
-    expect(parseInt(sidebarZ!, 10)).toBeGreaterThan(parseInt(backdropZ!, 10));
+    expect(Number.parseInt(sidebarZ!, 10)).toBeGreaterThan(Number.parseInt(backdropZ!, 10));
   });
 
   test('enforces monotonic layer order across all 10 semantic tokens on the page', async ({
@@ -51,16 +51,16 @@ test.describe('Dashboard Z-Index & Overlay Architecture Verification', () => {
       const root = document.documentElement;
       const style = window.getComputedStyle(root);
       return {
-        base: parseInt(style.getPropertyValue('--z-base').trim(), 10),
-        raised: parseInt(style.getPropertyValue('--z-raised').trim(), 10),
-        sticky: parseInt(style.getPropertyValue('--z-sticky').trim(), 10),
-        dropdown: parseInt(style.getPropertyValue('--z-dropdown').trim(), 10),
-        overlay: parseInt(style.getPropertyValue('--z-overlay').trim(), 10),
-        drawer: parseInt(style.getPropertyValue('--z-drawer').trim(), 10),
-        modalBackdrop: parseInt(style.getPropertyValue('--z-modal-backdrop').trim(), 10),
-        modal: parseInt(style.getPropertyValue('--z-modal').trim(), 10),
-        toast: parseInt(style.getPropertyValue('--z-toast').trim(), 10),
-        tooltip: parseInt(style.getPropertyValue('--z-tooltip').trim(), 10),
+        base: Number.parseInt(style.getPropertyValue('--z-base').trim(), 10),
+        raised: Number.parseInt(style.getPropertyValue('--z-raised').trim(), 10),
+        sticky: Number.parseInt(style.getPropertyValue('--z-sticky').trim(), 10),
+        dropdown: Number.parseInt(style.getPropertyValue('--z-dropdown').trim(), 10),
+        overlay: Number.parseInt(style.getPropertyValue('--z-overlay').trim(), 10),
+        drawer: Number.parseInt(style.getPropertyValue('--z-drawer').trim(), 10),
+        modalBackdrop: Number.parseInt(style.getPropertyValue('--z-modal-backdrop').trim(), 10),
+        modal: Number.parseInt(style.getPropertyValue('--z-modal').trim(), 10),
+        toast: Number.parseInt(style.getPropertyValue('--z-toast').trim(), 10),
+        tooltip: Number.parseInt(style.getPropertyValue('--z-tooltip').trim(), 10),
       };
     });
 
@@ -92,7 +92,6 @@ test.describe('Dashboard Z-Index & Overlay Architecture Verification', () => {
     await page.goto('/classic');
 
     const result = await page.evaluate(() => {
-      // 1. Create simulated modal overlay establishing a stacking context at --z-modal (410)
       const modal = document.createElement('div');
       modal.id = 'test-modal';
       modal.style.position = 'fixed';
@@ -103,7 +102,6 @@ test.describe('Dashboard Z-Index & Overlay Architecture Verification', () => {
       modal.style.zIndex = 'var(--z-modal)';
       modal.style.backgroundColor = 'white';
 
-      // 2. Create nested dropdown inside modal using --z-dropdown (200)
       const dropdown = document.createElement('div');
       dropdown.id = 'test-nested-dropdown';
       dropdown.style.position = 'absolute';
@@ -117,9 +115,7 @@ test.describe('Dashboard Z-Index & Overlay Architecture Verification', () => {
       modal.appendChild(dropdown);
       document.body.appendChild(modal);
 
-      // 3. Stacking check: verify elementFromPoint returns the dropdown at its coordinate
       const hitElement = document.elementFromPoint(75, 160);
-
       const modalZ = window.getComputedStyle(modal).zIndex;
       const dropdownZ = window.getComputedStyle(dropdown).zIndex;
 
@@ -134,7 +130,6 @@ test.describe('Dashboard Z-Index & Overlay Architecture Verification', () => {
 
     expect(result.modalZ).toBe('410');
     expect(result.dropdownZ).toBe('200');
-    // Because the dropdown is scoped to the modal's stacking context, it renders in front of the modal!
     expect(result.isDropdownOnTop).toBe(true);
   });
 
@@ -144,21 +139,18 @@ test.describe('Dashboard Z-Index & Overlay Architecture Verification', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/classic');
 
-    // Open mobile sidebar drawer
-    const sidebarTrigger = page.locator('#app-sidebar-trigger');
+    const sidebarTrigger = page.locator('[data-sidebar-trigger]');
     await sidebarTrigger.click();
 
-    const backdrop = page.locator('#app-sidebar-backdrop');
+    const backdrop = page.locator('[data-sidebar-backdrop]');
     await expect(backdrop).toHaveAttribute('data-open', 'true');
 
-    // Click outside on the backdrop at center coordinates
     const backdropBox = await backdrop.boundingBox();
     expect(backdropBox).not.toBeNull();
 
-    // Clicking backdrop must close the drawer (intercepts clicks away from background content)
     await page.mouse.click(350, 400);
 
-    const sidebar = page.locator('#app-sidebar');
+    const sidebar = page.locator('[data-sidebar]');
     await expect(sidebar).toHaveAttribute('data-mobile-open', 'false');
   });
 

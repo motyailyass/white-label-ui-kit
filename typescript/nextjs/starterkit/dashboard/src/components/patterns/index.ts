@@ -1,5 +1,4 @@
 export * from './app-toolbar';
-export * from './control-sizing-fixture';
 export * from './dashboard-header';
 export * from './error-boundary';
 export * from './error-state';

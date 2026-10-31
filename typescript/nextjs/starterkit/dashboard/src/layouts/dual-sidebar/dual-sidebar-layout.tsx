@@ -13,19 +13,29 @@ import {
   SidebarPrimary,
   SidebarSecondary,
 } from '@/components/shell';
-import type { BaseLayoutProps, LayoutUser, PrimaryRailItem, SecondaryNavGroup } from '../types';
+import type {
+  BaseLayoutProps,
+  LayoutLogo,
+  LayoutUser,
+  PrimaryRailItem,
+  SecondaryNavGroup,
+} from '../types';
 import styles from './dual-sidebar-layout.module.css';
 
 export interface DualSidebarLayoutProps extends BaseLayoutProps {
+  logo?: LayoutLogo;
   railItems: PrimaryRailItem[];
   secondaryTitle: string;
   secondarySubtitle?: string;
   secondaryNavigation: SecondaryNavGroup[];
   user?: LayoutUser;
+  sidebarAriaLabel?: string;
+  secondaryNavAriaLabel?: string;
 }
 
 export function DualSidebarLayout({
   children,
+  logo,
   railItems,
   secondaryTitle,
   secondarySubtitle,
@@ -34,20 +44,30 @@ export function DualSidebarLayout({
   pageTitle,
   pageDescription,
   user,
+  sidebarAriaLabel,
+  secondaryNavAriaLabel,
   headerActions,
   config = {},
 }: DualSidebarLayoutProps) {
   const { contentLayout = 'full', sidebarWidth, density, headerSticky } = config;
+  const LogoComponent = logo?.as ?? 'a';
 
   return (
     <AppShell variant="dual-sidebar" sidebarWidth={sidebarWidth} density={density}>
       {/* Wrapped in <Sidebar variant="dual"> to ensure mobile drawer backdrop, Escape key, and focus trap work */}
-      <Sidebar variant="dual">
+      <Sidebar variant="dual" aria-label={sidebarAriaLabel}>
         {/* Tier 1: Primary Icon / Workspace Rail */}
         <SidebarPrimary>
-          <div className={styles.railHome} title="App Home">
-            P
-          </div>
+          {logo && (
+            <LogoComponent
+              href={logo.href ?? '/'}
+              className={styles.railHome}
+              aria-label={logo.title}
+              title={logo.title}
+            >
+              {logo.icon || logo.title.charAt(0).toUpperCase()}
+            </LogoComponent>
+          )}
 
           <div className={styles.railList}>
             {railItems.map((item) => (
@@ -55,6 +75,8 @@ export function DualSidebarLayout({
                 key={item.id}
                 type="button"
                 onClick={item.onClick}
+                aria-label={item.label}
+                aria-current={item.isActive ? 'page' : undefined}
                 title={item.label}
                 data-active={item.isActive}
                 className={styles.railButton}
@@ -80,7 +102,7 @@ export function DualSidebarLayout({
             )}
           </div>
 
-          <SidebarNav>
+          <SidebarNav aria-label={secondaryNavAriaLabel ?? secondaryTitle}>
             {secondaryNavigation.map((group, idx) => (
               <SidebarGroup key={group.label || idx} label={group.label}>
                 {group.items.map((item) => (
@@ -91,6 +113,7 @@ export function DualSidebarLayout({
                     icon={item.icon}
                     badge={item.badge}
                     isActive={item.isActive}
+                    as={item.as}
                   />
                 ))}
               </SidebarGroup>

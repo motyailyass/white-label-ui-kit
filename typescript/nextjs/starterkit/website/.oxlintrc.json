@@ -1,6 +1,8 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript"],
   "rules": {
+    "typescript/no-explicit-any": "error",
     "no-restricted-imports": [
       "error",
       {
@@ -8,6 +10,14 @@
           {
             "group": ["@hugeicons/**"],
             "message": "Use <Icon name=\"…\" /> from @/components/icons. Only src/components/icons may import Hugeicons."
+          },
+          {
+            "group": ["next", "next/*"],
+            "message": "Keep reusable code framework-neutral. Only src/app/** may import from next/*."
+          },
+          {
+            "group": ["@starterkit/*", "**/dashboard/**"],
+            "message": "Starters must remain 100% standalone with zero cross-starter imports."
           }
         ]
       }
@@ -17,9 +27,81 @@
     {
       "files": ["src/components/icons/**"],
       "rules": {
-        "no-restricted-imports": "off"
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["next", "next/*"],
+                "message": "Keep reusable code framework-neutral. Only src/app/** may import from next/*."
+              },
+              {
+                "group": ["@starterkit/*", "**/dashboard/**"],
+                "message": "Starters must remain 100% standalone with zero cross-starter imports."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/app/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@hugeicons/**"],
+                "message": "Use <Icon name=\"…\" /> from @/components/icons. Only src/components/icons may import Hugeicons."
+              },
+              {
+                "group": ["@starterkit/*", "**/dashboard/**"],
+                "message": "Starters must remain 100% standalone with zero cross-starter imports."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/components/ui/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@hugeicons/**"],
+                "message": "Use <Icon name=\"…\" /> from @/components/icons. Only src/components/icons may import Hugeicons."
+              },
+              {
+                "group": ["next", "next/*"],
+                "message": "Core UI primitives must never import Next.js modules."
+              },
+              {
+                "group": [
+                  "@/providers",
+                  "@/providers/**",
+                  "@/i18n",
+                  "@/i18n/**",
+                  "@/components/patterns",
+                  "@/components/patterns/**",
+                  "@/components/website",
+                  "@/components/website/**",
+                  "@/wireframes",
+                  "@/wireframes/**",
+                  "@tanstack/**",
+                  "zustand",
+                  "react-hook-form",
+                  "zod"
+                ],
+                "message": "src/components/ui must stay 100% pure (no providers, i18n, patterns, website sections, router, query, or form state)."
+              }
+            ]
+          }
+        ]
       }
     }
   ]
 }
-

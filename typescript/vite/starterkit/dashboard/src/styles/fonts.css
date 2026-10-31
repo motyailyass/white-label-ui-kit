@@ -1,0 +1,37 @@
+/**
+ * White Label UI Kit — Self-Hosted Variable Fonts (Vite Host)
+ *
+ * Binds bundled local WOFF2 variable fonts without next/font/local so
+ * shared typography tokens (--font-geist-sans, --font-geist-mono, --font-noto-arabic)
+ * resolve identically across Next.js and Vite hosts with zero external requests.
+ */
+
+@font-face {
+  font-family: "Geist";
+  src: url("./fonts/geist/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("./fonts/geist/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans Arabic";
+  src: url("./fonts/noto-sans-arabic/NotoSansArabic-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-geist-sans: "Geist";
+  --font-geist-mono: "Geist Mono";
+  --font-noto-arabic: "Noto Sans Arabic";
+}

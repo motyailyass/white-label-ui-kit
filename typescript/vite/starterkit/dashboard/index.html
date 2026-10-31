@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Control Hub - Dashboard Starter Kit (Vite)</title>
+    <script>
+      (function () {
+        try {
+          var storedTheme = localStorage.getItem('ui-theme') || 'system';
+          var resolvedTheme =
+            storedTheme === 'system'
+              ? window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+              : storedTheme === 'dark'
+                ? 'dark'
+                : 'light';
+          document.documentElement.setAttribute('data-theme', resolvedTheme);
+          document.documentElement.style.colorScheme = resolvedTheme;
+
+          var cookieMatch = document.cookie.match(/(?:^|;\s*)locale=(en|fr|ar)(?:;|$)/);
+          var locale = cookieMatch ? cookieMatch[1] : 'en';
+          document.documentElement.lang = locale;
+          document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
+        } catch (_e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

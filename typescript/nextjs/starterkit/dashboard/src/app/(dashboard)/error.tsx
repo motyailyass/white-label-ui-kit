@@ -8,5 +8,5 @@ export interface DashboardErrorProps {
 }
 
 export default function DashboardError({ error, reset }: DashboardErrorProps) {
-  return <ErrorState error={error} onRetry={reset} />;
+  return <ErrorState error={error} onRetry={reset} headingAs="h2" />;
 }

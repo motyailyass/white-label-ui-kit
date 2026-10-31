@@ -16,16 +16,23 @@ Paths below are relative to the app you are in.
 
 - `src/components/ui/` — pure primitives.
 - `src/components/icons/` — Icon wrapper + semantic registry.
-- `src/components/shell/` — AppShell, Sidebar, Header, Content, Panel.
-- `src/components/patterns/` — connected compositions.
-- `src/layouts/` — classic, dual-sidebar, three-column.
+- `src/components/shell/` — AppShell, Sidebar, Header, Content, Panel (dashboard).
+- `src/components/patterns/` — connected compositions (binds providers/i18n to pure `ui/`).
+- `src/components/website/` & `src/wireframes/` — website surfaces, sections, and templates (website).
+- `src/layouts/` — classic, dual-sidebar, three-column (dashboard).
 - `src/providers/` — theme, i18n, app providers.
 - `src/i18n/` — messages, formatters, bidi.
-- `src/styles/tokens/` — design tokens.
+- `src/styles/tokens/` — shared design tokens; `src/styles/{dashboard,website}/` — local product presets.
 
 ## Commands
 
-From the app directory:
+From the repository root (shared sync & policy gates):
+
+- `pnpm run sync:shared` (mirrors canonical shared core from `dashboard/src` → `website/src`)
+- `pnpm run sync:shared:check`
+- `pnpm run check:shadows`
+
+From each app directory (`typescript/nextjs/starterkit/{dashboard,website}`):
 
 - `pnpm dev`
 - `pnpm lint`
@@ -33,7 +40,7 @@ From the app directory:
 - `pnpm test`
 - `pnpm build`
 
-Run the smallest check first; run the full gate before handoff.
+Run the smallest check first; run the full gate (including `sync:shared:check` and `check:shadows`) before handoff.
 
 ## Non-negotiables
 
@@ -54,13 +61,15 @@ Run the smallest check first; run the full gate before handoff.
 15. Radius: Use the approved primitive scale with product-owned semantic roles. Dashboard controls default to 6px; website controls default to 8px. Components consume semantic roles rather than hardcoded radii. Radius remains stable across control sizes, themes, and directions. Pills and circles are explicit treatments. Product presets must survive shared synchronization, and rounded surfaces must not clip focus indicators.
 16. Typography: Use the approved rem-based 11-step primitive scale (--font-size-xs to --font-size-7xl) and weights 400, 500, 600, 700. Dashboard defaults to compact body typography (14px / 20px, 400); website defaults to comfortable body typography (16px / 24px, 400) and responsive heading roles. Components consume product-owned semantic typography roles rather than hardcoded sizes. Arabic script uses explicit stack (--font-family-arabic), normal letter-spacing, and increased line-height clearance. Control typography contracts must remain stable and preserved. Product presets must survive shared synchronization.
 17. Z-Index & Overlay Architecture: All layers consume the shared 10-step semantic scale (--z-base: 0, --z-raised: 10, --z-sticky: 100, --z-dropdown: 200, --z-overlay: 300, --z-drawer: 310, --z-modal-backdrop: 400, --z-modal: 410, --z-toast: 500, --z-tooltip: 600). Arbitrary magic numbers (such as 9999) are forbidden. Overlays maintain clean stacking contexts; nested dropdowns inside dialogs render in front of dialog surfaces. Backdrops intercept background pointer events while preserving focus traps and dismissibility.
-18. Motion & Reduced Motion Architecture: Transitions use the shared 4-step duration scale (--motion-duration-instant: 0ms, --motion-duration-fast: 120ms, --motion-duration-normal: 180ms, --motion-duration-slow: 240ms) and three standard easings (--motion-ease-standard, --motion-ease-enter, --motion-ease-exit). Never use `transition: all` or animate layout properties (width, height, margin, padding) by default. Focus indicators appear immediately without transition. Under `prefers-reduced-motion: reduce`, duration tokens collapse to 0ms and smooth scrolling is disabled. Component lifecycles (focus restoration, backdrop removal, scroll unlocking, inert state) must be driven directly by state rather than relying on transitionend or animationend events, which do not fire when duration is zero.
+18. Motion & Reduced Motion Architecture: Transitions use the shared 4-step duration scale (--motion-duration-instant: 0ms, --motion-duration-fast: 120ms, --motion-duration-normal: 180ms, --motion-duration-slow: 240ms) and three standard easings (--motion-ease-standard, --motion-ease-enter, --motion-ease-exit). Never use `transition: all` or animate layout properties (width, height, margin, padding) by default. Focus indicators appear immediately without transition. Under `prefers-reduced-motion: reduce`, duration tokens collapse to 0ms, continuous `@keyframes` animations are disabled or slowed, and smooth scrolling is disabled. Component lifecycles (focus restoration, backdrop removal, scroll unlocking, inert state) must be driven directly by state rather than relying on transitionend or animationend events, which do not fire when duration is zero.
+19. Semantic HTML & `lang` Attribute Parity: Every route (including error/not-found/loading states) renders honest semantic landmarks (`<header>`, `<nav aria-label>`, `<main>`, `<section>`, `<footer>`) and sequential headings (`<h1>` → `<h6>` without skips) without over-tagging generic cards or toolbars. Root `<html lang={locale} dir={direction}>` reflects active locale on SSR and CSR. Declare explicit `lang="..."` strictly on actual foreign human-language subtrees (such as `<LanguageSwitcher>` options or English prose/code blocks), while using `<BidiText dir="ltr">` alone for language-neutral LTR tokens (numbers, currencies, phone numbers, tracking IDs).
+20. Canonical Shared Source & Dynamic Wiring: `dashboard/src` is the authoritative source for shared primitives, icons, tokens, providers, and shared patterns. Edit shared files in `dashboard/src` and synchronize via `pnpm run sync:shared`—never diverge mirrored files directly in `website/src`. Never hardcode static DOM `id`s (use `React.useId()`), English fallback labels, demo brands, or fixed tags where polymorphic `as` / `imageComponent` slots are required.
 
 ## Done
 
 - Code + test + docs/gallery entry for any public component.
-- `pnpm lint`, `pnpm type-check`, `pnpm test` pass.
-- RTL checked; no inline styles; no `any`.
+- `pnpm lint`, `pnpm type-check`, `pnpm test` pass in both starters, plus `pnpm run sync:shared:check` and `pnpm run check:shadows`.
+- Semantic HTML, `lang`/`dir`, and RTL checked; no arbitrary inline styles (approved typed CSS custom property overrides such as `--sidebar-width` / `--panel-width` permitted); no `any`.
 - Handoff note: changed files, commands run, skipped checks, risks.
 
 ## Workflow

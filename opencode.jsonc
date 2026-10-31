@@ -7,10 +7,12 @@
     ".agents/rules/30-ui-primitives.md",
     ".agents/rules/32-icons.md",
     ".agents/rules/35-layouts-shell.md",
+    ".agents/rules/38-semantic-html-lang.md",
     ".agents/rules/40-styling-rtl.md",
     ".agents/rules/50-i18n.md",
     ".agents/rules/60-testing.md",
     ".agents/rules/70-nextjs.md",
+    ".agents/rules/75-starter-wiring-presets.md",
     ".agents/rules/80-security.md"
   ],
   "permissions": [

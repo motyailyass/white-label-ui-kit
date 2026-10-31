@@ -1,24 +1,37 @@
 'use client';
 
+import Link from 'next/link';
 import type React from 'react';
-import { demoLayoutConfig } from '@/fixtures/config/site';
-import { demoBreadcrumbs, demoLogo, demoNavigation, demoUser } from '@/fixtures/dashboard-data';
+import {
+  demoUser,
+  getDemoBreadcrumbs,
+  getDemoLogo,
+  getDemoNavigation,
+} from '@/fixtures/dashboard-data';
 import { ThreeColumnLayout } from '@/layouts';
+import { useI18n } from '@/providers';
 import { useActiveNavigation } from '../../use-active-navigation';
 
 export default function ThreeColumnDashboardLayout({ children }: { children: React.ReactNode }) {
-  const activeNavigation = useActiveNavigation(demoNavigation);
+  const { t } = useI18n();
+  const logo = getDemoLogo(t, Link);
+  const breadcrumbs = getDemoBreadcrumbs(t, Link);
+  const activeNavigation = useActiveNavigation(getDemoNavigation(t, Link));
 
   return (
     <ThreeColumnLayout
-      logo={demoLogo}
+      logo={logo}
       navigation={activeNavigation}
-      breadcrumbs={demoBreadcrumbs}
-      pageTitle={demoLayoutConfig.threeColumn.pageTitle}
-      pageDescription={demoLayoutConfig.threeColumn.pageDescription}
+      breadcrumbs={breadcrumbs}
+      pageTitle={t('dashboard.layouts.threeColumnTitle')}
+      pageDescription={t('dashboard.layouts.threeColumnDescription')}
       user={demoUser}
-      inspectorTitle={demoLayoutConfig.threeColumn.inspectorTitle}
-      inspectorDescription={demoLayoutConfig.threeColumn.inspectorDescription}
+      inspectorTitle={t('dashboard.layouts.inspectorTitle')}
+      inspectorDescription={t('dashboard.layouts.inspectorDescription')}
+      inspectorCloseLabel={t('dashboard.shell.closePanel')}
+      inspectorAriaLabel={t('dashboard.shell.inspectorLabel')}
+      sidebarAriaLabel={t('dashboard.shell.sidebarLabel')}
+      sidebarNavAriaLabel={t('dashboard.shell.primaryNavLabel')}
     >
       {children}
     </ThreeColumnLayout>

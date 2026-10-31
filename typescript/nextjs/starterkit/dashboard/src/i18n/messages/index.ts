@@ -11,6 +11,8 @@ import { dashboard as frDashboard } from './fr/dashboard';
 import { errors as frErrors } from './fr/errors';
 import { settings as frSettings } from './fr/settings';
 
+export { resolvePath, translate } from '../translate';
+
 export interface LocaleMessages {
   common: CommonMessages;
   dashboard: DashboardMessages;
@@ -44,41 +46,3 @@ export const defaultMessages: Record<string, LocaleMessages> = {
   fr: frMessages,
   ar: arMessages,
 };
-
-/**
- * Resolves dot-notation paths (e.g. 'dashboard.overview.title') from an object structure.
- */
-export function resolvePath(obj: unknown, path: string): string | undefined {
-  if (!obj || typeof obj !== 'object') return undefined;
-  const parts = path.split('.');
-  let current: any = obj;
-  for (const part of parts) {
-    if (current === undefined || current === null) return undefined;
-    current = current[part];
-  }
-  return typeof current === 'string' ? current : undefined;
-}
-
-/**
- * Translates a key with parameters and English fallback.
- */
-export function translate(
-  messages: Record<string, LocaleMessages> = defaultMessages,
-  locale: string = 'en',
-  key: string,
-  fallback?: string,
-  params?: Record<string, string | number>,
-): string {
-  const baseLocale = locale.toLowerCase().split(/[-_]/)[0];
-  const dict = messages[locale] || messages[baseLocale] || messages.en;
-
-  let text = resolvePath(dict, key) || resolvePath(messages.en, key) || fallback || key;
-
-  if (params) {
-    for (const [pKey, pVal] of Object.entries(params)) {
-      text = text.replace(new RegExp(`{${pKey}}`, 'g'), String(pVal));
-    }
-  }
-
-  return text;
-}

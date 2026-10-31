@@ -1,0 +1,113 @@
+@import "./fonts.css";
+@import "./tokens/index.css";
+@import "./dashboard/colors.css";
+@import "./dashboard/brand.css";
+@import "./dashboard/spacing.css";
+@import "./dashboard/radius.css";
+@import "./dashboard/typography.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+html {
+  min-block-size: 100%;
+}
+
+body {
+  min-block-size: 100dvh;
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
+  font-size: var(--typography-body-size);
+  line-height: var(--typography-body-line-height);
+  font-weight: var(--typography-body-weight);
+  text-align: start;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Document Language & Script Defaults */
+:lang(ar),
+[lang="ar"],
+[lang^="ar"] {
+  font-family: var(--font-family-arabic);
+  letter-spacing: normal;
+}
+
+/* Script Restoration for Nested Latin Text within Arabic Documents */
+:lang(ar) :is(:lang(en), :lang(fr), [lang="en"], [lang^="en"], [lang="fr"], [lang^="fr"]) {
+  font-family: var(--font-family-sans);
+  letter-spacing: normal;
+}
+
+/* Eyebrow and uppercase treatments: prevent uppercase tracking from breaking connected Arabic script
+   without clobbering nested English or French elements */
+:lang(ar)
+  :is(
+    [data-role="eyebrow"],
+    [data-role="badge"],
+    [class*="eyebrow"],
+    [class*="badge"],
+    [class*="tag"]
+  ):not(:lang(en)):not(:lang(fr)) {
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* Nested English or French badges/eyebrows inside Arabic retain Latin uppercase styling */
+:lang(ar)
+  :is(
+    [data-role="eyebrow"],
+    [data-role="badge"],
+    [class*="eyebrow"],
+    [class*="badge"],
+    [class*="tag"]
+  ):is(:lang(en), :lang(fr), [lang^="en"], [lang^="fr"]) {
+  font-family: var(--font-family-sans);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Bi-directional (Bidi) Isolation Standards */
+bdi,
+[data-bidi="isolate"] {
+  unicode-bidi: isolate;
+}
+
+/* Screen Reader Only Utility */
+.sr-only {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

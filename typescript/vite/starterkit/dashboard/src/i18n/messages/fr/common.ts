@@ -1,0 +1,27 @@
+import type { CommonMessages } from '../en/common';
+
+export const common = {
+  theme: 'Thème',
+  direction: 'Direction',
+  toggleTheme: 'Changer de thème',
+  toggleDirection: 'Changer de direction',
+  toggleNavigation: 'Basculer le menu de navigation',
+  breadcrumbs: "Fil d'Ariane",
+  light: 'Clair',
+  dark: 'Sombre',
+  system: 'Système',
+  search: 'Rechercher...',
+  close: 'Fermer',
+  back: 'Retour',
+  next: 'Suivant',
+  save: 'Enregistrer',
+  cancel: 'Annuler',
+  language: 'Langue',
+  retry: 'Réessayer',
+  goHome: "Aller à l'accueil",
+  status: 'Statut',
+  lastModified: 'Dernière modification',
+  filter: 'Filtrer',
+  exportReport: 'Exporter le rapport',
+  loading: 'Chargement...',
+} satisfies CommonMessages;

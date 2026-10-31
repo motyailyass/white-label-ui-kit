@@ -20,41 +20,31 @@ export interface NumberFormatOptions extends Intl.NumberFormatOptions {
   numberingSystem?: NumberingSystem;
 }
 
-export interface CurrencyFormatOptions extends Intl.NumberFormatOptions {
-  currency: string;
-  numberingSystem?: NumberingSystem;
-}
-
 export interface DateFormatOptions extends Intl.DateTimeFormatOptions {
   calendar?: 'gregory' | 'islamic' | 'islamic-umalqura';
 }
 
+type DotNestedKeys<T, Prefix extends string = ''> = T extends string
+  ? Prefix
+  : {
+      [K in keyof T & string]: DotNestedKeys<T[K], Prefix extends '' ? K : `${Prefix}.${K}`>;
+    }[keyof T & string];
+
 /**
- * Recursive union of all valid dot-notation translation paths in LocaleMessages.
+ * Strict recursive union of all valid dot-notation translation paths in LocaleMessages.
  */
-export type TranslationKey = {
-  [K in keyof LocaleMessages & string]: LocaleMessages[K] extends Record<string, any>
-    ? {
-        [SubKey in keyof LocaleMessages[K] & string]: LocaleMessages[K][SubKey] extends Record<
-          string,
-          any
-        >
-          ? {
-              [LeafKey in keyof LocaleMessages[K][SubKey] & string]: `${K}.${SubKey}.${LeafKey}`;
-            }[keyof LocaleMessages[K][SubKey] & string]
-          : `${K}.${SubKey}`;
-      }[keyof LocaleMessages[K] & string]
-    : K;
-}[keyof LocaleMessages & string];
+export type TranslationKey = DotNestedKeys<LocaleMessages>;
+
+export type TranslationParams = Record<string, string | number>;
 
 export interface I18nContextValue {
   direction: Direction;
   locale: SupportedLocale;
   setLocale: (locale: SupportedLocale) => void;
   isRtl: boolean;
-  t: (key: TranslationKey | (string & {}), params?: Record<string, string | number>) => string;
+  t: (key: TranslationKey, params?: TranslationParams) => string;
   formatNumber: (value: number, options?: NumberFormatOptions) => string;
-  formatCurrency: (amount: number, currency?: string, options?: Intl.NumberFormatOptions) => string;
+  formatCurrency: (amount: number, currency: string, options?: Intl.NumberFormatOptions) => string;
   formatPercent: (value: number, options?: Intl.NumberFormatOptions) => string;
   formatDate: (date: Date | string | number, options?: DateFormatOptions) => string;
   formatRelativeTime: (

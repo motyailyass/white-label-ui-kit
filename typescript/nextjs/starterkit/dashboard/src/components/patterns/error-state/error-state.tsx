@@ -1,14 +1,16 @@
 'use client';
 
 import type React from 'react';
-import { cn } from '@/lib/cn';
-import { useI18n } from '@/providers/i18n-provider';
 import { Icon } from '@/components/icons';
+import { Button } from '@/components/ui';
+import { cn } from '@/lib/cn';
+import { useI18n } from '@/providers';
 import styles from './error-state.module.css';
 
 export interface ErrorStateProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
   description?: string;
+  headingAs?: 'h1' | 'h2';
   error?: Error;
   onRetry?: () => void;
   showHome?: boolean;
@@ -19,6 +21,7 @@ export interface ErrorStateProps extends React.HTMLAttributes<HTMLDivElement> {
 export function ErrorState({
   title,
   description,
+  headingAs: HeadingTag = 'h1',
   error: _error,
   onRetry,
   showHome = true,
@@ -29,23 +32,23 @@ export function ErrorState({
 }: ErrorStateProps) {
   const { t } = useI18n();
 
-  const displayTitle = title || t('errors.genericTitle');
-  const displayDescription = description || t('errors.genericDescription');
+  const displayTitle = title ?? t('errors.genericTitle');
+  const displayDescription = description ?? t('errors.genericDescription');
 
   return (
-    <div className={cn(styles.container, className)} {...props}>
+    <div role="alert" className={cn(styles.container, className)} {...props}>
       <div className={styles.iconWrapper} aria-hidden="true">
         <Icon name="error" size={24} />
       </div>
 
-      <h2 className={styles.title}>{displayTitle}</h2>
+      <HeadingTag className={styles.title}>{displayTitle}</HeadingTag>
       <p className={styles.description}>{displayDescription}</p>
 
       <div className={styles.actions}>
         {onRetry && (
-          <button type="button" onClick={onRetry} className={styles.retryButton}>
+          <Button variant="primary" onClick={onRetry}>
             {t('errors.retryAction')}
-          </button>
+          </Button>
         )}
         {showHome && (
           <LinkComponent href={homeHref} className={styles.secondaryButton}>

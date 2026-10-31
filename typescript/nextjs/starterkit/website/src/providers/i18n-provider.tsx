@@ -1,21 +1,31 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import type React from 'react';
 import {
-  I18nContextValue,
-  SupportedLocale,
-  isSupportedLocale,
-  NumberFormatOptions,
-  DateFormatOptions,
-  getDirectionForLocale,
-  formatNumber as baseFormatNumber,
-  formatCurrency as baseFormatCurrency,
-  formatPercent as baseFormatPercent,
-  formatDate as baseFormatDate,
-  formatRelativeTime as baseFormatRelativeTime,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  type DateFormatOptions,
   defaultMessages,
+  formatCurrency as baseFormatCurrency,
+  formatDate as baseFormatDate,
+  formatNumber as baseFormatNumber,
+  formatPercent as baseFormatPercent,
+  formatRelativeTime as baseFormatRelativeTime,
+  getDirectionForLocale,
+  type I18nContextValue,
+  isSupportedLocale,
+  type LocaleMessages,
+  type NumberFormatOptions,
+  type SupportedLocale,
+  type TranslationKey,
   translate,
-  LocaleMessages,
 } from '@/i18n';
 import { setCookie } from '@/lib/cookie';
 
@@ -27,6 +37,11 @@ export interface I18nProviderProps {
   defaultLocale?: SupportedLocale;
   messages?: Record<string, LocaleMessages>;
   syncHtmlAttributes?: boolean;
+  /**
+   * Optional host callback invoked after locale changes (e.g. App Router `router.refresh()`).
+   * Keeps Next.js router imports strictly out of shared providers.
+   */
+  onLocaleChange?: (locale: SupportedLocale) => void;
 }
 
 export function I18nProvider({
@@ -35,11 +50,15 @@ export function I18nProvider({
   defaultLocale = 'en',
   messages = defaultMessages,
   syncHtmlAttributes = true,
+  onLocaleChange,
 }: I18nProviderProps) {
   const validatedInitialLocale =
     initialLocale && isSupportedLocale(initialLocale) ? initialLocale : defaultLocale;
 
   const [locale, setLocaleState] = useState<SupportedLocale>(validatedInitialLocale);
+  const onLocaleChangeRef = useRef(onLocaleChange);
+  onLocaleChangeRef.current = onLocaleChange;
+
   const direction = getDirectionForLocale(locale);
   const isRtl = direction === 'rtl';
 
@@ -50,11 +69,12 @@ export function I18nProvider({
     if (typeof document !== 'undefined') {
       try {
         setCookie('locale', newLocale);
-        localStorage.setItem('locale', newLocale);
       } catch {
-        // Storage unavailable
+        // Cookie persistence unavailable
       }
     }
+
+    onLocaleChangeRef.current?.(newLocale);
   }, []);
 
   // Sync documentElement dir, lang, and data-direction attributes on the client
@@ -68,7 +88,7 @@ export function I18nProvider({
   }, [direction, locale, syncHtmlAttributes]);
 
   const t = useCallback(
-    (key: string, params?: Record<string, string | number>) => {
+    (key: TranslationKey, params?: Record<string, string | number>) => {
       return translate(messages, locale, key, undefined, params);
     },
     [messages, locale],
@@ -80,7 +100,7 @@ export function I18nProvider({
   );
 
   const formatCurrency = useCallback(
-    (amount: number, currency = 'USD', options?: Intl.NumberFormatOptions) =>
+    (amount: number, currency: string, options?: Intl.NumberFormatOptions) =>
       baseFormatCurrency(amount, currency, locale, options),
     [locale],
   );

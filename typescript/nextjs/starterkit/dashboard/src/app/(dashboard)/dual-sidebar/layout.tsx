@@ -1,29 +1,38 @@
 'use client';
 
+import Link from 'next/link';
 import type React from 'react';
-import { demoLayoutConfig } from '@/fixtures/config/site';
 import {
-  demoBreadcrumbs,
-  demoRailItems,
-  demoSecondaryNav,
   demoUser,
+  getDemoBreadcrumbs,
+  getDemoLogo,
+  getDemoRailItems,
+  getDemoSecondaryNav,
 } from '@/fixtures/dashboard-data';
 import { DualSidebarLayout } from '@/layouts';
+import { useI18n } from '@/providers';
 import { useActiveSecondaryNav } from '../../use-active-navigation';
 
 export default function DualSidebarDashboardLayout({ children }: { children: React.ReactNode }) {
-  const activeSecondaryNav = useActiveSecondaryNav(demoSecondaryNav);
+  const { t } = useI18n();
+  const logo = getDemoLogo(t, Link);
+  const railItems = getDemoRailItems(t);
+  const breadcrumbs = getDemoBreadcrumbs(t, Link);
+  const activeSecondaryNav = useActiveSecondaryNav(getDemoSecondaryNav(t, Link));
 
   return (
     <DualSidebarLayout
-      railItems={demoRailItems}
-      secondaryTitle={demoLayoutConfig.dualSidebar.secondaryTitle}
-      secondarySubtitle={demoLayoutConfig.dualSidebar.secondarySubtitle}
+      logo={logo}
+      railItems={railItems}
+      secondaryTitle={t('dashboard.layouts.workspaceTitle')}
+      secondarySubtitle={t('dashboard.layouts.workspaceSubtitle')}
       secondaryNavigation={activeSecondaryNav}
-      breadcrumbs={demoBreadcrumbs}
-      pageTitle={demoLayoutConfig.dualSidebar.pageTitle}
-      pageDescription={demoLayoutConfig.dualSidebar.pageDescription}
+      breadcrumbs={breadcrumbs}
+      pageTitle={t('dashboard.layouts.dualSidebarTitle')}
+      pageDescription={t('dashboard.layouts.dualSidebarDescription')}
       user={demoUser}
+      sidebarAriaLabel={t('dashboard.shell.sidebarLabel')}
+      secondaryNavAriaLabel={t('dashboard.shell.secondaryNavLabel')}
     >
       {children}
     </DualSidebarLayout>

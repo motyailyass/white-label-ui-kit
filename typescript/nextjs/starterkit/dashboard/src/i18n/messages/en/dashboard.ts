@@ -1,6 +1,42 @@
 import type { MessageShape } from '../../types';
 
 export const dashboard = {
+  meta: {
+    title: 'Control Hub - Dashboard Starter Kit',
+    description: 'Production System Dashboard Starter Kit',
+    brandName: 'Control Hub',
+    brandSubtitle: 'Production System',
+  },
+  shell: {
+    sidebarLabel: 'Sidebar navigation',
+    primaryNavLabel: 'Primary navigation',
+    secondaryNavLabel: 'Workspace navigation',
+    toggleSidebar: 'Toggle navigation sidebar',
+    inspectorLabel: 'Contextual panel',
+    closePanel: 'Close panel',
+    platformBreadcrumb: 'Platform',
+  },
+  layouts: {
+    groupLabel: 'Layouts',
+    classicTitle: 'Classic Layout',
+    classicDescription: 'Single-tier primary navigation with collapsible sidebar',
+    dualSidebarTitle: 'Dual Sidebar',
+    dualSidebarDescription: 'Two-tiered primary icon rail and nested sub-tree navigation',
+    workspaceTitle: 'Workspace',
+    workspaceSubtitle: 'Engineering Team',
+    threeColumnTitle: 'Three Column',
+    threeColumnDescription: 'Layout with persistent contextual inspector panel',
+    inspectorTitle: 'Properties & Details',
+    inspectorDescription: 'Selected object attributes',
+  },
+  rail: {
+    engineering: 'Engineering',
+    designSystem: 'Design System',
+    marketing: 'Marketing',
+    channelsGroup: 'Channels',
+    announcements: '# announcements',
+    general: '# general',
+  },
   overview: {
     title: 'System Overview',
     subtitle:
@@ -13,6 +49,7 @@ export const dashboard = {
     thisMonth: 'this month',
     peakLoad: 'peak load',
     updatedToday: 'Updated today',
+    liveBadge: 'Live',
   },
   bidi: {
     title: 'Bi-directional Text Handling (Bidi)',

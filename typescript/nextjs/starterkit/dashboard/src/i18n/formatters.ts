@@ -24,20 +24,6 @@ export function isRtlDirection(localeOrDir: string): boolean {
 }
 
 /**
- * Returns default ISO 4217 currency code for a given locale.
- */
-export function getCurrencyForLocale(locale: SupportedLocale | string): string {
-  switch (locale) {
-    case 'ar':
-      return 'SAR';
-    case 'fr':
-      return 'EUR';
-    default:
-      return 'USD';
-  }
-}
-
-/**
  * Formats a number using the native Intl.NumberFormat API.
  */
 export function formatNumber(
@@ -54,11 +40,11 @@ export function formatNumber(
 
 /**
  * Formats currency using the native Intl.NumberFormat API.
- * Defaults to USD or local currency.
+ * Contract: the data determines the currency; the locale determines how it is displayed.
  */
 export function formatCurrency(
   amount: number,
-  currency = 'USD',
+  currency: string,
   locale: SupportedLocale | string = 'en',
   options: Intl.NumberFormatOptions = {},
 ): string {
@@ -74,7 +60,7 @@ export function formatCurrency(
 }
 
 /**
- * Formats percentages using the native Intl.NumberFormat API.
+ * Formats fractional percentages (e.g. `0.125` -> `12.5%`) using the native Intl.NumberFormat API.
  */
 export function formatPercent(
   value: number,
@@ -88,7 +74,7 @@ export function formatPercent(
       ...options,
     }).format(value);
   } catch {
-    return `${value}%`;
+    return `${value * 100}%`;
   }
 }
 

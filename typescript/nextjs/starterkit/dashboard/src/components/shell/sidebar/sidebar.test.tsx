@@ -1,30 +1,45 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React, { useState } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { acquireBodyScrollLock } from '@/lib/scroll-lock';
 import { LayoutProvider, useLayout } from '../layout-context';
 import { Sidebar, SidebarItem, SidebarTrigger } from './sidebar';
 
-const CustomLink = ({ href, children, ...rest }: any) => (
+const CustomLink = ({ href, children, ...rest }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
   <a href={href} data-custom-link="true" {...rest}>
     {children}
   </a>
 );
 
 function MobileOpenHelper() {
-  const { setSidebarOpenMobile } = useLayout();
-  return <button onClick={() => setSidebarOpenMobile(true)}>Open Mobile</button>;
+  const { setSidebarOpenMobile, isMobile } = useLayout();
+  return (
+    <div>
+      <span data-testid="is-mobile">{String(isMobile)}</span>
+      <button type="button" onClick={() => setSidebarOpenMobile(true)}>
+        Open Mobile
+      </button>
+    </div>
+  );
 }
 
 function ControlledSidebarParent() {
   const [collapsed, setCollapsed] = useState(false);
   return (
     <Sidebar collapsed={collapsed} onCollapsedChange={setCollapsed}>
-      <button onClick={() => setCollapsed(!collapsed)}>Toggle Controlled</button>
+      <button type="button" onClick={() => setCollapsed(!collapsed)}>
+        Toggle Controlled
+      </button>
     </Sidebar>
   );
 }
 
 describe('Sidebar Components', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    document.body.style.overflow = '';
+  });
+
   describe('SidebarItem', () => {
     it('renders an anchor with aria-current="page", target, rel, and preserves onClick when href is provided', () => {
       const handleClick = vi.fn();
@@ -76,7 +91,7 @@ describe('Sidebar Components', () => {
   });
 
   describe('Sidebar & SidebarTrigger accessibility and contracts', () => {
-    it('provides accurate aria-expanded on desktop trigger and toggles correctly', () => {
+    it('wires dynamic useId aria-controls matching aside id and toggles desktop aria-expanded', () => {
       render(
         <LayoutProvider defaultSidebarCollapsed={false}>
           <SidebarTrigger />
@@ -87,15 +102,15 @@ describe('Sidebar Components', () => {
       );
 
       const trigger = screen.getByRole('button', { name: /toggle navigation sidebar/i });
-      expect(trigger.getAttribute('aria-controls')).toBe('app-sidebar');
-      // On desktop, open sidebar should report aria-expanded="true"
+      const aside = screen.getByLabelText(/sidebar navigation/i);
+
+      expect(aside.id).toBeTruthy();
+      expect(trigger.getAttribute('aria-controls')).toBe(aside.id);
       expect(trigger.getAttribute('aria-expanded')).toBe('true');
 
-      // Click to collapse
       fireEvent.click(trigger);
       expect(trigger.getAttribute('aria-expanded')).toBe('false');
 
-      // Click to expand again
       fireEvent.click(trigger);
       expect(trigger.getAttribute('aria-expanded')).toBe('true');
     });
@@ -114,7 +129,6 @@ describe('Sidebar Components', () => {
       const trigger = screen.getByRole('button', { name: /toggle navigation sidebar/i });
       expect(trigger.getAttribute('aria-expanded')).toBe('true');
 
-      // Click trigger: should request controlled change via onCollapsedChange(true)
       fireEvent.click(trigger);
       expect(handleChange).toHaveBeenCalledWith(true);
     });
@@ -135,7 +149,57 @@ describe('Sidebar Components', () => {
       expect(aside.getAttribute('data-collapsed')).toBe('true');
     });
 
-    it('handles mobile drawer escape key and traps/releases focus correctly', () => {
+    it('aligns with CSS max-width: 768px breakpoint and resets mobile drawer + scroll lock on resize to desktop', () => {
+      let mobileMatches = true;
+      const listeners = new Set<() => void>();
+
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        configurable: true,
+        value: vi.fn((query: string) => ({
+          get matches() {
+            return mobileMatches;
+          },
+          media: query,
+          onchange: null,
+          addEventListener: (_type: string, cb: () => void) => listeners.add(cb),
+          removeEventListener: (_type: string, cb: () => void) => listeners.delete(cb),
+          addListener: () => {},
+          removeListener: () => {},
+          dispatchEvent: () => true,
+        })),
+      });
+
+      render(
+        <LayoutProvider>
+          <MobileOpenHelper />
+          <Sidebar>
+            <a href="/link1">Link 1</a>
+          </Sidebar>
+        </LayoutProvider>,
+      );
+
+      const aside = screen.getByLabelText(/sidebar navigation/i);
+      expect(screen.getByTestId('is-mobile').textContent).toBe('true');
+
+      fireEvent.click(screen.getByRole('button', { name: /open mobile/i }));
+      expect(aside.getAttribute('data-mobile-open')).toBe('true');
+      expect(document.body.style.overflow).toBe('hidden');
+
+      // Transition from 768px mobile to desktop (> 768px)
+      act(() => {
+        mobileMatches = false;
+        for (const cb of listeners) {
+          cb();
+        }
+      });
+
+      expect(screen.getByTestId('is-mobile').textContent).toBe('false');
+      expect(aside.getAttribute('data-mobile-open')).toBe('false');
+      expect(document.body.style.overflow).not.toBe('hidden');
+    });
+
+    it('handles mobile drawer Escape key and ref-counted body scroll locking cleanly', () => {
       render(
         <LayoutProvider>
           <MobileOpenHelper />
@@ -149,13 +213,20 @@ describe('Sidebar Components', () => {
       const aside = screen.getByLabelText(/sidebar navigation/i);
       expect(aside.getAttribute('data-mobile-open')).toBe('false');
 
-      // Open mobile drawer
+      const releaseSecondOverlay = acquireBodyScrollLock();
+      expect(document.body.style.overflow).toBe('hidden');
+
       fireEvent.click(screen.getByRole('button', { name: /open mobile/i }));
       expect(aside.getAttribute('data-mobile-open')).toBe('true');
 
-      // Press Escape key
+      // Escape closes mobile drawer, but body stays locked while second overlay is still open
       fireEvent.keyDown(window, { key: 'Escape' });
       expect(aside.getAttribute('data-mobile-open')).toBe('false');
+      expect(document.body.style.overflow).toBe('hidden');
+
+      // Releasing second overlay restores body scroll
+      releaseSecondOverlay();
+      expect(document.body.style.overflow).toBe('');
     });
   });
 });

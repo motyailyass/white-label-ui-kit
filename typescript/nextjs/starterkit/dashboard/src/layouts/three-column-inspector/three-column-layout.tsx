@@ -1,6 +1,7 @@
 'use client';
 
 import type React from 'react';
+import { useEffect, useRef } from 'react';
 import { DashboardHeader } from '@/components/patterns';
 import {
   AppShell,
@@ -17,8 +18,24 @@ import {
   SidebarItem,
   SidebarLogo,
   SidebarNav,
+  useLayout,
 } from '@/components/shell';
 import type { BaseLayoutProps, LayoutLogo, LayoutUser, NavGroup } from '../types';
+
+function CompactInspectorGuard({ enabled }: { enabled: boolean }) {
+  const { isTablet, setPanelOpen } = useLayout();
+  const initializedRef = useRef(false);
+
+  useEffect(() => {
+    if (!enabled || initializedRef.current) return;
+    if (isTablet) {
+      initializedRef.current = true;
+      setPanelOpen(false);
+    }
+  }, [enabled, isTablet, setPanelOpen]);
+
+  return null;
+}
 
 export interface ThreeColumnLayoutProps extends BaseLayoutProps {
   logo: LayoutLogo;
@@ -29,7 +46,13 @@ export interface ThreeColumnLayoutProps extends BaseLayoutProps {
   inspectorContent?: React.ReactNode;
   inspectorFooter?: React.ReactNode;
   isInspectorOpen?: boolean;
+  defaultInspectorOpen?: boolean;
+  onInspectorOpenChange?: (open: boolean) => void;
   onInspectorClose?: () => void;
+  inspectorCloseLabel?: string;
+  inspectorAriaLabel?: string;
+  sidebarAriaLabel?: string;
+  sidebarNavAriaLabel?: string;
 }
 
 export function ThreeColumnLayout({
@@ -45,29 +68,46 @@ export function ThreeColumnLayout({
   inspectorContent,
   inspectorFooter,
   isInspectorOpen,
+  defaultInspectorOpen,
+  onInspectorOpenChange,
   onInspectorClose,
+  inspectorCloseLabel,
+  inspectorAriaLabel,
+  sidebarAriaLabel,
+  sidebarNavAriaLabel,
   headerActions,
   config = {},
 }: ThreeColumnLayoutProps) {
   const { contentLayout = 'full', sidebarWidth, panelWidth = 340, density, headerSticky } = config;
 
+  const handleInspectorOpenChange = (nextOpen: boolean) => {
+    onInspectorOpenChange?.(nextOpen);
+    if (!nextOpen) {
+      onInspectorClose?.();
+    }
+  };
+
   return (
     <AppShell
       variant="three-column"
-      defaultPanelOpen={true}
+      defaultPanelOpen={defaultInspectorOpen ?? true}
       sidebarWidth={sidebarWidth}
       panelWidth={panelWidth}
       density={density}
     >
-      {/* Column 1: Left Navigation Sidebar */}
-      <Sidebar>
+      <CompactInspectorGuard
+        enabled={isInspectorOpen === undefined && defaultInspectorOpen === undefined}
+      />
+      {/* Column 1: Start Navigation Sidebar */}
+      <Sidebar aria-label={sidebarAriaLabel}>
         <SidebarLogo
           title={logo.title}
           subtitle={logo.subtitle}
           icon={logo.icon}
           href={logo.href}
+          as={logo.as}
         />
-        <SidebarNav>
+        <SidebarNav aria-label={sidebarNavAriaLabel}>
           {navigation.map((group, groupIdx) => (
             <SidebarGroup key={group.label || groupIdx} label={group.label}>
               {group.items.map((item) => (
@@ -78,6 +118,7 @@ export function ThreeColumnLayout({
                   icon={item.icon}
                   badge={item.badge}
                   isActive={item.isActive}
+                  as={item.as}
                 />
               ))}
             </SidebarGroup>
@@ -88,6 +129,7 @@ export function ThreeColumnLayout({
           email={user.email}
           avatarUrl={user.avatarUrl}
           initials={user.initials}
+          imageComponent={user.imageComponent}
         />
       </Sidebar>
 
@@ -107,13 +149,18 @@ export function ThreeColumnLayout({
         </Content>
       </AppShellMain>
 
-      {/* Column 3: Right Inspector Panel */}
-      <Panel width={panelWidth} open={isInspectorOpen}>
+      {/* Column 3: End Inspector Panel */}
+      <Panel
+        width={panelWidth}
+        open={isInspectorOpen}
+        onOpenChange={handleInspectorOpenChange}
+        aria-label={inspectorAriaLabel}
+      >
         {inspectorTitle && (
           <PanelHeader
             title={inspectorTitle}
             description={inspectorDescription}
-            onClose={onInspectorClose}
+            closeLabel={inspectorCloseLabel}
           />
         )}
         {inspectorContent && <PanelBody>{inspectorContent}</PanelBody>}

@@ -1,14 +1,16 @@
 .section {
   padding-block: var(--layout-section-padding-block);
   padding-inline: var(--layout-page-padding-inline);
-  max-width: 1200px;
-  margin: 0 auto;
+  max-inline-size: 1200px;
+  margin-inline: auto;
 }
 
 .header {
   text-align: center;
-  max-width: 680px;
-  margin: 0 auto var(--layout-section-content-gap);
+  max-inline-size: 680px;
+  margin-block-start: 0;
+  margin-block-end: var(--layout-section-content-gap);
+  margin-inline: auto;
 }
 
 .tag {
@@ -18,7 +20,7 @@
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: var(--layout-eyebrow-gap);
+  margin-block-end: var(--layout-eyebrow-gap);
 }
 
 .title {
@@ -27,29 +29,34 @@
   font-weight: var(--typography-section-title-weight);
   color: var(--color-text-primary);
   letter-spacing: -0.02em;
-  margin-bottom: var(--layout-heading-description-gap);
+  margin-block-start: 0;
+  margin-block-end: var(--layout-heading-description-gap);
 }
 
 .toggleContainer {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   gap: var(--space-3);
-  margin-bottom: var(--space-10);
+  margin-block-end: var(--space-10);
 }
 
 .toggleSwitch {
   display: inline-flex;
   align-items: center;
   background-color: var(--color-surface-active);
-  padding: 3px;
+  padding-block: var(--space-0-5);
+  padding-inline: var(--space-0-5);
   border-radius: var(--radius-full);
 }
 
 .toggleOption {
   border: none;
   background: transparent;
-  padding: var(--space-2) var(--space-4);
+  min-block-size: var(--control-height-sm);
+  padding-block: var(--space-1);
+  padding-inline: var(--space-4);
   border-radius: var(--radius-full);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -60,6 +67,13 @@
     color var(--transition-fast);
 }
 
+@media (pointer: coarse) {
+  .toggleOption[data-touch-target="auto"] {
+    min-block-size: var(--control-touch-target-min);
+    min-inline-size: var(--control-touch-target-min);
+  }
+}
+
 .toggleOption[data-active="true"] {
   background-color: var(--color-surface);
   color: var(--color-text-primary);
@@ -67,9 +81,11 @@
 
 .saveBadge {
   font-size: var(--font-size-xs);
+  line-height: var(--line-height-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--color-success);
-  padding: 2px 8px;
+  padding-block: var(--space-0-5);
+  padding-inline: var(--space-2);
   border-radius: var(--radius-full);
   background-color: var(--color-success-subtle);
 }
@@ -85,7 +101,8 @@
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-card);
-  padding: var(--layout-card-padding);
+  padding-block: var(--layout-card-padding);
+  padding-inline: var(--layout-card-padding);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -100,17 +117,20 @@
 
 .popularBadge {
   position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 11px;
+  inset-block-start: calc(-1 * var(--space-3));
+  inset-inline: 0;
+  margin-inline: auto;
+  inline-size: max-content;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-xs);
   font-weight: var(--font-weight-semibold);
-  padding: 4px 12px;
+  padding-block: var(--space-1);
+  padding-inline: var(--space-3);
   border-radius: var(--radius-full);
   background-color: var(--color-primary);
   color: var(--color-primary-foreground);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: var(--letter-spacing-wider);
 }
 
 .tierName {
@@ -118,21 +138,23 @@
   line-height: var(--typography-card-title-line-height);
   font-weight: var(--typography-card-title-weight);
   color: var(--color-text-primary);
-  margin-bottom: var(--space-1);
+  margin-block-start: 0;
+  margin-block-end: var(--space-1);
 }
 
 .tierDescription {
   font-size: var(--typography-supporting-size);
   line-height: var(--typography-supporting-line-height);
   color: var(--color-text-muted);
-  margin-bottom: var(--space-6);
+  margin-block-start: 0;
+  margin-block-end: var(--space-6);
 }
 
 .priceWrapper {
   display: flex;
   align-items: baseline;
   gap: var(--space-1);
-  margin-bottom: var(--space-6);
+  margin-block-end: var(--space-6);
 }
 
 .price {
@@ -149,7 +171,9 @@
 
 .featuresList {
   list-style: none;
-  margin: 0 0 var(--space-8) 0;
+  margin-block-start: 0;
+  margin-block-end: var(--space-8);
+  margin-inline: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -167,18 +191,18 @@
 
 .checkIcon {
   color: var(--color-success);
-  width: 16px;
-  height: 16px;
-  min-width: 16px;
+  flex-shrink: 0;
 }
 
 .ctaButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 44px;
-  padding: 0 var(--space-4);
-  font-size: var(--font-size-sm);
+  min-block-size: var(--control-height-default);
+  padding-inline: var(--control-padding-default);
+  padding-block: var(--control-padding-block-default);
+  font-size: var(--control-font-size-default);
+  line-height: var(--control-line-height-default);
   font-weight: var(--font-weight-medium);
   border-radius: var(--radius-control);
   border: 1px solid var(--color-border-strong);
@@ -187,7 +211,7 @@
   cursor: pointer;
   text-decoration: none;
   transition: background-color var(--transition-fast);
-  width: 100%;
+  inline-size: 100%;
 }
 
 .card[data-popular="true"] .ctaButton {

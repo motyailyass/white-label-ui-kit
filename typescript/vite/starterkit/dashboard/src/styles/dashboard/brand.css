@@ -1,0 +1,38 @@
+/**
+ * Dashboard Brand & Accent Configuration
+ *
+ * Out of the box: complete neutral monochrome interface (no brand setup required).
+ * When branding: override this small semantic contract to give your product an identity.
+ *
+ * Recommended usage in Dashboard:
+ * Use brand color selectively for primary actions, active indicators, and important
+ * selections. Keep working surfaces mostly neutral.
+ *
+ * Example (Custom Brand Accent):
+ * :root {
+ *   --color-primary: #2563eb;
+ *   --color-primary-hover: #1d4ed8;
+ *   --color-primary-active: #1e40af;
+ *   --color-primary-foreground: #ffffff;
+ *   --color-primary-subtle: #eff6ff;
+ *   --color-primary-subtle-foreground: #1d4ed8;
+ *   --color-primary-border: #bfdbfe;
+ * }
+ * :root[data-theme="dark"] {
+ *   --color-primary: #3b82f6;
+ *   --color-primary-hover: #60a5fa;
+ *   --color-primary-active: #93c5fd;
+ *   --color-primary-foreground: #0f172a;
+ *   --color-primary-subtle: #1e293b;
+ *   --color-primary-subtle-foreground: #93c5fd;
+ *   --color-primary-border: #1e3a8a;
+ * }
+ */
+
+:root {
+  /* Inherits default monochrome roles from styles/tokens/color-roles.css */
+}
+
+:root[data-theme="dark"] {
+  /* Inherits default monochrome roles from styles/tokens/color-roles.css */
+}

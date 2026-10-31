@@ -1,6 +1,42 @@
 import type { DashboardMessages } from '../en/dashboard';
 
 export const dashboard = {
+  meta: {
+    title: 'Control Hub - Kit de démarrage Tableau de bord',
+    description: 'Kit de démarrage de tableau de bord de production',
+    brandName: 'Control Hub',
+    brandSubtitle: 'Système de production',
+  },
+  shell: {
+    sidebarLabel: 'Navigation latérale',
+    primaryNavLabel: 'Navigation principale',
+    secondaryNavLabel: "Navigation de l'espace de travail",
+    toggleSidebar: 'Basculer la barre latérale de navigation',
+    inspectorLabel: 'Panneau contextuel',
+    closePanel: 'Fermer le panneau',
+    platformBreadcrumb: 'Plateforme',
+  },
+  layouts: {
+    groupLabel: 'Mises en page',
+    classicTitle: 'Mise en page classique',
+    classicDescription: 'Navigation principale à un niveau avec barre latérale rétractable',
+    dualSidebarTitle: 'Double barre latérale',
+    dualSidebarDescription: "Rail d'icônes principal à deux niveaux et sous-navigation imbriquée",
+    workspaceTitle: 'Espace de travail',
+    workspaceSubtitle: "Équipe d'ingénierie",
+    threeColumnTitle: 'Trois colonnes',
+    threeColumnDescription: 'Mise en page avec panneau inspecteur contextuel persistant',
+    inspectorTitle: 'Propriétés et détails',
+    inspectorDescription: "Attributs de l'objet sélectionné",
+  },
+  rail: {
+    engineering: 'Ingénierie',
+    designSystem: 'Système de design',
+    marketing: 'Marketing',
+    channelsGroup: 'Canaux',
+    announcements: '# annonces',
+    general: '# général',
+  },
   overview: {
     title: 'Aperçu du système',
     subtitle:
@@ -13,6 +49,7 @@ export const dashboard = {
     thisMonth: 'ce mois-ci',
     peakLoad: 'charge de pointe',
     updatedToday: "Mis à jour aujourd'hui",
+    liveBadge: 'En direct',
   },
   bidi: {
     title: 'Gestion de texte bidirectionnel (Bidi)',

@@ -7,8 +7,8 @@ test.describe('Website Typography Specification Verification', () => {
     const bodyTypography = await page.evaluate(() => {
       const style = window.getComputedStyle(document.body);
       return {
-        fontSize: parseFloat(style.fontSize),
-        lineHeight: parseFloat(style.lineHeight),
+        fontSize: Number.parseFloat(style.fontSize),
+        lineHeight: Number.parseFloat(style.lineHeight),
         fontWeight: style.fontWeight,
       };
     });
@@ -18,7 +18,9 @@ test.describe('Website Typography Specification Verification', () => {
     expect(['400', 'normal']).toContain(bodyTypography.fontWeight);
   });
 
-  test('computes responsive hero display title (40/48px mobile, 64/72px desktop)', async ({ page }) => {
+  test('computes responsive hero display title (40/48px mobile, 64/72px desktop)', async ({
+    page,
+  }) => {
     await page.goto('/');
     const heroTitle = page.locator('h1[class*="title"]').first();
     await expect(heroTitle).toBeVisible();
@@ -28,8 +30,8 @@ test.describe('Website Typography Specification Verification', () => {
     const typography = await heroTitle.evaluate((el) => {
       const style = window.getComputedStyle(el);
       return {
-        fontSize: parseFloat(style.fontSize),
-        lineHeight: parseFloat(style.lineHeight),
+        fontSize: Number.parseFloat(style.fontSize),
+        lineHeight: Number.parseFloat(style.lineHeight),
         fontWeight: style.fontWeight,
       };
     });
@@ -54,8 +56,8 @@ test.describe('Website Typography Specification Verification', () => {
     const typography = await sectionTitle.evaluate((el) => {
       const style = window.getComputedStyle(el);
       return {
-        fontSize: parseFloat(style.fontSize),
-        lineHeight: parseFloat(style.lineHeight),
+        fontSize: Number.parseFloat(style.fontSize),
+        lineHeight: Number.parseFloat(style.lineHeight),
       };
     });
 
@@ -76,8 +78,8 @@ test.describe('Website Typography Specification Verification', () => {
     const typography = await eyebrow.evaluate((el) => {
       const style = window.getComputedStyle(el);
       return {
-        fontSize: parseFloat(style.fontSize),
-        lineHeight: parseFloat(style.lineHeight),
+        fontSize: Number.parseFloat(style.fontSize),
+        lineHeight: Number.parseFloat(style.lineHeight),
         fontWeight: style.fontWeight,
       };
     });
@@ -87,13 +89,12 @@ test.describe('Website Typography Specification Verification', () => {
     expect(['500', 'medium']).toContain(typography.fontWeight);
   });
 
-  test('applies Arabic font stack with vertical clearance and normal tracking when lang="ar"', async ({ page }) => {
+  test('applies Arabic font stack with vertical clearance and normal tracking when lang="ar"', async ({
+    page,
+  }) => {
     await page.goto('/');
-
-    await page.evaluate(() => {
-      document.documentElement.setAttribute('lang', 'ar');
-      document.documentElement.setAttribute('dir', 'rtl');
-    });
+    await page.locator('select').first().selectOption('ar');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
 
     const arabicTypography = await page.evaluate(() => {
       const style = window.getComputedStyle(document.body);
@@ -107,19 +108,19 @@ test.describe('Website Typography Specification Verification', () => {
     expect(['normal', '0px']).toContain(arabicTypography.letterSpacing);
   });
 
-  test('maintains identical typography dimensions across light and dark themes (theme parity)', async ({ page }) => {
+  test('maintains identical typography dimensions across light and dark themes (theme parity)', async ({
+    page,
+  }) => {
     await page.goto('/');
     const heroTitle = page.locator('h1[class*="title"]').first();
     await expect(heroTitle).toBeVisible();
 
-    // Light mode
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'light'));
     const light = await heroTitle.evaluate((el) => {
       const style = window.getComputedStyle(el);
       return { fontSize: style.fontSize, lineHeight: style.lineHeight };
     });
 
-    // Dark mode
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
     const dark = await heroTitle.evaluate((el) => {
       const style = window.getComputedStyle(el);
@@ -130,8 +131,9 @@ test.describe('Website Typography Specification Verification', () => {
     expect(light.lineHeight).toBe(dark.lineHeight);
   });
 
-  test('loads bundled self-hosted fonts with all external network requests blocked', async ({ page }) => {
-    // Block any external requests (ensuring zero CDN or remote font calls)
+  test('loads bundled self-hosted fonts with all external network requests blocked', async ({
+    page,
+  }) => {
     await page.route('**', (route) => {
       const url = new URL(route.request().url());
       if (url.hostname !== 'localhost' && url.hostname !== '127.0.0.1') {
@@ -152,14 +154,15 @@ test.describe('Website Typography Specification Verification', () => {
       return loaded;
     });
 
-    // Confirms font faces exist and load without external network
     expect(fontFacesLoaded.length).toBeGreaterThan(0);
   });
 
-  test('verifies role-appropriate line-height adjustments reach actual components in Arabic', async ({ page }) => {
-    await page.context().addCookies([
-      { name: 'locale', value: 'ar', domain: 'localhost', path: '/' },
-    ]);
+  test('verifies role-appropriate line-height adjustments reach actual components in Arabic', async ({
+    page,
+  }) => {
+    await page
+      .context()
+      .addCookies([{ name: 'locale', value: 'ar', domain: 'localhost', path: '/' }]);
     await page.goto('/');
 
     await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
@@ -171,11 +174,10 @@ test.describe('Website Typography Specification Verification', () => {
     const titleTypography = await heroTitle.evaluate((el) => {
       const style = window.getComputedStyle(el);
       return {
-        lineHeight: parseFloat(style.lineHeight),
+        lineHeight: Number.parseFloat(style.lineHeight),
       };
     });
 
-    // In Arabic: mobile 56px (3.5rem) vs Latin 48px; desktop 84px (5.25rem) vs Latin 72px
     if (isMobile) {
       expect(titleTypography.lineHeight).toBeCloseTo(56, 1);
     } else {
@@ -183,67 +185,48 @@ test.describe('Website Typography Specification Verification', () => {
     }
   });
 
-  test('verifies controls accommodate Arabic labels with heavy Tashkeel (diacritics) without clipping', async ({ page }) => {
-    await page.goto('/');
+  test('verifies real Button primitive accommodates Arabic labels with heavy Tashkeel without clipping', async ({
+    page,
+  }) => {
+    await page.goto('/sizing-fixture');
+    await page.locator('select').selectOption('ar');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
 
-    await page.evaluate(() => {
-      document.documentElement.setAttribute('lang', 'ar');
-      document.documentElement.setAttribute('dir', 'rtl');
+    const btn = page.locator('#btn-arabic-diacritics');
+    await expect(btn).toBeVisible();
+
+    const result = await btn.evaluate((el) => {
+      const rect = el.getBoundingClientRect();
+      const style = window.getComputedStyle(el);
+      return {
+        height: rect.height,
+        noOverflowClip: style.overflow !== 'hidden' && style.overflowY !== 'hidden',
+        fontFamily: style.fontFamily.toLowerCase(),
+      };
     });
 
-    const result = await page.evaluate(() => {
-      const btn = document.createElement('button');
-      btn.className = 'test-diacritic-btn';
-      btn.textContent = 'تَصْدِيرُ التَّقْرِيرِ المُفَصَّلِ الشَّامِلِ';
-      btn.style.fontFamily = 'inherit';
-      btn.style.fontSize = 'var(--control-font-size-xl, 1rem)';
-      btn.style.minHeight = 'var(--control-height-xl, 48px)';
-      btn.style.padding = '0 var(--control-padding-xl, 20px)';
-      btn.style.display = 'inline-flex';
-      btn.style.alignItems = 'center';
-      btn.style.justifyContent = 'center';
-      btn.style.overflow = 'visible';
-
-      document.body.appendChild(btn);
-
-      const rect = btn.getBoundingClientRect();
-      const style = window.getComputedStyle(btn);
-      const isVisible = rect.height >= 48;
-      const noOverflowClip = style.overflow !== 'hidden' && style.overflowY !== 'hidden';
-
-      document.body.removeChild(btn);
-
-      return { isVisible, noOverflowClip, height: rect.height };
-    });
-
-    expect(result.isVisible).toBe(true);
+    expect(result.height).toBeGreaterThanOrEqual(48);
     expect(result.noOverflowClip).toBe(true);
+    expect(result.fontFamily).toContain('noto sans arabic');
   });
 
-  test('restores Latin font stack and tracking for nested English/French within Arabic document', async ({ page }) => {
-    await page.goto('/');
+  test('restores Latin font stack for real nested English/French elements and code snippets within Arabic document', async ({
+    page,
+  }) => {
+    await page.goto('/sizing-fixture');
+    await page.locator('select').selectOption('ar');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
 
     const result = await page.evaluate(() => {
-      document.documentElement.setAttribute('lang', 'ar');
-      document.documentElement.setAttribute('dir', 'rtl');
-
-      const container = document.createElement('div');
-      container.innerHTML = `
-        <p id="arabic-text">مرحباً بكم في <span id="nested-english" lang="en">Tokyo Platform</span> و <span id="nested-french" lang="fr">Système</span></p>
-      `;
-      document.body.appendChild(container);
-
-      const arabicEl = document.getElementById('arabic-text')!;
+      const arabicEl = document.getElementById('mixed-lang-sample')!;
       const enEl = document.getElementById('nested-english')!;
       const frEl = document.getElementById('nested-french')!;
 
-      const arabicFamily = window.getComputedStyle(arabicEl).fontFamily.toLowerCase();
-      const enFamily = window.getComputedStyle(enEl).fontFamily.toLowerCase();
-      const frFamily = window.getComputedStyle(frEl).fontFamily.toLowerCase();
-
-      document.body.removeChild(container);
-
-      return { arabicFamily, enFamily, frFamily };
+      return {
+        arabicFamily: window.getComputedStyle(arabicEl).fontFamily.toLowerCase(),
+        enFamily: window.getComputedStyle(enEl).fontFamily.toLowerCase(),
+        frFamily: window.getComputedStyle(frEl).fontFamily.toLowerCase(),
+      };
     });
 
     expect(result.arabicFamily).toContain('noto sans arabic');
@@ -251,23 +234,22 @@ test.describe('Website Typography Specification Verification', () => {
     expect(result.frFamily).toContain('geist');
   });
 
-  test('ensures uppercase/eyebrow treatments do not impose tracking on Arabic script', async ({ page }) => {
+  test('ensures real uppercase/eyebrow roles on landing page do not impose tracking on Arabic script', async ({
+    page,
+  }) => {
     await page.goto('/');
+    await page.locator('select').first().selectOption('ar');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
 
-    const result = await page.evaluate(() => {
-      document.documentElement.setAttribute('lang', 'ar');
+    const eyebrow = page.locator('[data-role="eyebrow"]').first();
+    await expect(eyebrow).toBeVisible();
 
-      const badge = document.createElement('div');
-      badge.className = 'badge';
-      badge.textContent = 'جديد ومميز';
-      document.body.appendChild(badge);
-
-      const style = window.getComputedStyle(badge);
-      const tracking = style.letterSpacing;
-      const transform = style.textTransform;
-
-      document.body.removeChild(badge);
-      return { tracking, transform };
+    const result = await eyebrow.evaluate((el) => {
+      const style = window.getComputedStyle(el);
+      return {
+        tracking: style.letterSpacing,
+        transform: style.textTransform,
+      };
     });
 
     expect(['normal', '0px']).toContain(result.tracking);

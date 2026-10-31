@@ -1,6 +1,12 @@
+@keyframes loadingSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .loadingContainer {
   display: flex;
-  min-height: 100vh;
+  min-block-size: 100dvh;
   align-items: center;
   justify-content: center;
   background-color: var(--color-bg-base);
@@ -9,10 +15,16 @@
 }
 
 .spinner {
-  width: 24px;
-  height: 24px;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
   border: 2px solid var(--color-border-subtle);
-  border-top-color: var(--color-primary);
-  border-radius: var(--radius-full, 50%);
-  animation: spin 0.8s linear infinite;
+  border-block-start-color: var(--color-primary);
+  border-radius: var(--radius-full);
+  animation: loadingSpin 800ms linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
 }

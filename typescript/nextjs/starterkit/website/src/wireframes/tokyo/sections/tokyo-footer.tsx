@@ -1,12 +1,14 @@
 'use client';
 
-import React from 'react';
+import type React from 'react';
+import { ThemeSwitcher } from '@/components/patterns';
 import { cn } from '@/lib/cn';
+import { useI18n } from '@/providers';
 import styles from './tokyo-footer.module.css';
 
 export interface FooterColumn {
   title: string;
-  links: { label: string; href: string }[];
+  links: { label: string; href: string; as?: React.ElementType }[];
 }
 
 export interface TokyoFooterProps extends React.HTMLAttributes<HTMLElement> {
@@ -14,96 +16,100 @@ export interface TokyoFooterProps extends React.HTMLAttributes<HTMLElement> {
   tagline?: string;
   columns?: FooterColumn[];
   copyright?: string;
+  statusText?: string;
+  linkAs?: React.ElementType;
 }
 
-const defaultColumns: FooterColumn[] = [
-  {
-    title: 'Product',
-    links: [
-      { label: 'Edge Network', href: '#network' },
-      { label: 'Integrations', href: '#integrations' },
-      { label: 'Changelog', href: '#changelog' },
-      { label: 'Pricing', href: '#pricing' },
-    ],
-  },
-  {
-    title: 'Developers',
-    links: [
-      { label: 'Documentation', href: '#docs' },
-      { label: 'API Reference', href: '#api' },
-      { label: 'CLI Tools', href: '#cli' },
-      { label: 'GitHub', href: 'https://github.com' },
-    ],
-  },
-  {
-    title: 'Company',
-    links: [
-      { label: 'About Us', href: '#about' },
-      { label: 'Careers', href: '#careers' },
-      { label: 'Privacy Policy', href: '#privacy' },
-      { label: 'Terms of Service', href: '#terms' },
-    ],
-  },
-];
-
 export function TokyoFooter({
-  brandName = 'Tokyo.dev',
-  tagline = 'The high-velocity wireframe blueprint for modern software and engineering products.',
-  columns = defaultColumns,
-  copyright = '© 2026 Tokyo Starter Kit. All rights reserved.',
+  brandName,
+  tagline,
+  columns,
+  copyright,
+  statusText,
+  linkAs,
   className,
   ...props
 }: TokyoFooterProps) {
+  const { t } = useI18n();
+
+  const resolvedBrandName = brandName ?? t('website.meta.brandName');
+  const resolvedTagline = tagline ?? t('website.footer.tagline');
+  const resolvedCopyright = copyright ?? t('website.footer.copyright');
+  const resolvedStatus = statusText ?? t('website.footer.statusOperational');
+
+  const resolvedColumns: FooterColumn[] = columns ?? [
+    {
+      title: t('website.footer.productTitle'),
+      links: [
+        { label: t('website.footer.edgeNetwork'), href: '#network' },
+        { label: t('website.footer.integrations'), href: '#integrations' },
+        { label: t('website.footer.changelog'), href: '#changelog' },
+        { label: t('website.footer.pricing'), href: '#pricing' },
+      ],
+    },
+    {
+      title: t('website.footer.developersTitle'),
+      links: [
+        { label: t('website.footer.documentation'), href: '#docs' },
+        { label: t('website.footer.apiReference'), href: '#api' },
+        { label: t('website.footer.cliTools'), href: '#cli' },
+        { label: t('website.footer.github'), href: 'https://github.com' },
+      ],
+    },
+    {
+      title: t('website.footer.companyTitle'),
+      links: [
+        { label: t('website.footer.aboutUs'), href: '#about' },
+        { label: t('website.footer.careers'), href: '#careers' },
+        { label: t('website.footer.privacyPolicy'), href: '#privacy' },
+        { label: t('website.footer.termsOfService'), href: '#terms' },
+      ],
+    },
+  ];
+
   return (
     <footer className={cn(styles.footer, className)} {...props}>
       <div className={styles.container}>
         <div className={styles.grid}>
           <div className={styles.brandCol}>
-            <div className={styles.brandName}>{brandName}</div>
-            <p className={styles.brandTagline}>{tagline}</p>
+            <div className={styles.brandName}>{resolvedBrandName}</div>
+            <p className={styles.brandTagline}>{resolvedTagline}</p>
             <div className={styles.statusPill}>
               <span className={styles.statusDot} aria-hidden="true" />
-              <span>All systems operational</span>
+              <span>{resolvedStatus}</span>
             </div>
           </div>
 
-          {columns.map((col) => (
+          {resolvedColumns.map((col) => (
             <div key={col.title}>
-              <div className={styles.colTitle}>{col.title}</div>
+              <div className={styles.colTitle} data-role="eyebrow">
+                {col.title}
+              </div>
               <ul className={styles.linkList}>
-                {col.links.map((link) => (
-                  <li key={link.label}>
-                    <a href={link.href} className={styles.link}>
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
+                {col.links.map((link) => {
+                  const isExternal =
+                    link.href.startsWith('http://') || link.href.startsWith('https://');
+                  const ItemLink = isExternal ? 'a' : (link.as ?? linkAs ?? 'a');
+                  return (
+                    <li key={link.href + link.label}>
+                      <ItemLink
+                        href={link.href}
+                        className={styles.link}
+                        {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      >
+                        {link.label}
+                      </ItemLink>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
         </div>
 
         <div className={styles.bottomBar}>
-          <div>{copyright}</div>
-          <button
-            type="button"
-            style={{
-              padding: '2px 8px',
-              fontSize: '11px',
-              borderRadius: 'var(--radius-control)',
-              border: '1px solid var(--color-border-subtle)',
-              background: 'transparent',
-              color: 'var(--color-text-secondary)',
-              cursor: 'pointer',
-            }}
-            onClick={() => {
-              const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-              document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-            }}
-            aria-label="Toggle theme"
-          >
-            Toggle Theme
-          </button>
+          <div>{resolvedCopyright}</div>
+          <ThemeSwitcher size="sm" />
         </div>
       </div>
     </footer>

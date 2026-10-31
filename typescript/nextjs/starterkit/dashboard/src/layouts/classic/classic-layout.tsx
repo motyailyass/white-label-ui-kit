@@ -19,6 +19,8 @@ export interface ClassicLayoutProps extends BaseLayoutProps {
   logo: LayoutLogo;
   navigation: NavGroup[];
   user: LayoutUser;
+  sidebarAriaLabel?: string;
+  sidebarNavAriaLabel?: string;
 }
 
 export function ClassicLayout({
@@ -29,6 +31,8 @@ export function ClassicLayout({
   pageTitle,
   pageDescription,
   user,
+  sidebarAriaLabel,
+  sidebarNavAriaLabel,
   headerActions,
   config = {},
 }: ClassicLayoutProps) {
@@ -36,14 +40,15 @@ export function ClassicLayout({
 
   return (
     <AppShell variant="classic" sidebarWidth={sidebarWidth} density={density}>
-      <Sidebar>
+      <Sidebar aria-label={sidebarAriaLabel}>
         <SidebarLogo
           title={logo.title}
           subtitle={logo.subtitle}
           icon={logo.icon}
           href={logo.href}
+          as={logo.as}
         />
-        <SidebarNav>
+        <SidebarNav aria-label={sidebarNavAriaLabel}>
           {navigation.map((group, groupIdx) => (
             <SidebarGroup key={group.label || groupIdx} label={group.label}>
               {group.items.map((item) => (
@@ -54,6 +59,7 @@ export function ClassicLayout({
                   icon={item.icon}
                   badge={item.badge}
                   isActive={item.isActive}
+                  as={item.as}
                 />
               ))}
             </SidebarGroup>
@@ -64,6 +70,7 @@ export function ClassicLayout({
           email={user.email}
           avatarUrl={user.avatarUrl}
           initials={user.initials}
+          imageComponent={user.imageComponent}
         />
       </Sidebar>
 

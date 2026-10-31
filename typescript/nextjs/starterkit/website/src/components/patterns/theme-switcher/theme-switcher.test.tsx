@@ -1,23 +1,29 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { describe, expect, it } from 'vitest';
-import { ThemeProvider } from '@/providers/theme-provider';
+import { describe, expect, it, vi } from 'vitest';
+import { AppProviders } from '@/providers';
 import { ThemeSwitcher } from './theme-switcher';
 
 describe('ThemeSwitcher (Connected Pattern)', () => {
-  it('connects to ThemeProvider and toggles theme when clicked', () => {
+  it('connects to ThemeProvider + I18nProvider and toggles theme state when clicked', () => {
     render(
-      <ThemeProvider defaultTheme="light">
+      <AppProviders initialLocale="en" defaultTheme="light">
         <ThemeSwitcher />
-      </ThemeProvider>,
+      </AppProviders>,
     );
 
-    const button = screen.getByRole('button', { name: /switch to dark mode/i });
-    expect(button).toBeDefined();
+    const button = screen.getByRole('button', { name: /toggle theme/i });
+    expect(button.getAttribute('aria-pressed')).toBe('false');
 
     fireEvent.click(button);
 
-    // After click, should toggle
-    expect(screen.getByRole('button', { name: /switch to light mode/i })).toBeDefined();
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+  });
+
+  it('fails loudly without silent fallback when rendered outside providers', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(() => render(<ThemeSwitcher />)).toThrow();
+    consoleSpy.mockRestore();
   });
 });

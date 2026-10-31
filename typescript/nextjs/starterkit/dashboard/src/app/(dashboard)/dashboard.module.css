@@ -46,7 +46,8 @@
 }
 
 .metricCard {
-  padding: var(--layout-card-padding);
+  padding-block: var(--layout-card-padding);
+  padding-inline: var(--layout-card-padding);
   border-radius: var(--radius-card);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
@@ -84,7 +85,8 @@
 }
 
 .bidiCard {
-  padding: var(--layout-card-padding);
+  padding-block: var(--layout-card-padding);
+  padding-inline: var(--layout-card-padding);
   border-radius: var(--radius-card);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
@@ -107,43 +109,4 @@
 .bidiValue {
   font-weight: var(--font-weight-semibold);
   color: var(--color-primary);
-}
-
-.layoutNavGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--layout-grid-gap);
-  margin-block-start: var(--space-4);
-}
-
-.layoutCard {
-  padding: var(--layout-card-padding);
-  border-radius: var(--radius-card);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  transition:
-    border-color var(--transition-fast),
-    background-color var(--transition-fast);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  text-decoration: none;
-}
-
-.layoutCard:hover {
-  border-color: var(--color-primary);
-  background-color: var(--color-surface-hover);
-}
-
-.layoutCardTitle {
-  font-size: var(--typography-card-title-size);
-  line-height: var(--typography-card-title-line-height);
-  font-weight: var(--typography-card-title-weight);
-  color: var(--color-text-primary);
-}
-
-.layoutCardDesc {
-  font-size: var(--typography-supporting-size);
-  line-height: var(--typography-supporting-line-height);
-  color: var(--color-text-secondary);
 }

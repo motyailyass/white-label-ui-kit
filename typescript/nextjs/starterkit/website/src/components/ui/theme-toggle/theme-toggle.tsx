@@ -1,9 +1,12 @@
-import type React from 'react';
-import { cn } from '@/lib/cn';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 import { Icon } from '@/components/icons';
+import { cn } from '@/lib/cn';
+import type { ControlSizingProps } from '../control-sizing';
 import styles from './theme-toggle.module.css';
 
-export interface ThemeToggleProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ThemeToggleProps
+  extends Omit<ComponentPropsWithoutRef<'button'>, 'children'>,
+    ControlSizingProps {
   theme?: 'light' | 'dark' | 'system';
   resolvedTheme?: 'light' | 'dark';
   onToggle?: () => void;
@@ -15,34 +18,52 @@ export interface ThemeToggleProps extends React.ButtonHTMLAttributes<HTMLButtonE
 
 /**
  * Pure ThemeToggle UI primitive.
- * Receives current theme, labels, and onToggle callback via native props with zero context lock-in.
+ * Receives current theme, localized labels, sizing, and onToggle callback via props with zero context lock-in.
  */
-export function ThemeToggle({
-  theme = 'system',
-  resolvedTheme = 'light',
-  onToggle,
-  showLabel = true,
-  lightLabel = 'Light',
-  darkLabel = 'Dark',
-  ariaLabel,
-  className,
-  ...props
-}: ThemeToggleProps) {
+export const ThemeToggle = forwardRef<HTMLButtonElement, ThemeToggleProps>(function ThemeToggle(
+  {
+    size,
+    touchTarget = 'auto',
+    theme: _theme = 'system',
+    resolvedTheme = 'light',
+    onToggle,
+    showLabel = true,
+    lightLabel,
+    darkLabel,
+    ariaLabel,
+    type = 'button',
+    className,
+    onClick,
+    'aria-label': nativeAriaLabel,
+    ...props
+  },
+  ref,
+) {
   const isDark = resolvedTheme === 'dark';
   const currentLabel = isDark ? lightLabel : darkLabel;
-  const computedAriaLabel = ariaLabel || `Switch to ${isDark ? 'light' : 'dark'} mode`;
+  const computedAriaLabel = ariaLabel ?? nativeAriaLabel;
 
   return (
     <button
-      type="button"
-      className={cn(styles.toggle, className)}
-      onClick={onToggle}
-      aria-label={computedAriaLabel}
-      title={`Current: ${theme} (${resolvedTheme})`}
       {...props}
+      ref={ref}
+      type={type}
+      data-size={size}
+      data-touch-target={touchTarget}
+      aria-pressed={isDark}
+      aria-label={computedAriaLabel}
+      className={cn(styles.toggle, className)}
+      onClick={(e) => {
+        onClick?.(e);
+        if (!e.defaultPrevented) {
+          onToggle?.();
+        }
+      }}
     >
-      <Icon name={isDark ? 'sun' : 'moon'} size={14} className={styles.icon} aria-hidden="true" />
-      {showLabel && <span>{currentLabel}</span>}
+      <Icon name={isDark ? 'sun' : 'moon'} className={styles.icon} aria-hidden="true" />
+      {showLabel && currentLabel && <span>{currentLabel}</span>}
     </button>
   );
-}
+});
+
+ThemeToggle.displayName = 'ThemeToggle';

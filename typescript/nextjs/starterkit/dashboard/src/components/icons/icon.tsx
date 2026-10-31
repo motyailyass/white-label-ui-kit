@@ -1,8 +1,8 @@
 import { HugeiconsIcon } from '@hugeicons/react';
 import type { ComponentProps } from 'react';
 import { cn } from '@/lib/cn';
-import { type IconName, iconRegistry } from './registry';
 import styles from './icon.module.css';
+import { type IconName, iconRegistry } from './registry';
 
 export interface IconProps extends Omit<ComponentProps<typeof HugeiconsIcon>, 'icon'> {
   name: IconName;
@@ -25,6 +25,7 @@ export function Icon({
       icon={svg}
       size={size}
       strokeWidth={strokeWidth}
+      data-mirror-rtl={mirror ? 'true' : undefined}
       className={cn(styles.icon, mirror && styles.mirror, className)}
       role={label ? 'img' : undefined}
       aria-label={label}

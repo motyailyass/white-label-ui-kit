@@ -1,19 +1,27 @@
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 import { cn } from '@/lib/cn';
 import styles from './website-card.module.css';
 
 export interface WebsiteCardProps extends ComponentPropsWithoutRef<'article'> {
+  as?: 'article' | 'div' | 'section';
   elevation?: 'none' | 'raised' | 'floating';
 }
 
 export const WebsiteCard = forwardRef<HTMLElement, WebsiteCardProps>(function WebsiteCard(
-  { elevation = 'none', className, children, ...props },
+  { as = 'article', elevation = 'none', className, children, ...props },
   ref,
 ) {
+  const Component = as;
   return (
-    <article {...props} ref={ref} className={cn(styles.card, className)} data-elevation={elevation}>
+    <Component
+      {...props}
+      // Safe polymorphic ref forwarding across HTML container tags (article | div | section)
+      ref={ref as never}
+      className={cn(styles.card, className)}
+      data-elevation={elevation}
+    >
       {children}
-    </article>
+    </Component>
   );
 });
 

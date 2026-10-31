@@ -1,19 +1,19 @@
 .section {
   padding-block: var(--layout-section-padding-block);
   padding-inline: var(--layout-page-padding-inline);
-  max-width: 1200px;
-  margin: 0 auto;
+  max-inline-size: 1200px;
+  margin-inline: auto;
 }
 
 .card {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-card);
-  padding: var(--layout-card-padding);
+  padding-block: var(--layout-card-padding);
+  padding-inline: var(--layout-card-padding);
   text-align: center;
   box-shadow: var(--website-shadow-lg);
   position: relative;
-  overflow: hidden;
 }
 
 .title {
@@ -22,16 +22,20 @@
   font-weight: var(--typography-section-title-weight);
   color: var(--color-text-primary);
   letter-spacing: -0.02em;
-  margin: 0 auto var(--space-3);
-  max-width: 680px;
+  margin-block-start: 0;
+  margin-block-end: var(--space-3);
+  margin-inline: auto;
+  max-inline-size: 680px;
 }
 
 .description {
   font-size: var(--typography-lead-size);
   color: var(--color-text-secondary);
   line-height: var(--typography-lead-line-height);
-  max-width: 540px;
-  margin: 0 auto var(--space-8);
+  max-inline-size: 540px;
+  margin-block-start: 0;
+  margin-block-end: var(--space-8);
+  margin-inline: auto;
 }
 
 .form {
@@ -39,14 +43,14 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  max-width: 440px;
-  margin: 0 auto;
+  max-inline-size: 460px;
+  margin-inline: auto;
   flex-wrap: wrap;
 }
 
 .input {
   flex: 1;
-  min-width: 220px;
+  min-inline-size: 220px;
   min-block-size: var(--control-height-default);
   padding-inline: var(--control-padding-default);
   padding-block: var(--control-padding-block-default);
@@ -65,21 +69,8 @@
   border-color: var(--color-border-focus);
 }
 
-.button {
-  min-block-size: var(--control-height-default);
-  padding-inline: var(--control-padding-default);
-  padding-block: var(--control-padding-block-default);
-  font-size: var(--control-font-size-default);
-  line-height: var(--control-line-height-default);
-  border-radius: var(--radius-control);
-  background-color: var(--color-primary);
-  color: var(--color-primary-foreground);
+.successMessage {
+  color: var(--color-success);
   font-weight: var(--font-weight-medium);
-  border: none;
-  cursor: pointer;
-  transition: opacity var(--transition-fast);
-}
-
-.button:hover {
-  opacity: 0.9;
+  font-size: var(--font-size-sm);
 }

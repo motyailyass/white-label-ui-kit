@@ -1,6 +1,6 @@
 .statusContainer {
   display: flex;
-  min-height: 100vh;
+  min-block-size: 100dvh;
   align-items: center;
   justify-content: center;
   background-color: var(--color-bg-base);

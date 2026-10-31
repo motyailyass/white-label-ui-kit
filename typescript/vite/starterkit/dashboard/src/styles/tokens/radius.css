@@ -1,0 +1,19 @@
+/*
+ * White Label UI Kit — Radius primitives
+ *
+ * Stable physical corner geometry.
+ * Product defaults belong in the local product preset.
+ *
+ * Do not redefine these primitives for theme or direction.
+ */
+
+:root {
+  --radius-none: 0;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+}

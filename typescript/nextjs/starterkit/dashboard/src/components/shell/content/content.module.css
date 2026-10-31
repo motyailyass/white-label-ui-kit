@@ -2,30 +2,30 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  width: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
+  min-inline-size: 0;
+  inline-size: 100%;
+  overflow-block: auto;
+  overflow-inline: hidden;
   position: relative;
 }
 
 .body {
   flex: 1;
-  width: 100%;
+  inline-size: 100%;
   padding-block: var(--layout-page-padding-block);
   padding-inline: var(--layout-page-padding-inline);
-  margin: 0 auto;
+  margin-inline: auto;
 }
 
 /* Fluid vs Boxed Containers */
 .body[data-layout="boxed"] {
-  max-width: 1280px;
+  max-inline-size: 80rem;
 }
 
 .body[data-layout="compact"] {
-  max-width: 960px;
+  max-inline-size: 60rem;
 }
 
 .body[data-layout="full"] {
-  max-width: 100%;
+  max-inline-size: 100%;
 }

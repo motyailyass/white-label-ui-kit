@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { ControlSizingFixture } from '@/components/patterns/control-sizing-fixture';
+import { ControlSizingFixture } from './control-sizing-fixture';
 import styles from './sizing-fixture.module.css';
 
 export const dynamic = 'force-dynamic';

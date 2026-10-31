@@ -1,6 +1,42 @@
 import type { DashboardMessages } from '../en/dashboard';
 
 export const dashboard = {
+  meta: {
+    title: 'Control Hub - لوحة التحكم القياسية',
+    description: 'حزمة بداية لوحة تحكم إنتاجية متكاملة',
+    brandName: 'Control Hub',
+    brandSubtitle: 'نظام الإنتاج',
+  },
+  shell: {
+    sidebarLabel: 'شريط التنقل الجانبي',
+    primaryNavLabel: 'التنقل الرئيسي',
+    secondaryNavLabel: 'تنقل مساحة العمل',
+    toggleSidebar: 'تبديل شريط التنقل الجانبي',
+    inspectorLabel: 'لوحة التفاصيل السياقية',
+    closePanel: 'إغلاق اللوحة',
+    platformBreadcrumb: 'المنصة',
+  },
+  layouts: {
+    groupLabel: 'التخطيطات',
+    classicTitle: 'التخطيط الكلاسيكي',
+    classicDescription: 'تنقل رئيسي أحادي المستوى مع شريط جانبي قابل للطي',
+    dualSidebarTitle: 'الشريط الجانبي المزدوج',
+    dualSidebarDescription: 'شريط أيقونات رئيسي ثنائي المستوى وشجرة تنقل فرعية',
+    workspaceTitle: 'مساحة العمل',
+    workspaceSubtitle: 'فريق الهندسة',
+    threeColumnTitle: 'ثلاثة أعمدة',
+    threeColumnDescription: 'تخطيط مزود بلوحة فحص سياقية مستمرة',
+    inspectorTitle: 'الخصائص والتفاصيل',
+    inspectorDescription: 'سمات العنصر المحدد',
+  },
+  rail: {
+    engineering: 'الهندسة',
+    designSystem: 'نظام التصميم',
+    marketing: 'التسويق',
+    channelsGroup: 'القنوات',
+    announcements: '# الإعلانات',
+    general: '# عام',
+  },
   overview: {
     title: 'نظرة عامة على النظام',
     subtitle:
@@ -13,6 +49,7 @@ export const dashboard = {
     thisMonth: 'هذا الشهر',
     peakLoad: 'ذروة الاستخدام',
     updatedToday: 'محدّث اليوم',
+    liveBadge: 'مباشر',
   },
   bidi: {
     title: 'معالجة النصوص ثنائية الاتجاه (Bidi)',

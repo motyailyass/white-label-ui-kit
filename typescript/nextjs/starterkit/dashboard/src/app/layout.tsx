@@ -1,10 +1,11 @@
-import type React from 'react';
+import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import type React from 'react';
+import { defaultMessages, translate } from '@/i18n';
+import { ThemeScript } from '@/providers';
 import '../styles/globals.css';
-import { AppProviders } from '@/providers';
-import { ThemeScript } from '@/providers/theme-provider';
+import { AppProvidersBridge } from './app-providers-bridge';
 import { getServerI18nState } from './i18n-server';
-import { siteConfig } from '@/fixtures/config/site';
 
 const geistSans = localFont({
   src: '../styles/fonts/geist/Geist-Variable.woff2',
@@ -27,10 +28,13 @@ const notoSansArabic = localFont({
   weight: '100 900',
 });
 
-export const metadata = {
-  title: `${siteConfig.name} - Dashboard Starter Kit`,
-  description: siteConfig.description,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale } = await getServerI18nState('en');
+  return {
+    title: translate(defaultMessages, locale, 'dashboard.meta.title'),
+    description: translate(defaultMessages, locale, 'dashboard.meta.description'),
+  };
+}
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Read initial locale and direction from cookies on the server to prevent RTL/LTR flash
@@ -47,7 +51,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ThemeScript />
       </head>
       <body>
-        <AppProviders initialLocale={locale}>{children}</AppProviders>
+        <AppProvidersBridge initialLocale={locale}>{children}</AppProvidersBridge>
       </body>
     </html>
   );

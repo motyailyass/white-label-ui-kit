@@ -1,0 +1,130 @@
+.toggle {
+  --_control-height: var(--control-height-default);
+  --_control-padding-inline: var(--control-padding-default);
+  --_control-padding-block: var(--control-padding-block-default);
+  --_control-font-size: var(--control-font-size-default);
+  --_control-line-height: var(--control-line-height-default);
+  --_control-icon-size: var(--control-icon-size-default);
+  --_control-gap: var(--control-gap-default);
+
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--_control-gap);
+  min-inline-size: 0;
+  min-block-size: var(--_control-height);
+  padding-inline: var(--_control-padding-inline);
+  padding-block: var(--_control-padding-block);
+  font-family: inherit;
+  font-size: var(--_control-font-size);
+  line-height: var(--_control-line-height);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.toggle[data-size="xs"] {
+  --_control-height: var(--control-height-xs);
+  --_control-padding-inline: var(--control-padding-xs);
+  --_control-padding-block: var(--control-padding-block-xs);
+  --_control-font-size: var(--control-font-size-xs);
+  --_control-line-height: var(--control-line-height-xs);
+  --_control-icon-size: var(--control-icon-size-xs);
+  --_control-gap: var(--control-gap-xs);
+}
+
+.toggle[data-size="sm"] {
+  --_control-height: var(--control-height-sm);
+  --_control-padding-inline: var(--control-padding-sm);
+  --_control-padding-block: var(--control-padding-block-sm);
+  --_control-font-size: var(--control-font-size-sm);
+  --_control-line-height: var(--control-line-height-sm);
+  --_control-icon-size: var(--control-icon-size-sm);
+  --_control-gap: var(--control-gap-sm);
+}
+
+.toggle[data-size="md"] {
+  --_control-height: var(--control-height-md);
+  --_control-padding-inline: var(--control-padding-md);
+  --_control-padding-block: var(--control-padding-block-md);
+  --_control-font-size: var(--control-font-size-md);
+  --_control-line-height: var(--control-line-height-md);
+  --_control-icon-size: var(--control-icon-size-md);
+  --_control-gap: var(--control-gap-md);
+}
+
+.toggle[data-size="lg"] {
+  --_control-height: var(--control-height-lg);
+  --_control-padding-inline: var(--control-padding-lg);
+  --_control-padding-block: var(--control-padding-block-lg);
+  --_control-font-size: var(--control-font-size-lg);
+  --_control-line-height: var(--control-line-height-lg);
+  --_control-icon-size: var(--control-icon-size-lg);
+  --_control-gap: var(--control-gap-lg);
+}
+
+.toggle[data-size="xl"] {
+  --_control-height: var(--control-height-xl);
+  --_control-padding-inline: var(--control-padding-xl);
+  --_control-padding-block: var(--control-padding-block-xl);
+  --_control-font-size: var(--control-font-size-xl);
+  --_control-line-height: var(--control-line-height-xl);
+  --_control-icon-size: var(--control-icon-size-xl);
+  --_control-gap: var(--control-gap-xl);
+}
+
+.toggle[data-size="2xl"] {
+  --_control-height: var(--control-height-2xl);
+  --_control-padding-inline: var(--control-padding-2xl);
+  --_control-padding-block: var(--control-padding-block-2xl);
+  --_control-font-size: var(--control-font-size-2xl);
+  --_control-line-height: var(--control-line-height-2xl);
+  --_control-icon-size: var(--control-icon-size-2xl);
+  --_control-gap: var(--control-gap-2xl);
+}
+
+.toggle[data-touch-target="comfortable"] {
+  min-block-size: max(var(--_control-height), var(--control-touch-target-min));
+  min-inline-size: var(--control-touch-target-min);
+}
+
+@media (any-pointer: coarse), (pointer: coarse) {
+  .toggle[data-touch-target="auto"] {
+    min-block-size: max(var(--_control-height), var(--control-touch-target-min));
+    min-inline-size: var(--control-touch-target-min);
+  }
+}
+
+.toggle:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-strong);
+}
+
+.toggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.toggle:disabled {
+  background-color: var(--color-control-disabled-bg);
+  color: var(--color-text-disabled);
+  border-color: var(--color-border-disabled);
+  cursor: not-allowed;
+}
+
+.icon {
+  inline-size: var(--_control-icon-size);
+  block-size: var(--_control-icon-size);
+  flex: none;
+}

@@ -1,0 +1,26 @@
+/**
+ * Dashboard Surface Preset
+ * Softened canvas for long analytical and workflow sessions.
+ */
+
+:root {
+  --color-bg-base: var(--color-neutral-1);
+
+  --color-surface: var(--color-neutral-0);
+  --color-surface-subtle: var(--color-neutral-1);
+  --color-surface-raised: var(--color-neutral-0);
+
+  --color-surface-hover: var(--color-neutral-1);
+  --color-surface-active: var(--color-neutral-2);
+}
+
+:root[data-theme="dark"] {
+  --color-bg-base: var(--color-neutral-7);
+
+  --color-surface: var(--color-neutral-7);
+  --color-surface-subtle: var(--color-neutral-8);
+  --color-surface-raised: var(--color-neutral-6);
+
+  --color-surface-hover: var(--color-neutral-6);
+  --color-surface-active: var(--color-neutral-6);
+}

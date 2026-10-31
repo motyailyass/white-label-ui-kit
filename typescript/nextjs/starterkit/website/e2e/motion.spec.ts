@@ -68,7 +68,9 @@ test.describe('Website Motion & Reduced Motion Specification Verification', () =
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
 
-    const mobileTrigger = page.locator('button[aria-label*="menu" i], button[aria-label*="navigation" i]').first();
+    const mobileTrigger = page
+      .locator('button[aria-label*="menu" i], button[aria-label*="navigation" i]')
+      .first();
     await expect(mobileTrigger).toBeVisible();
 
     // Open mobile menu

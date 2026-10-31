@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Website Radius Specification Verification', () => {
-  test('computes button control radius to 8px (--radius-control -> --radius-lg)', async ({ page }) => {
+  test('computes button control radius to 8px (--radius-control -> --radius-lg)', async ({
+    page,
+  }) => {
     await page.goto('/sizing-fixture');
     const button = page.locator('#btn-default');
     await expect(button).toBeVisible();
@@ -49,7 +51,9 @@ test.describe('Website Radius Specification Verification', () => {
     expect(radius).toBeCloseTo(12, 1);
   });
 
-  test('computes large media feature surface to 16px (--radius-feature -> --radius-2xl)', async ({ page }) => {
+  test('computes large media feature surface to 16px (--radius-feature -> --radius-2xl)', async ({
+    page,
+  }) => {
     await page.goto('/');
     const mockup = page.locator('div[class*="mockup"]').first();
     await expect(mockup).toBeVisible();
@@ -61,7 +65,9 @@ test.describe('Website Radius Specification Verification', () => {
     expect(radius).toBeCloseTo(16, 1);
   });
 
-  test('maintains identical radius across light and dark themes (theme parity)', async ({ page }) => {
+  test('maintains identical radius across light and dark themes (theme parity)', async ({
+    page,
+  }) => {
     await page.goto('/sizing-fixture');
     const button = page.locator('#btn-default');
     await expect(button).toBeVisible();

@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Dashboard Radius Specification Verification', () => {
-  test('computes button control radius to 6px (--radius-control -> --radius-md)', async ({ page }) => {
+  test('computes button control radius to 6px (--radius-control -> --radius-md)', async ({
+    page,
+  }) => {
     await page.goto('/sizing-fixture');
     const button = page.locator('#btn-default');
     await expect(button).toBeVisible();
@@ -49,7 +51,9 @@ test.describe('Dashboard Radius Specification Verification', () => {
     expect(radius).toBeCloseTo(8, 1);
   });
 
-  test('attached surface retains 0px radius (--radius-attached -> --radius-none)', async ({ page }) => {
+  test('attached surface retains 0px radius (--radius-attached -> --radius-none)', async ({
+    page,
+  }) => {
     await page.goto('/classic');
     const sidebar = page.locator('aside[class*="sidebar"]').first();
 
@@ -60,7 +64,9 @@ test.describe('Dashboard Radius Specification Verification', () => {
     expect(radius).toBeCloseTo(0, 1);
   });
 
-  test('maintains identical radius across light and dark themes (theme parity)', async ({ page }) => {
+  test('maintains identical radius across light and dark themes (theme parity)', async ({
+    page,
+  }) => {
     await page.goto('/sizing-fixture');
     const button = page.locator('#btn-default');
     await expect(button).toBeVisible();

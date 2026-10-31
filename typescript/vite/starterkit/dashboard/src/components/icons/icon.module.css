@@ -1,0 +1,9 @@
+.icon {
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: -0.125em;
+}
+
+[dir="rtl"] .mirror {
+  transform: scaleX(-1);
+}

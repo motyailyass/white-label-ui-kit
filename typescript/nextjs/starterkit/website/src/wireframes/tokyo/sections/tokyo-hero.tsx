@@ -1,143 +1,111 @@
 'use client';
 
-import React from 'react';
+import type React from 'react';
+import { BidiText } from '@/i18n';
 import { cn } from '@/lib/cn';
+import { useI18n } from '@/providers';
 import styles from './tokyo-hero.module.css';
 
 export interface TokyoHeroProps extends React.HTMLAttributes<HTMLElement> {
   badgeText?: string;
-  title: string;
-  subtitle: string;
+  title?: string;
+  subtitle?: string;
   primaryCtaLabel?: string;
   primaryCtaHref?: string;
   secondaryCtaLabel?: string;
   secondaryCtaHref?: string;
   mockupTitle?: string;
+  linkAs?: React.ElementType;
   children?: React.ReactNode;
 }
 
 export function TokyoHero({
-  badgeText = 'v1.0 Architecture Released',
+  badgeText,
   title,
   subtitle,
-  primaryCtaLabel = 'Start Free Trial',
+  primaryCtaLabel,
   primaryCtaHref = '#pricing',
-  secondaryCtaLabel = 'Read Docs',
+  secondaryCtaLabel,
   secondaryCtaHref = '#docs',
-  mockupTitle = 'terminal@tokyo:~',
+  mockupTitle,
+  linkAs,
   className,
   children,
   ...props
 }: TokyoHeroProps) {
+  const { t } = useI18n();
+
+  const resolvedBadge = badgeText === undefined ? t('website.hero.badge') : badgeText;
+  const resolvedTitle = title ?? t('website.hero.title');
+  const resolvedSubtitle = subtitle ?? t('website.hero.subtitle');
+  const resolvedPrimaryCta =
+    primaryCtaLabel === undefined ? t('website.hero.primaryCta') : primaryCtaLabel;
+  const resolvedSecondaryCta =
+    secondaryCtaLabel === undefined ? t('website.hero.secondaryCta') : secondaryCtaLabel;
+  const resolvedMockupTitle = mockupTitle ?? t('website.hero.mockupTitle');
+  const ActionLink = linkAs ?? 'a';
+
   return (
-    <section className={cn(styles.hero, className)} {...props}>
-      {badgeText && (
+    <section className={cn(styles.hero, className)} id="architecture" {...props}>
+      {resolvedBadge && (
         <div className={styles.badge}>
           <span className={styles.badgeDot} aria-hidden="true" />
-          <span>{badgeText}</span>
+          <span>{resolvedBadge}</span>
         </div>
       )}
 
-      <h1 className={styles.title}>{title}</h1>
-      <p className={styles.subtitle}>{subtitle}</p>
+      <h1 className={styles.title}>{resolvedTitle}</h1>
+      <p className={styles.subtitle}>{resolvedSubtitle}</p>
 
       <div className={styles.ctaGroup}>
-        {primaryCtaLabel && (
-          <a href={primaryCtaHref} className={styles.primaryCta}>
-            {primaryCtaLabel}
-          </a>
+        {resolvedPrimaryCta && (
+          <ActionLink href={primaryCtaHref} className={styles.primaryCta}>
+            {resolvedPrimaryCta}
+          </ActionLink>
         )}
-        {secondaryCtaLabel && (
-          <a href={secondaryCtaHref} className={styles.secondaryCta}>
-            {secondaryCtaLabel}
-          </a>
+        {resolvedSecondaryCta && (
+          <ActionLink href={secondaryCtaHref} className={styles.secondaryCta}>
+            {resolvedSecondaryCta}
+          </ActionLink>
         )}
       </div>
 
       <div className={styles.mockup}>
         <div className={styles.mockupHeader}>
-          <span className={styles.windowDot} style={{ backgroundColor: '#ef4444' }} />
-          <span className={styles.windowDot} style={{ backgroundColor: '#f59e0b' }} />
-          <span className={styles.windowDot} style={{ backgroundColor: '#10b981' }} />
-          <span className={styles.mockupTitle}>{mockupTitle}</span>
+          <span className={cn(styles.windowDot, styles.windowDotDanger)} aria-hidden="true" />
+          <span className={cn(styles.windowDot, styles.windowDotWarning)} aria-hidden="true" />
+          <span className={cn(styles.windowDot, styles.windowDotSuccess)} aria-hidden="true" />
+          <BidiText dir="ltr" className={styles.mockupTitle}>
+            {resolvedMockupTitle}
+          </BidiText>
         </div>
         <div className={styles.mockupContent}>
           {children || (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: 'var(--space-4)',
-              }}
-            >
-              <div
-                style={{
-                  padding: 'var(--space-4)',
-                  borderRadius: 'var(--radius-card)',
-                  border: '1px dashed var(--color-border-strong)',
-                }}
-              >
-                <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
-                  LATENCY
+            <div className={styles.metricsGrid}>
+              <div className={styles.metricBox}>
+                <div className={styles.metricLabel} data-role="eyebrow">
+                  {t('website.hero.latencyLabel')}
                 </div>
-                <div
-                  style={{
-                    fontSize: 'var(--font-size-2xl)',
-                    fontWeight: 'var(--font-weight-bold)',
-                    color: 'var(--color-text-primary)',
-                  }}
-                >
-                  12ms
+                <div className={styles.metricValue}>
+                  <BidiText dir="ltr">{t('website.hero.latencyValue')}</BidiText>
                 </div>
-                <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-success)' }}>
-                  Global edge delivery
-                </div>
+                <div className={styles.metricNoteSuccess}>{t('website.hero.latencyNote')}</div>
               </div>
-              <div
-                style={{
-                  padding: 'var(--space-4)',
-                  borderRadius: 'var(--radius-card)',
-                  border: '1px dashed var(--color-border-strong)',
-                }}
-              >
-                <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
-                  UPTIME
+              <div className={styles.metricBox}>
+                <div className={styles.metricLabel} data-role="eyebrow">
+                  {t('website.hero.uptimeLabel')}
                 </div>
-                <div
-                  style={{
-                    fontSize: 'var(--font-size-2xl)',
-                    fontWeight: 'var(--font-weight-bold)',
-                    color: 'var(--color-text-primary)',
-                  }}
-                >
-                  99.99%
+                <div className={styles.metricValue}>
+                  <BidiText dir="ltr">{t('website.hero.uptimeValue')}</BidiText>
                 </div>
-                <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-success)' }}>
-                  SLA Guaranteed
-                </div>
+                <div className={styles.metricNoteSuccess}>{t('website.hero.uptimeNote')}</div>
               </div>
-              <div
-                style={{
-                  padding: 'var(--space-4)',
-                  borderRadius: 'var(--radius-card)',
-                  border: '1px dashed var(--color-border-strong)',
-                }}
-              >
-                <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
-                  SECURITY
+              <div className={styles.metricBox}>
+                <div className={styles.metricLabel} data-role="eyebrow">
+                  {t('website.hero.securityLabel')}
                 </div>
-                <div
-                  style={{
-                    fontSize: 'var(--font-size-2xl)',
-                    fontWeight: 'var(--font-weight-bold)',
-                    color: 'var(--color-text-primary)',
-                  }}
-                >
-                  Zero-Trust
-                </div>
-                <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-info)' }}>
-                  End-to-end encrypted
-                </div>
+                <div className={styles.metricValue}>{t('website.hero.securityValue')}</div>
+                <div className={styles.metricNoteInfo}>{t('website.hero.securityNote')}</div>
               </div>
             </div>
           )}

@@ -19,17 +19,18 @@
 }
 
 html {
-  min-height: 100%;
+  min-block-size: 100%;
 }
 
 body {
-  min-height: 100vh;
+  min-block-size: 100dvh;
   background-color: var(--color-bg-base);
   color: var(--color-text-primary);
   font-family: var(--font-family-sans);
   font-size: var(--typography-body-size);
   line-height: var(--typography-body-line-height);
   font-weight: var(--typography-body-weight);
+  text-align: start;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -44,53 +45,37 @@ body {
 }
 
 /* Script Restoration for Nested Latin Text within Arabic Documents */
-:lang(ar) :lang(en),
-:lang(ar) [lang="en"],
-:lang(ar) [lang^="en"],
-:lang(ar) :lang(fr),
-:lang(ar) [lang="fr"],
-:lang(ar) [lang^="fr"] {
+:lang(ar) :is(:lang(en), :lang(fr), [lang="en"], [lang^="en"], [lang="fr"], [lang^="fr"]) {
   font-family: var(--font-family-sans);
   letter-spacing: normal;
 }
 
-/* Script Tracking Protection: Arabic script cursive ligatures must never have letter-spacing */
-:lang(ar) *,
-[lang="ar"] *,
-[lang^="ar"] * {
+/* Eyebrow and uppercase treatments: prevent uppercase tracking from breaking connected Arabic script
+   without clobbering nested English or French elements */
+:lang(ar)
+  :is(
+    [data-role="eyebrow"],
+    [data-role="badge"],
+    [class*="eyebrow"],
+    [class*="badge"],
+    [class*="tag"]
+  ):not(:lang(en)):not(:lang(fr)) {
   letter-spacing: normal;
+  text-transform: none;
 }
 
-/* Eyebrow and uppercase treatments: prevent uppercase tracking from breaking connected Arabic script */
-:lang(ar) [class*="eyebrow"],
-:lang(ar) [class*="badge"],
-:lang(ar) [class*="tag"],
-[lang="ar"] [class*="eyebrow"],
-[lang="ar"] [class*="badge"],
-[lang="ar"] [class*="tag"] {
-  letter-spacing: normal !important;
-  text-transform: none !important;
-}
-
-/* Nested English badges inside Arabic can safely retain Latin styling */
-:lang(ar) [class*="eyebrow"]:lang(en),
-:lang(ar) [class*="badge"]:lang(en),
-:lang(ar) [class*="tag"]:lang(en),
-[lang="ar"] [class*="eyebrow"][lang="en"],
-[lang="ar"] [class*="badge"][lang="en"],
-[lang="ar"] [class*="tag"][lang="en"] {
+/* Nested English or French badges/eyebrows inside Arabic retain Latin uppercase styling */
+:lang(ar)
+  :is(
+    [data-role="eyebrow"],
+    [data-role="badge"],
+    [class*="eyebrow"],
+    [class*="badge"],
+    [class*="tag"]
+  ):is(:lang(en), :lang(fr), [lang^="en"], [lang^="fr"]) {
   font-family: var(--font-family-sans);
   letter-spacing: 0.05em;
   text-transform: uppercase;
-}
-
-/* Directional Alignment Defaults */
-[dir="rtl"] {
-  text-align: start;
-}
-
-[dir="ltr"] {
-  text-align: start;
 }
 
 /* Bi-directional (Bidi) Isolation Standards */
@@ -102,8 +87,8 @@ bdi,
 /* Screen Reader Only Utility */
 .sr-only {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  inline-size: 1px;
+  block-size: 1px;
   padding: 0;
   margin: -1px;
   overflow: hidden;

@@ -2,8 +2,9 @@
 
 import type React from 'react';
 import { useEffect, useRef } from 'react';
-import { cn } from '@/lib/cn';
 import { Icon } from '@/components/icons';
+import { cn } from '@/lib/cn';
+import { acquireBodyScrollLock } from '@/lib/scroll-lock';
 import { useLayout } from '../layout-context';
 import styles from './sidebar.module.css';
 
@@ -19,14 +20,17 @@ export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 export function Sidebar({
+  id,
   collapsed,
   onCollapsedChange,
   variant = 'single',
   className,
   children,
+  'aria-label': ariaLabel = 'Sidebar navigation',
   ...props
 }: SidebarProps) {
   const {
+    sidebarId,
     isSidebarCollapsed,
     isSidebarOpenMobile,
     setSidebarOpenMobile,
@@ -34,6 +38,7 @@ export function Sidebar({
     registerSidebarController,
   } = useLayout();
 
+  const resolvedId = id ?? sidebarId;
   const isControlled = collapsed !== undefined;
 
   // Register controlled sidebar state & callback with LayoutContext so triggers/shortcuts share one source of truth
@@ -50,18 +55,13 @@ export function Sidebar({
   const isCollapsed = isControlled ? collapsed : isSidebarCollapsed;
   const sidebarRef = useRef<HTMLElement | null>(null);
 
-  // Mobile drawer Escape key handler, focus trap, and body scroll lock
+  // Mobile drawer Escape key handler, focus trap, and ref-counted body scroll lock
   useEffect(() => {
     if (!isSidebarOpenMobile) return;
 
-    // Body scroll lock
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    // Store trigger focus to return on close
+    const releaseScrollLock = acquireBodyScrollLock();
     const previousActiveElement = document.activeElement as HTMLElement | null;
 
-    // Selectable focusable elements
     const focusableSelector =
       'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -110,7 +110,7 @@ export function Sidebar({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = originalOverflow;
+      releaseScrollLock();
       window.removeEventListener('keydown', handleKeyDown);
       if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
         previousActiveElement.focus();
@@ -121,24 +121,26 @@ export function Sidebar({
   return (
     <>
       <div
-        id="app-sidebar-backdrop"
+        id={`${resolvedId}-backdrop`}
+        data-sidebar-backdrop=""
         className={styles.backdrop}
         data-open={isSidebarOpenMobile}
         onClick={() => setSidebarOpenMobile(false)}
         aria-hidden="true"
       />
       <aside
+        {...props}
         ref={sidebarRef}
-        id="app-sidebar"
+        id={resolvedId}
+        data-sidebar=""
         className={cn(styles.sidebar, className)}
         data-variant={variant}
         data-collapsed={isCollapsed}
         data-mobile-open={isSidebarOpenMobile}
-        aria-label="Sidebar navigation"
+        aria-label={ariaLabel}
         role={isSidebarOpenMobile ? 'dialog' : undefined}
         aria-modal={isSidebarOpenMobile ? 'true' : undefined}
         inert={isMobile && !isSidebarOpenMobile ? true : undefined}
-        {...props}
       >
         {children}
       </aside>
@@ -205,7 +207,7 @@ export function SidebarLogo({
   icon,
   title,
   subtitle,
-  href = '#',
+  href = '/',
   as: Component = 'a',
   className,
   ...props
@@ -241,7 +243,11 @@ export interface SidebarGroupProps extends React.HTMLAttributes<HTMLDivElement> 
 export function SidebarGroup({ label, className, children, ...props }: SidebarGroupProps) {
   return (
     <div className={cn(styles.group, className)} {...props}>
-      {label && <div className={styles.groupLabel}>{label}</div>}
+      {label && (
+        <div className={styles.groupLabel} data-role="eyebrow">
+          {label}
+        </div>
+      )}
       {children}
     </div>
   );
@@ -269,7 +275,11 @@ export function SidebarItem(props: SidebarItemProps) {
     <>
       {icon && <span className={styles.itemIcon}>{icon}</span>}
       <span className={styles.itemLabel}>{label}</span>
-      {badge !== undefined && <span className={styles.badge}>{badge}</span>}
+      {badge !== undefined && (
+        <span className={styles.badge} data-role="badge">
+          {badge}
+        </span>
+      )}
     </>
   );
 
@@ -397,32 +407,44 @@ export interface SidebarTriggerProps extends React.ButtonHTMLAttributes<HTMLButt
 }
 
 export function SidebarTrigger({
-  id = 'app-sidebar-trigger',
+  id,
   className,
+  onClick,
+  'aria-label': ariaLabel = 'Toggle navigation sidebar',
+  'aria-controls': ariaControls,
   ...props
 }: SidebarTriggerProps) {
-  const { toggleSidebar, toggleSidebarMobile, isSidebarOpenMobile, isSidebarCollapsed, isMobile } =
-    useLayout();
+  const {
+    sidebarId,
+    toggleSidebar,
+    toggleSidebarMobile,
+    isSidebarOpenMobile,
+    isSidebarCollapsed,
+    isMobile,
+  } = useLayout();
   const isExpanded = isMobile ? isSidebarOpenMobile : !isSidebarCollapsed;
 
   return (
     <button
-      id={id}
+      {...props}
+      id={id ?? `${sidebarId}-trigger`}
+      data-sidebar-trigger=""
       type="button"
       className={cn(styles.trigger, className)}
-      onClick={() => {
+      onClick={(e) => {
+        onClick?.(e);
+        if (e.defaultPrevented) return;
         if (isMobile) {
           toggleSidebarMobile();
         } else {
           toggleSidebar();
         }
       }}
-      aria-label="Toggle navigation sidebar"
-      aria-controls="app-sidebar"
+      aria-label={ariaLabel}
+      aria-controls={ariaControls ?? sidebarId}
       aria-expanded={isExpanded}
-      {...props}
     >
-      <Icon name="sidebar-left" size={16} />
+      <Icon name="sidebar-left" size={16} aria-hidden="true" />
     </button>
   );
 }

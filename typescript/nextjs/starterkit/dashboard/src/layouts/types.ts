@@ -3,8 +3,8 @@ import type { BreadcrumbItem } from '@/components/shell';
 
 export interface DashboardLayoutConfig {
   contentLayout?: 'boxed' | 'compact' | 'full';
-  sidebarWidth?: number;
-  panelWidth?: number;
+  sidebarWidth?: number | string;
+  panelWidth?: number | string;
   density?: 'comfortable' | 'compact';
   headerSticky?: boolean;
 }
@@ -24,6 +24,7 @@ export interface NavItem {
   icon?: React.ReactNode;
   badge?: string | number;
   isActive?: boolean;
+  as?: React.ElementType;
 }
 
 export interface NavGroup {
@@ -31,24 +32,17 @@ export interface NavGroup {
   items: NavItem[];
 }
 
+export type SecondaryNavGroup = NavGroup;
+
 export interface PrimaryRailItem {
   id: string;
   label: string;
   icon?: React.ReactNode;
   initials?: string;
   isActive?: boolean;
+  href?: string;
+  as?: React.ElementType;
   onClick?: () => void;
-}
-
-export interface SecondaryNavGroup {
-  label?: string;
-  items: {
-    label: string;
-    href?: string;
-    icon?: React.ReactNode;
-    badge?: string | number;
-    isActive?: boolean;
-  }[];
 }
 
 export interface LayoutUser {
@@ -56,6 +50,7 @@ export interface LayoutUser {
   email?: string;
   avatarUrl?: string;
   initials?: string;
+  imageComponent?: React.ElementType;
 }
 
 export interface LayoutLogo {
@@ -63,4 +58,5 @@ export interface LayoutLogo {
   subtitle?: string;
   icon?: React.ReactNode;
   href?: string;
+  as?: React.ElementType;
 }

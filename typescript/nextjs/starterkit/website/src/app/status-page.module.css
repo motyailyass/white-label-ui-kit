@@ -1,0 +1,7 @@
+.statusContainer {
+  display: flex;
+  min-block-size: 100dvh;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-base);
+}

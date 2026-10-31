@@ -2,7 +2,6 @@
 
 import type React from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { setCookie } from '@/lib/cookie';
 
 export type Theme = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
@@ -92,14 +91,12 @@ export function ThemeProvider({
     if (typeof document === 'undefined') return;
 
     const root = document.documentElement;
-    // Only write attribute if it differs from current DOM state
     if (root.getAttribute(attribute) !== resolvedTheme) {
       root.setAttribute(attribute, resolvedTheme);
     }
 
     try {
       localStorage.setItem(storageKey, theme);
-      setCookie(storageKey, theme);
     } catch {
       // Storage unavailable
     }
@@ -148,14 +145,19 @@ export function ThemeScript({
 }: {
   storageKey?: string;
   attribute?: string;
-  defaultTheme?: string;
+  defaultTheme?: Theme;
 } = {}) {
+  const safeStorageKey = JSON.stringify(storageKey);
+  const safeAttribute = JSON.stringify(attribute);
+  const safeDefaultTheme = JSON.stringify(defaultTheme);
+
   const scriptContent = `(function() {
     try {
-      var storageKey = '${storageKey}';
-      var attribute = '${attribute}';
-      var defaultTheme = '${defaultTheme}';
-      var theme = localStorage.getItem(storageKey) || defaultTheme;
+      var storageKey = ${safeStorageKey};
+      var attribute = ${safeAttribute};
+      var defaultTheme = ${safeDefaultTheme};
+      var stored = localStorage.getItem(storageKey);
+      var theme = (stored === 'light' || stored === 'dark' || stored === 'system') ? stored : defaultTheme;
       var resolved = theme;
       if (theme === 'system') {
         resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';

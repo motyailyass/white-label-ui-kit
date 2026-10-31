@@ -7,21 +7,23 @@ description: Architectural layers, dependency flow, public export boundaries, an
 
 Detailed architectural rationale: @docs/standards/TECH_STACK.md
 
-## 1. The Three Architectural Tiers
+## 1. The Four Architectural Tiers
 Dependency flows strictly downwards:
 ```
-Features / App Routes (Next.js app/, layouts/)
-       ↓ consumes via clean props
-Core UI Primitives (components/ui/*, components/shell/*, components/icons/*)
+App Routes & Templates (Next.js app/, layouts/, wireframes/)
+       ↓ consumes via localized props & host-agnostic slots (as, imageComponent)
+Connected Patterns & Shell (components/patterns/*, components/shell/*, components/website/*)
+       ↓ binds providers/i18n into pure props & events
+Core UI Primitives & Icons (components/ui/*, components/icons/*)
        ↓ consumes via CSS variables
-Tokens & Foundation (styles/tokens/*, i18n/*, providers/*)
+Tokens, Presets & Foundation (styles/tokens/*, styles/{dashboard,website}/*, i18n/*, providers/*)
 ```
 
 ## 2. Inviolable Boundary Rules
-- **Pure Core UI**: Code inside `components/ui/` must NEVER import from `@tanstack/react-query`, `zustand`, `react-hook-form`, `zod`, or application context.
-- **Framework neutrality**: Never import Next.js-specific modules (`next/navigation`, `next/link`, `next/image`) inside reusable UI, layout, or icon primitives. Use host-agnostic slots (`as`, `imageComponent`).
-- **Public index.ts contracts**: Components and modules must expose their public API via an `index.ts`. Deep imports bypassing the component root (e.g., `components/ui/button/button.module.css` from outside the button folder) are forbidden.
-- **No silent fallbacks**: Core logic must fail loudly when required dependencies, configurations, or translations are missing, rather than masking bugs behind invisible or corrupted fallbacks.
+- **Pure Core UI**: Code inside `components/ui/` must NEVER import from `@/providers`, `@/i18n`, `@/components/patterns`, `@/components/shell`, `@/layouts`, `@tanstack/react-query`, `zustand`, `react-hook-form`, `zod`, or application context. App-shell chrome (`Sidebar`, `Header`, `Panel`, `AppShell`) lives in `components/shell/`, never duplicated in `components/ui/`.
+- **Framework neutrality**: Never import Next.js-specific modules (`next/navigation`, `next/link`, `next/image`, `next/headers`) outside `src/app/`. Reusable UI, patterns, shell, layouts, and website sections expose host-agnostic slots (`as`, `imageComponent`).
+- **Public index.ts contracts**: Components and modules must expose their public API via an `index.ts`. Deep imports bypassing a module's root barrel (e.g., `@/providers/i18n-provider` or `@/components/ui/button/button.module.css` from outside that module) are forbidden, and internal test fixtures must never be exported from production barrels.
+- **No silent fallbacks**: Core logic must fail loudly when required dependencies, configurations, or translations are missing, rather than masking bugs behind `try/catch` provider wrappers, untyped string widening, or English fallback strings.
 
 ## 3. White-Label Purity & Dependencies
 - **No speculative dependencies**: Check whether native Web APIs (`Intl`, Popover, CSS Logical Properties) solve the problem before adding dependencies. Zero third-party headless UI (no Radix, no MUI, no Chakra, no Tailwind). Hugeicons is the one approved third-party exception.

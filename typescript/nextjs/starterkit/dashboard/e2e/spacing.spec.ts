@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Dashboard Spacing & Layout Rhythm Verification', () => {
-  test('applies compact and responsive page padding across desktop and mobile', async ({ page }) => {
+  test('applies compact and responsive page padding across desktop and mobile', async ({
+    page,
+  }) => {
     await page.goto('/classic');
 
     const contentBody = page.locator('div[data-layout]');
@@ -45,22 +47,30 @@ test.describe('Dashboard Spacing & Layout Rhythm Verification', () => {
     }
   });
 
-  test('maintains identical spacing across light and dark themes (theme parity)', async ({ page }) => {
+  test('maintains identical spacing across light and dark themes (theme parity)', async ({
+    page,
+  }) => {
     await page.goto('/classic');
     const contentBody = page.locator('div[data-layout]');
 
     // Light theme padding
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'light'));
-    const lightPadding = await contentBody.evaluate((el) => parseFloat(window.getComputedStyle(el).paddingLeft));
+    const lightPadding = await contentBody.evaluate((el) =>
+      parseFloat(window.getComputedStyle(el).paddingLeft),
+    );
 
     // Dark theme padding
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
-    const darkPadding = await contentBody.evaluate((el) => parseFloat(window.getComputedStyle(el).paddingLeft));
+    const darkPadding = await contentBody.evaluate((el) =>
+      parseFloat(window.getComputedStyle(el).paddingLeft),
+    );
 
     expect(lightPadding).toBeCloseTo(darkPadding, 1);
   });
 
-  test('renders zero horizontal overflow on mobile viewports with logical spacing', async ({ page }) => {
+  test('renders zero horizontal overflow on mobile viewports with logical spacing', async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/classic');
 

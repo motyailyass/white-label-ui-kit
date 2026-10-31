@@ -35,18 +35,23 @@ describe('i18n formatters and direction utilities', () => {
     expect(formattedAr.length).toBeGreaterThan(0);
   });
 
-  it('formats currency correctly', () => {
-    const usd = formatCurrency(500, 'USD', 'en');
-    expect(usd).toContain('500');
-    expect(usd).toContain('$');
+  it('preserves data-owned currency across English, French, and Arabic locales', () => {
+    const usdEn = formatCurrency(500, 'USD', 'en');
+    const usdFr = formatCurrency(500, 'USD', 'fr');
+    const usdAr = formatCurrency(500, 'USD', 'ar');
 
-    const eur = formatCurrency(500, 'EUR', 'fr');
-    expect(eur).toContain('500');
+    expect(usdEn).toContain('$');
+    expect(usdFr).toMatch(/\$|USD/);
+    expect(usdFr).not.toMatch(/€|EUR/);
+    expect(usdAr).toMatch(/\$|USD/);
+    expect(usdAr).not.toMatch(/€|EUR|SAR|ر\.س/);
   });
 
-  it('formats percentages correctly', () => {
-    const percent = formatPercent(0.854, 'en');
-    expect(percent).toBe('85.4%');
+  it('formats fractional percentages consistently, including catch fallback', () => {
+    expect(formatPercent(0.125, 'en', { maximumFractionDigits: 1 })).toBe('12.5%');
+    expect(formatPercent(0.854, 'en')).toBe('85.4%');
+    // Force Intl.NumberFormat failure via invalid locale tag to test fallback contract
+    expect(formatPercent(0.125, 'invalid_locale_tag_$$$')).toBe('12.5%');
   });
 
   it('formats dates consistently', () => {

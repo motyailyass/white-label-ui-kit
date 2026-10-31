@@ -1,43 +1,48 @@
 'use client';
 
-import React from 'react';
-import { TokyoNavbar, TokyoHero, TokyoFooter } from '../sections';
+import type React from 'react';
+import { useI18n } from '@/providers';
+import { TokyoFooter, TokyoHero, TokyoNavbar } from '../sections';
+import styles from './tokyo-templates.module.css';
 
 export interface WaitlistTemplateProps {
   brandName?: string;
   headline?: string;
   subheadline?: string;
+  linkAs?: React.ElementType;
 }
 
 export function WaitlistTemplate({
-  brandName = 'Tokyo.dev',
-  headline = 'High-Velocity Infrastructure is Coming Soon',
-  subheadline = 'We are onboarding private beta teams every week. Join over 4,000 developers already on the waitlist.',
+  brandName,
+  headline,
+  subheadline,
+  linkAs,
 }: WaitlistTemplateProps) {
-  return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: 'var(--color-bg-base)',
-      }}
-    >
-      <TokyoNavbar brandName={brandName} ctaLabel="Join Beta" ctaHref="#join" />
+  const { t } = useI18n();
 
-      <main style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+  return (
+    <div className={styles.waitlistPage}>
+      <TokyoNavbar
+        brandName={brandName}
+        ctaLabel={t('website.waitlist.joinCta')}
+        ctaHref="#join"
+        linkAs={linkAs}
+      />
+
+      <main className={styles.waitlistMain}>
         <TokyoHero
-          title={headline}
-          subtitle={subheadline}
-          badgeText="Private Beta Access"
-          primaryCtaLabel="Request Early Access"
+          title={headline ?? t('website.waitlist.headline')}
+          subtitle={subheadline ?? t('website.waitlist.subheadline')}
+          badgeText={t('website.waitlist.badge')}
+          primaryCtaLabel={t('website.waitlist.requestAccessCta')}
           primaryCtaHref="#join"
-          secondaryCtaLabel="View Roadmap"
+          secondaryCtaLabel={t('website.waitlist.roadmapCta')}
           secondaryCtaHref="#roadmap"
+          linkAs={linkAs}
         />
       </main>
 
-      <TokyoFooter brandName={brandName} />
+      <TokyoFooter brandName={brandName} linkAs={linkAs} />
     </div>
   );
 }

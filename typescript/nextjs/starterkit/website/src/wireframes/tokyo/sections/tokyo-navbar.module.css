@@ -1,10 +1,10 @@
 .wrapper {
   position: sticky;
-  top: var(--space-4);
+  inset-block-start: var(--space-4);
   z-index: var(--z-header);
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+  inline-size: 100%;
+  max-inline-size: 1200px;
+  margin-inline: auto;
   padding-inline: var(--layout-page-padding-inline);
 }
 
@@ -12,8 +12,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
-  padding: 0 var(--space-5);
+  min-block-size: var(--control-height-2xl);
+  padding-inline: var(--space-5);
+  padding-block: var(--space-1);
   background-color: color-mix(in srgb, var(--color-surface) 85%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -29,6 +30,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  min-inline-size: 0;
   text-decoration: none;
   color: var(--color-text-primary);
   font-weight: var(--font-weight-bold);
@@ -36,14 +38,16 @@
 }
 
 .brandBadge {
-  font-size: 10px;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-xs);
   font-weight: var(--font-weight-semibold);
-  padding: 2px 8px;
+  padding-block: var(--space-0-5);
+  padding-inline: var(--space-2);
   border-radius: var(--radius-full);
   background-color: var(--color-surface-active);
   color: var(--color-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: var(--letter-spacing-wider);
 }
 
 .links {
@@ -70,7 +74,7 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .ctaButton {
@@ -101,11 +105,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 44px;
-  width: 100%;
-  margin-top: var(--space-2);
-  padding: 0 var(--space-4);
-  font-size: var(--font-size-sm);
+  min-block-size: var(--control-height-default);
+  inline-size: 100%;
+  margin-block-start: var(--space-2);
+  padding-inline: var(--control-padding-default);
+  padding-block: var(--control-padding-block-default);
+  font-size: var(--control-font-size-default);
+  line-height: var(--control-line-height-default);
   font-weight: var(--font-weight-medium);
   border-radius: var(--radius-control);
   background-color: var(--color-primary);
@@ -119,14 +125,21 @@
   display: none;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
+  min-inline-size: var(--control-height-md);
+  min-block-size: var(--control-height-md);
+  padding-inline: var(--space-2);
   border-radius: var(--radius-control);
   border: 1px solid var(--color-border-subtle);
   background: transparent;
   color: var(--color-text-primary);
   cursor: pointer;
+}
+
+@media (pointer: coarse) {
+  .mobileTrigger[data-touch-target="auto"] {
+    min-inline-size: var(--control-touch-target-min);
+    min-block-size: var(--control-touch-target-min);
+  }
 }
 
 .mobileMenu {
@@ -135,11 +148,16 @@
 
 @media (max-width: 768px) {
   .wrapper {
-    padding: 0 var(--space-3);
+    padding-inline: var(--space-3);
   }
 
   .navbar {
-    padding: 0 var(--space-3);
+    padding-inline: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .brand {
+    font-size: var(--font-size-sm);
     gap: var(--space-2);
   }
 
@@ -151,20 +169,26 @@
     display: none;
   }
 
+  .actions {
+    gap: var(--space-1);
+    flex-shrink: 0;
+  }
+
   .actions .ctaButton {
     display: none;
   }
 
   .mobileTrigger {
-    display: flex;
+    display: inline-flex;
   }
 
   .mobileMenu[data-open="true"] {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
-    margin-top: var(--space-2);
-    padding: var(--space-4);
+    margin-block-start: var(--space-2);
+    padding-block: var(--space-4);
+    padding-inline: var(--space-4);
     background-color: var(--color-surface);
     border: 1px solid var(--color-border-subtle);
     border-radius: var(--radius-overlay);

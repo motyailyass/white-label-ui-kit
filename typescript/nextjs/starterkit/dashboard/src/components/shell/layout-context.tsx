@@ -1,7 +1,16 @@
 'use client';
 
 import type React from 'react';
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 export type LayoutVariant = 'classic' | 'dual-sidebar' | 'three-column' | 'horizontal' | 'compact';
 
@@ -10,9 +19,16 @@ export interface SidebarController {
   onCollapsedChange?: (collapsed: boolean) => void;
 }
 
+export interface PanelController {
+  open: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
 export interface LayoutContextValue {
   layoutVariant: LayoutVariant;
   setLayoutVariant: (variant: LayoutVariant) => void;
+  sidebarId: string;
+  panelId: string;
   isSidebarCollapsed: boolean;
   setSidebarCollapsed: (collapsed: boolean) => void;
   toggleSidebar: () => void;
@@ -23,59 +39,126 @@ export interface LayoutContextValue {
   setPanelOpen: (open: boolean) => void;
   togglePanel: () => void;
   isMobile: boolean;
+  isTablet: boolean;
   registerSidebarController: (controller: SidebarController | null) => void;
+  registerPanelController: (controller: PanelController | null) => void;
 }
 
 const LayoutContext = createContext<LayoutContextValue | undefined>(undefined);
 
 export interface LayoutProviderProps {
   children: React.ReactNode;
+  variant?: LayoutVariant;
   defaultVariant?: LayoutVariant;
+  onVariantChange?: (variant: LayoutVariant) => void;
   defaultSidebarCollapsed?: boolean;
   defaultPanelOpen?: boolean;
   enableShortcuts?: boolean;
+  sidebarId?: string;
+  panelId?: string;
 }
+
+const MOBILE_MEDIA_QUERY = '(max-width: 768px)';
+const TABLET_MEDIA_QUERY = '(max-width: 1024px)';
 
 export function LayoutProvider({
   children,
+  variant,
   defaultVariant = 'classic',
+  onVariantChange,
   defaultSidebarCollapsed = false,
   defaultPanelOpen = false,
   enableShortcuts = true,
+  sidebarId: sidebarIdProp,
+  panelId: panelIdProp,
 }: LayoutProviderProps) {
-  const [layoutVariant, setLayoutVariant] = useState<LayoutVariant>(defaultVariant);
+  const rawId = useId().replace(/:/g, '');
+  const sidebarId = sidebarIdProp ?? `sidebar-${rawId}`;
+  const panelId = panelIdProp ?? `panel-${rawId}`;
+
+  const [uncontrolledVariant, setUncontrolledVariant] = useState<LayoutVariant>(defaultVariant);
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(defaultSidebarCollapsed);
   const [isSidebarOpenMobile, setSidebarOpenMobile] = useState(false);
-  const [isPanelOpen, setPanelOpen] = useState(defaultPanelOpen);
+  const [uncontrolledPanelOpen, setPanelOpen] = useState(defaultPanelOpen);
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
   const [sidebarController, setSidebarController] = useState<SidebarController | null>(null);
+  const [panelController, setPanelController] = useState<PanelController | null>(null);
 
-  // Track viewport width for responsive sidebar and panel state
+  const prevMobileRef = useRef<boolean | null>(null);
+  const prevTabletRef = useRef<boolean | null>(null);
+
+  const layoutVariant = variant ?? uncontrolledVariant;
+
+  const setLayoutVariant = useCallback(
+    (nextVariant: LayoutVariant) => {
+      if (variant === undefined) {
+        setUncontrolledVariant(nextVariant);
+      }
+      onVariantChange?.(nextVariant);
+    },
+    [variant, onVariantChange],
+  );
+
+  // Track viewport breakpoints in exact parity with CSS @media (max-width: 768px / 1024px)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const checkViewport = () => {
-      const mobile = window.innerWidth < 768;
+    const applyViewportState = (mobile: boolean, tablet: boolean) => {
       setIsMobile(mobile);
-      // On narrow mobile/tablet screens (< 1024px), keep contextual inspector closed by default
-      if (window.innerWidth < 1024 && defaultPanelOpen) {
+      setIsTablet(tablet);
+
+      // Crossing from mobile (<= 768px) back to desktop (> 768px) must close mobile drawer & unlock scroll
+      if (prevMobileRef.current === true && !mobile) {
+        setSidebarOpenMobile(false);
+      }
+
+      // Crossing from desktop (> 1024px) down to compact/tablet (<= 1024px) closes docked panel
+      if (prevTabletRef.current === false && tablet) {
         setPanelOpen(false);
       }
+
+      prevMobileRef.current = mobile;
+      prevTabletRef.current = tablet;
     };
 
-    checkViewport();
-    window.addEventListener('resize', checkViewport);
-    return () => window.removeEventListener('resize', checkViewport);
-  }, [defaultPanelOpen]);
+    if (typeof window.matchMedia === 'function') {
+      const mobileMql = window.matchMedia(MOBILE_MEDIA_QUERY);
+      const tabletMql = window.matchMedia(TABLET_MEDIA_QUERY);
 
-  // Unified effective collapsed state: controlled sidebar takes precedence
+      const handleMediaChange = () => {
+        applyViewportState(mobileMql.matches, tabletMql.matches);
+      };
+
+      handleMediaChange();
+      mobileMql.addEventListener('change', handleMediaChange);
+      tabletMql.addEventListener('change', handleMediaChange);
+      return () => {
+        mobileMql.removeEventListener('change', handleMediaChange);
+        tabletMql.removeEventListener('change', handleMediaChange);
+      };
+    }
+
+    // Fallback for test environments without matchMedia (note JSDOM defaults innerWidth to 1024)
+    const handleResizeFallback = () => {
+      applyViewportState(window.innerWidth <= 768, window.innerWidth < 1024);
+    };
+
+    handleResizeFallback();
+    window.addEventListener('resize', handleResizeFallback);
+    return () => window.removeEventListener('resize', handleResizeFallback);
+  }, []);
+
   const effectiveSidebarCollapsed =
     sidebarController !== null ? sidebarController.collapsed : isSidebarCollapsed;
 
+  const effectivePanelOpen =
+    panelController !== null ? panelController.open : uncontrolledPanelOpen;
+
   const toggleSidebar = useCallback(() => {
-    if (sidebarController && sidebarController.onCollapsedChange) {
+    if (sidebarController?.onCollapsedChange) {
       sidebarController.onCollapsedChange(!sidebarController.collapsed);
-    } else {
+    } else if (sidebarController === null) {
       setSidebarCollapsed((prev) => !prev);
     }
   }, [sidebarController]);
@@ -85,11 +168,19 @@ export function LayoutProvider({
   }, []);
 
   const togglePanel = useCallback(() => {
-    setPanelOpen((prev) => !prev);
-  }, []);
+    if (panelController) {
+      panelController.onOpenChange?.(!panelController.open);
+    } else {
+      setPanelOpen((prev) => !prev);
+    }
+  }, [panelController]);
 
   const registerSidebarController = useCallback((controller: SidebarController | null) => {
     setSidebarController(controller);
+  }, []);
+
+  const registerPanelController = useCallback((controller: PanelController | null) => {
+    setPanelController(controller);
   }, []);
 
   // Keyboard shortcuts (Cmd+B for sidebar, Cmd+. for panel)
@@ -100,7 +191,6 @@ export function LayoutProvider({
       const isModifier = e.metaKey || e.ctrlKey;
       if (!isModifier) return;
 
-      // Do not hijack typing inside form fields, textareas, or rich text editors
       const target = e.target as HTMLElement | null;
       if (
         target &&
@@ -114,7 +204,11 @@ export function LayoutProvider({
 
       if (e.key === 'b' || e.key === 'B') {
         e.preventDefault();
-        toggleSidebar();
+        if (isMobile) {
+          toggleSidebarMobile();
+        } else {
+          toggleSidebar();
+        }
       } else if (e.key === '.') {
         e.preventDefault();
         togglePanel();
@@ -123,29 +217,47 @@ export function LayoutProvider({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [enableShortcuts, toggleSidebar, togglePanel]);
+  }, [enableShortcuts, isMobile, toggleSidebar, toggleSidebarMobile, togglePanel]);
 
-  return (
-    <LayoutContext.Provider
-      value={{
-        layoutVariant,
-        setLayoutVariant,
-        isSidebarCollapsed: effectiveSidebarCollapsed,
-        setSidebarCollapsed,
-        toggleSidebar,
-        isSidebarOpenMobile,
-        setSidebarOpenMobile,
-        toggleSidebarMobile,
-        isPanelOpen,
-        setPanelOpen,
-        togglePanel,
-        isMobile,
-        registerSidebarController,
-      }}
-    >
-      {children}
-    </LayoutContext.Provider>
+  const contextValue = useMemo<LayoutContextValue>(
+    () => ({
+      layoutVariant,
+      setLayoutVariant,
+      sidebarId,
+      panelId,
+      isSidebarCollapsed: effectiveSidebarCollapsed,
+      setSidebarCollapsed,
+      toggleSidebar,
+      isSidebarOpenMobile,
+      setSidebarOpenMobile,
+      toggleSidebarMobile,
+      isPanelOpen: effectivePanelOpen,
+      setPanelOpen,
+      togglePanel,
+      isMobile,
+      isTablet,
+      registerSidebarController,
+      registerPanelController,
+    }),
+    [
+      layoutVariant,
+      setLayoutVariant,
+      sidebarId,
+      panelId,
+      effectiveSidebarCollapsed,
+      toggleSidebar,
+      isSidebarOpenMobile,
+      toggleSidebarMobile,
+      effectivePanelOpen,
+      togglePanel,
+      isMobile,
+      isTablet,
+      registerSidebarController,
+      registerPanelController,
+    ],
   );
+
+  return <LayoutContext.Provider value={contextValue}>{children}</LayoutContext.Provider>;
 }
 
 export function useLayout(): LayoutContextValue {

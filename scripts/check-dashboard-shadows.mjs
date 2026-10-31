@@ -23,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 const DASHBOARD_SRC = path.join(rootDir, 'typescript/nextjs/starterkit/dashboard/src');
+const VITE_DASHBOARD_SRC = path.join(rootDir, 'typescript/vite/starterkit/dashboard/src');
 
 export function stripComments(content, ext) {
   // Strip block comments /* ... */
@@ -135,7 +136,10 @@ export function runDashboardShadowCheck(srcDir = DASHBOARD_SRC) {
 // Direct CLI execution
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   console.log('🛡️  Checking Dashboard shadow prohibition policy...');
-  const violations = runDashboardShadowCheck();
+  const violations = [
+    ...runDashboardShadowCheck(DASHBOARD_SRC),
+    ...(fs.existsSync(VITE_DASHBOARD_SRC) ? runDashboardShadowCheck(VITE_DASHBOARD_SRC) : []),
+  ];
 
   if (violations.length > 0) {
     console.error('❌ Shadow policy violations found in dashboard:');

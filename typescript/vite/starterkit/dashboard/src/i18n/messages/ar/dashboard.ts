@@ -1,0 +1,73 @@
+import type { DashboardMessages } from '../en/dashboard';
+
+export const dashboard = {
+  meta: {
+    title: 'Control Hub - لوحة التحكم القياسية',
+    description: 'حزمة بداية لوحة تحكم إنتاجية متكاملة',
+    brandName: 'Control Hub',
+    brandSubtitle: 'نظام الإنتاج',
+  },
+  shell: {
+    sidebarLabel: 'شريط التنقل الجانبي',
+    primaryNavLabel: 'التنقل الرئيسي',
+    secondaryNavLabel: 'تنقل مساحة العمل',
+    toggleSidebar: 'تبديل شريط التنقل الجانبي',
+    inspectorLabel: 'لوحة التفاصيل السياقية',
+    closePanel: 'إغلاق اللوحة',
+    platformBreadcrumb: 'المنصة',
+  },
+  layouts: {
+    groupLabel: 'التخطيطات',
+    classicTitle: 'التخطيط الكلاسيكي',
+    classicDescription: 'تنقل رئيسي أحادي المستوى مع شريط جانبي قابل للطي',
+    dualSidebarTitle: 'الشريط الجانبي المزدوج',
+    dualSidebarDescription: 'شريط أيقونات رئيسي ثنائي المستوى وشجرة تنقل فرعية',
+    workspaceTitle: 'مساحة العمل',
+    workspaceSubtitle: 'فريق الهندسة',
+    threeColumnTitle: 'ثلاثة أعمدة',
+    threeColumnDescription: 'تخطيط مزود بلوحة فحص سياقية مستمرة',
+    inspectorTitle: 'الخصائص والتفاصيل',
+    inspectorDescription: 'سمات العنصر المحدد',
+  },
+  rail: {
+    engineering: 'الهندسة',
+    designSystem: 'نظام التصميم',
+    marketing: 'التسويق',
+    channelsGroup: 'القنوات',
+    announcements: '# الإعلانات',
+    general: '# عام',
+  },
+  overview: {
+    title: 'نظرة عامة على النظام',
+    subtitle:
+      'مرحباً بك في محرك تخطيط لوحة التحكم، يدعم الاتجاهين RTL و LTR بالكامل دون أي تعديل لاحق.',
+  },
+  metrics: {
+    totalUsers: 'إجمالي المستخدمين',
+    activeSessions: 'الجلسات النشطة',
+    monthlyRevenue: 'الإيرادات المتكررة الشهري',
+    thisMonth: 'هذا الشهر',
+    peakLoad: 'ذروة الاستخدام',
+    updatedToday: 'محدّث اليوم',
+    liveBadge: 'مباشر',
+  },
+  bidi: {
+    title: 'معالجة النصوص ثنائية الاتجاه (Bidi)',
+    trackingCode: 'رمز التتبع البرمجي للحساب',
+    supportLine: 'الاتصال بالدعم الفني',
+    description: 'معزول تلقائياً باستخدام <bdi> لمنع أي تشويه في علامات الترقيم والأقواس.',
+  },
+  nav: {
+    overview: 'نظرة عامة',
+    dashboard: 'لوحة التحكم',
+    analytics: 'التحليلات',
+    reports: 'التقارير',
+    management: 'الإدارة',
+    customers: 'العملاء',
+    orders: 'الطلبات',
+    products: 'المنتجات',
+    preferences: 'التفضيلات',
+    team: 'فريق العمل',
+    settings: 'الإعدادات',
+  },
+} satisfies DashboardMessages;

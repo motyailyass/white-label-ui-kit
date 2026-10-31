@@ -1,6 +1,0 @@
-/**
- * Legacy entry point alias for tokens.
- * Re-exports the modular token system from ./index.css.
- */
-
-@import "./index.css";

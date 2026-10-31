@@ -1,11 +1,9 @@
 'use client';
 
-import React from 'react';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { useTheme } from '@/providers/theme-provider';
-import { useI18n } from '@/providers/i18n-provider';
+import { type ControlSizingProps, ThemeToggle } from '@/components/ui';
+import { useI18n, useTheme } from '@/providers';
 
-export interface ThemeSwitcherProps {
+export interface ThemeSwitcherProps extends ControlSizingProps {
   showLabel?: boolean;
   className?: string;
 }
@@ -14,30 +12,26 @@ export interface ThemeSwitcherProps {
  * Connected Theme Switcher component.
  * Connects useTheme() and useI18n() providers to the pure ThemeToggle UI button.
  */
-export function ThemeSwitcher({ showLabel = true, className }: ThemeSwitcherProps) {
+export function ThemeSwitcher({
+  showLabel = true,
+  size,
+  touchTarget,
+  className,
+}: ThemeSwitcherProps) {
   const { theme, resolvedTheme, toggleTheme } = useTheme();
-  let lightLabel = 'Light';
-  let darkLabel = 'Dark';
-  let ariaLabel: string | undefined;
-
-  try {
-    const { t } = useI18n();
-    lightLabel = t('common.light');
-    darkLabel = t('common.dark');
-    ariaLabel = t('common.toggleTheme');
-  } catch {
-    // If used outside i18n provider, defaults to English
-  }
+  const { t } = useI18n();
 
   return (
     <ThemeToggle
+      size={size}
+      touchTarget={touchTarget}
       theme={theme}
       resolvedTheme={resolvedTheme}
       onToggle={toggleTheme}
       showLabel={showLabel}
-      lightLabel={lightLabel}
-      darkLabel={darkLabel}
-      ariaLabel={ariaLabel}
+      lightLabel={t('common.light')}
+      darkLabel={t('common.dark')}
+      ariaLabel={t('common.toggleTheme')}
       className={className}
     />
   );

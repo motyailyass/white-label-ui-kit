@@ -1,0 +1,17 @@
+/**
+ * Primitive Neutral Grayscale Tokens
+ * Exactly nine neutral values (0-8) spanning pure white to pure black.
+ * UI-tuned ramp without color tint. Never redefined in dark mode.
+ */
+
+:root {
+  --color-neutral-0: #ffffff;
+  --color-neutral-1: #fafafa;
+  --color-neutral-2: #e5e5e5;
+  --color-neutral-3: #a3a3a3;
+  --color-neutral-4: #737373;
+  --color-neutral-5: #525252;
+  --color-neutral-6: #262626;
+  --color-neutral-7: #141414;
+  --color-neutral-8: #000000;
+}

@@ -1,0 +1,88 @@
+/*
+ * Dashboard-owned typography defaults.
+ * Precise, compact, readable interface typography.
+ */
+
+:root {
+  /* Default Body: 14px / 20px, 400 */
+  --typography-body-size: var(--font-size-sm);
+  --typography-body-line-height: 1.25rem;
+  --typography-body-weight: var(--font-weight-regular);
+
+  /* Label: 14px / 20px, 500 */
+  --typography-label-size: var(--font-size-sm);
+  --typography-label-line-height: 1.25rem;
+  --typography-label-weight: var(--font-weight-medium);
+
+  /* Small Supporting text: 12px / 16px, 400 */
+  --typography-supporting-size: var(--font-size-xs);
+  --typography-supporting-line-height: 1rem;
+  --typography-supporting-weight: var(--font-weight-regular);
+
+  /* Page title: 24px / 32px, 600 */
+  --typography-page-title-size: var(--font-size-2xl);
+  --typography-page-title-line-height: 2rem;
+  --typography-page-title-weight: var(--font-weight-semibold);
+
+  /* Main section heading: 20px / 28px, 600 */
+  --typography-section-title-size: var(--font-size-xl);
+  --typography-section-title-line-height: 1.75rem;
+  --typography-section-title-weight: var(--font-weight-semibold);
+
+  /* Card title: 16px / 24px, 600 */
+  --typography-card-title-size: var(--font-size-base);
+  --typography-card-title-line-height: 1.5rem;
+  --typography-card-title-weight: var(--font-weight-semibold);
+
+  /* Metric value: 28px / 36px, 600 (tabular figures) */
+  --typography-metric-value-size: var(--font-size-3xl);
+  --typography-metric-value-line-height: 2.25rem;
+  --typography-metric-value-weight: var(--font-weight-semibold);
+
+  /* Table body: 14px / 20px, 400 */
+  --typography-table-body-size: var(--font-size-sm);
+  --typography-table-body-line-height: 1.25rem;
+  --typography-table-body-weight: var(--font-weight-regular);
+
+  /* Table heading: 12px / 16px, 500 */
+  --typography-table-heading-size: var(--font-size-xs);
+  --typography-table-heading-line-height: 1rem;
+  --typography-table-heading-weight: var(--font-weight-medium);
+}
+
+/*
+ * Script-Specific Adjustments: Arabic Script Clearance
+ * Headings, labels, and text roles receive role-appropriate clearance
+ * to accommodate taller ascenders, descenders, and Tashkeel (diacritics)
+ * without arbitrary global overrides.
+ */
+:lang(ar),
+[lang="ar"],
+[lang^="ar"] {
+  /* Default Body: 14px text with diacritics clearance */
+  --typography-body-line-height: 1.5rem;
+
+  /* Label: 14px with diacritics clearance */
+  --typography-label-line-height: 1.5rem;
+
+  /* Supporting text: 12px with diacritics clearance */
+  --typography-supporting-line-height: 1.25rem;
+
+  /* Page title: 24px with tall ascender/descender clearance */
+  --typography-page-title-line-height: 2.5rem;
+
+  /* Main section title: 20px with heading mark clearance */
+  --typography-section-title-line-height: 2rem;
+
+  /* Card title: 16px with diacritic clearance */
+  --typography-card-title-line-height: 1.75rem;
+
+  /* Metric value: 28px with tabular figure clearance */
+  --typography-metric-value-line-height: 2.5rem;
+
+  /* Table body: 14px data clearance */
+  --typography-table-body-line-height: 1.5rem;
+
+  /* Table heading: 12px heading clearance */
+  --typography-table-heading-line-height: 1.25rem;
+}

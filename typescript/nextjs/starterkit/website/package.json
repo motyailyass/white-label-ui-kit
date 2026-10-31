@@ -7,9 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "format": "biome format --write src",
-    "format:check": "biome format src",
-    "lint": "oxlint src",
+    "format": "biome format --write src e2e",
+    "format:check": "biome format src e2e",
+    "lint": "oxlint src e2e",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -23,7 +23,7 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.6.3",
+    "@biomejs/biome": "^2.6.4",
     "@playwright/test": "^1.50.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",

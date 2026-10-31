@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Website Spacing & Section Rhythm Verification', () => {
-  test('applies generous, responsive section rhythm across desktop and mobile', async ({ page }) => {
+  test('applies generous, responsive section rhythm across desktop and mobile', async ({
+    page,
+  }) => {
     await page.goto('/');
 
     const heroSection = page.locator('section[class*="hero"]');
@@ -23,7 +25,9 @@ test.describe('Website Spacing & Section Rhythm Verification', () => {
     }
   });
 
-  test('applies responsive section block padding and page gutters to bento section', async ({ page }) => {
+  test('applies responsive section block padding and page gutters to bento section', async ({
+    page,
+  }) => {
     await page.goto('/');
 
     const bentoSection = page.locator('section[class*="section"]').first();
@@ -50,17 +54,23 @@ test.describe('Website Spacing & Section Rhythm Verification', () => {
     }
   });
 
-  test('maintains identical spacing across light and dark themes (theme parity)', async ({ page }) => {
+  test('maintains identical spacing across light and dark themes (theme parity)', async ({
+    page,
+  }) => {
     await page.goto('/');
     const heroSection = page.locator('section[class*="hero"]');
 
     // Light theme padding
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'light'));
-    const lightPadding = await heroSection.evaluate((el) => parseFloat(window.getComputedStyle(el).paddingTop));
+    const lightPadding = await heroSection.evaluate((el) =>
+      parseFloat(window.getComputedStyle(el).paddingTop),
+    );
 
     // Dark theme padding
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
-    const darkPadding = await heroSection.evaluate((el) => parseFloat(window.getComputedStyle(el).paddingTop));
+    const darkPadding = await heroSection.evaluate((el) =>
+      parseFloat(window.getComputedStyle(el).paddingTop),
+    );
 
     expect(lightPadding).toBeCloseTo(darkPadding, 1);
   });

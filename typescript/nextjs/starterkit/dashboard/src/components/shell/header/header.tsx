@@ -41,19 +41,21 @@ export interface HeaderHeadingProps extends React.HTMLAttributes<HTMLDivElement>
   title: string;
   description?: string;
   badge?: React.ReactNode;
+  as?: 'h1' | 'h2' | 'h3';
 }
 
 export function HeaderHeading({
   title,
   description,
   badge,
+  as: HeadingTag = 'h1',
   className,
   ...props
 }: HeaderHeadingProps) {
   return (
     <div className={cn(styles.heading, className)} {...props}>
       <div className={styles.titleRow}>
-        <h1 className={styles.title}>{title}</h1>
+        <HeadingTag className={styles.title}>{title}</HeadingTag>
         {badge}
       </div>
       {description && <p className={styles.subtitle}>{description}</p>}
@@ -68,6 +70,7 @@ export function HeaderHeading({
 export interface BreadcrumbItem {
   label: string;
   href?: string;
+  as?: React.ElementType;
 }
 
 export interface HeaderBreadcrumbsProps extends React.HTMLAttributes<HTMLElement> {
@@ -79,24 +82,26 @@ export function HeaderBreadcrumbs({
   items,
   separator = '/',
   className,
+  'aria-label': ariaLabel = 'Breadcrumbs',
   ...props
 }: HeaderBreadcrumbsProps) {
   return (
-    <nav aria-label="Breadcrumbs" className={className} {...props}>
+    <nav aria-label={ariaLabel} className={className} {...props}>
       <ol className={styles.breadcrumbs}>
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
+          const CrumbLink = item.as ?? 'a';
           return (
-            <li key={item.label} className={styles.breadcrumbItem}>
+            <li key={`${item.label}-${index}`} className={styles.breadcrumbItem}>
               {isLast ? (
                 <span className={styles.breadcrumbCurrent} aria-current="page">
                   {item.label}
                 </span>
               ) : (
                 <>
-                  <a href={item.href || '#'} className={styles.breadcrumbLink}>
+                  <CrumbLink href={item.href || '/'} className={styles.breadcrumbLink}>
                     {item.label}
-                  </a>
+                  </CrumbLink>
                   <span className={styles.breadcrumbSeparator} aria-hidden="true">
                     {separator}
                   </span>

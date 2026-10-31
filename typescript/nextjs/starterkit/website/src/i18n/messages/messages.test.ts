@@ -1,43 +1,37 @@
 import { describe, expect, it } from 'vitest';
-import { defaultMessages, translate } from './index';
+import { defaultMessages, enMessages, translate } from './index';
 
-describe('i18n messages and translation engine', () => {
-  it('translates nested keys in English', () => {
-    const text = translate(defaultMessages, 'en', 'dashboard.overview.title');
-    expect(text).toBe('System Overview');
+describe('website i18n messages and translation engine', () => {
+  it('translates nested website keys in English', () => {
+    const text = translate(defaultMessages, 'en', 'website.hero.title');
+    expect(text).toBe('The Next-Gen Edge Platform for Developers');
   });
 
-  it('translates nested keys in French', () => {
-    const text = translate(defaultMessages, 'fr', 'dashboard.overview.title');
-    expect(text).toBe('Aperçu du système');
+  it('translates nested website keys in French', () => {
+    const text = translate(defaultMessages, 'fr', 'website.hero.title');
+    expect(text).toBe('La plateforme Edge nouvelle génération pour les développeurs');
   });
 
-  it('translates nested keys in Arabic', () => {
-    const text = translate(defaultMessages, 'ar', 'dashboard.overview.title');
-    expect(text).toBe('نظرة عامة على النظام');
+  it('translates nested website keys in Arabic', () => {
+    const text = translate(defaultMessages, 'ar', 'website.hero.title');
+    expect(text).toBe('منصة الحافة من الجيل القادم للمطورين');
   });
 
-  it('interpolates parameters correctly', () => {
-    const customMessages = {
-      en: {
-        common: {
-          test: 'Hello {name}, you have {count} items',
-        } as any,
-        dashboard: {} as any,
-        settings: {} as any,
-        errors: {} as any,
-      },
-      fr: { common: {} as any, dashboard: {} as any, settings: {} as any, errors: {} as any },
-      ar: { common: {} as any, dashboard: {} as any, settings: {} as any, errors: {} as any },
+  it('does not include dashboard or settings namespaces in website bundle', () => {
+    expect('dashboard' in enMessages).toBe(false);
+    expect('settings' in enMessages).toBe(false);
+    expect('website' in enMessages).toBe(true);
+  });
+
+  it('interpolates parameters accurately without any casts', () => {
+    const sample = {
+      en: { greeting: 'Welcome {user}, {count} projects active ({user})' },
     };
-    const text = translate(customMessages, 'en', 'common.test', undefined, {
-      name: 'Sarah',
-      count: 5,
-    });
-    expect(text).toBe('Hello Sarah, you have 5 items');
+    const text = translate(sample, 'en', 'greeting', undefined, { user: 'Nadia', count: 3 });
+    expect(text).toBe('Welcome Nadia, 3 projects active (Nadia)');
   });
 
-  it('falls back to English when a key is missing in another language', () => {
+  it('falls back cleanly when a key is missing', () => {
     const text = translate(defaultMessages, 'fr', 'nonexistent.path', 'Fallback text');
     expect(text).toBe('Fallback text');
   });

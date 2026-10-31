@@ -1,4 +1,3 @@
-import type { IconSvgElement } from '@hugeicons/react';
 import {
   Alert02Icon,
   AlertCircleIcon,
@@ -7,14 +6,18 @@ import {
   ArrowRight01Icon,
   ArrowUp01Icon,
   Cancel01Icon,
+  CheckmarkSquare02Icon,
   Home01Icon,
   Mail01Icon,
+  Menu01Icon,
   Moon02Icon,
   Search01Icon,
   Settings01Icon,
   SidebarLeftIcon,
   Sun01Icon,
+  Tick02Icon,
 } from '@hugeicons/core-free-icons';
+import type { IconSvgElement } from '@hugeicons/react';
 
 interface IconEntry {
   svg: IconSvgElement;
@@ -28,6 +31,9 @@ export const iconRegistry = {
   // actions
   search: icon(Search01Icon),
   close: icon(Cancel01Icon),
+  menu: icon(Menu01Icon),
+  check: icon(Tick02Icon),
+  feature: icon(CheckmarkSquare02Icon),
 
   // navigation (directional glyphs flip under dir="rtl")
   'chevron-right': directional(ArrowRight01Icon),

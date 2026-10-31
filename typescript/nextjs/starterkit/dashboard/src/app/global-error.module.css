@@ -1,10 +1,14 @@
 .errorBody {
   margin: 0;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-block-size: 100dvh;
   background-color: var(--color-bg-base);
   color: var(--color-text-primary);
   font-family: var(--font-family-sans);
+}
+
+.errorMain {
+  min-block-size: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

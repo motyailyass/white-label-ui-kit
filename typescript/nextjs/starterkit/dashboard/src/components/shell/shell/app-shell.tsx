@@ -7,11 +7,13 @@ import styles from './app-shell.module.css';
 
 export interface AppShellProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: LayoutVariant;
+  defaultVariant?: LayoutVariant;
+  onVariantChange?: (variant: LayoutVariant) => void;
   defaultSidebarCollapsed?: boolean;
   defaultPanelOpen?: boolean;
   enableShortcuts?: boolean;
-  sidebarWidth?: number;
-  panelWidth?: number;
+  sidebarWidth?: number | string;
+  panelWidth?: number | string;
   density?: 'comfortable' | 'compact';
   children: React.ReactNode;
 }
@@ -27,7 +29,9 @@ function AppShellInner({ className, children, ...props }: React.HTMLAttributes<H
 }
 
 export function AppShell({
-  variant = 'classic',
+  variant,
+  defaultVariant = 'classic',
+  onVariantChange,
   defaultSidebarCollapsed = false,
   defaultPanelOpen = false,
   enableShortcuts = true,
@@ -38,15 +42,29 @@ export function AppShell({
   children,
   ...props
 }: AppShellProps) {
-  const customStyles: React.CSSProperties = {
-    ...style,
-    ...(sidebarWidth ? { '--sidebar-width': `${sidebarWidth}px` } : {}),
-    ...(panelWidth ? { '--panel-width': `${panelWidth}px` } : {}),
-  };
+  const customStyles: React.CSSProperties | undefined =
+    style || sidebarWidth !== undefined || panelWidth !== undefined
+      ? ({
+          ...style,
+          ...(sidebarWidth !== undefined
+            ? {
+                '--sidebar-width':
+                  typeof sidebarWidth === 'number' ? `${sidebarWidth}px` : sidebarWidth,
+              }
+            : {}),
+          ...(panelWidth !== undefined
+            ? {
+                '--panel-width': typeof panelWidth === 'number' ? `${panelWidth}px` : panelWidth,
+              }
+            : {}),
+        } as React.CSSProperties)
+      : undefined;
 
   return (
     <LayoutProvider
-      defaultVariant={variant}
+      variant={variant}
+      defaultVariant={defaultVariant}
+      onVariantChange={onVariantChange}
       defaultSidebarCollapsed={defaultSidebarCollapsed}
       defaultPanelOpen={defaultPanelOpen}
       enableShortcuts={enableShortcuts}

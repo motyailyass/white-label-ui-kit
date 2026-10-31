@@ -9,6 +9,23 @@ describe('Button Primitive', () => {
     const button = screen.getByRole('button', { name: /click me/i });
     expect(button.getAttribute('data-size')).toBeNull();
     expect(button.getAttribute('data-variant')).toBe('secondary');
+    expect(button.getAttribute('type')).toBe('button');
+  });
+
+  it('defaults to type="button" so clicking inside a form does not accidentally submit', () => {
+    const handleSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+    render(
+      <form onSubmit={handleSubmit}>
+        <Button>Non-submit action</Button>
+        <Button type="submit">Explicit submit</Button>
+      </form>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /non-submit action/i }));
+    expect(handleSubmit).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /explicit submit/i }));
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
   });
 
   it('renders explicit size attribute across all six scale steps', () => {
@@ -31,11 +48,36 @@ describe('Button Primitive', () => {
     expect(button.getAttribute('data-touch-target')).toBe('auto');
   });
 
-  it('handles loading state with disabled attribute and loading indicator', () => {
-    render(<Button loading>Saving</Button>);
-    const button = screen.getByRole('button', { name: /saving/i });
-    expect(button.getAttribute('disabled')).not.toBeNull();
+  it('renders startIcon and endIcon in logical slots and preserves endIcon during loading', () => {
+    const { rerender } = render(
+      <Button
+        startIcon={<span data-testid="start-icon">S</span>}
+        endIcon={<span data-testid="end-icon">E</span>}
+      >
+        Save
+      </Button>,
+    );
+
+    expect(screen.getByTestId('start-icon')).toBeTruthy();
+    expect(screen.getByTestId('end-icon')).toBeTruthy();
+
+    rerender(
+      <Button
+        loading
+        startIcon={<span data-testid="start-icon">S</span>}
+        endIcon={<span data-testid="end-icon">E</span>}
+      >
+        Save
+      </Button>,
+    );
+
+    const button = screen.getByRole('button', { name: /save/i });
+    expect(button.hasAttribute('disabled')).toBe(true);
     expect(button.getAttribute('data-loading')).toBe('true');
+    expect(button.getAttribute('aria-busy')).toBe('true');
+    // startIcon is replaced by spinner, while endIcon remains rendered
+    expect(screen.queryByTestId('start-icon')).toBeNull();
+    expect(screen.getByTestId('end-icon')).toBeTruthy();
   });
 
   it('handles click events when enabled', () => {

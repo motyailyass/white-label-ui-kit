@@ -2,9 +2,9 @@ import { expect, test } from '@playwright/test';
 
 const parseDurationMs = (val: string): number => {
   const trimmed = val.trim();
-  if (trimmed.endsWith('ms')) return parseFloat(trimmed);
-  if (trimmed.endsWith('s')) return parseFloat(trimmed) * 1000;
-  return parseFloat(trimmed);
+  if (trimmed.endsWith('ms')) return Number.parseFloat(trimmed);
+  if (trimmed.endsWith('s')) return Number.parseFloat(trimmed) * 1000;
+  return Number.parseFloat(trimmed);
 };
 
 const normalizeEasing = (val: string): string => {
@@ -68,42 +68,37 @@ test.describe('Dashboard Motion & Reduced Motion Specification Verification', ()
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/classic');
 
-    const trigger = page.locator('#app-sidebar-trigger');
-    const sidebar = page.locator('#app-sidebar');
-    const backdrop = page.locator('#app-sidebar-backdrop');
+    const trigger = page.locator('[data-sidebar-trigger]');
+    const sidebar = page.locator('[data-sidebar]');
+    const backdrop = page.locator('[data-sidebar-backdrop]');
 
     await expect(trigger).toBeVisible();
     await expect(sidebar).toHaveAttribute('data-mobile-open', 'false');
     expect(await page.evaluate(() => document.body.style.overflow)).toBe('');
 
-    // Open mobile sidebar drawer
     await trigger.click();
     await expect(sidebar).toHaveAttribute('data-mobile-open', 'true');
     await expect(backdrop).toHaveAttribute('data-open', 'true');
 
-    // Verify body scroll is locked and inert is removed from sidebar
     const openState = await page.evaluate(() => ({
       bodyOverflow: document.body.style.overflow,
-      sidebarInert: document.querySelector('#app-sidebar')?.hasAttribute('inert'),
+      sidebarInert: document.querySelector('[data-sidebar]')?.hasAttribute('inert'),
     }));
     expect(openState.bodyOverflow).toBe('hidden');
     expect(openState.sidebarInert).toBe(false);
 
-    // Close mobile drawer by clicking outside on the uncovered backdrop (x: 350, y: 400)
     await page.mouse.click(350, 400);
 
-    // Verify immediate state cleanup: drawer closed, backdrop hidden, scroll unlocked, inert restored, focus restored
     await expect(sidebar).toHaveAttribute('data-mobile-open', 'false');
     await expect(backdrop).toHaveAttribute('data-open', 'false');
 
     const closedState = await page.evaluate(() => ({
       bodyOverflow: document.body.style.overflow,
-      sidebarInert: document.querySelector('#app-sidebar')?.hasAttribute('inert'),
+      sidebarInert: document.querySelector('[data-sidebar]')?.hasAttribute('inert'),
     }));
     expect(closedState.bodyOverflow).toBe('');
     expect(closedState.sidebarInert).toBe(true);
 
-    // Focus restored to trigger without depending on transitionend
     await expect(trigger).toBeFocused();
   });
 
@@ -128,8 +123,8 @@ test.describe('Dashboard Motion & Reduced Motion Specification Verification', ()
       const bodyStyle = window.getComputedStyle(document.body);
       const htmlStyle = window.getComputedStyle(document.documentElement);
       return {
-        bodyDuration: parseFloat(bodyStyle.transitionDuration),
-        htmlDuration: parseFloat(htmlStyle.transitionDuration),
+        bodyDuration: Number.parseFloat(bodyStyle.transitionDuration),
+        htmlDuration: Number.parseFloat(htmlStyle.transitionDuration),
       };
     });
 

@@ -1,0 +1,14 @@
+/**
+ * Layout & Dimension Design Tokens
+ * Structural measurements.
+ * (Layer stacking hierarchy is governed by ./z-index.css; motion by ./motion.css)
+ */
+
+:root {
+  /* Layout Dimensions */
+  --header-height: 60px;
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 68px;
+  --sidebar-primary-width: 72px;
+  --panel-width: 340px;
+}

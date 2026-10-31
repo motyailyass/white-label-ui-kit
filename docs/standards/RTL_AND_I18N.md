@@ -1,66 +1,62 @@
 # RTL & Internationalization (i18n) Architecture Standard
 
 **Document Status:** Official Architectural Standard  
-**Applies to:** Universal Core UI Library (60 Components), Website Starter Kit, and Dashboard Starter Kit (`Next.js` and `Vite` implementations)
+**Applies to:** Core UI Library, Website Starter Kit, and Dashboard Starter Kit (`Next.js` and `Vite` implementations)
 
 ---
 
 ## 1. Executive Mandate: The "Zero-Retrofit" RTL Architecture
 
-For any product serving the Middle East & North Africa (MENA) or global multi-lingual markets, **Right-to-Left (RTL) and Internationalization (i18n) are non-negotiable architectural requirements**.
+For any product serving the Middle East & North Africa (MENA) or global multilingual markets, **Right-to-Left (RTL) and Internationalization (i18n) are non-negotiable architectural requirements**.
 
 > [!IMPORTANT]
-> **Why Retrofitting RTL is Painful**:
-> In a design system with 60+ UI components, retrofitting RTL after the fact requires auditing thousands of CSS declarations, untangling hardcoded `left`/`right` coordinates, debugging scrambled punctuation in mixed-language strings, and manually flipping icons.
-> 
-> By mandating native RTL and i18n at the foundational token, layout, and component layer **now**, all 60 UI components are built natively bidirectional from day one with **zero retrofit debt**.
+> **Why Retrofitting RTL Fails**:
+> Retrofitting RTL after authoring dozens of components requires auditing thousands of CSS rules, untangling physical `left`/`right` coordinates, fixing scrambled punctuation in mixed-script strings, and rewriting hardcoded English props. Building every token, primitive, shell, and section natively bidirectional from day one eliminates retrofit debt completely.
 
 ---
 
-## 2. Core Pillars of the RTL & i18n Standard
+## 2. Core Pillars of the RTL & i18n System
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                        NATIVE RTL & i18n SYSTEM                        │
 ├────────────────────────────────────────────────────────────────────────┤
-│ 1. Direction & SSR Cookies      • dir="rtl" / dir="ltr" on <html>      │
-│                                 • Zero-flash first-paint cookie read   │
-│                                 • Native I18nProvider & useDirection() │
+│ 1. Locale Source of Truth       • dir derived strictly from locale     │
+│                                 • SSR cookie read (getServerI18nState) │
+│                                 • Host onLocaleChange refresh bridge   │
 ├────────────────────────────────────────────────────────────────────────┤
 │ 2. CSS Logical Properties       • margin-inline, padding-block         │
 │                                 • inset-inline-*, border-inline-*      │
 │                                 • text-align: start / end              │
 ├────────────────────────────────────────────────────────────────────────┤
-│ 3. Bi-directional (Bidi) Text   • <BidiText> wrapper & native <bdi>    │
-│                                 • unicode-bidi: isolate;               │
-│                                 • Punctuation flip prevention          │
+│ 3. Honest Bidi & lang Tagging   • <BidiText dir="ltr"> (<bdi> isolate) │
+│                                 • lang="..." for foreign human prose   │
+│                                 • No fake lang="en" on neutral IDs/#s  │
 ├────────────────────────────────────────────────────────────────────────┤
-│ 4. Arabic Typography Stack      • Cairo / IBM Plex Sans Arabic tokens  │
-│                                 • Line-height vertical compensation    │
+│ 4. Self-Hosted Arabic Type      • Noto Sans Arabic + Geist Variable    │
+│                                 • :lang(ar) clearance & normal tracking│
+│                                 • Nested :lang(en)/:lang(fr) restore   │
 ├────────────────────────────────────────────────────────────────────────┤
-│ 5. Native Intl & Dictionaries   • Zero-dependency Intl.NumberFormat    │
-│                                 • Typed dictionary + t(key, params)    │
-│                                 • Gregorian & Hijri date formatting    │
+│ 5. Strict Dictionaries & Intl   • Compile-time TranslationKey (no any) │
+│                                 • Starter-isolated message namespaces  │
+│                                 • Data-owned currency formatting       │
 ├────────────────────────────────────────────────────────────────────────┤
-│ 6. Mirrored Icons Standard      • Directional vs Non-directional SVGs  │
-│                                 • [data-mirror-rtl="true"] automation  │
+│ 6. Semantic Icon Mirroring      • directional() in icons/registry.ts   │
+│                                 • [dir="rtl"] .mirror scaleX(-1)       │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. Direction & Locale Management (`src/providers/` & `src/i18n/`)
+## 3. Locale & Direction Lifecycle (`src/providers/` & `src/app/`)
 
-### A. Document & Container Level `dir`
-The HTML `dir` attribute is strictly derived from the validated `SupportedLocale` (`ar` -> `rtl`, `en`/`fr` -> `ltr`):
-- Document root: `<html lang="ar" dir="rtl">` or `<html lang="en" dir="ltr">`.
-- Sub-trees: Isolated components (e.g., code editors, LTR snippets) may specify `<div dir="ltr">` locally.
+### A. Locale Is the Single Source of Truth
+`dir` is never toggled independently of `locale`; it derives deterministically via `getDirectionForLocale(locale)` (`ar` → `rtl`, `en`/`fr` → `ltr`):
+- Root document: `<html lang={locale} dir={direction}>`.
+- Mixed-language subtrees: `<option lang={loc.code}>` or `<span lang="en">` / `<span lang="fr">`.
 
-### B. Server-Side First Paint (Zero-Flash Direction)
-Setting `dir` solely in a client-side `useEffect` results in an unacceptable layout shift (flash of LTR) on the first paint when Arabic is active.
-
-**The Solution:**
-1. In Next.js App Router (Server Component `layout.tsx`), read the validated `locale` cookie via `getServerI18nState()`:
+### B. Server-Side First Paint & Host Refresh Bridge (Next.js)
+1. In Next.js `src/app/layout.tsx`, `getServerI18nState('en')` reads and validates the `locale` cookie on the server so SSR streams the exact `lang` and `dir` on the first byte without LTR-to-RTL layout shift:
    ```tsx
    // src/app/layout.tsx
    export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -68,222 +64,181 @@ Setting `dir` solely in a client-side `useEffect` results in an unacceptable lay
      return (
        <html lang={locale} dir={direction} suppressHydrationWarning>
          <body>
-           <AppProviders initialLocale={locale}>
+           <AppProvidersBridge initialLocale={locale}>
              {children}
-           </AppProviders>
+           </AppProvidersBridge>
          </body>
        </html>
      );
    }
    ```
-2. When the user switches language on the client, `I18nProvider` immediately persists the preference to `document.cookie` (`locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`). Direction is strictly derived, eliminating drift between language and layout direction. Subsequent server requests stream the correct `dir` and `lang` on the very first byte.
+2. `I18nProvider` remains 100% framework-neutral (zero `next/navigation` imports). It persists `locale` to `document.cookie`, updates `document.documentElement.lang` and `document.documentElement.dir`, and invokes an optional `onLocaleChange?: (locale: SupportedLocale) => void` callback.
+3. `src/app/app-providers-bridge.tsx` wires `onLocaleChange={() => router.refresh()}` at the Next.js host boundary so Server Components re-render localized content immediately when the user switches languages. In Vite (`src/App.tsx`), `AppProviders` runs directly without Next.js router glue.
 
-### C. The `I18nProvider` & React Hooks
-Direction and locale state is consumed through zero-dependency React context in `src/providers/`:
+### C. Consuming `useI18n()`
+Connected patterns, shells, and route components read i18n state from `@/providers`:
 
 ```tsx
-import { useI18n } from '@/providers/i18n-provider';
+import { useI18n } from '@/providers';
 
-// Inside any feature / pattern component:
-const { locale, direction, isRtl, setLocale, t, formatNumber, formatCurrency, formatDate } = useI18n();
+const {
+  locale,
+  direction,
+  isRtl,
+  setLocale,
+  t,
+  formatNumber,
+  formatCurrency,
+  formatPercent,
+  formatDate,
+  formatRelativeTime,
+} = useI18n();
 ```
 
 ---
 
-## 4. Translation Strategy: Namespaced Messages + `t()`
+## 4. Strict Dictionaries & Starter Ownership (`src/i18n/messages/`)
 
-> [!IMPORTANT]
-> **Architectural Decision:**
-> The starter kit ships typed, namespaced messages (`src/i18n/messages/`) rather than relying on brittle inline ternary operators (`isRtl ? 'عربي' : 'English'`). Missing translations fail loudly rather than masking bugs behind invisible or corrupted fallbacks.
+### A. Compile-Time `TranslationKey` Safety
+`TranslationKey` is derived directly from the active starter's `enMessages` schema without `(string & {})` widening or fallback string parameters. Passing an unknown key is a compile-time TypeScript error (`tsc --noEmit`), and missing runtime keys fail visibly by returning the key string cleanly while substituting `{param}` placeholders via `replaceAll`.
 
-### Why Inline Ternaries Fail:
-- They couple copy directly to direction (`isRtl`) rather than locale (e.g., Arabic vs Urdu vs Persian all share RTL but require different translations).
-- They prevent adding third or fourth languages (French, Spanish, German).
-- They cannot handle string interpolation (`Hello {name}, you have {count} messages`).
-
-### The Dictionary Contract:
 ```tsx
-import { useI18n } from '@/lib/i18n';
+import { useI18n } from '@/providers';
 
-function OverviewSection() {
+function OverviewHeader() {
   const { t } = useI18n();
 
   return (
-    <div>
-      <h2>{t('dashboard.title', 'System Overview')}</h2>
-      <p>{t('dashboard.subtitle')}</p>
-    </div>
+    <header>
+      <h1>{t('dashboard.overview.title')}</h1>
+      <p>{t('common.pagination.showing', { start: 1, end: 10, total: 42 })}</p>
+    </header>
   );
 }
 ```
+
+### B. Starter Dictionary Isolation
+Synchronization (`scripts/sync-shared.mjs`) enforces clean product dictionary boundaries so website bundles never ship dashboard strings and vice versa:
+- **Shared (`dashboard` → `website`)**: `src/i18n/` engine (`config.ts`, `types.ts`, `translate.ts`, `formatters.ts`, `bidi.tsx`, `index.ts`) plus `messages/{en,fr,ar}/{common,errors}.ts`.
+- **Dashboard-owned**: `messages/{en,fr,ar}/{dashboard,settings}.ts`, `messages/index.ts`, and `messages.test.ts`.
+- **Website-owned**: `messages/{en,fr,ar}/website.ts`, `messages/index.ts`, and `messages.test.ts`.
 
 ---
 
 ## 5. Strict CSS Logical Properties Mandate
 
-> [!WARNING]
-> **Zero Physical Directions in Core UI & Layouts**:
-> Physical directional properties (`margin-left`, `margin-right`, `padding-left`, `padding-right`, `left`, `right`, `border-left`, `border-right`, `float: left`, `text-align: left`) are **strictly prohibited** in `src/components/ui/` and all layout modules.
-> Every layout and spacing rule MUST use W3C CSS Logical Properties.
+Physical directional properties (`margin-left`, `margin-right`, `padding-left`, `padding-right`, `left`, `right`, `border-left`, `border-right`, `float: left`, `text-align: left`) are prohibited across components, shells, layouts, and sections.
 
-### Translation Cheat Sheet:
-
-| Prohibited Physical Property | Required Logical Property | Behavior in LTR | Behavior in RTL |
+| Prohibited Physical Property | Required Logical Property | LTR Result | RTL Result |
 | :--- | :--- | :--- | :--- |
-| `margin-left` | `margin-inline-start` | Left margin | Right margin |
-| `margin-right` | `margin-inline-end` | Right margin | Left margin |
-| `margin-top` / `margin-bottom` | `margin-block-start` / `end` (or `margin-block`) | Top / Bottom | Top / Bottom |
-| `padding-left` | `padding-inline-start` | Left padding | Right padding |
-| `padding-right` | `padding-inline-end` | Right padding | Left padding |
-| `padding-top` / `padding-bottom` | `padding-block-start` / `end` (or `padding-block`) | Top / Bottom | Top / Bottom |
-| `left: 0` | `inset-inline-start: 0` | Aligns to left edge | Aligns to right edge |
-| `right: 0` | `inset-inline-end: 0` | Aligns to right edge | Aligns to left edge |
-| `border-left` | `border-inline-start` | Left border | Right border |
-| `border-right` | `border-inline-end` | Right border | Left border |
-| `text-align: left` | `text-align: start` | Left-aligned text | Right-aligned text |
-| `text-align: right` | `text-align: end` | Right-aligned text | Left-aligned text |
-| `border-radius: 8px 0 0 8px` | `border-start-start-radius: 8px; border-end-start-radius: 8px;` | Left corners rounded | Right corners rounded |
+| `margin-left` / `margin-right` | `margin-inline-start` / `margin-inline-end` | Left / Right | Right / Left |
+| `padding-left` / `padding-right` | `padding-inline-start` / `padding-inline-end` | Left / Right | Right / Left |
+| `left` / `right` | `inset-inline-start` / `inset-inline-end` | Left / Right | Right / Left |
+| `border-left` / `border-right` | `border-inline-start` / `border-inline-end` | Left / Right | Right / Left |
+| `text-align: left` / `right` | `text-align: start` / `text-align: end` | Left / Right | Right / Left |
+| `border-radius: 8px 0 0 8px` | `border-start-start-radius` / `border-end-start-radius` | Left corners | Right corners |
 
 ---
 
-## 6. Bi-directional (Bidi) Text Handling
+## 6. Bi-directional (`<BidiText>`) vs. `lang` Semantics
 
-### The Problem
-When right-to-left text (Arabic) contains left-to-right fragments (English product names, email addresses, phone numbers, tracking IDs, or code blocks), browser bidi algorithms often scramble adjacent punctuation:
-- **Corrupted**: `رقم الحساب: +966 50 123 4567-` (dash or brackets flip to wrong side)
-- **Desired**: `رقم الحساب: ` + `+966 50 123 4567` cleanly isolated.
-
-### The Solution: `<BidiText>` & `<bdi>`
-Always isolate dynamic or bidirectional values using the native `<BidiText>` component (`src/lib/i18n/bidi.tsx`):
+### A. Isolating LTR Tokens Inside RTL Prose (`<BidiText>`)
+When RTL text embeds LTR fragments (IDs, phone numbers, emails, URLs, formatted metrics), browser bidi algorithms can scramble adjacent punctuation. Wrap embedded tokens in `<BidiText>` from `@/i18n` (which renders native `<bdi>` with `unicode-bidi: isolate`):
 
 ```tsx
-import { BidiText } from '@/lib/i18n';
+import { BidiText } from '@/i18n';
 
 <p>
-  رقم التتبع: <BidiText dir="ltr">#SA-9820-X</BidiText>
-</p>
-<p>
-  الهاتف: <BidiText dir="ltr">+966 50 123 4567</BidiText>
+  {t('dashboard.inspector.sampleIdLabel')}: <BidiText dir="ltr">#US-8942-BIDI</BidiText>
 </p>
 ```
 
-Under the hood, `<BidiText>` renders HTML5 `<bdi>` with `unicode-bidi: isolate;`, preventing punctuation bleed.
+### B. Separating Direction (`dir`) from Human Language (`lang`)
+- **Language-neutral values** (alphanumeric IDs like `#US-8942-BIDI`, phone numbers like `+1 (800) 555-0199`, and numeric metrics) use `<BidiText dir="ltr">` for directional isolation **without** `lang="en"`.
+- **Actual foreign human-language labels, prose, or code** inside a localized document (such as native language names in `<LanguageSwitcher>` `<option lang={loc.code}>` or embedded English/French phrases inside an Arabic page) declare explicit `lang="en"` / `lang="fr"` / `lang="ar"`.
 
 ---
 
-## 7. Arabic / MENA Typography Tokens
+## 7. Self-Hosted Arabic Typography & `:lang()` Restoration
 
-Arabic scripts feature distinct calligraphic characteristics, taller ascenders and deeper descenders than Latin typefaces. They require specialized font stacks and larger line-height ratios.
+Typography rules bind to `:lang(...)` rather than `[dir="rtl"]`, ensuring accurate glyph rendering and nested-script restoration:
 
-### Tokens in `src/styles/tokens/typography.css`:
-
-```css
-/* Arabic Font Stacks */
---font-family-arabic: "Cairo", "IBM Plex Sans Arabic", "Noto Sans Arabic", "Geeza Pro", "Simplified Arabic", "Tahoma", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
---font-family-arabic-heading: "Cairo", "IBM Plex Sans Arabic", "Noto Kufi Arabic", "Geeza Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-
-/* Universal Sans with Native Arabic Fallbacks */
---font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Geeza Pro", "Simplified Arabic", "Cairo", "Noto Sans Arabic", Arial, sans-serif;
-
-/* Arabic Line Heights (Compensates for taller glyph ascenders/descenders) */
---line-height-arabic-tight: 1.35;
---line-height-arabic-normal: 1.65;
---line-height-arabic-relaxed: 1.85;
-```
-
-### Global Rules in `src/styles/globals.css`:
-```css
-[dir="rtl"] {
-  font-family: var(--font-family-arabic);
-  line-height: var(--line-height-arabic-normal);
-  text-align: start;
-}
-```
+1. **Font Stacks (`src/styles/tokens/typography.css` & `globals.css`)**:
+   - `--font-family-sans`: Self-hosted `Geist-Variable.woff2` + system fallbacks.
+   - `--font-family-mono`: Self-hosted `GeistMono-Variable.woff2` + monospace fallbacks.
+   - `--font-family-arabic`: Self-hosted `NotoSansArabic-Variable.woff2` + Arabic fallbacks.
+2. **Role-Appropriate Arabic Clearance (`styles/{dashboard,website}/typography.css`)**:
+   - `:root:lang(ar)` increases semantic role line-heights (e.g., dashboard body `20px` → `24px`, page title `32px` → `40px`) so Tashkeel diacritics and tall ascenders/descenders never clip. Controls preserve `min-block-size` and `overflow: visible`.
+3. **Cursive Ligature Protection & Nested Latin Restoration (`globals.css`)**:
+   - Arabic cursive script resets `letter-spacing: normal` (including `[data-role="eyebrow"]:lang(ar)` and `[data-role="badge"]:lang(ar)` with `text-transform: none`) without clobbering nested `:lang(en)` or `:lang(fr)` descendants.
+   - `:lang(ar) :is(:lang(en), :lang(fr))` restores `var(--font-family-sans)` and Latin tracking (`--tracking-caps`) on nested English and French elements.
 
 ---
 
-## 8. Native Number, Date & Currency Formatting
+## 8. Native `Intl` Formatting & Data-Owned Currency Contract
 
-Zero third-party date or number dependencies. All formatting relies on the native W3C `Intl` suite:
+All number, currency, percentage, and date formatting lives in `src/i18n/formatters.ts` using native `Intl` APIs:
+
+> [!IMPORTANT]
+> **Currency Contract**: **The data determines the currency. The locale determines how it is displayed.** Switching the UI from English to French or Arabic formats the amount according to the active locale's conventions (`$1,250.00` → `1 250,00 $US`)—it **never** silently converts `USD` into `EUR` or `SAR`.
 
 ```tsx
-import { formatNumber, formatCurrency, formatDate, formatRelativeTime } from '@/lib/i18n';
+import {
+  formatNumber,
+  formatCurrency,
+  formatPercent,
+  formatDate,
+  formatRelativeTime,
+} from '@/i18n';
 
-// 1. Number Formatting (supports Latin and Eastern Arabic-Indic numerals)
-formatNumber(14290, 'ar-SA', { numberingSystem: 'arab' }); // "١٤٬٢٩٠"
-formatNumber(14290, 'en-US'); // "14,290"
+// 1. Number formatting (supports 'latn' and 'arab' numbering systems)
+formatNumber(14290, { locale: 'ar', numberingSystem: 'arab' }); // "١٤٬٢٩٠"
+formatNumber(14290, { locale: 'en' }); // "14,290"
 
-// 2. Localized Currency Formatting
-formatCurrency(28450, 'SAR', 'ar-SA'); // "٢٨٬٤٥٠٫٠٠ ر.س."
-formatCurrency(28450, 'USD', 'en-US'); // "$28,450.00"
+// 2. Data-driven currency formatting (currency comes from the data record)
+formatCurrency(28450, record.currency, { locale: 'fr' }); // e.g. "28 450,00 $US" when record.currency === 'USD'
+formatCurrency(28450, 'SAR', { locale: 'ar' });
 
-// 3. Date & Calendar Formatting (supports Gregorian and Islamic/Hijri)
-formatDate(new Date(), 'ar-SA', { dateStyle: 'full', calendar: 'islamic-umalqura' });
-formatDate(new Date(), 'en-US', { dateStyle: 'medium' });
+// 3. Fractional percentage formatting (0.125 -> 12.5%, including fallback)
+formatPercent(0.125, { locale: 'en', maximumFractionDigits: 1 }); // "12.5%"
 
-// 4. Relative Time Formatting
-formatRelativeTime(-5, 'minute', 'ar-SA'); // "قبل 5 دقائق"
-formatRelativeTime(2, 'day', 'en-US'); // "in 2 days"
+// 4. Date & relative time formatting
+formatDate(new Date(), { locale: 'ar', dateStyle: 'medium' });
+formatRelativeTime(-5, 'minute', { locale: 'ar' });
 ```
 
 ---
 
-## 9. Semantic Icon Registry & Directional Mirroring
+## 9. Semantic Icon Registry & Directional Mirroring (`src/components/icons/`)
 
-Not all icons should mirror in RTL. Directional glyphs (chevrons, navigation arrows, layout triggers) must flip under `[dir="rtl"]`, while real-world objects, brand logos, search lenses, and status indicators must never mirror.
-
-### The Semantic Icon Standard (`src/components/icons/`):
-- All vendor icon glyphs (Hugeicons) are encapsulated exclusively within `src/components/icons/registry.ts`.
-- Directional glyphs are marked via `directional(IconGlyph)`.
-- `<Icon name="..." />` automatically applies `.mirror` styling under `[dir="rtl"]`:
-```tsx
-import { Icon } from '@/components/icons';
-
-// Inside UI component:
-<button type="button">
-  <span>{t('common.next')}</span>
-  <Icon name="chevron-right" />
-</button>
-```
-
-In `icon.module.css`:
-```css
-[dir="rtl"] .mirror {
-  transform: scaleX(-1);
-}
-```
+Directional icons (chevrons, arrows, sidebar/panel rail toggles) flip automatically in RTL while symmetric or object icons (theme sun/moon, checkmarks, search, globe) remain unmirrored:
+- Vendor icons (`@hugeicons/*`) are imported exclusively inside `src/components/icons/registry.ts`.
+- Directional entries wrap their glyph with `directional(IconGlyph)`.
+- `<Icon name="chevron-right" />` adds `.mirror` when `entry.mirrorInRtl` is true:
+  ```css
+  /* src/components/icons/icon.module.css */
+  [dir="rtl"] .mirror {
+    transform: scaleX(-1);
+  }
+  ```
 
 ---
 
-## 10. Strict Layer Boundaries: Pure UI Primitives vs. App Wiring
+## 10. Dynamic IDs, Touch Targets & Honest Overlay Semantics
 
-In accordance with Principle 1 and Principle 3 of our architectural standards:
-- **`src/components/ui/*`** primitives (such as `<DirectionToggle>` and `<ThemeToggle>`) are **100% pure**. They accept `direction`, `theme`, and `onToggle` callbacks via native props. They **never import or bind directly to React context**.
-- **Wiring happens in layouts / patterns**: The application shell (`classic-layout.tsx`, `tokyo-navbar.tsx`) reads `useDirection()`, `useTheme()`, and `useI18n()` and passes state down to the pure primitives.
-
----
-
-## 11. Host-Agnostic Slots & Accessibility Contracts
-
-All navigation and shell primitives support framework-independent composition:
-- **`SidebarItem`**: Polymorphic discriminated union. When `href` is supplied, preserves all anchor attributes (`target`, `rel`, `onClick`, `...props`) and sets `aria-current={isActive ? 'page' : undefined}`. Supports `as` slot for Next.js `<Link>` or Vite `<a>`.
-- **`SidebarLogo` & `SidebarAvatar`**: Provide `as` and `imageComponent` slots, allowing consumers to plug in Next.js `<Link>` and `<Image>` without baking framework dependencies into layout primitives.
-- **Mobile Drawers**: Require `id="app-sidebar"`, `aria-controls`, `aria-expanded` on the trigger, `Escape` key close listener, and a focus trap cycling `Tab` / `Shift+Tab`.
-- **Landmark Hygiene**: Sub-sidebar rails (`SidebarPrimary`, `SidebarSecondary`) must render `<div>` instead of nested `<aside>` tags to prevent duplicate landmarks.
-- **Keyboard Shortcuts**: Global key handlers (`Cmd+B`, `Cmd+.`) must check `event.target` and abort if the active element is an input, textarea, select, or `contenteditable`.
+- **Dynamic DOM IDs**: Reusable components (`LanguageSwitcher`, `Sidebar` via `LayoutContext`, `TokyoNavbar` mobile disclosure, `TokyoFaq` items) generate unique IDs via `React.useId()` so multiple instances never collide.
+- **Control Touch Targets**: Interactive controls respect product-owned minimum heights (`36px` dashboard `md`, `48px` website `xl`) and expose `48×48px` coarse-pointer hit areas via `data-touch-target="auto"` (`--control-touch-target-min: 3rem`).
+- **Honest Modal vs. Disclosure Semantics**:
+  - **Dashboard Mobile `Sidebar` (`<= 768px`) & Overlay/Compact `Panel` (`<= 1024px` or `mode="overlay"`)**: Modal `<aside role="dialog" aria-modal="true">` with backdrop, `Escape` dismissal, Tab/Shift+Tab focus containment, focus restoration, and ref-counted body scroll locking (`acquireBodyScrollLock()`), automatically cleaning up when crossing back to desktop.
+  - **Website `TokyoNavbar` Mobile Menu**: Non-modal disclosure (`aria-expanded`, `aria-controls`, `hidden={!mobileOpen}`, `Escape` dismissal with focus return to trigger)—without forcing unnecessary modal dialog traps or scroll locks onto top-level site navigation.
 
 ---
 
-## 12. 60-Component Pre-Flight RTL & i18n Checklist
+## 11. Pre-Flight RTL, Semantics & i18n Checklist
 
-Use this checklist when developing or reviewing any component in `src/components/ui/`:
-
-- [ ] **Zero Physical Coordinates**: Does the `.module.css` use exclusively `margin-inline`, `padding-block`, `inset-inline-*`, `border-inline-*`, and `text-align: start/end`?
-- [ ] **Interactive Overlays & Portals**: For `Dialog`, `Sheet`, `Popover`, `DropdownMenu`, and `Tooltip`, does positioning respect document direction?
-- [ ] **Horizontal Carousels & Sliders**: Does the scroll or slide direction increment appropriately when `dir="rtl"`?
-- [ ] **Input Adornments & Icons**: Are start/end icon slots styled with `inset-inline-start` and `inset-inline-end` instead of hardcoded `left`/`right`?
-- [ ] **Directional Glyphs**: Are collapse indicators and next/prev arrows wrapped in `<MirroredIcon>` or flagged with `data-mirror-rtl="true"`?
-- [ ] **Bidi Isolation in Dynamic Data**: Are phone numbers, user tags, code tokens, and email fields wrapped in `<bdi>` or `<BidiText>`?
-- [ ] **Text Truncation**: Does `text-overflow: ellipsis` align smoothly with `text-align: start`?
-- [ ] **Keyboard Navigation**: Are ArrowLeft / ArrowRight handlers inverted in RTL (ArrowLeft advances forward in RTL)?
-- [ ] **Accessibility Attributes**: Are active links tagged with `aria-current="page"`, triggers with `aria-expanded` and `aria-controls`, and overlays with `role="dialog"`?
+- [ ] **Logical CSS Only**: Zero physical directional properties or inline `width`/`minWidth` overrides.
+- [ ] **Strict `t()` Keys**: Every user-facing string comes from typed dictionaries (`common`, `errors`, `dashboard`/`settings`, or `website`) with zero hardcoded English fallbacks.
+- [ ] **Data-Owned Currency**: `formatCurrency(amount, record.currency)` receives currency from data, never from `locale`.
+- [ ] **Honest `lang` & `<BidiText>`**: `<BidiText dir="ltr">` isolates neutral LTR tokens; `lang="..."` marks genuine foreign human-language labels/prose.
+- [ ] **Dynamic IDs & Landmarks**: `React.useId()` for `aria-controls`/`htmlFor`; valid `<header>`, `<nav aria-label>`, `<main>`, `<footer>`, and sequential `<h1>` → `<h6>` headings across all routes and error states.
+- [ ] **Icon Mirroring**: All icons render through `<Icon name="..." />` with directional glyphs marked via `directional()` in `registry.ts`.

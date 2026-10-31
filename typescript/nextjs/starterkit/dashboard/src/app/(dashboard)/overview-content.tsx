@@ -2,13 +2,13 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { BidiText } from '@/i18n';
-import { useI18n } from '@/providers/i18n-provider';
 import { demoBidiInfo, demoMetrics } from '@/fixtures/dashboard-data';
+import { BidiText } from '@/i18n';
+import { useI18n } from '@/providers';
 import styles from './dashboard.module.css';
 
 export function OverviewContent() {
-  const { t, formatNumber, formatCurrency, formatDate } = useI18n();
+  const { t, formatNumber, formatCurrency, formatPercent, formatDate } = useI18n();
 
   return (
     <div className={styles.pageContainer}>
@@ -28,15 +28,22 @@ export function OverviewContent() {
       <div className={styles.metricsGrid}>
         {demoMetrics.map((metric) => (
           <div key={metric.id} className={styles.metricCard}>
-            <span className={styles.metricLabel}>{t(metric.titleKey)}</span>
+            <span className={styles.metricLabel} data-role="eyebrow">
+              {t(metric.titleKey)}
+            </span>
             <span className={styles.metricValue}>
-              {metric.type === 'currency'
-                ? formatCurrency(metric.value, (metric as { currency?: string }).currency || 'USD')
-                : formatNumber(metric.value)}
+              {metric.type === 'currency' ? (
+                <BidiText dir="ltr">{formatCurrency(metric.value, metric.currency)}</BidiText>
+              ) : (
+                <BidiText dir="ltr">{formatNumber(metric.value)}</BidiText>
+              )}
             </span>
             {metric.changeType === 'positive' ? (
               <span className={styles.metricChangePositive}>
-                {metric.changeText} {t(metric.changeKey)}
+                <BidiText dir="ltr">
+                  ↑ {formatPercent(metric.changeFraction, { maximumFractionDigits: 1 })}
+                </BidiText>{' '}
+                {t(metric.changeKey)}
               </span>
             ) : (
               <span className={styles.metricChangeNeutral}>

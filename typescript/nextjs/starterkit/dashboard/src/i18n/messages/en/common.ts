@@ -5,6 +5,8 @@ export const common = {
   direction: 'Direction',
   toggleTheme: 'Toggle theme',
   toggleDirection: 'Toggle direction',
+  toggleNavigation: 'Toggle navigation menu',
+  breadcrumbs: 'Breadcrumbs',
   light: 'Light',
   dark: 'Dark',
   system: 'System',
@@ -21,6 +23,7 @@ export const common = {
   lastModified: 'Last Modified',
   filter: 'Filter',
   exportReport: 'Export Report',
+  loading: 'Loading...',
 } as const;
 
 export type CommonMessages = MessageShape<typeof common>;

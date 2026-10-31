@@ -1,8 +1,10 @@
-import type React from 'react';
+import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import type React from 'react';
+import { defaultMessages, translate } from '@/i18n';
+import { ThemeScript } from '@/providers';
 import '../styles/globals.css';
-import { AppProviders } from '@/providers/app-providers';
-import { ThemeScript } from '@/providers/theme-provider';
+import { AppProvidersBridge } from './app-providers-bridge';
 import { getServerI18nState } from './i18n-server';
 
 const geistSans = localFont({
@@ -26,11 +28,13 @@ const notoSansArabic = localFont({
   weight: '100 900',
 });
 
-export const metadata = {
-  title: 'Tokyo Wireframe - Website Starter Kit',
-  description:
-    'A non-branded UI kit and website starter kit built from scratch with native RTL & LTR.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale } = await getServerI18nState('en');
+  return {
+    title: translate(defaultMessages, locale, 'website.meta.title'),
+    description: translate(defaultMessages, locale, 'website.meta.description'),
+  };
+}
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Read initial locale and direction from cookies on the server to prevent any first-paint layout shift/flash
@@ -47,9 +51,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ThemeScript />
       </head>
       <body>
-        <AppProviders initialLocale={locale} defaultTheme="system">
-          {children}
-        </AppProviders>
+        <AppProvidersBridge initialLocale={locale}>{children}</AppProvidersBridge>
       </body>
     </html>
   );

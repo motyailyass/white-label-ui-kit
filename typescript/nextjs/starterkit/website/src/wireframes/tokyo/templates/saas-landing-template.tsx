@@ -1,53 +1,46 @@
 'use client';
 
-import React from 'react';
+import type React from 'react';
 import {
-  TokyoNavbar,
-  TokyoHero,
   TokyoBentoGrid,
-  TokyoPricing,
-  TokyoFaq,
   TokyoCta,
+  TokyoFaq,
   TokyoFooter,
+  TokyoHero,
+  TokyoNavbar,
+  TokyoPricing,
 } from '../sections';
+import styles from './tokyo-templates.module.css';
 
 export interface SaasLandingTemplateProps {
   brandName?: string;
   heroTitle?: string;
   heroSubtitle?: string;
   onCtaClick?: () => void;
+  linkAs?: React.ElementType;
 }
 
 export function SaasLandingTemplate({
-  brandName = 'Tokyo.dev',
-  heroTitle = 'The Next-Gen Edge Platform for Developers',
-  heroSubtitle = 'Deploy globally in milliseconds. Zero runtime lock-in, native standards, and autonomous scalability out of the box.',
+  brandName,
+  heroTitle,
+  heroSubtitle,
   onCtaClick,
+  linkAs,
 }: SaasLandingTemplateProps) {
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: 'var(--color-bg-base)',
-        color: 'var(--color-text-primary)',
-      }}
-    >
+    <div className={styles.landingPage}>
       {/* 1. Floating Pill Navigation */}
-      <TokyoNavbar brandName={brandName} onCtaClick={onCtaClick} />
+      <TokyoNavbar brandName={brandName} onCtaClick={onCtaClick} linkAs={linkAs} />
 
       <main>
         {/* 2. Hero Section with Interactive Mockup */}
-        <TokyoHero
-          title={heroTitle}
-          subtitle={heroSubtitle}
-          badgeText="v1.0 Production Architecture"
-        />
+        <TokyoHero title={heroTitle} subtitle={heroSubtitle} linkAs={linkAs} />
 
         {/* 3. Tokyo Bento Grid Features */}
         <TokyoBentoGrid />
 
         {/* 4. Predictable Pricing Plans */}
-        <TokyoPricing />
+        <TokyoPricing linkAs={linkAs} />
 
         {/* 5. Frequently Asked Questions */}
         <TokyoFaq />
@@ -57,7 +50,7 @@ export function SaasLandingTemplate({
       </main>
 
       {/* 7. Comprehensive Sitemap Footer */}
-      <TokyoFooter brandName={brandName} />
+      <TokyoFooter brandName={brandName} linkAs={linkAs} />
     </div>
   );
 }

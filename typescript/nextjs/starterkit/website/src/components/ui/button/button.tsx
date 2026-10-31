@@ -8,8 +8,8 @@ export type ButtonVariant = 'primary' | 'secondary' | 'subtle' | 'ghost' | 'dang
 export interface ButtonProps extends ComponentPropsWithoutRef<'button'>, ControlSizingProps {
   variant?: ButtonVariant;
   loading?: boolean;
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
+  startIcon?: ReactNode;
+  endIcon?: ReactNode;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -19,8 +19,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     variant = 'secondary',
     loading = false,
     disabled = false,
-    leftIcon,
-    rightIcon,
+    startIcon,
+    endIcon,
+    type = 'button',
     className,
     children,
     ...props
@@ -33,7 +34,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     <button
       {...props}
       ref={ref}
+      type={type}
       disabled={isDisabled}
+      aria-busy={loading || undefined}
       data-size={size}
       data-touch-target={touchTarget}
       data-variant={variant}
@@ -43,10 +46,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       {loading ? (
         <span className={styles.spinner} aria-hidden="true" />
       ) : (
-        leftIcon && <span className={styles.icon}>{leftIcon}</span>
+        startIcon && <span className={styles.icon}>{startIcon}</span>
       )}
       {children}
-      {!loading && rightIcon && <span className={styles.icon}>{rightIcon}</span>}
+      {endIcon && <span className={styles.icon}>{endIcon}</span>}
     </button>
   );
 });

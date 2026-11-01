@@ -9,13 +9,23 @@ import { LanguageSwitcher } from '../language-switcher';
 import { ThemeSwitcher } from '../theme-switcher';
 import styles from './checkbox-gallery.module.css';
 
-type FormStatusId = 'none' | 'pending' | 'success' | 'reset';
+type FormStatusId = 'none' | 'pending' | 'success' | 'reset' | 'error';
 
 const FORM_STATUS_MAP: Record<FormStatusId, TranslationKey> = {
   none: 'common.checkboxGallery.formEventNone',
   pending: 'common.checkboxGallery.formEventPending',
   success: 'common.checkboxGallery.formEventSuccess',
   reset: 'common.checkboxGallery.formEventReset',
+  error: 'common.checkboxGallery.formEventError',
+};
+
+const SIZE_LABELS: Record<string, TranslationKey> = {
+  xs: 'common.checkboxGallery.sizeXsLabel',
+  sm: 'common.checkboxGallery.sizeSmLabel',
+  md: 'common.checkboxGallery.sizeMdLabel',
+  lg: 'common.checkboxGallery.sizeLgLabel',
+  xl: 'common.checkboxGallery.sizeXlLabel',
+  '2xl': 'common.checkboxGallery.size2xlLabel',
 };
 
 export function CheckboxGallery() {
@@ -64,6 +74,12 @@ export function CheckboxGallery() {
       e.preventDefault();
       if (isSubmitting) return;
 
+      // Client validation: at least one notification option must be selected
+      if (!formMarketing && !formSecurity) {
+        setFormStatusId('error');
+        return;
+      }
+
       setIsSubmitting(true);
       setFormStatusId('pending');
 
@@ -74,7 +90,7 @@ export function CheckboxGallery() {
         timerRef.current = null;
       }, 800);
     },
-    [isSubmitting],
+    [isSubmitting, formMarketing, formSecurity],
   );
 
   const handleFormReset = useCallback(() => {
@@ -169,7 +185,7 @@ export function CheckboxGallery() {
                   data-testid={`specimen-size-${sz}`}
                 />
                 <label htmlFor={sizeFieldId} className={styles.label}>
-                  Size {sz.toUpperCase()}
+                  {t(SIZE_LABELS[sz])}
                 </label>
               </div>
             );
@@ -187,7 +203,7 @@ export function CheckboxGallery() {
           <div className={styles.fieldRow}>
             <Checkbox id={`${baseId}-state-unchecked`} data-testid="specimen-unchecked" />
             <label htmlFor={`${baseId}-state-unchecked`} className={styles.label}>
-              Unchecked Resting
+              {t('common.checkboxGallery.stateUncheckedLabel')}
             </label>
           </div>
 
@@ -198,7 +214,7 @@ export function CheckboxGallery() {
               data-testid="specimen-checked"
             />
             <label htmlFor={`${baseId}-state-checked`} className={styles.label}>
-              Checked Resting
+              {t('common.checkboxGallery.stateCheckedLabel')}
             </label>
           </div>
 
@@ -209,7 +225,7 @@ export function CheckboxGallery() {
               data-testid="specimen-indeterminate"
             />
             <label htmlFor={`${baseId}-state-indeterminate`} className={styles.label}>
-              Indeterminate (Mixed)
+              {t('common.checkboxGallery.stateIndeterminateLabel')}
             </label>
           </div>
 
@@ -363,7 +379,11 @@ export function CheckboxGallery() {
                 data-testid="specimen-controlled"
               />
               <label htmlFor={controlledFieldId} className={styles.label}>
-                Controlled (State: {controlledChecked ? 'Checked' : 'Unchecked'})
+                {t(
+                  controlledChecked
+                    ? 'common.checkboxGallery.controlledStateChecked'
+                    : 'common.checkboxGallery.controlledStateUnchecked',
+                )}
               </label>
             </div>
           </div>
@@ -376,7 +396,7 @@ export function CheckboxGallery() {
                 data-testid="specimen-uncontrolled"
               />
               <label htmlFor={uncontrolledFieldId} className={styles.label}>
-                Uncontrolled (defaultChecked)
+                {t('common.checkboxGallery.uncontrolledLabel')}
               </label>
             </div>
           </div>
@@ -391,7 +411,7 @@ export function CheckboxGallery() {
         <p className={styles.sectionDesc}>
           {t('common.checkboxGallery.localizationDesc')}
         </p>
-        <div className={styles.fieldStack}>
+        <div className={styles.fieldStack} dir="rtl">
           <div className={styles.fieldRow}>
             <Checkbox
               id={arabicFieldId}
@@ -426,13 +446,13 @@ export function CheckboxGallery() {
           <div className={styles.fieldRow}>
             <Checkbox id={`${baseId}-theme-1`} defaultChecked />
             <label htmlFor={`${baseId}-theme-1`} className={styles.label}>
-              Checked Theme Specimen
+              {t('common.checkboxGallery.themeCheckedLabel')}
             </label>
           </div>
           <div className={styles.fieldRow}>
             <Checkbox id={`${baseId}-theme-2`} />
             <label htmlFor={`${baseId}-theme-2`} className={styles.label}>
-              Unchecked Theme Specimen
+              {t('common.checkboxGallery.themeUncheckedLabel')}
             </label>
           </div>
         </div>

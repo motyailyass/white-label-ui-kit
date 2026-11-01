@@ -45,12 +45,12 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
 
   useImperativeHandle(forwardedRef, () => inputRef.current as HTMLInputElement);
 
-  // Synchronize native indeterminate DOM property
+  // Synchronize native indeterminate DOM property on render commits
   useLayoutEffect(() => {
     if (inputRef.current) {
       inputRef.current.indeterminate = Boolean(indeterminate);
     }
-  }, [indeterminate]);
+  });
 
   return (
     <span
@@ -70,10 +70,10 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
       />
       <span className={styles.indicator} aria-hidden="true">
         <span className={styles.iconCheck}>
-          <Icon name="check" strokeWidth={2} />
+          <Icon name="check" />
         </span>
         <span className={styles.iconMinus}>
-          <Icon name="minus" strokeWidth={2} />
+          <Icon name="minus" />
         </span>
       </span>
     </span>

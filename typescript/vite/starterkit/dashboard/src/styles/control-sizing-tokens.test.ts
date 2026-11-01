@@ -15,6 +15,7 @@ describe('Dashboard Control Sizing Tokens', () => {
       '--control-font-size-',
       '--control-line-height-',
       '--control-icon-size-',
+      '--control-glyph-size-',
       '--control-gap-',
     ];
 
@@ -37,6 +38,7 @@ describe('Dashboard Control Sizing Tokens', () => {
     expect(cssContent).toMatch(/--control-font-size-default:\s*var\(--control-font-size-md\);/);
     expect(cssContent).toMatch(/--control-line-height-default:\s*var\(--control-line-height-md\);/);
     expect(cssContent).toMatch(/--control-icon-size-default:\s*var\(--control-icon-size-md\);/);
+    expect(cssContent).toMatch(/--control-glyph-size-default:\s*var\(--control-glyph-size-md\);/);
     expect(cssContent).toMatch(/--control-gap-default:\s*var\(--control-gap-md\);/);
   });
 

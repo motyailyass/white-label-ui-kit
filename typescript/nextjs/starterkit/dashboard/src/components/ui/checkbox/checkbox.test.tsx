@@ -78,6 +78,22 @@ describe('Checkbox Primitive', () => {
     expect(input.indeterminate).toBe(false);
   });
 
+  it('resynchronizes native indeterminate DOM property when rerendered with the same prop value after user click', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<Checkbox indeterminate aria-label="Mixed Prop" />);
+    const input = screen.getByRole('checkbox', { name: /mixed prop/i }) as HTMLInputElement;
+    expect(input.indeterminate).toBe(true);
+
+    // User clicks native checkbox -> native browser behavior sets input.indeterminate = false
+    await user.click(input);
+    expect(input.indeterminate).toBe(false);
+
+    // Rerender component with the same prop indeterminate={true} (e.g. locale change or parent rerender)
+    rerender(<Checkbox indeterminate aria-label="Mixed Prop" />);
+    // Must resynchronize to true on commit
+    expect(input.indeterminate).toBe(true);
+  });
+
   it('forwards ref directly to native HTMLInputElement', () => {
     const ref = createRef<HTMLInputElement>();
     render(<Checkbox ref={ref} aria-label="Ref target" />);

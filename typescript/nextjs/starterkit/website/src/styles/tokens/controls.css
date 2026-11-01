@@ -61,6 +61,14 @@
   --control-icon-size-xl: 1.25rem;
   --control-icon-size-2xl: 1.5rem;
 
+  /* Control glyph dimensions (checkbox and radio indicators) */
+  --control-glyph-size-xs: 0.625rem;
+  --control-glyph-size-sm: 0.75rem;
+  --control-glyph-size-md: 0.75rem;
+  --control-glyph-size-lg: 0.875rem;
+  --control-glyph-size-xl: 1rem;
+  --control-glyph-size-2xl: 1.125rem;
+
   /* Space between label, icon, and loading indicator */
   --control-gap-xs: 0.25rem;
   --control-gap-sm: 0.375rem;
@@ -82,5 +90,6 @@
   --control-font-size-default: var(--control-font-size-xl);
   --control-line-height-default: var(--control-line-height-xl);
   --control-icon-size-default: var(--control-icon-size-xl);
+  --control-glyph-size-default: var(--control-glyph-size-xl);
   --control-gap-default: var(--control-gap-xl);
 }

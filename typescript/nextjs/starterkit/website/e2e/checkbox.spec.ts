@@ -51,6 +51,56 @@ test.describe('Website Checkbox Primitive Real-Browser Verification', () => {
     }
   });
 
+  test('verifies glyph centering, containment, and omitted-versus-explicit default geometry parity', async ({
+    page,
+  }) => {
+    const defaultInput = page.locator('[data-testid="specimen-default"]');
+    const xlInput = page.locator('[data-testid="specimen-size-xl"]');
+
+    const defaultIndicator = defaultInput.locator('+ span');
+    const xlIndicator = xlInput.locator('+ span');
+
+    const defaultSvg = defaultIndicator.locator('svg').first();
+    const xlSvg = xlIndicator.locator('svg').first();
+
+    // 1. Omitted size on website matches explicit xl (20px indicator, 16px glyph)
+    const defaultBox = await defaultIndicator.boundingBox();
+    const xlBox = await xlIndicator.boundingBox();
+    expect(defaultBox).not.toBeNull();
+    expect(xlBox).not.toBeNull();
+    expect(defaultBox!.width).toBeCloseTo(20, 1);
+    expect(defaultBox!.height).toBeCloseTo(20, 1);
+    expect(defaultBox!.width).toBeCloseTo(xlBox!.width, 0.5);
+    expect(defaultBox!.height).toBeCloseTo(xlBox!.height, 0.5);
+
+    const defaultSvgBox = await defaultSvg.boundingBox();
+    const xlSvgBox = await xlSvg.boundingBox();
+    expect(defaultSvgBox).not.toBeNull();
+    expect(xlSvgBox).not.toBeNull();
+    expect(defaultSvgBox!.width).toBeCloseTo(16, 1);
+    expect(defaultSvgBox!.height).toBeCloseTo(16, 1);
+    expect(defaultSvgBox!.width).toBeCloseTo(xlSvgBox!.width, 0.5);
+    expect(defaultSvgBox!.height).toBeCloseTo(xlSvgBox!.height, 0.5);
+
+    // 2. Glyph centering and containment within the visible indicator box
+    expect(defaultSvgBox!.x).toBeGreaterThanOrEqual(defaultBox!.x);
+    expect(defaultSvgBox!.y).toBeGreaterThanOrEqual(defaultBox!.y);
+    expect(defaultSvgBox!.x + defaultSvgBox!.width).toBeLessThanOrEqual(
+      defaultBox!.x + defaultBox!.width + 0.5,
+    );
+    expect(defaultSvgBox!.y + defaultSvgBox!.height).toBeLessThanOrEqual(
+      defaultBox!.y + defaultBox!.height + 0.5,
+    );
+
+    const indCenterX = defaultBox!.x + defaultBox!.width / 2;
+    const svgCenterX = defaultSvgBox!.x + defaultSvgBox!.width / 2;
+    expect(svgCenterX).toBeCloseTo(indCenterX, 0.5);
+
+    const indCenterY = defaultBox!.y + defaultBox!.height / 2;
+    const svgCenterY = defaultSvgBox!.y + defaultSvgBox!.height / 2;
+    expect(svgCenterY).toBeCloseTo(indCenterY, 0.5);
+  });
+
   test('verifies real hitbox edge clicks toggle the native input without pseudo-element tricks', async ({
     page,
   }) => {
@@ -146,6 +196,11 @@ test.describe('Website Checkbox Primitive Real-Browser Verification', () => {
     // 1. Invalid unchecked border is danger
     await expect(invalidIndicator).toHaveCSS('border-color', colors.danger);
 
+    // Hover unchecked invalid: retains surface hover background and danger border (does NOT turn solid red!)
+    await invalidInput.hover();
+    await expect(invalidIndicator).toHaveCSS('border-color', colors.danger);
+    await expect(invalidIndicator).not.toHaveCSS('background-color', colors.danger);
+
     // 2. Click to make invalid + checked: background & border become danger, icon is dangerFg
     await invalidInput.click();
     await expect(invalidInput).toBeChecked();
@@ -161,7 +216,60 @@ test.describe('Website Checkbox Primitive Real-Browser Verification', () => {
     // 4. Disabled checkbox ignores clicks and maintains disabled borders
     await disabledChecked.click({ force: true });
     await expect(disabledChecked).toBeChecked();
-    await expect(disabledChecked.locator('+ span')).toHaveCSS('border-color', colors.borderDisabled);
+
+    const disabledBorder = await disabledChecked
+      .locator('+ span')
+      .evaluate((el) => window.getComputedStyle(el).borderColor);
+    expect(disabledBorder).toBe(colors.borderDisabled);
+  });
+
+  test('verifies forced-colors system highlight and state precedence', async ({ page }) => {
+    await page.emulateMedia({ forcedColors: 'active' });
+
+    const systemColors = await page.evaluate(() => {
+      const el = document.createElement('div');
+      el.style.backgroundColor = 'Highlight';
+      el.style.borderColor = 'CanvasText';
+      el.style.color = 'GrayText';
+      document.body.appendChild(el);
+      const res = {
+        highlight: window.getComputedStyle(el).backgroundColor,
+        canvasText: window.getComputedStyle(el).borderColor,
+        grayText: window.getComputedStyle(el).color,
+      };
+      el.remove();
+      return res;
+    });
+
+    const checkedInput = page.locator('[data-testid="specimen-checked"]');
+    const uncheckedInput = page.locator('[data-testid="specimen-unchecked"]');
+    const invalidInput = page.locator('[data-testid="specimen-invalid"]');
+    const disabledInput = page.locator('[data-testid="specimen-disabled-checked"]');
+
+    const checkedIndicator = checkedInput.locator('+ span');
+    const uncheckedIndicator = uncheckedInput.locator('+ span');
+    const invalidIndicator = invalidInput.locator('+ span');
+    const disabledIndicator = disabledInput.locator('+ span');
+
+    // Checked resting: background is Highlight, border is Highlight
+    await expect(checkedIndicator).toHaveCSS('background-color', systemColors.highlight);
+    await expect(checkedIndicator).toHaveCSS('border-color', systemColors.highlight);
+
+    // Checked hover: system highlight remains (does NOT regress to ordinary primary-hover)
+    await checkedInput.hover();
+    await expect(checkedIndicator).toHaveCSS('background-color', systemColors.highlight);
+    await expect(checkedIndicator).toHaveCSS('border-color', systemColors.highlight);
+
+    // Unchecked resting and hover: CanvasText border
+    await expect(uncheckedIndicator).toHaveCSS('border-color', systemColors.canvasText);
+    await uncheckedInput.hover();
+    await expect(uncheckedIndicator).toHaveCSS('border-color', systemColors.canvasText);
+
+    // Disabled: GrayText border
+    await expect(disabledIndicator).toHaveCSS('border-color', systemColors.grayText);
+
+    // Invalid: Highlight border
+    await expect(invalidIndicator).toHaveCSS('border-color', systemColors.highlight);
   });
 
   test('verifies parent/child tri-state "Select All" dynamic synchronization', async ({
@@ -172,11 +280,10 @@ test.describe('Website Checkbox Primitive Real-Browser Verification', () => {
     const childSms = page.locator('[data-testid="specimen-child-sms"]');
     const childPush = page.locator('[data-testid="specimen-child-push"]');
 
-    // Initial state: email is true, sms is false, push is false -> parent is indeterminate
-    const isIndeterminateInitial = await parent.evaluate(
-      (el) => (el as HTMLInputElement).indeterminate,
-    );
-    expect(isIndeterminateInitial).toBe(true);
+    // Initial state: retrying polling ensures client hydration and layout effects have committed
+    await expect.poll(async () => {
+      return await parent.evaluate((el) => (el as HTMLInputElement).indeterminate);
+    }).toBe(true);
 
     // Minus icon is visible, check icon is hidden
     const iconMinus = parent.locator('..').locator('span > span:nth-child(2)');
@@ -192,10 +299,9 @@ test.describe('Website Checkbox Primitive Real-Browser Verification', () => {
     await expect(childPush).toBeChecked();
     await expect(parent).toBeChecked();
 
-    const isIndeterminateAfterSelectAll = await parent.evaluate(
-      (el) => (el as HTMLInputElement).indeterminate,
-    );
-    expect(isIndeterminateAfterSelectAll).toBe(false);
+    await expect.poll(async () => {
+      return await parent.evaluate((el) => (el as HTMLInputElement).indeterminate);
+    }).toBe(false);
 
     // Now check icon is visible, minus icon is hidden
     await expect(iconMinus).toHaveCSS('opacity', '0');
@@ -205,30 +311,38 @@ test.describe('Website Checkbox Primitive Real-Browser Verification', () => {
     await childEmail.click();
     await expect(childEmail).not.toBeChecked();
 
-    const isIndeterminateAfterOneUnchecked = await parent.evaluate(
-      (el) => (el as HTMLInputElement).indeterminate,
-    );
-    expect(isIndeterminateAfterOneUnchecked).toBe(true);
+    await expect.poll(async () => {
+      return await parent.evaluate((el) => (el as HTMLInputElement).indeterminate);
+    }).toBe(true);
   });
 
-  test('verifies native form submit and form reset lifecycles', async ({ page }) => {
+  test('verifies native form submit, client validation, and form reset lifecycles', async ({
+    page,
+  }) => {
     const marketing = page.locator('[data-testid="form-checkbox-marketing"]');
     const security = page.locator('[data-testid="form-checkbox-security"]');
 
     await expect(marketing).not.toBeChecked();
     await expect(security).toBeChecked();
 
-    // Toggle marketing
+    // 1. Client validation: uncheck both preferences and submit
+    await security.click();
+    await expect(security).not.toBeChecked();
+    await expect(marketing).not.toBeChecked();
+
+    await page.locator('form button[type="submit"]').click();
+    const statusBox = page.locator('div[role="status"]');
+    await expect(statusBox).toContainText(/select at least one/i);
+
+    // 2. Toggle marketing and submit successfully
     await marketing.click();
     await expect(marketing).toBeChecked();
 
-    // Submit form
     await page.locator('form button[type="submit"]').click();
-    const statusBox = page.locator('div[role="status"]');
     await expect(statusBox).toContainText(/saving|pending|processing/i);
     await expect(statusBox).toContainText(/saved|success/i, { timeout: 3000 });
 
-    // Reset form
+    // 3. Reset form
     await page.locator('form button[type="reset"]').click();
     await expect(marketing).not.toBeChecked();
     await expect(security).toBeChecked();

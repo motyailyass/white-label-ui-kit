@@ -10,7 +10,7 @@
   --_checkbox-target: var(--control-height-default, 2.25rem);
   --_checkbox-box-size: var(--control-icon-size-default, 1rem);
   --_checkbox-radius: var(--radius-sm, 0.25rem);
-  --_checkbox-icon-size: calc(var(--_checkbox-box-size) * 0.75);
+  --_checkbox-icon-size: var(--control-glyph-size-default, 0.75rem);
 
   position: relative;
   display: inline-flex;
@@ -28,44 +28,44 @@
 /* Six-Step Density Overrides */
 .root[data-size="xs"] {
   --_checkbox-target: var(--control-height-xs, 1.75rem);
-  --_checkbox-box-size: 0.875rem; /* 14px */
-  --_checkbox-radius: var(--radius-xs, 0.125rem);
-  --_checkbox-icon-size: 0.625rem; /* 10px */
+  --_checkbox-box-size: var(--control-icon-size-xs, 0.875rem);
+  --_checkbox-radius: var(--radius-sm, 0.25rem);
+  --_checkbox-icon-size: var(--control-glyph-size-xs, 0.625rem);
 }
 
 .root[data-size="sm"] {
   --_checkbox-target: var(--control-height-sm, 2rem);
-  --_checkbox-box-size: 1rem; /* 16px */
+  --_checkbox-box-size: var(--control-icon-size-sm, 1rem);
   --_checkbox-radius: var(--radius-sm, 0.25rem);
-  --_checkbox-icon-size: 0.75rem; /* 12px */
+  --_checkbox-icon-size: var(--control-glyph-size-sm, 0.75rem);
 }
 
 .root[data-size="md"] {
   --_checkbox-target: var(--control-height-md, 2.25rem);
-  --_checkbox-box-size: 1rem; /* 16px */
+  --_checkbox-box-size: var(--control-icon-size-md, 1rem);
   --_checkbox-radius: var(--radius-sm, 0.25rem);
-  --_checkbox-icon-size: 0.75rem; /* 12px */
+  --_checkbox-icon-size: var(--control-glyph-size-md, 0.75rem);
 }
 
 .root[data-size="lg"] {
   --_checkbox-target: var(--control-height-lg, 2.5rem);
-  --_checkbox-box-size: 1.125rem; /* 18px */
+  --_checkbox-box-size: var(--control-icon-size-lg, 1.125rem);
   --_checkbox-radius: var(--radius-sm, 0.25rem);
-  --_checkbox-icon-size: 0.875rem; /* 14px */
+  --_checkbox-icon-size: var(--control-glyph-size-lg, 0.875rem);
 }
 
 .root[data-size="xl"] {
   --_checkbox-target: var(--control-height-xl, 3rem);
-  --_checkbox-box-size: 1.25rem; /* 20px */
+  --_checkbox-box-size: var(--control-icon-size-xl, 1.25rem);
   --_checkbox-radius: var(--radius-sm, 0.25rem);
-  --_checkbox-icon-size: 1rem; /* 16px */
+  --_checkbox-icon-size: var(--control-glyph-size-xl, 1rem);
 }
 
 .root[data-size="2xl"] {
   --_checkbox-target: var(--control-height-2xl, 3.5rem);
-  --_checkbox-box-size: 1.5rem; /* 24px */
+  --_checkbox-box-size: var(--control-icon-size-2xl, 1.5rem);
   --_checkbox-radius: var(--radius-sm, 0.25rem);
-  --_checkbox-icon-size: 1.125rem; /* 18px */
+  --_checkbox-icon-size: var(--control-glyph-size-2xl, 1.125rem);
 }
 
 /* Touch-Target Policy (Separate Valid CSS Rules) */
@@ -190,8 +190,15 @@
   color: var(--color-danger-foreground);
 }
 
-/* Specificity Rule: Invalid Hover Must Maintain Danger Styling */
-.input[aria-invalid="true"]:hover:not(:disabled) + .indicator,
+/* Invalid Hover Precedence:
+ * - Unchecked invalid hover retains surface hover and danger border.
+ * - Checked/indeterminate invalid hover retains danger fill, border, and foreground.
+ */
+.input[aria-invalid="true"]:not(:checked):not(:indeterminate):hover:not(:disabled) + .indicator {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-danger);
+}
+
 .input[aria-invalid="true"]:checked:hover:not(:disabled) + .indicator,
 .input[aria-invalid="true"]:indeterminate:hover:not(:disabled) + .indicator {
   background-color: var(--color-danger);
@@ -244,20 +251,48 @@
     color: CanvasText;
   }
 
+  .input:not(:checked):not(:indeterminate) + .indicator,
+  .input:not(:checked):not(:indeterminate):hover + .indicator,
+  .input:not(:checked):not(:indeterminate):hover:not(:disabled) + .indicator {
+    background-color: Canvas;
+    border-color: CanvasText;
+    color: CanvasText;
+  }
+
   .input:checked + .indicator,
-  .input:indeterminate + .indicator {
+  .input:indeterminate + .indicator,
+  .input:checked:hover + .indicator,
+  .input:indeterminate:hover + .indicator,
+  .input:checked:hover:not(:disabled) + .indicator,
+  .input:indeterminate:hover:not(:disabled) + .indicator,
+  .input[aria-invalid="true"]:checked:hover:not(:disabled) + .indicator,
+  .input[aria-invalid="true"]:indeterminate:hover:not(:disabled) + .indicator {
     background-color: Highlight;
     border-color: Highlight;
     color: HighlightText;
   }
 
-  .input:focus-visible + .indicator {
+  .input:focus-visible + .indicator,
+  .input[aria-invalid="true"]:focus-visible + .indicator {
     outline-color: Highlight;
   }
 
-  .input:disabled + .indicator {
+  .input:disabled + .indicator,
+  .input:disabled:hover + .indicator,
+  .input:disabled:checked + .indicator,
+  .input:disabled:indeterminate + .indicator,
+  .input[aria-invalid="true"]:disabled + .indicator,
+  .input[aria-invalid="true"]:disabled:hover + .indicator {
     background-color: Canvas;
     border-color: GrayText;
     color: GrayText;
+  }
+
+  .input[aria-invalid="true"] + .indicator,
+  .input[aria-invalid="true"]:hover + .indicator,
+  .input[aria-invalid="true"]:not(:checked):not(:indeterminate) + .indicator,
+  .input[aria-invalid="true"]:not(:checked):not(:indeterminate):hover + .indicator,
+  .input[aria-invalid="true"]:not(:checked):not(:indeterminate):hover:not(:disabled) + .indicator {
+    border-color: Highlight;
   }
 }

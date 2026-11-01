@@ -71,5 +71,8 @@ describe('Icon component (Hugeicons wrapper)', () => {
 
     const { container: spinnerContainer } = render(<Icon name="spinner" />);
     expect(spinnerContainer.querySelector('svg')).toBeDefined();
+
+    const { container: minusContainer } = render(<Icon name="minus" />);
+    expect(minusContainer.querySelector('svg')).toBeDefined();
   });
 });

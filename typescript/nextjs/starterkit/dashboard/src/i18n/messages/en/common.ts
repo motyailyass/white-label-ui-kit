@@ -317,6 +317,70 @@ export const common = {
     formEventReset: 'Form reset to initial defaults.',
     formStatusPrefix: 'Form Status',
   },
+  checkboxGallery: {
+    title: 'Checkbox Component Gallery',
+    subtitle:
+      'Interactive visual verification and usage specifications for the white-label Checkbox primitive.',
+    metaTitle: 'Checkbox Component Gallery | White Label UI Kit',
+    metaDescription:
+      'Visual demonstration and usage specifications for the Checkbox primitive.',
+    overviewTitle: '1. Overview & Default Sizing',
+    overviewDesc:
+      'Checkbox captures binary choices or mixed indeterminate states. When size is omitted, it consumes local product presets (Dashboard = md / 36px target, Website = xl / 48px target).',
+    sizesTitle: '2. Six-Step Sizing Scale',
+    sizesDesc:
+      'Explicit sizes xs through 2xl decouple the minimum interaction target from the visible indicator box.',
+    statesTitle: '3. Operational States',
+    statesDesc:
+      'Demonstrating unchecked resting, hover border stability, active keyboard focus, checked, indeterminate, and disabled variations.',
+    indeterminateTitle: '4. Parent/Child "Select All" Pattern',
+    indeterminateDesc:
+      'Interactive tri-state parent checkbox dynamically synchronized with child selections.',
+    helpErrorTitle: '5. Help & Error Relationships',
+    helpErrorDesc:
+      'Accessible name and description relationships established via label htmlFor and space-separated aria-describedby.',
+    modesTitle: '6. Controlled vs Uncontrolled',
+    modesDesc:
+      'Controlled mode tracks parent React state; uncontrolled mode relies on native browser DOM state and form reset.',
+    localizationTitle: '7. Localization & RTL Alignment',
+    localizationDesc:
+      'Checkboxes position naturally at inline-start in both LTR and RTL directions with full clearance for Arabic script.',
+    themeTitle: '8. Theme Parity',
+    themeDesc:
+      'Identical dimensions, borders, and contrast ratios preserved between Light and Dark themes with zero dashboard shadows.',
+    formDemoTitle: '9. Local Form Demonstration',
+    formDemoDesc:
+      'Interactive multi-checkbox preference form featuring client validation, submit simulation, and reset cancellation.',
+    usageTitle: '10. Code Usage Examples',
+    usageDesc: 'Short, verified, and copyable snippets for production patterns.',
+    defaultOmittedLabel: 'I accept the terms of service',
+    defaultOmittedDesc: 'Required to complete account creation.',
+    optInLabel: 'Email newsletter and weekly digests',
+    selectAllLabel: 'Select all notifications',
+    childEmail: 'Email alerts',
+    childSms: 'SMS notifications',
+    childPush: 'Push notifications',
+    termsRequiredLabel: 'I agree to the privacy policy',
+    termsRequiredHelp: 'Review our privacy policy prior to registration.',
+    termsRequiredError: 'You must accept the privacy policy to proceed.',
+    disabledUncheckedLabel: 'Disabled Unchecked',
+    disabledCheckedLabel: 'Disabled Checked',
+    disabledIndeterminateLabel: 'Disabled Indeterminate',
+    arabicSpecimenLabel: 'أوافق على استلام التحديثات والإشعارات بالبريد الإلكتروني',
+    arabicSpecimenHelp: 'نموذج باللغة العربية مع دعم التشكيل واتجاه RTL',
+    mixedTechLabel: 'Enable tracking for ID: TRK-984210-X',
+    formTitle: 'Notification Preferences',
+    formMarketingLabel: 'Marketing & partner promotions',
+    formSecurityLabel: 'Critical security alerts (Recommended)',
+    formSubmitButton: 'Save Preferences',
+    formResetButton: 'Reset Form',
+    formStatusPrefix: 'Form Status',
+    formEventNone: 'No submission yet.',
+    formEventPending: 'Saving preferences (simulated)...',
+    formEventSuccess: 'Preferences saved successfully! (Local demo; no server persistence)',
+    formEventReset: 'Form reset to initial defaults.',
+    formDisclaimer: 'Local form demonstration; no backend persistence.',
+  },
 } as const;
 
 export type CommonMessages = MessageShape<typeof common>;

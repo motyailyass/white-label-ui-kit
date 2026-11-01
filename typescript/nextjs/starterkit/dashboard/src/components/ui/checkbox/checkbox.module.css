@@ -1,0 +1,263 @@
+/*
+ * Checkbox Component Stylesheet
+ *
+ * Core UI Primitive: 100% logical CSS properties, zero shadows in dashboard.
+ * Decouples minimum interaction target from visible indicator box.
+ */
+
+.root {
+  /* Default density aliases */
+  --_checkbox-target: var(--control-height-default, 2.25rem);
+  --_checkbox-box-size: var(--control-icon-size-default, 1rem);
+  --_checkbox-radius: var(--radius-sm, 0.25rem);
+  --_checkbox-icon-size: calc(var(--_checkbox-box-size) * 0.75);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--_checkbox-target);
+  block-size: var(--_checkbox-target);
+  min-inline-size: var(--_checkbox-target);
+  min-block-size: var(--_checkbox-target);
+  vertical-align: middle;
+  flex: none;
+  box-sizing: border-box;
+}
+
+/* Six-Step Density Overrides */
+.root[data-size="xs"] {
+  --_checkbox-target: var(--control-height-xs, 1.75rem);
+  --_checkbox-box-size: 0.875rem; /* 14px */
+  --_checkbox-radius: var(--radius-xs, 0.125rem);
+  --_checkbox-icon-size: 0.625rem; /* 10px */
+}
+
+.root[data-size="sm"] {
+  --_checkbox-target: var(--control-height-sm, 2rem);
+  --_checkbox-box-size: 1rem; /* 16px */
+  --_checkbox-radius: var(--radius-sm, 0.25rem);
+  --_checkbox-icon-size: 0.75rem; /* 12px */
+}
+
+.root[data-size="md"] {
+  --_checkbox-target: var(--control-height-md, 2.25rem);
+  --_checkbox-box-size: 1rem; /* 16px */
+  --_checkbox-radius: var(--radius-sm, 0.25rem);
+  --_checkbox-icon-size: 0.75rem; /* 12px */
+}
+
+.root[data-size="lg"] {
+  --_checkbox-target: var(--control-height-lg, 2.5rem);
+  --_checkbox-box-size: 1.125rem; /* 18px */
+  --_checkbox-radius: var(--radius-sm, 0.25rem);
+  --_checkbox-icon-size: 0.875rem; /* 14px */
+}
+
+.root[data-size="xl"] {
+  --_checkbox-target: var(--control-height-xl, 3rem);
+  --_checkbox-box-size: 1.25rem; /* 20px */
+  --_checkbox-radius: var(--radius-sm, 0.25rem);
+  --_checkbox-icon-size: 1rem; /* 16px */
+}
+
+.root[data-size="2xl"] {
+  --_checkbox-target: var(--control-height-2xl, 3.5rem);
+  --_checkbox-box-size: 1.5rem; /* 24px */
+  --_checkbox-radius: var(--radius-sm, 0.25rem);
+  --_checkbox-icon-size: 1.125rem; /* 18px */
+}
+
+/* Touch-Target Policy (Separate Valid CSS Rules) */
+.root[data-touch-target="comfortable"] {
+  min-inline-size: max(var(--_checkbox-target), var(--control-touch-target-min, 3rem));
+  min-block-size: max(var(--_checkbox-target), var(--control-touch-target-min, 3rem));
+  inline-size: max(var(--_checkbox-target), var(--control-touch-target-min, 3rem));
+  block-size: max(var(--_checkbox-target), var(--control-touch-target-min, 3rem));
+}
+
+@media (any-pointer: coarse) {
+  .root[data-touch-target="auto"] {
+    min-inline-size: max(var(--_checkbox-target), var(--control-touch-target-min, 3rem));
+    min-block-size: max(var(--_checkbox-target), var(--control-touch-target-min, 3rem));
+    inline-size: max(var(--_checkbox-target), var(--control-touch-target-min, 3rem));
+    block-size: max(var(--_checkbox-target), var(--control-touch-target-min, 3rem));
+  }
+}
+
+/* Native Input (Occupies 100% of the Real Hitbox Target) */
+.input {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+/* Visible Indicator Box */
+.indicator {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--_checkbox-box-size);
+  block-size: var(--_checkbox-box-size);
+  border-radius: var(--_checkbox-radius);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-control);
+  box-sizing: border-box;
+  pointer-events: none;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    border-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+/* Hover State (Stable Border Principle) */
+.input:hover:not(:disabled) + .indicator {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-control); /* Stable border! */
+}
+
+/* Focus-Visible Outline (Immediate 0ms Ring) */
+.input:focus-visible + .indicator {
+  outline: var(--focus-ring-width, 2px) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+
+/* Checked & Indeterminate Active State */
+.input:checked + .indicator,
+.input:indeterminate + .indicator {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.input:checked:hover:not(:disabled) + .indicator,
+.input:indeterminate:hover:not(:disabled) + .indicator {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+/* Icon Glyph Containers */
+.iconCheck,
+.iconMinus {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  block-size: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-duration-fast) var(--motion-ease-enter);
+}
+
+.iconCheck svg,
+.iconMinus svg {
+  inline-size: var(--_checkbox-icon-size);
+  block-size: var(--_checkbox-icon-size);
+}
+
+/* Native Checked Display */
+.input:checked + .indicator .iconCheck {
+  opacity: 1;
+}
+
+/* Native Indeterminate Display (Cascade Priority Over Checked) */
+.input:indeterminate + .indicator .iconCheck {
+  opacity: 0;
+}
+
+.input:indeterminate + .indicator .iconMinus {
+  opacity: 1;
+}
+
+/* Invalid State (aria-invalid="true") */
+.input[aria-invalid="true"]:not(:checked):not(:indeterminate) + .indicator {
+  border-color: var(--color-danger);
+}
+
+.input[aria-invalid="true"]:checked + .indicator,
+.input[aria-invalid="true"]:indeterminate + .indicator {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+  color: var(--color-danger-foreground);
+}
+
+/* Specificity Rule: Invalid Hover Must Maintain Danger Styling */
+.input[aria-invalid="true"]:hover:not(:disabled) + .indicator,
+.input[aria-invalid="true"]:checked:hover:not(:disabled) + .indicator,
+.input[aria-invalid="true"]:indeterminate:hover:not(:disabled) + .indicator {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+  color: var(--color-danger-foreground);
+}
+
+.input[aria-invalid="true"]:focus-visible + .indicator {
+  outline-color: var(--color-danger);
+}
+
+/* Disabled State (Highest Specificity Precedence) */
+.input:disabled {
+  cursor: not-allowed;
+}
+
+.input:disabled + .indicator,
+.input:disabled:hover + .indicator,
+.input[aria-invalid="true"]:disabled + .indicator,
+.input[aria-invalid="true"]:disabled:hover + .indicator {
+  background-color: var(--color-control-disabled-bg);
+  border-color: var(--color-border-disabled);
+  color: var(--color-text-disabled);
+  outline: none;
+}
+
+/* Disabled Checked/Indeterminate Maintains Mark with Disabled Foreground */
+.input:disabled:checked + .indicator,
+.input:disabled:indeterminate + .indicator {
+  background-color: var(--color-control-disabled-bg);
+  border-color: var(--color-border-disabled);
+  color: var(--color-text-disabled);
+}
+
+/* Reduced Motion Guarantee */
+@media (prefers-reduced-motion: reduce) {
+  .indicator,
+  .iconCheck,
+  .iconMinus {
+    transition: none;
+  }
+}
+
+/* Forced Colors Mode (High Contrast Accessibility) */
+@media (forced-colors: active) {
+  .indicator {
+    forced-color-adjust: none;
+    background-color: Canvas;
+    border-color: CanvasText;
+    color: CanvasText;
+  }
+
+  .input:checked + .indicator,
+  .input:indeterminate + .indicator {
+    background-color: Highlight;
+    border-color: Highlight;
+    color: HighlightText;
+  }
+
+  .input:focus-visible + .indicator {
+    outline-color: Highlight;
+  }
+
+  .input:disabled + .indicator {
+    background-color: Canvas;
+    border-color: GrayText;
+    color: GrayText;
+  }
+}

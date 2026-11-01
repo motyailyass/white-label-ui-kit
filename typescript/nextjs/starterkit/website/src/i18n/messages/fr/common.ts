@@ -320,4 +320,68 @@ export const common = {
     formEventReset: 'Formulaire réinitialisé aux valeurs initiales.',
     formStatusPrefix: 'Statut du formulaire',
   },
+  checkboxGallery: {
+    title: 'Galerie du composant Checkbox',
+    subtitle:
+      'Vérification visuelle interactive et spécifications d’utilisation du composant Checkbox en marque blanche.',
+    metaTitle: 'Galerie du composant Checkbox | White Label UI Kit',
+    metaDescription:
+      'Démonstration visuelle et spécifications d’utilisation du composant Checkbox.',
+    overviewTitle: '1. Aperçu et tailles par défaut',
+    overviewDesc:
+      'Checkbox capture des choix binaires ou des états indéterminés mixtes. Lorsque la taille est omise, le composant utilise les préréglages locaux du produit (Dashboard = md / 36px, Website = xl / 48px).',
+    sizesTitle: '2. Échelle de dimensionnement en 6 étapes',
+    sizesDesc:
+      'Les tailles explicites de xs à 2xl découplent la cible d’interaction minimale de la boîte visuelle.',
+    statesTitle: '3. États opérationnels',
+    statesDesc:
+      'Démonstration des états non coché au repos, stabilité de bordure au survol, focus clavier actif, coché, indéterminé et désactivé.',
+    indeterminateTitle: '4. Modèle parent/enfant "Tout sélectionner"',
+    indeterminateDesc:
+      'Case à cocher parente à trois états synchronisée dynamiquement avec les sélections enfants.',
+    helpErrorTitle: '5. Relations d’aide et d’erreur',
+    helpErrorDesc:
+      'Association du nom accessible et de la description via label htmlFor et aria-describedby.',
+    modesTitle: '6. Contrôlé vs Non-contrôlé',
+    modesDesc:
+      'Le mode contrôlé suit l’état React parent ; le mode non-contrôlé repose sur l’état natif du DOM et la réinitialisation du formulaire.',
+    localizationTitle: '7. Localisation et alignement RTL',
+    localizationDesc:
+      'Les cases à cocher se positionnent naturellement au début en LTR et RTL avec un dégagement suffisant pour la graphie arabe.',
+    themeTitle: '8. Parité des thèmes',
+    themeDesc:
+      'Dimensions, bordures et contrastes identiques préservés entre les thèmes Clair et Sombre, sans aucune ombre sur le tableau de bord.',
+    formDemoTitle: '9. Démonstration de formulaire local',
+    formDemoDesc:
+      'Formulaire interactif de préférences multi-cases avec validation client, simulation d’envoi et annulation de réinitialisation.',
+    usageTitle: '10. Exemples de code',
+    usageDesc: 'Extraits courts, vérifiés et prêts à copier pour les intégrations de production.',
+    defaultOmittedLabel: 'J’accepte les conditions d’utilisation',
+    defaultOmittedDesc: 'Requis pour finaliser la création du compte.',
+    optInLabel: 'Lettre d’information et résumés hebdomadaires',
+    selectAllLabel: 'Sélectionner toutes les notifications',
+    childEmail: 'Alertes par email',
+    childSms: 'Notifications SMS',
+    childPush: 'Notifications Push',
+    termsRequiredLabel: 'J’accepte la politique de confidentialité',
+    termsRequiredHelp: 'Consultez notre politique de confidentialité avant de vous inscrire.',
+    termsRequiredError: 'Vous devez accepter la politique de confidentialité pour continuer.',
+    disabledUncheckedLabel: 'Désactivé non coché',
+    disabledCheckedLabel: 'Désactivé coché',
+    disabledIndeterminateLabel: 'Désactivé indéterminé',
+    arabicSpecimenLabel: 'أوافق على استلام التحديثات والإشعارات بالبريد الإلكتروني',
+    arabicSpecimenHelp: 'نموذج باللغة العربية مع دعم التشكيل واتجاه RTL',
+    mixedTechLabel: 'Activer le suivi pour l’identifiant : TRK-984210-X',
+    formTitle: 'Préférences de notification',
+    formMarketingLabel: 'Promotions marketing et partenaires',
+    formSecurityLabel: 'Alertes de sécurité critiques (Recommandé)',
+    formSubmitButton: 'Enregistrer les préférences',
+    formResetButton: 'Réinitialiser le formulaire',
+    formStatusPrefix: 'Statut du formulaire',
+    formEventNone: 'Aucune soumission pour le moment.',
+    formEventPending: 'Enregistrement des préférences (simulé)...',
+    formEventSuccess: 'Préférences enregistrées avec succès ! (Démo locale ; pas de persistance)',
+    formEventReset: 'Formulaire réinitialisé aux valeurs initiales.',
+    formDisclaimer: 'Démonstration de formulaire local ; aucune persistance sur le serveur.',
+  },
 } satisfies CommonMessages;

@@ -5,4 +5,5 @@ export * from './error-state';
 export * from './input-gallery';
 export * from './language-switcher';
 export * from './not-found-state';
+export * from './textarea-gallery';
 export * from './theme-switcher';

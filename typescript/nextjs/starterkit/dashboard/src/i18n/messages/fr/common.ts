@@ -199,4 +199,95 @@ export const common = {
     formEventReset: 'Formulaire réinitialisé aux valeurs par défaut.',
     formStatusPrefix: 'Statut du formulaire',
   },
+  textareaGallery: {
+    title: 'Galerie du composant Textarea',
+    subtitle:
+      'Vérification visuelle interactive et spécifications d’utilisation multiligne du composant Textarea.',
+    metaTitle: 'Galerie du composant Textarea | White Label UI Kit',
+    metaDescription:
+      'Démonstration visuelle, spécifications d’édition multiligne et vérification de densité du composant Textarea.',
+    overviewTitle: '1. Aperçu',
+    overviewDesc:
+      'Textarea capture les données textuelles multilignes. Il est conçu comme un élément natif pur compatible avec tous les thèmes, directions et préréglages du kit.',
+    densityTitle: '2. Échelle de densité en 6 étapes',
+    densityDesc:
+      'Les densités explicites de xs à 2xl garantissent une typographie, un rembourrage et un rayon de bordure identiques sur tous les starters pour un même nombre de lignes.',
+    defaultsTitle: '3. Préréglages propres aux produits',
+    defaultsDesc:
+      'Lorsque la propriété size est omise, le champ applique le préréglage du produit (Dashboard = md, Website = xl) avec 4 lignes par défaut.',
+    rowsTitle: '4. Nombres de lignes natifs',
+    rowsDesc:
+      'La hauteur initiale découle nativement de rows (ex. 2, 4, 6 lignes) plutôt que d’une hauteur fixe rigide.',
+    statesTitle: '5. États opérationnels',
+    statesDesc:
+      'Démonstration des états de repos, survol, focus, désactivé (poignée de redimensionnement masquée) et lecture seule (redimensionnement vertical préservé).',
+    helpErrorTitle: '6. Relations d’aide et d’erreur',
+    helpErrorDesc:
+      'Nom accessible et descriptions associés via label htmlFor et aria-describedby séparés par des espaces.',
+    modesTitle: '7. Contrôlé vs non-contrôlé',
+    modesDesc:
+      'Le mode contrôlé permet la gestion d’état par le parent ; le mode non-contrôlé repose sur l’état natif du DOM et la réinitialisation.',
+    multilineTitle: '8. Édition multiligne et retour à la ligne',
+    multilineDesc:
+      'Préserve les sauts de ligne, les retours automatiques, la sélection multiligne et le presse-papiers sans soumission automatique sur Entrée.',
+    resizeTitle: '9. Redimensionnement manuel',
+    resizeDesc:
+      'Le redimensionnement vertical est activé par défaut pour permettre l’agrandissement tout en protégeant les limites du conteneur.',
+    localizationTitle: '10. Localisation et dégagement arabe',
+    localizationDesc:
+      'Les zones de texte s’adaptent en anglais, français et arabe avec un interligne généreux pour les diacritiques (Tachkeel).',
+    directionTitle: '11. Direction du texte et données mixtes',
+    directionDesc:
+      'Les zones de texte héritent de la direction du document par défaut, avec une gestion LTR délibérée pour le code et les traces de pile.',
+    themeTitle: '12. Parité des thèmes',
+    themeDesc:
+      'Dimensions, bordures et contrastes identiques préservés entre les thèmes clair et sombre.',
+    formDemoTitle: '13. Démonstration de formulaire local',
+    formDemoDesc:
+      'Formulaire interactif combinant Textarea, Button, texte d’aide, validation client et réinitialisation. Démonstration locale ; aucune persistance serveur.',
+    usageTitle: '14. Exemples d’utilisation du code',
+    usageDesc:
+      'Exemples courts, vérifiés et prêts à l’emploi pour les modèles de production.',
+    defaultOmittedLabel: 'Taille par défaut (Propriété omise, 4 lignes)',
+    defaultOmittedPlaceholder: 'Entrez une description ou des notes...',
+    descriptionLabel: 'Description du projet',
+    descriptionPlaceholder: 'Décrivez l’étendue de votre projet...',
+    descriptionHelp: 'Fournissez jusqu’à 500 caractères décrivant les livrables du projet.',
+    descriptionError: 'La description du projet est requise et ne peut pas être vide.',
+    rowsTwoLabel: 'Zone compacte (rows={2})',
+    rowsFourLabel: 'Zone standard (rows={4})',
+    rowsSixLabel: 'Zone étendue (rows={6})',
+    restingLabel: 'État de repos',
+    disabledLabel: 'État désactivé (Redimensionnement désactivé)',
+    disabledValue:
+      'Contenu désactivé (non modifiable, non soumis, poignée de redimensionnement supprimée)',
+    readOnlyLabel: 'État lecture seule (Redimensionnement préservé)',
+    readOnlyValue:
+      'Contenu en lecture seule (sélectionnable, soumis, redimensionnement vertical préservé pour les journaux longs)',
+    requiredLabel: 'Champ obligatoire',
+    requiredPlaceholder: 'Notes obligatoires...',
+    invalidLabel: 'État invalide (aria-invalid="true")',
+    invalidPlaceholder: 'Commentaire invalide...',
+    controlledLabel: 'État contrôlé',
+    uncontrolledLabel: 'État non-contrôlé',
+    uncontrolledDefaultValue:
+      'Contenu multiligne initial non-contrôlé\navec un saut de ligne.',
+    arabicFeedbackLabel: 'Commentaires détaillés (Spécimen en graphie arabe)',
+    arabicFeedbackPlaceholder:
+      'أدخل ملاحظاتك وتفاصيل الطلب هنا مع علامات التشكيل...',
+    mixedCodeLabel: 'Configuration JSON (LTR explicite)',
+    formDisclaimer: 'Démonstration de formulaire local ; aucune persistance sur le serveur.',
+    formMessageLabel: 'Message de retour',
+    formMessagePlaceholder: 'Saisissez votre message de retour ici...',
+    formMessageHelp: 'Entrez des commentaires détaillés pour l’équipe produit.',
+    formMessageError: 'Le message de retour est requis et ne peut pas être vide.',
+    formSubmitButton: 'Envoyer le message',
+    formResetButton: 'Réinitialiser le formulaire',
+    formEventNone: 'Aucune soumission pour le moment.',
+    formEventPending: 'Envoi des commentaires en cours (simulé)...',
+    formEventSuccess:
+      'Commentaires envoyés avec succès ! (Démo locale ; pas de persistance serveur)',
+    formEventReset: 'Formulaire réinitialisé aux valeurs initiales.',
+    formStatusPrefix: 'Statut du formulaire',
+  },
 } satisfies CommonMessages;

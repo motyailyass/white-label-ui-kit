@@ -197,6 +197,97 @@ export const common = {
     formEventReset: 'Form reset to initial defaults.',
     formStatusPrefix: 'Form Status',
   },
+  textareaGallery: {
+    title: 'Textarea Component Gallery',
+    subtitle:
+      'Interactive visual verification and multiline usage specifications for the white-label Textarea primitive.',
+    metaTitle: 'Textarea Component Gallery | White Label UI Kit',
+    metaDescription:
+      'Visual demonstration, multiline editing specifications, and density verification for the Textarea primitive.',
+    overviewTitle: '1. Overview',
+    overviewDesc:
+      'Textarea captures multi-line textual data from the user. It is built as a pure native textarea element supporting all design kit themes, directions, and product presets.',
+    densityTitle: '2. Six-Step Density Scale',
+    densityDesc:
+      'Explicit density steps xs through 2xl provide identical typography, padding, and border radius across all starters with matching rows.',
+    defaultsTitle: '3. Product-Owned Defaults',
+    defaultsDesc:
+      'When the size prop is omitted, the textarea resolves to the local product preset (Dashboard = md, Website = xl) with default rows={4}.',
+    rowsTitle: '4. Native Row Counts',
+    rowsDesc:
+      'Initial height derives natively from rows (e.g. 2, 4, 6 rows) rather than a rigid single-line fixed height.',
+    statesTitle: '5. Operational States',
+    statesDesc:
+      'Demonstrating resting, hover, focus, disabled (resize handle disabled), and read-only (vertical resize preserved) states.',
+    helpErrorTitle: '6. Help & Error Relationships',
+    helpErrorDesc:
+      'Accessible name and description relationships established via label htmlFor and space-separated aria-describedby.',
+    modesTitle: '7. Controlled vs Uncontrolled',
+    modesDesc:
+      'Controlled mode enables parent state tracking; uncontrolled mode relies on native browser DOM state and form reset.',
+    multilineTitle: '8. Multiline Editing & Wrapping',
+    multilineDesc:
+      'Preserves newlines, line wrapping, multiline selection, and clipboard lifecycles without automatic form submission on Enter.',
+    resizeTitle: '9. Manual Resizing',
+    resizeDesc:
+      'Vertical manual resizing is enabled by default to allow content expansion while strictly protecting container and grid inline boundaries.',
+    localizationTitle: '10. Localization & Arabic Clearance',
+    localizationDesc:
+      'Textareas adapt seamlessly across English, French, and Arabic layouts with generous line-height clearance for Tashkeel diacritics.',
+    directionTitle: '11. Text Direction & Mixed Data',
+    directionDesc:
+      'Textareas inherit document direction by default, with deliberate LTR direction handling for multiline code and stack traces.',
+    themeTitle: '12. Theme Parity',
+    themeDesc:
+      'Identical dimensions, borders, and contrast ratios preserved between Light and Dark themes.',
+    formDemoTitle: '13. Local Form Demonstration',
+    formDemoDesc:
+      'Interactive feedback form combining Textarea, Button, help text, client validation, and form reset. Local form demonstration; no backend persistence.',
+    usageTitle: '14. Code Usage Examples',
+    usageDesc:
+      'Short, verified, and copyable snippets for production patterns.',
+    defaultOmittedLabel: 'Product Default (Omitted Size, 4 Rows)',
+    defaultOmittedPlaceholder: 'Enter description or notes...',
+    descriptionLabel: 'Project Description',
+    descriptionPlaceholder: 'Describe your project scope...',
+    descriptionHelp: 'Provide up to 500 characters describing project deliverables.',
+    descriptionError: 'Project description is required and cannot be empty.',
+    rowsTwoLabel: 'Compact Textarea (rows={2})',
+    rowsFourLabel: 'Standard Textarea (rows={4})',
+    rowsSixLabel: 'Expanded Textarea (rows={6})',
+    restingLabel: 'Resting State',
+    disabledLabel: 'Disabled State (Resize Disabled)',
+    disabledValue:
+      'Disabled content (non-editable, non-submitting, resize handle suppressed)',
+    readOnlyLabel: 'Read-Only State (Resize Preserved)',
+    readOnlyValue:
+      'Read-only content (selectable, submitting, vertical manual resize preserved for reading long logs)',
+    requiredLabel: 'Required Field',
+    requiredPlaceholder: 'Required notes...',
+    invalidLabel: 'Invalid State (aria-invalid="true")',
+    invalidPlaceholder: 'Invalid feedback...',
+    controlledLabel: 'Controlled State',
+    uncontrolledLabel: 'Uncontrolled State',
+    uncontrolledDefaultValue:
+      'Initial uncontrolled multiline\ncontent with a newline.',
+    arabicFeedbackLabel: 'Detailed Feedback (Arabic Script Specimen)',
+    arabicFeedbackPlaceholder:
+      'أدخل ملاحظاتك وتفاصيل الطلب هنا مع علامات التشكيل...',
+    mixedCodeLabel: 'JSON Configuration (Explicit LTR)',
+    formDisclaimer: 'Local form demonstration; no backend persistence.',
+    formMessageLabel: 'Feedback Message',
+    formMessagePlaceholder: 'Type your feedback message here...',
+    formMessageHelp: 'Enter detailed feedback for the product team.',
+    formMessageError: 'Feedback message is required and cannot be empty.',
+    formSubmitButton: 'Send Feedback',
+    formResetButton: 'Reset Form',
+    formEventNone: 'No submission yet.',
+    formEventPending: 'Submitting feedback (simulated)...',
+    formEventSuccess:
+      'Feedback submitted successfully! (Local demo; no server persistence)',
+    formEventReset: 'Form reset to initial defaults.',
+    formStatusPrefix: 'Form Status',
+  },
 } as const;
 
 export type CommonMessages = MessageShape<typeof common>;

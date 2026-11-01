@@ -1,0 +1,134 @@
+.textarea {
+  --_control-font-size: var(--control-font-size-default);
+  --_control-line-height: var(--control-line-height-default);
+  --_control-padding-inline: var(--control-padding-default);
+  --_control-padding-block: var(--control-padding-block-default);
+
+  box-sizing: border-box;
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+  padding-inline: var(--_control-padding-inline);
+  padding-block: var(--_control-padding-block);
+  border-radius: var(--radius-control);
+  background-color: var(--color-control-bg);
+  border: 1px solid var(--color-border-control);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--_control-font-size);
+  line-height: var(--_control-line-height);
+  font-weight: var(--font-weight-regular);
+  text-align: start;
+  overflow-y: auto;
+  resize: vertical;
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+/* Explicit Six-Step Density Bindings */
+.textarea[data-size="xs"] {
+  --_control-font-size: var(--control-font-size-xs);
+  --_control-line-height: var(--control-line-height-xs);
+  --_control-padding-inline: var(--control-padding-xs);
+  --_control-padding-block: var(--control-padding-block-xs);
+}
+
+.textarea[data-size="sm"] {
+  --_control-font-size: var(--control-font-size-sm);
+  --_control-line-height: var(--control-line-height-sm);
+  --_control-padding-inline: var(--control-padding-sm);
+  --_control-padding-block: var(--control-padding-block-sm);
+}
+
+.textarea[data-size="md"] {
+  --_control-font-size: var(--control-font-size-md);
+  --_control-line-height: var(--control-line-height-md);
+  --_control-padding-inline: var(--control-padding-md);
+  --_control-padding-block: var(--control-padding-block-md);
+}
+
+.textarea[data-size="lg"] {
+  --_control-font-size: var(--control-font-size-lg);
+  --_control-line-height: var(--control-line-height-lg);
+  --_control-padding-inline: var(--control-padding-lg);
+  --_control-padding-block: var(--control-padding-block-lg);
+}
+
+.textarea[data-size="xl"] {
+  --_control-font-size: var(--control-font-size-xl);
+  --_control-line-height: var(--control-line-height-xl);
+  --_control-padding-inline: var(--control-padding-xl);
+  --_control-padding-block: var(--control-padding-block-xl);
+}
+
+.textarea[data-size="2xl"] {
+  --_control-font-size: var(--control-font-size-2xl);
+  --_control-line-height: var(--control-line-height-2xl);
+  --_control-padding-inline: var(--control-padding-2xl);
+  --_control-padding-block: var(--control-padding-block-2xl);
+}
+
+/* Touch-Target Policy */
+.textarea[data-touch-target="comfortable"] {
+  min-inline-size: var(--control-touch-target-min);
+  min-block-size: var(--control-touch-target-min);
+}
+
+@media (any-pointer: coarse), (pointer: coarse) {
+  .textarea[data-touch-target="auto"] {
+    min-inline-size: var(--control-touch-target-min);
+    min-block-size: var(--control-touch-target-min);
+  }
+}
+
+/* Focus State (Immediate 0ms Visible Outline) */
+.textarea:focus-visible,
+.textarea:focus {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+  border-color: var(--color-border-focus);
+  transition: none;
+}
+
+/* Invalid State: driven strictly by aria-invalid="true" */
+.textarea[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.textarea[aria-invalid="true"]:focus-visible,
+.textarea[aria-invalid="true"]:focus {
+  border-color: var(--color-danger);
+  outline-color: var(--color-danger);
+  transition: none;
+}
+
+/* Disabled State: Non-editable and resize handle disabled */
+.textarea:disabled {
+  background-color: var(--color-control-disabled-bg);
+  border-color: var(--color-border-disabled);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  resize: none !important;
+}
+
+/* Read-Only State: Non-editable, but vertical resize preserved for reading long content */
+.textarea:read-only:not(:disabled) {
+  background-color: var(--color-surface-subtle);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-secondary);
+}
+
+/* Placeholder Styling */
+.textarea::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+/* Reduced Motion Guarantee */
+@media (prefers-reduced-motion: reduce) {
+  .textarea {
+    transition: none;
+  }
+}

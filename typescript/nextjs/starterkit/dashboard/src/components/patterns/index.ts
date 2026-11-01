@@ -3,6 +3,7 @@ export * from './button-gallery';
 export * from './dashboard-header';
 export * from './error-boundary';
 export * from './error-state';
+export * from './input-gallery';
 export * from './language-switcher';
 export * from './not-found-state';
 export * from './theme-switcher';

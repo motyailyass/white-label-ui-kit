@@ -103,4 +103,100 @@ export const common = {
     xsAuto: 'XS تلقائي (يتوسع على شاشات اللمس)',
     xsComfortable: 'XS مريح (يفرض ٤٨ بكسل)',
   },
+  inputGallery: {
+    title: 'معرض مكوّن الإدخال (Input)',
+    subtitle:
+      'التحقق البصري التفاعلي والمواصفات الفنية لحقل الإدخال النصي القياسي.',
+    metaTitle: 'معرض مكوّن الإدخال | White Label UI Kit',
+    metaDescription:
+      'عرض توضيحي ومواصفات فنية لمكوّن إدخال النصوص الأساسي في حزمة واجهة المستخدم.',
+    overviewTitle: '١. نظرة عامة',
+    overviewDesc:
+      'يلتقط حقل الإدخال البيانات النصية أحادية السطر. تم بناؤه كمكوّن أصلي خالص يدعم كل السمات والاتجاهات والإعدادات الافتراضية.',
+    sizesTitle: '٢. مقياس الأحجام ذو الخطوات الست',
+    sizesDesc:
+      'الأحجام الصريحة من xs إلى 2xl توفر ارتفاعات متطابقة عبر جميع التطبيقات.',
+    defaultsTitle: '٣. الإعدادات الافتراضية للمنتج',
+    defaultsDesc:
+      'عند حذف خاصية الحجم، يستخدم الحقل الإعداد الافتراضي للمنتج (لوحة التحكم = md / ٣٦ بكسل، الموقع = xl / ٤٨ بكسل).',
+    typesTitle: '٤. أنواع النصوص الأصلية',
+    typesDesc:
+      'الأنواع النصية الأصلية للمتصفح تحافظ على تخطيط لوحة المفاتيح والتمويه الأصلي لكلمات المرور.',
+    statesTitle: '٥. الحالات التشغيلية',
+    statesDesc:
+      'استعراض حالات السكون، والتحويم، والتركيز، والتعطيل، والقراءة فقط، والإلزام، والخطأ.',
+    helpErrorTitle: '٦. علاقات المساعدة والخطأ',
+    helpErrorDesc:
+      'تسمية الحقل والنصوص التوضيحية مرتبطة عبر htmlFor و aria-describedby مفصولة بمسافات.',
+    modesTitle: '٧. وضع التحكم مقابل غير المتحكم به',
+    modesDesc:
+      'الوضع المتحكم به يدير الحالة عبر المكوّن الأب، والوضع غير المتحكم به يعتمد على إدارة المتصفح وإعادة الضبط.',
+    localizationTitle: '٨. التوطين والنصوص الطويلة',
+    localizationDesc:
+      'يتكيف الحقل بسلاسة مع الإنجليزية والفرنسية والعربية مع تسميات وتوضيحات مترجمة.',
+    directionTitle: '٩. اتجاه النص والبيانات المختلطة',
+    directionDesc:
+      'يرث الحقل اتجاه المستند تلقائياً، مع دعم الاتجاه الصريح للرموز التقنية والأرقام.',
+    themeTitle: '١٠. توافق المظهر والسمات',
+    themeDesc:
+      'أبعاد وحدود ونسب تباين متطابقة بين الوضعين الفاتح والداكن.',
+    responsiveTitle: '١١. استجابة أهداف اللمس',
+    responsiveDesc:
+      'تطبق الحقول على شاشات اللمس هدف تفاعل لا يقل عن ٤٨×٤٨ بكسل.',
+    formDemoTitle: '١٢. عرض توضيحي لنموذج حقيقي',
+    formDemoDesc:
+      'نموذج تفاعلي يجمع بين حقل الإدخال والزر مع التحقق وإعادة الضبط. عرض محلي؛ لا يوجد حفظ في الخادم.',
+    usageTitle: '١٣. أمثلة برمجية للاستخدام',
+    usageDesc:
+      'مقتطفات برمجية دقيقة وقابلة للنسخ للاستخدام في الإنتاج.',
+    defaultOmittedLabel: 'الافتراضي للمنتج (حجم غير محدد)',
+    defaultOmittedPlaceholder: 'أدخل النص...',
+    usernameLabel: 'اسم المستخدم',
+    usernamePlaceholder: 'مثال: alex_doe',
+    usernameHelp: 'يجب أن يكون بين ٣ و ٢٠ حرفاً.',
+    usernameError: 'اسم المستخدم مطلوب ولا يمكن تركه فارغاً.',
+    emailLabel: 'البريد الإلكتروني',
+    emailPlaceholder: 'alex@example.com',
+    telLabel: 'رقم الهاتف',
+    telPlaceholder: '+1 (555) 019-2834',
+    urlLabel: 'رابط الموقع',
+    urlPlaceholder: 'https://example.com',
+    searchLabel: 'عبارة البحث',
+    searchPlaceholder: 'بحث في المستندات...',
+    passwordLabel: 'كلمة المرور',
+    passwordPlaceholder: '••••••••••••',
+    restingLabel: 'حالة السكون',
+    disabledLabel: 'حالة التعطيل',
+    disabledValue: 'قيمة معطلة (غير قابلة للتعديل أو الإرسال)',
+    readOnlyLabel: 'حالة القراءة فقط',
+    readOnlyValue: 'قيمة للقراءة فقط (قابلة للتحديد والإرسال)',
+    requiredLabel: 'حقل إلزامي',
+    requiredPlaceholder: 'قيمة مطلوبة...',
+    invalidLabel: 'حالة الخطأ (aria-invalid="true")',
+    invalidPlaceholder: 'إدخال غير صالح...',
+    controlledLabel: 'الحالة المتحكم بها',
+    uncontrolledLabel: 'الحالة غير المتحكم بها',
+    uncontrolledDefaultValue: 'القيمة الافتراضية الأولية',
+    arabicNameLabel: 'الاسم الكامل',
+    arabicNamePlaceholder: 'أدخل الاسم بالكامل...',
+    mixedCodeLabel: 'رمز التتبع (LTR في واجهة عربية)',
+    mixedCodePlaceholder: 'TRK-984210-X',
+    formDisclaimer:
+      'عرض تجريبي محلي للنموذج؛ لا يتم الحفظ في الخادم.',
+    formFullNameLabel: 'الاسم الكامل',
+    formFullNamePlaceholder: 'Jane Doe',
+    formEmailLabel: 'البريد الإلكتروني',
+    formEmailPlaceholder: 'jane.doe@company.com',
+    formEmailHelp:
+      'سنستخدم هذا العنوان لإرسال إشعارات الحساب.',
+    formEmailError: 'يرجى إدخال عنوان بريد إلكتروني صحيح.',
+    formSubmitButton: 'إنشاء الحساب',
+    formResetButton: 'إعادة ضبط النموذج',
+    formEventNone: 'لم يتم الإرسال بعد.',
+    formEventPending: 'جارٍ معالجة التسجيل (تجريبي)...',
+    formEventSuccess:
+      'تم إرسال النموذج بنجاح! (عرض تجريبي؛ لا يوجد حفظ في الخادم)',
+    formEventReset: 'تمت إعادة ضبط النموذج إلى قيمه الافتراضية.',
+    formStatusPrefix: 'حالة النموذج',
+  },
 } satisfies CommonMessages;

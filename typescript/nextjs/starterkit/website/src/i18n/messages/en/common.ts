@@ -103,6 +103,100 @@ export const common = {
     xsAuto: 'XS Auto (Expands on coarse pointer)',
     xsComfortable: 'XS Comfortable (Enforces 48px)',
   },
+  inputGallery: {
+    title: 'Input Component Gallery',
+    subtitle:
+      'Interactive visual verification and usage specifications for the white-label Input primitive.',
+    metaTitle: 'Input Component Gallery | White Label UI Kit',
+    metaDescription:
+      'Visual demonstration and usage specifications for the single-line text Input primitive.',
+    overviewTitle: '1. Overview',
+    overviewDesc:
+      'Input captures single-line textual data from the user. It is built as a pure native input element supporting all design kit themes, directions, and product presets.',
+    sizesTitle: '2. Six-Step Sizing Scale',
+    sizesDesc:
+      'Explicit sizes xs through 2xl provide identical minimum block sizes across all starters.',
+    defaultsTitle: '3. Product-Owned Defaults',
+    defaultsDesc:
+      'When the size prop is omitted, the input resolves to the local product preset (Dashboard = md / 36px, Website = xl / 48px).',
+    typesTitle: '4. Native Text-Like Types',
+    typesDesc:
+      'Browser-native text-like types preserve standard keyboard layouts, input modes, and native masking.',
+    statesTitle: '5. Operational States',
+    statesDesc:
+      'Demonstrating resting, hover, focus, disabled, read-only, required, and invalid states.',
+    helpErrorTitle: '6. Help & Error Relationships',
+    helpErrorDesc:
+      'Accessible name and description relationships established via label htmlFor and space-separated aria-describedby.',
+    modesTitle: '7. Controlled vs Uncontrolled',
+    modesDesc:
+      'Controlled mode allows parent state management; uncontrolled mode relies on native browser DOM state and form reset.',
+    localizationTitle: '8. Localization & Long Labels',
+    localizationDesc:
+      'Inputs adapt seamlessly across English, French, and Arabic layouts with localized field descriptions.',
+    directionTitle: '9. Text Direction & Mixed Data',
+    directionDesc:
+      'Inputs inherit document direction by default, with deliberate direction handling for mixed-script and technical tokens.',
+    themeTitle: '10. Theme Parity',
+    themeDesc:
+      'Identical dimensions, borders, and contrast ratios preserved between Light and Dark themes.',
+    responsiveTitle: '11. Responsive & Touch Targets',
+    responsiveDesc:
+      'Touch-oriented controls enforce a 48×48px minimum interaction target on coarse pointer devices.',
+    formDemoTitle: '12. Real Form Demonstration',
+    formDemoDesc:
+      'Interactive form combining Input, Button, help text, client validation, and form reset. Local form demonstration; no backend persistence.',
+    usageTitle: '13. Code Usage Examples',
+    usageDesc:
+      'Short, verified, and copyable snippets for production patterns.',
+    defaultOmittedLabel: 'Product Default (Omitted Size)',
+    defaultOmittedPlaceholder: 'Enter text...',
+    usernameLabel: 'Username',
+    usernamePlaceholder: 'e.g. alex_doe',
+    usernameHelp: 'Must be between 3 and 20 characters.',
+    usernameError: 'Username is required and cannot be empty.',
+    emailLabel: 'Email Address',
+    emailPlaceholder: 'alex@example.com',
+    telLabel: 'Phone Number',
+    telPlaceholder: '+1 (555) 019-2834',
+    urlLabel: 'Website URL',
+    urlPlaceholder: 'https://example.com',
+    searchLabel: 'Search Query',
+    searchPlaceholder: 'Search documents...',
+    passwordLabel: 'Password',
+    passwordPlaceholder: '••••••••••••',
+    restingLabel: 'Resting State',
+    disabledLabel: 'Disabled State',
+    disabledValue: 'Disabled value (non-editable, non-submitting)',
+    readOnlyLabel: 'Read-Only State',
+    readOnlyValue: 'Read-only value (selectable, submitting)',
+    requiredLabel: 'Required Field',
+    requiredPlaceholder: 'Required value...',
+    invalidLabel: 'Invalid State (aria-invalid="true")',
+    invalidPlaceholder: 'Invalid input...',
+    controlledLabel: 'Controlled State',
+    uncontrolledLabel: 'Uncontrolled State',
+    uncontrolledDefaultValue: 'Initial default value',
+    arabicNameLabel: 'الاسم الكامل',
+    arabicNamePlaceholder: 'أدخل الاسم بالكامل...',
+    mixedCodeLabel: 'Tracking Code (LTR in RTL)',
+    mixedCodePlaceholder: 'TRK-984210-X',
+    formDisclaimer: 'Local form demonstration; no backend persistence.',
+    formFullNameLabel: 'Full Name',
+    formFullNamePlaceholder: 'Jane Doe',
+    formEmailLabel: 'Email Address',
+    formEmailPlaceholder: 'jane.doe@company.com',
+    formEmailHelp: 'We will use this address for account notifications.',
+    formEmailError: 'Please enter a valid email address.',
+    formSubmitButton: 'Create Account',
+    formResetButton: 'Reset Form',
+    formEventNone: 'No submission yet.',
+    formEventPending: 'Processing registration (simulated)...',
+    formEventSuccess:
+      'Form submitted successfully! (Local demo; no server persistence)',
+    formEventReset: 'Form reset to initial defaults.',
+    formStatusPrefix: 'Form Status',
+  },
 } as const;
 
 export type CommonMessages = MessageShape<typeof common>;

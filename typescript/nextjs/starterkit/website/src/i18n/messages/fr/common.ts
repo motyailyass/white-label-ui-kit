@@ -103,4 +103,100 @@ export const common = {
     xsAuto: 'XS Auto (S’étend sur pointeur tactile)',
     xsComfortable: 'XS Confortable (Garantit 48px)',
   },
+  inputGallery: {
+    title: 'Galerie du composant Input',
+    subtitle:
+      'Vérification visuelle interactive et spécifications d’utilisation du composant Input en marque blanche.',
+    metaTitle: 'Galerie du composant Input | White Label UI Kit',
+    metaDescription:
+      'Démonstration visuelle et spécifications d’utilisation du composant de saisie de texte à ligne unique.',
+    overviewTitle: '1. Aperçu',
+    overviewDesc:
+      'Input capture les données textuelles à ligne unique. Il est conçu comme un élément natif pur compatible avec tous les thèmes, directions et préréglages du kit.',
+    sizesTitle: '2. Échelle de dimensionnement en 6 étapes',
+    sizesDesc:
+      'Les tailles explicites de xs à 2xl garantissent des dimensions minimales identiques sur tous les starters.',
+    defaultsTitle: '3. Préréglages propres aux produits',
+    defaultsDesc:
+      'Lorsque la propriété size est omise, le champ applique le préréglage du produit (Dashboard = md / 36px, Website = xl / 48px).',
+    typesTitle: '4. Types textuels natifs',
+    typesDesc:
+      'Les types textuels natifs du navigateur préservent les dispositions de clavier, les modes de saisie et le masquage natif.',
+    statesTitle: '5. États opérationnels',
+    statesDesc:
+      'Démonstration des états de repos, survol, focus, désactivé, lecture seule, requis et invalide.',
+    helpErrorTitle: '6. Relations d’aide et d’erreur',
+    helpErrorDesc:
+      'Nom accessible et descriptions associés via htmlFor et aria-describedby séparés par des espaces.',
+    modesTitle: '7. Contrôlé vs non-contrôlé',
+    modesDesc:
+      'Le mode contrôlé permet la gestion d’état par le parent ; le mode non-contrôlé repose sur l’état natif du DOM et la réinitialisation.',
+    localizationTitle: '8. Localisation et étiquettes longues',
+    localizationDesc:
+      'Les champs s’adaptent en anglais, français et arabe avec des descriptions de champs localisées.',
+    directionTitle: '9. Direction du texte et données mixtes',
+    directionDesc:
+      'Les champs héritent de la direction du document par défaut, avec une gestion délibérée pour les jetons techniques.',
+    themeTitle: '10. Parité des thèmes',
+    themeDesc:
+      'Dimensions, bordures et contrastes identiques préservés entre les thèmes clair et sombre.',
+    responsiveTitle: '11. Cibles tactiles et réactivité',
+    responsiveDesc:
+      'Les appareils tactiles appliquent une cible minimale d’interaction de 48×48px.',
+    formDemoTitle: '12. Démonstration de formulaire réel',
+    formDemoDesc:
+      'Formulaire interactif combinant Input, Button, texte d’aide, validation client et réinitialisation. Démonstration locale ; aucune persistance serveur.',
+    usageTitle: '13. Exemples d’utilisation du code',
+    usageDesc:
+      'Exemples courts, vérifiés et prêts à l’emploi pour les modèles de production.',
+    defaultOmittedLabel: 'Taille par défaut (Propriété omise)',
+    defaultOmittedPlaceholder: 'Entrez du texte...',
+    usernameLabel: "Nom d'utilisateur",
+    usernamePlaceholder: 'ex. alex_doe',
+    usernameHelp: 'Doit comporter entre 3 et 20 caractères.',
+    usernameError: "Le nom d'utilisateur est requis et ne peut pas être vide.",
+    emailLabel: 'Adresse email',
+    emailPlaceholder: 'alex@example.com',
+    telLabel: 'Numéro de téléphone',
+    telPlaceholder: '+1 (555) 019-2834',
+    urlLabel: 'URL du site web',
+    urlPlaceholder: 'https://example.com',
+    searchLabel: 'Requête de recherche',
+    searchPlaceholder: 'Rechercher des documents...',
+    passwordLabel: 'Mot de passe',
+    passwordPlaceholder: '••••••••••••',
+    restingLabel: 'État de repos',
+    disabledLabel: 'État désactivé',
+    disabledValue: 'Valeur désactivée (non modifiable, non soumise)',
+    readOnlyLabel: 'État de lecture seule',
+    readOnlyValue: 'Valeur en lecture seule (sélectionnable, soumise)',
+    requiredLabel: 'Champ obligatoire',
+    requiredPlaceholder: 'Valeur obligatoire...',
+    invalidLabel: 'État invalide (aria-invalid="true")',
+    invalidPlaceholder: 'Saisie invalide...',
+    controlledLabel: 'État contrôlé',
+    uncontrolledLabel: 'État non-contrôlé',
+    uncontrolledDefaultValue: 'Valeur par défaut initiale',
+    arabicNameLabel: 'الاسم الكامل',
+    arabicNamePlaceholder: 'أدخل الاسم بالكامل...',
+    mixedCodeLabel: 'Code de suivi (LTR en RTL)',
+    mixedCodePlaceholder: 'TRK-984210-X',
+    formDisclaimer:
+      'Démonstration locale de formulaire ; aucune persistance serveur.',
+    formFullNameLabel: 'Nom complet',
+    formFullNamePlaceholder: 'Jane Doe',
+    formEmailLabel: 'Adresse email',
+    formEmailPlaceholder: 'jane.doe@company.com',
+    formEmailHelp:
+      'Nous utiliserons cette adresse pour les notifications de compte.',
+    formEmailError: 'Veuillez saisir une adresse email valide.',
+    formSubmitButton: 'Créer un compte',
+    formResetButton: 'Réinitialiser le formulaire',
+    formEventNone: 'Aucune soumission pour le moment.',
+    formEventPending: 'Traitement de l’inscription (simulé)...',
+    formEventSuccess:
+      'Formulaire soumis avec succès ! (Démo locale ; aucune persistance serveur)',
+    formEventReset: 'Formulaire réinitialisé aux valeurs par défaut.',
+    formStatusPrefix: 'Statut du formulaire',
+  },
 } satisfies CommonMessages;

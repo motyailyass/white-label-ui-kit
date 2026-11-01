@@ -1,0 +1,161 @@
+/**
+ * White Label UI Kit — Input Component Gallery Stylesheet
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.galleryContainer {
+  inline-size: 100%;
+  max-inline-size: 64rem;
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+  padding-block: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  box-sizing: border-box;
+}
+
+.galleryHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border-block-end: 1px solid var(--color-border-subtle);
+  padding-block-end: var(--space-6);
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.title {
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-3xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.controlsRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.sectionDesc {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  inline-size: 100%;
+  max-inline-size: 24rem;
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.helpText {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.errorText {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-xs);
+  color: var(--color-danger);
+  margin: 0;
+}
+
+.gridTwo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.rowFlex {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-inline-size: 28rem;
+  inline-size: 100%;
+}
+
+.buttonRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-start: var(--space-2);
+}
+
+.statusMessage {
+  padding: var(--space-3);
+  border-radius: var(--radius-control);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+}
+
+.codeBox {
+  margin: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  overflow-x: auto;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-xs);
+  color: var(--color-text-primary);
+  direction: ltr;
+  text-align: start;
+}

@@ -1,0 +1,145 @@
+/**
+ * White Label UI Kit — Input Primitive Stylesheet
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.input {
+  /* Scoped private fallback bindings to product presets */
+  --_control-height: var(--control-height-default);
+  --_control-padding-inline: var(--control-padding-default);
+  --_control-padding-block: var(--control-padding-block-default);
+  --_control-font-size: var(--control-font-size-default);
+  --_control-line-height: var(--control-line-height-default);
+
+  position: relative;
+  box-sizing: border-box;
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: var(--_control-height);
+  padding-inline: var(--_control-padding-inline);
+  padding-block: var(--_control-padding-block);
+  border-radius: var(--radius-control);
+  background-color: var(--color-control-bg);
+  border: 1px solid var(--color-border-control);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--_control-font-size);
+  line-height: var(--_control-line-height);
+  font-weight: var(--font-weight-regular);
+  text-align: start;
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+/* Explicit Six-Step Scale Bindings */
+.input[data-size="xs"] {
+  --_control-height: var(--control-height-xs);
+  --_control-padding-inline: var(--control-padding-xs);
+  --_control-padding-block: var(--control-padding-block-xs);
+  --_control-font-size: var(--control-font-size-xs);
+  --_control-line-height: var(--control-line-height-xs);
+}
+
+.input[data-size="sm"] {
+  --_control-height: var(--control-height-sm);
+  --_control-padding-inline: var(--control-padding-sm);
+  --_control-padding-block: var(--control-padding-block-sm);
+  --_control-font-size: var(--control-font-size-sm);
+  --_control-line-height: var(--control-line-height-sm);
+}
+
+.input[data-size="md"] {
+  --_control-height: var(--control-height-md);
+  --_control-padding-inline: var(--control-padding-md);
+  --_control-padding-block: var(--control-padding-block-md);
+  --_control-font-size: var(--control-font-size-md);
+  --_control-line-height: var(--control-line-height-md);
+}
+
+.input[data-size="lg"] {
+  --_control-height: var(--control-height-lg);
+  --_control-padding-inline: var(--control-padding-lg);
+  --_control-padding-block: var(--control-padding-block-lg);
+  --_control-font-size: var(--control-font-size-lg);
+  --_control-line-height: var(--control-line-height-lg);
+}
+
+.input[data-size="xl"] {
+  --_control-height: var(--control-height-xl);
+  --_control-padding-inline: var(--control-padding-xl);
+  --_control-padding-block: var(--control-padding-block-xl);
+  --_control-font-size: var(--control-font-size-xl);
+  --_control-line-height: var(--control-line-height-xl);
+}
+
+.input[data-size="2xl"] {
+  --_control-height: var(--control-height-2xl);
+  --_control-padding-inline: var(--control-padding-2xl);
+  --_control-padding-block: var(--control-padding-block-2xl);
+  --_control-font-size: var(--control-font-size-2xl);
+  --_control-line-height: var(--control-line-height-2xl);
+}
+
+/* Hover State */
+.input:hover:not(:disabled):not(:read-only) {
+  border-color: var(--color-border-strong);
+}
+
+/* Focus State (Immediate 0ms Visible Outline) */
+.input:focus-visible,
+.input:focus {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+  border-color: var(--color-border-focus);
+}
+
+/* Invalid State: both ARIA attribute and native constraint invalid */
+.input[aria-invalid="true"],
+.input:invalid {
+  border-color: var(--color-danger);
+}
+
+.input[aria-invalid="true"]:focus-visible,
+.input[aria-invalid="true"]:focus,
+.input:invalid:focus-visible,
+.input:invalid:focus {
+  border-color: var(--color-danger);
+  outline-color: var(--color-danger);
+}
+
+/* Disabled State */
+.input:disabled {
+  background-color: var(--color-control-disabled-bg);
+  border-color: var(--color-border-disabled);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+/* Read-Only State */
+.input:read-only:not(:disabled) {
+  background-color: var(--color-surface-subtle);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-secondary);
+}
+
+/* Placeholder */
+.input::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+/* Touch-Target Policy (48×48px Minimum Target) */
+.input[data-touch-target="comfortable"] {
+  min-block-size: max(var(--_control-height), var(--control-touch-target-min));
+  min-inline-size: var(--control-touch-target-min);
+}
+
+@media (any-pointer: coarse) {
+  .input[data-touch-target="auto"] {
+    min-block-size: max(var(--_control-height), var(--control-touch-target-min));
+    min-inline-size: var(--control-touch-target-min);
+  }
+}

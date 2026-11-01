@@ -24,6 +24,55 @@ export const common = {
   filter: 'Filter',
   exportReport: 'Export Report',
   loading: 'Loading...',
+  demo: 'Demo',
+  submit: 'Submit',
+  reset: 'Reset',
+  refresh: 'Refresh',
+  delete: 'Delete',
+  edit: 'Edit',
+  exportSuccess: 'Report exported successfully (demo)',
+  simulatedSuccess: 'Simulated operation completed successfully',
+  simulatedPending: 'Processing request...',
+  gallery: {
+    title: 'Button Component Gallery',
+    subtitle:
+      'Interactive visual verification and usage specifications for the white-label Button primitive.',
+    overviewTitle: '1. Overview',
+    overviewDesc:
+      'Button triggers a local action (save, submit, cancel, open dialog, or execute a command). It is built with zero third-party UI runtimes and supports all kit themes, directions, and product presets.',
+    variantsTitle: '2. Semantic Variants',
+    variantsDesc:
+      'Five semantic variants communicate visual hierarchy without baking in brand hex colors.',
+    sizesTitle: '3. Six-Step Sizing Scale',
+    sizesDesc:
+      'Explicit sizes xs through 2xl provide identical minimum block sizes across all starters.',
+    defaultsTitle: '4. Product-Owned Defaults',
+    defaultsDesc:
+      'When the size prop is omitted, the button resolves to the local product preset (Dashboard = md / 36px, Website = xl / 48px).',
+    statesTitle: '5. Interaction States',
+    statesDesc:
+      'Demonstrating resting, disabled, loading, and high-contrast visible focus rings.',
+    iconsTitle: '6. Icon Slots & Icon-Only Actions',
+    iconsDesc:
+      'Logical startIcon and endIcon slots mirror automatically in RTL. Icon-only actions require a localized aria-label.',
+    loadingTitle: '7. Loading & Zero Layout Shift',
+    loadingDesc:
+      'Interactive demonstration of the same button before, during, and after an asynchronous pending state. Dimensions remain rock-solid.',
+    formTitle: '8. Form Submission & Safety',
+    formDesc:
+      'Buttons default to type="button" to prevent accidental submission. Explicit type="submit" triggers the form onSubmit handler.',
+    localizationTitle: '9. Localization & Long Labels',
+    localizationDesc:
+      'Buttons adapt seamlessly across English, French, and Arabic RTL layouts, accommodating long text without clipping.',
+    themeTitle: '10. Theme & Brand Adaptation',
+    themeDesc:
+      'Tokens switch dynamically between Light and Dark themes while maintaining identical dimensions and contrast.',
+    responsiveTitle: '11. Responsive & Touch Targets',
+    responsiveDesc:
+      'Coarse pointer devices automatically expand compact buttons to a minimum 48×48px interaction target.',
+    usageTitle: '12. Code Usage Examples',
+    usageDesc: 'Short, verified, and copyable snippets for production patterns.',
+  },
 } as const;
 
 export type CommonMessages = MessageShape<typeof common>;

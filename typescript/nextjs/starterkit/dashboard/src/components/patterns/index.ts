@@ -1,4 +1,5 @@
 export * from './app-toolbar';
+export * from './button-gallery';
 export * from './dashboard-header';
 export * from './error-boundary';
 export * from './error-state';

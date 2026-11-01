@@ -9,6 +9,23 @@ import styles from './dashboard.module.css';
 
 export function OverviewContent() {
   const { t, formatNumber, formatCurrency, formatPercent, formatDate } = useI18n();
+  const [isExporting, setIsExporting] = React.useState(false);
+  const [exportNotice, setExportNotice] = React.useState<string | null>(null);
+
+  const handleExport = React.useCallback(async () => {
+    if (isExporting) return;
+    setIsExporting(true);
+    setExportNotice(null);
+    try {
+      // Representative application-controlled asynchronous action
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      setExportNotice(t('common.exportSuccess'));
+    } catch {
+      setExportNotice(t('common.retry'));
+    } finally {
+      setIsExporting(false);
+    }
+  }, [isExporting, t]);
 
   return (
     <div className={styles.pageContainer}>
@@ -21,9 +38,20 @@ export function OverviewContent() {
           <Button variant="secondary" size="sm">
             {t('common.filter')}
           </Button>
-          <Button variant="primary">{t('common.exportReport')}</Button>
+          <Button
+            variant="primary"
+            loading={isExporting}
+            onClick={handleExport}
+          >
+            {t('common.exportReport')}
+          </Button>
         </div>
       </div>
+      {exportNotice && (
+        <div role="status" aria-live="polite" className={styles.exportNotice}>
+          {exportNotice}
+        </div>
+      )}
 
       <div className={styles.metricsGrid}>
         {demoMetrics.map((metric) => (

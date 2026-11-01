@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React, { createRef } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { Button } from './button';
@@ -13,7 +14,8 @@ describe('Button Primitive', () => {
     expect(button.getAttribute('type')).toBe('button');
   });
 
-  it('defaults to type="button" so clicking inside a form does not accidentally submit', () => {
+  it('defaults to type="button" so clicking inside a form does not accidentally submit', async () => {
+    const user = userEvent.setup();
     const handleSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
     render(
       <form onSubmit={handleSubmit}>
@@ -22,10 +24,10 @@ describe('Button Primitive', () => {
       </form>,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /non-submit action/i }));
+    await user.click(screen.getByRole('button', { name: /non-submit action/i }));
     expect(handleSubmit).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: /explicit submit/i }));
+    await user.click(screen.getByRole('button', { name: /explicit submit/i }));
     expect(handleSubmit).toHaveBeenCalledTimes(1);
   });
 
@@ -77,24 +79,93 @@ describe('Button Primitive', () => {
     expect(button.getAttribute('data-loading')).toBe('true');
     expect(button.getAttribute('aria-busy')).toBe('true');
     expect(button.getAttribute('aria-label')).toBe('Save');
-    // content is preserved in layout flow for zero layout shift, spinner is displayed
     expect(screen.getByTestId('start-icon')).toBeTruthy();
     expect(screen.getByTestId('end-icon')).toBeTruthy();
     expect(button.querySelector('[aria-hidden="true"]')).toBeTruthy();
   });
 
-  it('preserves accessible name when loading without explicit aria-label', () => {
-    render(<Button loading>Submit Form</Button>);
-    const button = screen.getByRole('button', { name: 'Submit Form' });
-    expect(button.getAttribute('aria-label')).toBe('Submit Form');
-    expect(button.getAttribute('aria-busy')).toBe('true');
-  });
-
-  it('handles click events when enabled', () => {
+  it('handles click events when enabled via userEvent', async () => {
+    const user = userEvent.setup();
     const handleClick = vi.fn();
     render(<Button onClick={handleClick}>Submit</Button>);
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    await user.click(screen.getByRole('button', { name: /submit/i }));
     expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles keyboard activation via Enter and Space keys', async () => {
+    const user = userEvent.setup();
+    const handleClick = vi.fn();
+    render(<Button onClick={handleClick}>Keyboard Action</Button>);
+    const button = screen.getByRole('button', { name: /keyboard action/i });
+
+    button.focus();
+    expect(document.activeElement).toBe(button);
+
+    await user.keyboard('{Enter}');
+    expect(handleClick).toHaveBeenCalledTimes(1);
+
+    await user.keyboard(' ');
+    expect(handleClick).toHaveBeenCalledTimes(2);
+  });
+
+  it('suppresses click and keyboard activation when disabled or loading', async () => {
+    const user = userEvent.setup();
+    const handleClick = vi.fn();
+    const { rerender } = render(
+      <Button disabled onClick={handleClick}>
+        Disabled Action
+      </Button>,
+    );
+
+    const disabledBtn = screen.getByRole('button', { name: /disabled action/i });
+    await user.click(disabledBtn);
+    expect(handleClick).not.toHaveBeenCalled();
+
+    rerender(
+      <Button loading onClick={handleClick}>
+        Loading Action
+      </Button>,
+    );
+
+    const loadingBtn = screen.getByRole('button', { name: /loading action/i });
+    await user.click(loadingBtn);
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+
+  it('preserves accessible naming across plain text, nested elements, aria-label, and aria-labelledby', () => {
+    const { unmount } = render(
+      <Button>
+        <span>Save</span> <strong>Draft</strong>
+      </Button>,
+    );
+    expect(screen.getByRole('button', { name: 'Save Draft' })).toBeTruthy();
+    unmount();
+
+    render(<Button aria-label="Close dialog">X</Button>);
+    expect(screen.getByRole('button', { name: 'Close dialog' })).toBeTruthy();
+
+    render(
+      <div>
+        <span id="heading-label">Delete Item</span>
+        <Button aria-labelledby="heading-label" variant="danger">
+          Trash
+        </Button>
+      </div>,
+    );
+    expect(screen.getByRole('button', { name: 'Delete Item' })).toBeTruthy();
+  });
+
+  it('forwards aria-pressed, aria-expanded, and aria-controls attributes', () => {
+    render(
+      <Button aria-pressed={true} aria-expanded={false} aria-controls="disclosure-panel">
+        Toggle View
+      </Button>,
+    );
+
+    const button = screen.getByRole('button', { name: /toggle view/i });
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    expect(button.getAttribute('aria-expanded')).toBe('false');
+    expect(button.getAttribute('aria-controls')).toBe('disclosure-panel');
   });
 
   it('forwards ref to the native button element', () => {

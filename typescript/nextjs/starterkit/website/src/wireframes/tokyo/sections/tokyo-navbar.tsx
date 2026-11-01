@@ -4,6 +4,7 @@ import type React from 'react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Icon } from '@/components/icons';
 import { AppToolbar } from '@/components/patterns';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/cn';
 import { useI18n } from '@/providers';
 import styles from './tokyo-navbar.module.css';
@@ -119,18 +120,20 @@ export function TokyoNavbar({
             {resolvedCtaLabel}
           </CtaLink>
 
-          <button
+          <Button
             ref={triggerRef}
             type="button"
+            variant="ghost"
+            size="md"
+            touchTarget="auto"
             className={styles.mobileTrigger}
-            data-touch-target="auto"
             onClick={() => setMobileOpen((prev) => !prev)}
             aria-label={resolvedToggleLabel}
             aria-expanded={mobileOpen}
             aria-controls={menuId}
           >
             <Icon name={mobileOpen ? 'close' : 'menu'} size={18} />
-          </button>
+          </Button>
         </div>
       </nav>
 

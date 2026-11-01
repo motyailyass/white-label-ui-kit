@@ -3,6 +3,7 @@
 import type React from 'react';
 import { useId, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/cn';
 import { useI18n } from '@/providers';
 import styles from './tokyo-cta.module.css';
@@ -63,7 +64,7 @@ export function TokyoCta({
             <label htmlFor={emailId} className="sr-only">
               {resolvedEmailLabel}
             </label>
-            <input
+            <Input
               id={emailId}
               type="email"
               value={email}

@@ -13,6 +13,7 @@ import {
   SidebarPrimary,
   SidebarSecondary,
 } from '@/components/shell';
+import { Button } from '@/components/ui/button';
 import type {
   BaseLayoutProps,
   LayoutLogo,
@@ -71,9 +72,11 @@ export function DualSidebarLayout({
 
           <div className={styles.railList}>
             {railItems.map((item) => (
-              <button
+              <Button
                 key={item.id}
                 type="button"
+                variant={item.isActive ? 'primary' : 'subtle'}
+                size="lg"
                 onClick={item.onClick}
                 aria-label={item.label}
                 aria-current={item.isActive ? 'page' : undefined}
@@ -82,7 +85,7 @@ export function DualSidebarLayout({
                 className={styles.railButton}
               >
                 {item.icon || item.initials || item.label.slice(0, 2).toUpperCase()}
-              </button>
+              </Button>
             ))}
           </div>
 

@@ -59,5 +59,17 @@ describe('Icon component (Hugeicons wrapper)', () => {
 
     const { container: chartContainer } = render(<Icon name="chart" />);
     expect(chartContainer.querySelector('svg')).toBeDefined();
+
+    const { container: search01Container } = render(<Icon name="search-01" />);
+    expect(search01Container.querySelector('svg')).toBeDefined();
+
+    const { container: loaderContainer } = render(<Icon name="loader" />);
+    expect(loaderContainer.querySelector('svg')).toBeDefined();
+
+    const { container: loaderCircleContainer } = render(<Icon name="loader-circle" />);
+    expect(loaderCircleContainer.querySelector('svg')).toBeDefined();
+
+    const { container: spinnerContainer } = render(<Icon name="spinner" />);
+    expect(spinnerContainer.querySelector('svg')).toBeDefined();
   });
 });

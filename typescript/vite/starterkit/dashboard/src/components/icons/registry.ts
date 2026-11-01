@@ -21,6 +21,7 @@ import {
   Home01Icon,
   LayoutAlignLeftIcon,
   LayoutAlignRightIcon,
+  LoaderCircleIcon,
   Logout05Icon,
   Mail01Icon,
   Menu01Icon,
@@ -50,6 +51,7 @@ export const iconRegistry = {
   add: icon(Add01Icon),
   plus: icon(Add01Icon),
   search: icon(Search01Icon),
+  'search-01': icon(Search01Icon),
   close: icon(Cancel01Icon),
   cancel: icon(Cancel01Icon),
   menu: icon(Menu01Icon),
@@ -57,6 +59,10 @@ export const iconRegistry = {
   feature: icon(CheckmarkSquare02Icon),
   download: icon(Download01Icon),
   upload: icon(Upload01Icon),
+  loader: icon(LoaderCircleIcon),
+  'loader-circle': icon(LoaderCircleIcon),
+  loading: icon(LoaderCircleIcon),
+  spinner: icon(LoaderCircleIcon),
 
   // navigation & directional (directional glyphs flip under dir="rtl")
   'arrow-left': directional(ArrowLeft01Icon),

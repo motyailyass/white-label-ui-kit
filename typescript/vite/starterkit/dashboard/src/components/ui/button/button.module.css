@@ -132,7 +132,6 @@
 
 .button[data-variant="secondary"]:hover:not(:disabled) {
   background-color: var(--color-surface-hover);
-  border-color: var(--color-border-strong);
 }
 
 .button[data-variant="secondary"]:active:not(:disabled) {

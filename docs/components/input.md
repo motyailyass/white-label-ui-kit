@@ -202,9 +202,9 @@ The kit enforces a **48×48px minimum interaction target** (`--control-touch-tar
 | State | Semantic Trigger | Background Token | Border Token | Text Token | Outline / Focus Indicator |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Resting** | Editable input | `--color-control-bg` | `--color-border-control` | `--color-text-primary` | None |
-| **Hover** | `:hover:not(:disabled):not(:read-only)` | `--color-control-bg` | `--color-border-strong` | `--color-text-primary` | None |
+| **Hover** | `:hover:not(:disabled):not(:read-only)` | `--color-control-bg` | `--color-border-control` (stable; no independent hover border emphasis) | `--color-text-primary` | None |
 | **Focus** | `:focus-visible` / `:focus` | `--color-control-bg` | `--color-border-focus` | `--color-text-primary` | `var(--focus-ring-width) solid var(--color-border-focus)` with `var(--focus-ring-offset)` (0ms immediate) |
-| **Invalid** | `aria-invalid="true"` | `--color-control-bg` | `--color-danger` | `--color-text-primary` | Focus ring transitions to `--color-danger` |
+| **Invalid** | `aria-invalid="true"` | `--color-control-bg` | `--color-danger` (stable across hover) | `--color-text-primary` | Focus ring and border transition to `--color-danger` |
 | **Disabled** | `disabled` / `aria-disabled="true"` | `--color-control-disabled-bg` | `--color-border-disabled` | `--color-text-disabled` | None (`cursor: not-allowed`) |
 | **Read-Only** | `readOnly` / `aria-readonly="true"` | `--color-surface-subtle` | `--color-border-subtle` | `--color-text-secondary` | Focusable; subtle focus indicator |
 
@@ -390,17 +390,13 @@ function FieldExample() {
   --_control-line-height: var(--control-line-height-2xl);
 }
 
-/* Hover State (only when neither disabled, read-only, nor invalid) */
-.input:hover:not(:disabled):not(:read-only):not([aria-invalid='true']) {
-  border-color: var(--color-border-strong);
-}
-
 /* Focus State (Immediate 0ms Visible Outline) */
 .input:focus-visible,
 .input:focus {
   outline: var(--focus-ring-width) solid var(--color-border-focus);
   outline-offset: var(--focus-ring-offset);
   border-color: var(--color-border-focus);
+  transition: none;
 }
 
 /* Invalid State: driven strictly by aria-invalid="true" */
@@ -408,14 +404,11 @@ function FieldExample() {
   border-color: var(--color-danger);
 }
 
-.input[aria-invalid='true']:hover:not(:disabled):not(:read-only) {
-  border-color: var(--color-danger);
-}
-
 .input[aria-invalid='true']:focus-visible,
 .input[aria-invalid='true']:focus {
   border-color: var(--color-danger);
   outline-color: var(--color-danger);
+  transition: none;
 }
 
 /* Disabled State */

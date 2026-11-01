@@ -86,6 +86,72 @@ test.describe('Input Primitive Real-Browser Verification', () => {
     await expect(input).toBeFocused();
   });
 
+  test('verifies standard Input border remains stable on hover and indicates focus clearly', async ({
+    page,
+  }) => {
+    const input = page.locator('#specimen-controlled');
+    await expect(input).toBeVisible();
+
+    const colors = await page.evaluate(() => {
+      const elBorder = document.createElement('div');
+      elBorder.style.color = 'var(--color-border-control)';
+      document.body.appendChild(elBorder);
+      const borderRgb = window.getComputedStyle(elBorder).color;
+      elBorder.remove();
+
+      const elFocus = document.createElement('div');
+      elFocus.style.color = 'var(--color-border-focus)';
+      document.body.appendChild(elFocus);
+      const focusRgb = window.getComputedStyle(elFocus).color;
+      elFocus.remove();
+
+      return { borderRgb, focusRgb };
+    });
+
+    // 1. Resting state: border is var(--color-border-control)
+    const restingBorder = await input.evaluate((el) => window.getComputedStyle(el).borderColor);
+    expect(restingBorder).toBe(colors.borderRgb);
+
+    // 2. Hover state: border remains STABLE at var(--color-border-control) (no independent hover border emphasis)
+    await input.hover();
+    const hoverBorder = await input.evaluate((el) => window.getComputedStyle(el).borderColor);
+    expect(hoverBorder).toBe(colors.borderRgb);
+
+    // 3. Focus state (click): border and outline indicate focus clearly
+    await input.click();
+    await expect(input).toBeFocused();
+    await expect.poll(async () => {
+      return input.evaluate((el) => {
+        const style = window.getComputedStyle(el);
+        return {
+          border: style.borderColor,
+          outline: style.outlineColor,
+        };
+      });
+    }).toEqual({
+      border: colors.focusRgb,
+      outline: colors.focusRgb,
+    });
+
+    // 4. Pointer exit while remaining focused: focus indicator persists
+    await page.mouse.move(0, 0);
+    const exitFocusedStyle = await input.evaluate((el) => {
+      const style = window.getComputedStyle(el);
+      return {
+        border: style.borderColor,
+        outline: style.outlineColor,
+      };
+    });
+    expect(exitFocusedStyle.border).toBe(colors.focusRgb);
+    expect(exitFocusedStyle.outline).toBe(colors.focusRgb);
+
+    // 5. Blur: restores stable resting border
+    await page.keyboard.press('Tab');
+    await expect.poll(async () => {
+      return input.evaluate((el) => window.getComputedStyle(el).borderColor);
+    }).toBe(colors.borderRgb);
+  });
+
   test('verifies invalid Input border and focus precedence across hover, focus, and pointer exit', async ({
     page,
   }) => {

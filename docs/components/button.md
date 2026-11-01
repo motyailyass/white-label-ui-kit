@@ -140,7 +140,7 @@ The kit provides 5 semantic variants:
 | Variant | Semantic Meaning | Implemented Background | Implemented Text | Implemented Border | Implemented Hover State | Implemented Active State |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **`primary`** | Main action within a local task | `--color-primary` | `--color-primary-foreground` | `--color-primary` | `--color-primary-hover` | `--color-primary-active` |
-| **`secondary`** | Standard supporting action (default) | `--color-surface` | `--color-text-primary` | `--color-border-control` | `--color-surface-hover` + `--color-border-strong` | `--color-surface-active` |
+| **`secondary`** | Standard supporting action (default) | `--color-surface` | `--color-text-primary` | `--color-border-control` | `--color-surface-hover` (border remains stable) | `--color-surface-active` |
 | **`subtle`** | Low-emphasis branded action | `--color-primary-subtle` | `--color-primary-subtle-foreground` | `--color-primary-border` | `--color-surface-hover` | No dedicated :active override; existing applicable styles remain. |
 | **`ghost`** | Minimal visual intrusion | `transparent` | `--color-text-primary` | `transparent` | `--color-surface-hover` | No dedicated :active override; existing applicable styles remain. |
 | **`danger`** | Destructive action (delete, revoke) | `--color-danger` | `--color-danger-foreground` | `--color-danger` | `opacity: 0.9` *(see discrepancy note)* | No dedicated :active override; existing applicable styles remain. |
@@ -571,7 +571,6 @@ Button.displayName = 'Button';
 
 .button[data-variant="secondary"]:hover:not(:disabled) {
   background-color: var(--color-surface-hover);
-  border-color: var(--color-border-strong);
 }
 
 .button[data-variant="secondary"]:active:not(:disabled) {

@@ -124,9 +124,11 @@ test.describe('Dashboard Typography Specification Verification', () => {
   test('loads bundled self-hosted fonts with all external network requests blocked', async ({
     page,
   }) => {
+    let externalRequestMade = false;
     await page.route('**', (route) => {
       const url = new URL(route.request().url());
       if (url.hostname !== 'localhost' && url.hostname !== '127.0.0.1') {
+        externalRequestMade = true;
         route.abort('blockedbyclient');
       } else {
         route.continue();
@@ -135,6 +137,7 @@ test.describe('Dashboard Typography Specification Verification', () => {
 
     await page.goto('/classic');
 
+    // 1. Verify intended primary font (Geist Sans) loaded offline
     const fontFacesLoaded = await page.evaluate(async () => {
       await document.fonts.ready;
       const results: { family: string; status: string }[] = [];
@@ -145,10 +148,35 @@ test.describe('Dashboard Typography Specification Verification', () => {
     });
 
     expect(fontFacesLoaded.length).toBeGreaterThan(0);
-    const loadedFaces = fontFacesLoaded.filter((f) => f.status === 'loaded');
-    expect(loadedFaces.length).toBeGreaterThan(0);
+    const geistLoaded = fontFacesLoaded.some(
+      (f) => /geistSans/i.test(f.family) && f.status === 'loaded',
+    );
+    expect(geistLoaded).toBe(true);
+
     const errorFaces = fontFacesLoaded.filter((f) => f.status === 'error');
     expect(errorFaces.length).toBe(0);
+    expect(externalRequestMade).toBe(false);
+
+    // 2. Verify intended Arabic font (Noto Sans Arabic) loads when Arabic is rendered
+    const languageSelect = page.locator('select');
+    await languageSelect.selectOption('ar');
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+    });
+
+    const arabicFontFaces = await page.evaluate(() => {
+      const results: { family: string; status: string }[] = [];
+      document.fonts.forEach((font) => {
+        results.push({ family: font.family, status: font.status });
+      });
+      return results;
+    });
+
+    const arabicLoaded = arabicFontFaces.some(
+      (f) => /notoSansArabic/i.test(f.family) && f.status === 'loaded',
+    );
+    expect(arabicLoaded).toBe(true);
+    expect(externalRequestMade).toBe(false);
   });
 
   test('verifies role-appropriate line-height adjustments reach actual components in Arabic', async ({

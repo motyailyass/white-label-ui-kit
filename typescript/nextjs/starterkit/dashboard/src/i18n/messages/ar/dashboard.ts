@@ -12,6 +12,7 @@ export const dashboard = {
     primaryNavLabel: 'التنقل الرئيسي',
     secondaryNavLabel: 'تنقل مساحة العمل',
     toggleSidebar: 'تبديل شريط التنقل الجانبي',
+    togglePanel: 'تبديل لوحة الفحص',
     inspectorLabel: 'لوحة التفاصيل السياقية',
     closePanel: 'إغلاق اللوحة',
     platformBreadcrumb: 'المنصة',

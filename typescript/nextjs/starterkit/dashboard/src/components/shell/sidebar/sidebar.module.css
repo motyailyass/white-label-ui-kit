@@ -309,7 +309,7 @@
     transform: translateX(-100%);
     transition:
       transform var(--motion-duration-slow) var(--motion-ease-exit),
-      visibility var(--motion-duration-slow) var(--motion-ease-exit);
+      visibility 0s linear var(--motion-duration-slow);
     visibility: hidden;
     pointer-events: none;
   }
@@ -323,9 +323,7 @@
     transform: translateX(0);
     visibility: visible;
     pointer-events: auto;
-    transition:
-      transform var(--motion-duration-slow) var(--motion-ease-enter),
-      visibility var(--motion-duration-slow) var(--motion-ease-enter);
+    transition: transform var(--motion-duration-slow) var(--motion-ease-enter);
   }
 
   .backdrop[data-open="true"] {

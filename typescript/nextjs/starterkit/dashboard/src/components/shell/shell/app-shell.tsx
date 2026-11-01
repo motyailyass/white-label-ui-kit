@@ -81,11 +81,12 @@ export interface AppShellMainProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 export function AppShellMain({ className, children, ...props }: AppShellMainProps) {
-  const { isSidebarOpenMobile } = useLayout();
+  const { isSidebarOpenMobile, isPanelOverlayModal } = useLayout();
+  const isBackgroundInert = isSidebarOpenMobile || isPanelOverlayModal;
   return (
     <main
       className={cn(styles.main, className)}
-      inert={isSidebarOpenMobile ? true : undefined}
+      inert={isBackgroundInert ? true : undefined}
       {...props}
     >
       {children}

@@ -1,21 +1,30 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Dashboard Control Sizing & Interaction Target Verification', () => {
-  test('renders dashboard default control size at md (36px)', async ({ page }) => {
+  test('renders dashboard default control size at md (36px) on fine pointers and expands on coarse pointers', async ({
+    page,
+  }) => {
     await page.goto('/sizing-fixture');
     await expect(page.locator('#btn-default')).toBeVisible();
 
+    const isCoarse = await page.evaluate(() => window.matchMedia('(pointer: coarse)').matches);
     const height = await page.locator('#btn-default').evaluate((el) => {
       return parseFloat(window.getComputedStyle(el).height);
     });
 
-    // 36px minimum height (2.25rem = 36px at 16px root font)
-    expect(height).toBeCloseTo(36, 1);
+    if (isCoarse) {
+      // Coarse pointer devices enforce minimum 48px touch target with touchTarget="auto" default
+      expect(height).toBeGreaterThanOrEqual(48);
+    } else {
+      // 36px minimum height (2.25rem = 36px at 16px root font)
+      expect(height).toBeCloseTo(36, 1);
+    }
   });
 
   test('renders explicit six-step scale with exact proportional dimensions', async ({ page }) => {
     await page.goto('/sizing-fixture');
 
+    const isCoarse = await page.evaluate(() => window.matchMedia('(pointer: coarse)').matches);
     const expectedHeights: Record<string, number> = {
       '#btn-size-xs': 28, // 1.75rem
       '#btn-size-sm': 32, // 2.00rem
@@ -29,7 +38,13 @@ test.describe('Dashboard Control Sizing & Interaction Target Verification', () =
       const height = await page.locator(selector).evaluate((el) => {
         return parseFloat(window.getComputedStyle(el).height);
       });
-      expect(height, `Failed height check for ${selector}`).toBeCloseTo(expected, 1);
+      if (isCoarse) {
+        expect(height, `Failed coarse height check for ${selector}`).toBeGreaterThanOrEqual(
+          Math.max(48, expected),
+        );
+      } else {
+        expect(height, `Failed height check for ${selector}`).toBeCloseTo(expected, 1);
+      }
     }
   });
 
@@ -91,6 +106,36 @@ test.describe('Dashboard Control Sizing & Interaction Target Verification', () =
     // Assert exact zero layout shift across both block and inline axes
     expect(loadingBox!.width).toBeCloseTo(restingBox!.width, 1);
     expect(loadingBox!.height).toBeCloseTo(restingBox!.height, 1);
+  });
+
+  test('preserves button accessible name and queryability via getByRole across resting and loading states', async ({
+    page,
+  }) => {
+    await page.goto('/sizing-fixture');
+
+    // 1. Static loading button has loading={true} but retains its full accessible name
+    const staticLoadingBtn = page.locator('#btn-loading');
+    await expect(staticLoadingBtn).toBeVisible();
+    await expect(staticLoadingBtn).toHaveAttribute('data-loading', 'true');
+    await expect(staticLoadingBtn).toHaveAttribute('aria-busy', 'true');
+    await expect(staticLoadingBtn).toHaveAttribute('disabled', '');
+
+    // Real Chromium resolves accessibility tree: getByRole matches both resting and static loading buttons
+    const matchingButtons = page.getByRole('button', { name: 'Saving Changes' });
+    await expect(matchingButtons).toHaveCount(2);
+
+    // 2. Dynamic button toggle preserves accessible name across state transitions
+    const dynamicBtn = page.locator('#btn-dynamic-loading');
+    await expect(dynamicBtn).not.toHaveAttribute('data-loading', 'true');
+
+    await dynamicBtn.click();
+    await expect(dynamicBtn).toHaveAttribute('data-loading', 'true');
+    await expect(dynamicBtn).toHaveAttribute('aria-busy', 'true');
+    expect(await dynamicBtn.evaluate((el) => el.getAttribute('aria-label'))).toBe('Saving Changes');
+
+    // Button accessible name remains unchanged and discoverable by assistive technologies
+    const dynamicByAccName = page.getByRole('button', { name: 'Saving Changes' }).first();
+    await expect(dynamicByAccName).toBeVisible();
   });
 
   test('omitted touchTarget defaults to auto and expands to 48px on coarse pointer devices', async ({

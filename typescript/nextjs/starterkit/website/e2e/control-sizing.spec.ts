@@ -17,6 +17,7 @@ test.describe('Website Control Sizing & Interaction Target Verification', () => 
   }) => {
     await page.goto('/sizing-fixture');
 
+    const isCoarse = await page.evaluate(() => window.matchMedia('(pointer: coarse)').matches);
     const expectedHeights: Record<string, number> = {
       '#btn-size-xs': 28,
       '#btn-size-sm': 32,
@@ -30,7 +31,13 @@ test.describe('Website Control Sizing & Interaction Target Verification', () => 
       const height = await page.locator(selector).evaluate((el) => {
         return Number.parseFloat(window.getComputedStyle(el).height);
       });
-      expect(height, `Failed height check for ${selector}`).toBeCloseTo(expected, 1);
+      if (isCoarse) {
+        expect(height, `Failed coarse height check for ${selector}`).toBeGreaterThanOrEqual(
+          Math.max(48, expected),
+        );
+      } else {
+        expect(height, `Failed height check for ${selector}`).toBeCloseTo(expected, 1);
+      }
     }
   });
 

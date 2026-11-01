@@ -12,6 +12,7 @@ export const dashboard = {
     primaryNavLabel: 'Navigation principale',
     secondaryNavLabel: "Navigation de l'espace de travail",
     toggleSidebar: 'Basculer la barre latérale de navigation',
+    togglePanel: "Basculer le panneau d'inspection",
     inspectorLabel: 'Panneau contextuel',
     closePanel: 'Fermer le panneau',
     platformBreadcrumb: 'Plateforme',

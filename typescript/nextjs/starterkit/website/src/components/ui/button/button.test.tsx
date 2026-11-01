@@ -76,10 +76,18 @@ describe('Button Primitive', () => {
     expect(button.hasAttribute('disabled')).toBe(true);
     expect(button.getAttribute('data-loading')).toBe('true');
     expect(button.getAttribute('aria-busy')).toBe('true');
+    expect(button.getAttribute('aria-label')).toBe('Save');
     // content is preserved in layout flow for zero layout shift, spinner is displayed
     expect(screen.getByTestId('start-icon')).toBeTruthy();
     expect(screen.getByTestId('end-icon')).toBeTruthy();
     expect(button.querySelector('[aria-hidden="true"]')).toBeTruthy();
+  });
+
+  it('preserves accessible name when loading without explicit aria-label', () => {
+    render(<Button loading>Submit Form</Button>);
+    const button = screen.getByRole('button', { name: 'Submit Form' });
+    expect(button.getAttribute('aria-label')).toBe('Submit Form');
+    expect(button.getAttribute('aria-busy')).toBe('true');
   });
 
   it('handles click events when enabled', () => {

@@ -29,6 +29,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   ref,
 ) {
   const isDisabled = disabled || loading;
+  const computedAriaLabel =
+    props['aria-label'] ?? (loading && typeof children === 'string' ? children : undefined);
 
   return (
     <button
@@ -37,6 +39,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       type={type}
       disabled={isDisabled}
       aria-busy={loading || undefined}
+      aria-label={computedAriaLabel}
       data-size={size}
       data-touch-target={touchTarget}
       data-variant={variant}

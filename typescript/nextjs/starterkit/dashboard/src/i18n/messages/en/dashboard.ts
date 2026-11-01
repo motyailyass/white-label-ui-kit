@@ -12,6 +12,7 @@ export const dashboard = {
     primaryNavLabel: 'Primary navigation',
     secondaryNavLabel: 'Workspace navigation',
     toggleSidebar: 'Toggle navigation sidebar',
+    togglePanel: 'Toggle inspector panel',
     inspectorLabel: 'Contextual panel',
     closePanel: 'Close panel',
     platformBreadcrumb: 'Platform',

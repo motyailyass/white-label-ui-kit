@@ -41,6 +41,7 @@ export interface LayoutContextValue {
   togglePanel: () => void;
   isMobile: boolean;
   isTablet: boolean;
+  isPanelOverlayModal: boolean;
   registerSidebarController: (controller: SidebarController | null) => void;
   registerPanelController: (controller: PanelController | null) => void;
 }
@@ -106,7 +107,7 @@ export function LayoutProvider({
   const [uncontrolledVariant, setUncontrolledVariant] = useState<LayoutVariant>(defaultVariant);
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(defaultSidebarCollapsed);
   const [isSidebarOpenMobile, setSidebarOpenMobile] = useState(false);
-  const [uncontrolledPanelOpen, setPanelOpen] = useState(defaultPanelOpen);
+  const [uncontrolledPanelOpen, setUncontrolledPanelOpen] = useState(defaultPanelOpen);
   const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY);
   const isTablet = useMediaQuery(TABLET_MEDIA_QUERY);
   const [sidebarController, setSidebarController] = useState<SidebarController | null>(null);
@@ -134,9 +135,9 @@ export function LayoutProvider({
       setSidebarOpenMobile(false);
     }
 
-    // Crossing from desktop (> 1024px) down to compact/tablet (<= 1024px) closes docked panel
-    if (prevTabletRef.current === false && isTablet) {
-      setPanelOpen(false);
+    // On initial mount or when crossing down to tablet/mobile (<= 1024px), close docked panel
+    if ((prevTabletRef.current === null || prevTabletRef.current === false) && isTablet) {
+      setUncontrolledPanelOpen(false);
     }
 
     prevMobileRef.current = isMobile;
@@ -149,6 +150,8 @@ export function LayoutProvider({
   const effectivePanelOpen =
     panelController !== null ? panelController.open : uncontrolledPanelOpen;
 
+  const isPanelOverlayModal = effectivePanelOpen && (isMobile || isTablet);
+
   const toggleSidebar = useCallback(() => {
     if (sidebarController?.onCollapsedChange) {
       sidebarController.onCollapsedChange(!sidebarController.collapsed);
@@ -157,17 +160,30 @@ export function LayoutProvider({
     }
   }, [sidebarController]);
 
+  const handleSetPanelOpen = useCallback(
+    (open: boolean | ((prev: boolean) => boolean)) => {
+      setUncontrolledPanelOpen(open);
+      const nextEffective = typeof open === 'function' ? open(effectivePanelOpen) : open;
+      if (nextEffective && (isMobile || isTablet)) {
+        setSidebarOpenMobile(false);
+      }
+      if (panelController?.onOpenChange) {
+        panelController.onOpenChange(nextEffective);
+      }
+    },
+    [isMobile, isTablet, effectivePanelOpen, panelController],
+  );
+
   const handleSetSidebarOpenMobile = useCallback(
     (open: boolean | ((prev: boolean) => boolean)) => {
-      setSidebarOpenMobile((prev) => {
-        const next = typeof open === 'function' ? open(prev) : open;
-        if (next && isMobile) {
-          setPanelOpen(false);
-        }
-        return next;
-      });
+      setSidebarOpenMobile(open);
+      const nextEffective = typeof open === 'function' ? open(isSidebarOpenMobile) : open;
+      if (nextEffective) {
+        setUncontrolledPanelOpen(false);
+        panelController?.onOpenChange?.(false);
+      }
     },
-    [isMobile],
+    [isSidebarOpenMobile, panelController],
   );
 
   const toggleSidebarMobile = useCallback(() => {
@@ -176,11 +192,15 @@ export function LayoutProvider({
 
   const togglePanel = useCallback(() => {
     if (panelController) {
-      panelController.onOpenChange?.(!panelController.open);
+      const next = !panelController.open;
+      if (next && (isMobile || isTablet)) {
+        setSidebarOpenMobile(false);
+      }
+      panelController.onOpenChange?.(next);
     } else {
-      setPanelOpen((prev) => !prev);
+      handleSetPanelOpen((prev) => !prev);
     }
-  }, [panelController]);
+  }, [panelController, isMobile, isTablet, handleSetPanelOpen]);
 
   const registerSidebarController = useCallback((controller: SidebarController | null) => {
     setSidebarController(controller);
@@ -209,14 +229,14 @@ export function LayoutProvider({
         return;
       }
 
-      if (e.key === 'b' || e.key === 'B') {
+      if (e.code === 'KeyB' || e.key === 'b' || e.key === 'B') {
         e.preventDefault();
         if (isMobile) {
           toggleSidebarMobile();
         } else {
           toggleSidebar();
         }
-      } else if (e.key === '.') {
+      } else if (e.code === 'Period' || e.key === '.') {
         e.preventDefault();
         togglePanel();
       }
@@ -239,10 +259,11 @@ export function LayoutProvider({
       setSidebarOpenMobile: handleSetSidebarOpenMobile,
       toggleSidebarMobile,
       isPanelOpen: effectivePanelOpen,
-      setPanelOpen,
+      setPanelOpen: handleSetPanelOpen,
       togglePanel,
       isMobile,
       isTablet,
+      isPanelOverlayModal,
       registerSidebarController,
       registerPanelController,
     }),
@@ -257,9 +278,11 @@ export function LayoutProvider({
       handleSetSidebarOpenMobile,
       toggleSidebarMobile,
       effectivePanelOpen,
+      handleSetPanelOpen,
       togglePanel,
       isMobile,
       isTablet,
+      isPanelOverlayModal,
       registerSidebarController,
       registerPanelController,
     ],

@@ -44,13 +44,28 @@ export function Panel({
   'aria-label': ariaLabel = 'Contextual panel',
   ...props
 }: PanelProps) {
-  const { panelId, isPanelOpen, setPanelOpen, isTablet, registerPanelController } = useLayout();
+  const {
+    panelId,
+    isPanelOpen,
+    setPanelOpen,
+    isTablet,
+    isSidebarOpenMobile,
+    setSidebarOpenMobile,
+    registerPanelController,
+  } = useLayout();
   const resolvedId = id ?? panelId;
   const isControlled = open !== undefined;
   const isOpen = isControlled ? open : isPanelOpen;
   const isOverlayModal = isOpen && (mode === 'overlay' || isTablet);
 
   const panelRef = useRef<HTMLElement | null>(null);
+
+  // Exclusive modal ownership: close sidebar mobile drawer if panel opens in overlay modal mode
+  useEffect(() => {
+    if (isOverlayModal && isSidebarOpenMobile) {
+      setSidebarOpenMobile(false);
+    }
+  }, [isOverlayModal, isSidebarOpenMobile, setSidebarOpenMobile]);
 
   // Register controlled panel with LayoutContext so togglePanel (Cmd+.) drives onOpenChange
   useEffect(() => {
@@ -170,9 +185,15 @@ export function Panel({
       unregisterModal();
       releaseScrollLock();
       window.removeEventListener('keydown', handleKeyDown);
-      if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
-        previousActiveElement.focus();
-      }
+      requestAnimationFrame(() => {
+        if (
+          previousActiveElement &&
+          typeof previousActiveElement.focus === 'function' &&
+          document.contains(previousActiveElement)
+        ) {
+          previousActiveElement.focus();
+        }
+      });
     };
   }, [isOverlayModal]);
 
@@ -209,6 +230,7 @@ export function Panel({
         role={isOverlayModal ? 'dialog' : undefined}
         aria-modal={isOverlayModal ? 'true' : undefined}
         tabIndex={isOverlayModal ? -1 : props.tabIndex}
+        inert={isSidebarOpenMobile ? true : undefined}
       >
         {children}
       </aside>
@@ -302,5 +324,44 @@ export function PanelFooter({ className, children, ...props }: PanelFooterProps)
     <footer className={cn(styles.footer, className)} {...props}>
       {children}
     </footer>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                PanelTrigger                                */
+/* -------------------------------------------------------------------------- */
+
+export interface PanelTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children?: React.ReactNode;
+}
+
+export function PanelTrigger({
+  id,
+  className,
+  onClick,
+  'aria-label': ariaLabel = 'Toggle inspector panel',
+  'aria-controls': ariaControls,
+  children,
+  ...props
+}: PanelTriggerProps) {
+  const { panelId, togglePanel, isPanelOpen } = useLayout();
+
+  return (
+    <button
+      {...props}
+      id={id ?? `${panelId}-trigger`}
+      data-panel-trigger=""
+      type="button"
+      className={cn(styles.trigger, className)}
+      onClick={(e) => {
+        togglePanel();
+        onClick?.(e);
+      }}
+      aria-label={ariaLabel}
+      aria-controls={ariaControls ?? panelId}
+      aria-expanded={isPanelOpen}
+    >
+      {children ?? <Icon name="settings" size={16} aria-hidden="true" />}
+    </button>
   );
 }

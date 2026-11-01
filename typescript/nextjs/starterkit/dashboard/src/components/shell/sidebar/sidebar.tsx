@@ -36,6 +36,7 @@ export function Sidebar({
     isSidebarOpenMobile,
     setSidebarOpenMobile,
     isMobile,
+    isPanelOverlayModal,
     registerSidebarController,
   } = useLayout();
 
@@ -55,6 +56,13 @@ export function Sidebar({
 
   const isCollapsed = isControlled ? collapsed : isSidebarCollapsed;
   const sidebarRef = useRef<HTMLElement | null>(null);
+
+  // Exclusive modal ownership: close sidebar mobile drawer if panel overlay opens
+  useEffect(() => {
+    if (isPanelOverlayModal && isSidebarOpenMobile) {
+      setSidebarOpenMobile(false);
+    }
+  }, [isPanelOverlayModal, isSidebarOpenMobile, setSidebarOpenMobile]);
 
   // Mobile drawer Escape key handler, focus trap, and ref-counted body scroll lock
   useEffect(() => {
@@ -151,9 +159,15 @@ export function Sidebar({
       unregisterModal();
       releaseScrollLock();
       window.removeEventListener('keydown', handleKeyDown);
-      if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
-        previousActiveElement.focus();
-      }
+      requestAnimationFrame(() => {
+        if (
+          previousActiveElement &&
+          typeof previousActiveElement.focus === 'function' &&
+          document.contains(previousActiveElement)
+        ) {
+          previousActiveElement.focus();
+        }
+      });
     };
   }, [isSidebarOpenMobile, setSidebarOpenMobile]);
 
@@ -179,7 +193,7 @@ export function Sidebar({
         aria-label={ariaLabel}
         role={isSidebarOpenMobile ? 'dialog' : undefined}
         aria-modal={isSidebarOpenMobile ? 'true' : undefined}
-        inert={isMobile && !isSidebarOpenMobile ? true : undefined}
+        inert={(isMobile && !isSidebarOpenMobile) || isPanelOverlayModal ? true : undefined}
       >
         {children}
       </aside>

@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import type React from 'react';
+import { AppToolbar } from '@/components/patterns';
+import { PanelTrigger } from '@/components/shell';
 import {
   demoUser,
   getDemoBreadcrumbs,
@@ -32,6 +34,12 @@ export default function ThreeColumnDashboardLayout({ children }: { children: Rea
       inspectorAriaLabel={t('dashboard.shell.inspectorLabel')}
       sidebarAriaLabel={t('dashboard.shell.sidebarLabel')}
       sidebarNavAriaLabel={t('dashboard.shell.primaryNavLabel')}
+      headerActions={
+        <>
+          <PanelTrigger aria-label={t('dashboard.shell.togglePanel')} />
+          <AppToolbar />
+        </>
+      }
     >
       {children}
     </ThreeColumnLayout>

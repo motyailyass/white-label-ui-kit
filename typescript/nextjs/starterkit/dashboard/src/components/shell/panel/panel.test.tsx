@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ThreeColumnLayout } from '@/layouts';
 import { AppProviders } from '@/providers';
-import { LayoutProvider } from '../layout-context';
+import { LayoutProvider, useLayout } from '../layout-context';
 import { Panel, PanelHeader } from './panel';
 
 describe('Panel & ThreeColumnLayout Inspector Contracts', () => {
@@ -122,5 +122,61 @@ describe('Panel & ThreeColumnLayout Inspector Contracts', () => {
 
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(handlePanelOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('enforces exclusive modal ownership across both opening orders and controlled state', () => {
+    function ShellHarness() {
+      const { setSidebarOpenMobile, isSidebarOpenMobile } = useLayout();
+      const [controlledOpen, setControlledOpen] = useState(true);
+
+      return (
+        <div>
+          <span data-testid="sidebar-mobile-state">{String(isSidebarOpenMobile)}</span>
+          <span data-testid="panel-open-state">{String(controlledOpen)}</span>
+          <button
+            type="button"
+            data-testid="open-sidebar-btn"
+            onClick={() => setSidebarOpenMobile(true)}
+          >
+            Open Sidebar
+          </button>
+          <button
+            type="button"
+            data-testid="open-panel-btn"
+            onClick={() => setControlledOpen(true)}
+          >
+            Open Panel
+          </button>
+          <Panel
+            mode="overlay"
+            open={controlledOpen}
+            onOpenChange={setControlledOpen}
+            data-testid="panel-drawer"
+          >
+            <p>Panel content</p>
+          </Panel>
+        </div>
+      );
+    }
+
+    render(
+      <LayoutProvider>
+        <ShellHarness />
+      </LayoutProvider>,
+    );
+
+    // Initial state: Panel is open, mobile sidebar is closed
+    expect(screen.getByTestId('panel-open-state').textContent).toBe('true');
+    expect(screen.getByTestId('sidebar-mobile-state').textContent).toBe('false');
+
+    // Order 1: Panel is open -> open mobile Sidebar -> Panel closes automatically
+    fireEvent.click(screen.getByTestId('open-sidebar-btn'));
+    expect(screen.getByTestId('sidebar-mobile-state').textContent).toBe('true');
+    expect(screen.getByTestId('panel-open-state').textContent).toBe('false');
+
+    // Order 2: Mobile Sidebar is open -> open Panel -> Sidebar closes automatically
+    fireEvent.click(screen.getByTestId('open-panel-btn'));
+    expect(screen.getByTestId('panel-open-state').textContent).toBe('true');
+    expect(screen.getByTestId('sidebar-mobile-state').textContent).toBe('false');
   });
 });

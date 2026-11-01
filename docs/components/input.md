@@ -390,8 +390,8 @@ function FieldExample() {
   --_control-line-height: var(--control-line-height-2xl);
 }
 
-/* Hover State */
-.input:hover:not(:disabled):not(:read-only) {
+/* Hover State (only when neither disabled, read-only, nor invalid) */
+.input:hover:not(:disabled):not(:read-only):not([aria-invalid='true']) {
   border-color: var(--color-border-strong);
 }
 
@@ -403,8 +403,12 @@ function FieldExample() {
   border-color: var(--color-border-focus);
 }
 
-/* Invalid State */
+/* Invalid State: driven strictly by aria-invalid="true" */
 .input[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.input[aria-invalid='true']:hover:not(:disabled):not(:read-only) {
   border-color: var(--color-danger);
 }
 

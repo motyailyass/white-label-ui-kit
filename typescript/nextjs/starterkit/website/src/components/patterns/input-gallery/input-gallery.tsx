@@ -205,12 +205,24 @@ export function InputGallery() {
             <Input readOnly defaultValue={t('common.inputGallery.readOnlyValue')} />
           </div>
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.inputGallery.requiredLabel')}</label>
-            <Input required placeholder={t('common.inputGallery.requiredPlaceholder')} />
+            <label htmlFor="specimen-required" className={styles.label}>
+              {t('common.inputGallery.requiredLabel')}
+            </label>
+            <Input
+              id="specimen-required"
+              required
+              placeholder={t('common.inputGallery.requiredPlaceholder')}
+            />
           </div>
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.inputGallery.invalidLabel')}</label>
-            <Input aria-invalid="true" placeholder={t('common.inputGallery.invalidPlaceholder')} />
+            <label htmlFor="specimen-invalid" className={styles.label}>
+              {t('common.inputGallery.invalidLabel')}
+            </label>
+            <Input
+              id="specimen-invalid"
+              aria-invalid="true"
+              placeholder={t('common.inputGallery.invalidPlaceholder')}
+            />
           </div>
         </div>
       </section>
@@ -256,13 +268,24 @@ export function InputGallery() {
         <p className={styles.sectionDesc}>{t('common.inputGallery.modesDesc')}</p>
         <div className={styles.gridTwo}>
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.inputGallery.controlledLabel')}</label>
-            <Input value={controlledVal} onChange={(e) => setControlledVal(e.target.value)} />
+            <label htmlFor="specimen-controlled" className={styles.label}>
+              {t('common.inputGallery.controlledLabel')}
+            </label>
+            <Input
+              id="specimen-controlled"
+              value={controlledVal}
+              onChange={(e) => setControlledVal(e.target.value)}
+            />
             <span className={styles.helpText}>Value: {controlledVal}</span>
           </div>
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.inputGallery.uncontrolledLabel')}</label>
-            <Input defaultValue={t('common.inputGallery.uncontrolledDefaultValue')} />
+            <label htmlFor="specimen-uncontrolled" className={styles.label}>
+              {t('common.inputGallery.uncontrolledLabel')}
+            </label>
+            <Input
+              id="specimen-uncontrolled"
+              defaultValue={t('common.inputGallery.uncontrolledDefaultValue')}
+            />
           </div>
         </div>
       </section>
@@ -273,9 +296,15 @@ export function InputGallery() {
           {t('common.inputGallery.localizationTitle')}
         </h2>
         <p className={styles.sectionDesc}>{t('common.inputGallery.localizationDesc')}</p>
-        <div className={styles.fieldGroup}>
-          <label className={styles.label}>{t('common.inputGallery.arabicNameLabel')}</label>
-          <Input placeholder={t('common.inputGallery.arabicNamePlaceholder')} />
+        <div className={styles.fieldGroup} lang="ar" dir="rtl">
+          <label htmlFor="specimen-arabic" className={styles.label}>
+            {t('common.inputGallery.arabicNameLabel')}
+          </label>
+          <Input
+            id="specimen-arabic"
+            dir="rtl"
+            placeholder={t('common.inputGallery.arabicNamePlaceholder')}
+          />
         </div>
       </section>
 
@@ -286,8 +315,10 @@ export function InputGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.inputGallery.directionDesc')}</p>
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>{t('common.inputGallery.mixedCodeLabel')}</label>
-          <Input dir="ltr" defaultValue="TRK-984210-X" />
+          <label htmlFor="specimen-mixed-ltr" className={styles.label}>
+            {t('common.inputGallery.mixedCodeLabel')}
+          </label>
+          <Input id="specimen-mixed-ltr" dir="ltr" defaultValue="TRK-984210-X" />
         </div>
       </section>
 
@@ -311,12 +342,26 @@ export function InputGallery() {
         <p className={styles.sectionDesc}>{t('common.inputGallery.responsiveDesc')}</p>
         <div className={styles.gridTwo}>
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.gallery.xsAuto')}</label>
-            <Input size="xs" touchTarget="auto" defaultValue="XS Auto Target" />
+            <label htmlFor="specimen-touch-auto" className={styles.label}>
+              {t('common.gallery.xsAuto')}
+            </label>
+            <Input
+              id="specimen-touch-auto"
+              size="xs"
+              touchTarget="auto"
+              defaultValue="XS Auto Target"
+            />
           </div>
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.gallery.xsComfortable')}</label>
-            <Input size="xs" touchTarget="comfortable" defaultValue="XS Comfortable Target" />
+            <label htmlFor="specimen-touch-comfortable" className={styles.label}>
+              {t('common.gallery.xsComfortable')}
+            </label>
+            <Input
+              id="specimen-touch-comfortable"
+              size="xs"
+              touchTarget="comfortable"
+              defaultValue="XS Comfortable Target"
+            />
           </div>
         </div>
       </section>

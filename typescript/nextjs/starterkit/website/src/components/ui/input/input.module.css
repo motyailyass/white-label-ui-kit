@@ -83,8 +83,8 @@
   --_control-line-height: var(--control-line-height-2xl);
 }
 
-/* Hover State */
-.input:hover:not(:disabled):not(:read-only) {
+/* Hover State (only when neither disabled, read-only, nor invalid) */
+.input:hover:not(:disabled):not(:read-only):not([aria-invalid="true"]) {
   border-color: var(--color-border-strong);
 }
 
@@ -96,16 +96,17 @@
   border-color: var(--color-border-focus);
 }
 
-/* Invalid State: both ARIA attribute and native constraint invalid */
-.input[aria-invalid="true"],
-.input:invalid {
+/* Invalid State: driven strictly by aria-invalid="true" */
+.input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.input[aria-invalid="true"]:hover:not(:disabled):not(:read-only) {
   border-color: var(--color-danger);
 }
 
 .input[aria-invalid="true"]:focus-visible,
-.input[aria-invalid="true"]:focus,
-.input:invalid:focus-visible,
-.input:invalid:focus {
+.input[aria-invalid="true"]:focus {
   border-color: var(--color-danger);
   outline-color: var(--color-danger);
 }

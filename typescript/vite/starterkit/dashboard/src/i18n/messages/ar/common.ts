@@ -179,7 +179,7 @@ export const common = {
     uncontrolledDefaultValue: 'القيمة الافتراضية الأولية',
     arabicNameLabel: 'الاسم الكامل',
     arabicNamePlaceholder: 'أدخل الاسم بالكامل...',
-    mixedCodeLabel: 'رمز التتبع (LTR في واجهة عربية)',
+    mixedCodeLabel: 'رمز التتبع (LTR صريح في واجهة عربية)',
     mixedCodePlaceholder: 'TRK-984210-X',
     formDisclaimer:
       'عرض تجريبي محلي للنموذج؛ لا يتم الحفظ في الخادم.',

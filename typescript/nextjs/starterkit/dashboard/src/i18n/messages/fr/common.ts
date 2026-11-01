@@ -177,9 +177,9 @@ export const common = {
     controlledLabel: 'État contrôlé',
     uncontrolledLabel: 'État non-contrôlé',
     uncontrolledDefaultValue: 'Valeur par défaut initiale',
-    arabicNameLabel: 'الاسم الكامل',
+    arabicNameLabel: 'Nom complet (Spécimen en graphie arabe)',
     arabicNamePlaceholder: 'أدخل الاسم بالكامل...',
-    mixedCodeLabel: 'Code de suivi (LTR en RTL)',
+    mixedCodeLabel: 'Code de suivi (LTR explicite)',
     mixedCodePlaceholder: 'TRK-984210-X',
     formDisclaimer:
       'Démonstration locale de formulaire ; aucune persistance serveur.',

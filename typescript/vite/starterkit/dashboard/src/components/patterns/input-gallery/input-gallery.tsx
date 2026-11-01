@@ -555,7 +555,7 @@ export function InputGallery() {
             <Button type="submit" variant="primary" loading={isSubmitting}>
               {t('common.inputGallery.formSubmitButton')}
             </Button>
-            <Button type="reset" variant="secondary" disabled={isSubmitting}>
+            <Button type="reset" variant="secondary">
               {t('common.inputGallery.formResetButton')}
             </Button>
           </div>

@@ -114,6 +114,8 @@ Scoped `biome format` checking fails in all mirrors, with four canonical files r
 
 Textarea uses `overflow-y` and `resize: none !important`; gallery code boxes use `overflow-x`. These contradict the repository's stated logical-overflow / restricted-`!important` rules. Use logical overflow and sufficient selector specificity, or document a narrowly justified compatibility exception. `resize: vertical` is the approved behavior and should not be changed merely to chase a “100% logical” slogan.
 
+*Note on horizontal scrolling fallback exception:* `input-gallery.module.css` and `textarea-gallery.module.css` declare physical `overflow-x: auto;` preceding `overflow-inline: auto;` on `.codeBox`. This physical declaration is documented and retained strictly as a browser-compatibility fallback for engines lacking full `overflow-inline` support, ensuring preformatted code snippets scroll horizontally without breaking section layouts.
+
 Do not interpret every literal as a vulnerability: `rows={4}`, six scale identifiers, `1px` borders and native structural CSS are legitimate constants. A CSS spinner with a fixed duration is a motion-token consistency follow-up, not a rogue icon or exploit.
 
 ## Security assessment

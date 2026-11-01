@@ -135,24 +135,75 @@ test.describe('Button Primitive Real-Browser Verification', () => {
     expect(hoverStyle.borderWidth).toBe('1px');
   });
 
-  test('verifies button icon SVG dimensions match control icon size', async ({ page }) => {
-    const iconBtn = page.locator('button:has(span svg)').first();
-    await expect(iconBtn).toBeVisible();
+  test('verifies button icon SVG dimensions match control icon size tokens and slot dimensions', async ({
+    page,
+  }) => {
+    // 1. Product default icon button (Dashboard default md -> 16px icon)
+    const defaultIconBtn = page.locator('button:has(span svg)').first();
+    await expect(defaultIconBtn).toBeVisible();
 
-    const iconSvg = iconBtn.locator('svg').first();
-    const svgBounds = await iconSvg.evaluate((el) => {
-      const rect = el.getBoundingClientRect();
-      const style = window.getComputedStyle(el);
+    const defaultMetrics = await defaultIconBtn.evaluate((btn) => {
+      const slot = btn.querySelector('span[class*="icon"]') as HTMLElement;
+      const svg = btn.querySelector('svg') as SVGElement;
+      const btnStyle = window.getComputedStyle(btn);
+      const slotStyle = window.getComputedStyle(slot);
+      const svgStyle = window.getComputedStyle(svg);
+
       return {
-        width: rect.width,
-        height: rect.height,
-        cssInlineSize: parseFloat(style.inlineSize),
-        cssBlockSize: parseFloat(style.blockSize),
+        tokenPx: parseFloat(btnStyle.getPropertyValue('--_control-icon-size')),
+        slotWidth: slot.getBoundingClientRect().width,
+        slotHeight: slot.getBoundingClientRect().height,
+        slotCssInline: parseFloat(slotStyle.inlineSize),
+        slotCssBlock: parseFloat(slotStyle.blockSize),
+        svgWidth: svg.getBoundingClientRect().width,
+        svgHeight: svg.getBoundingClientRect().height,
+        svgCssInline: parseFloat(svgStyle.inlineSize),
+        svgCssBlock: parseFloat(svgStyle.blockSize),
       };
     });
 
-    expect(svgBounds.width).toBeGreaterThan(0);
-    expect(svgBounds.height).toBeGreaterThan(0);
-    expect(svgBounds.width).toBeCloseTo(svgBounds.height, 1);
+    expect(defaultMetrics.tokenPx).toBe(16);
+    expect(defaultMetrics.slotWidth).toBeCloseTo(16, 1);
+    expect(defaultMetrics.slotHeight).toBeCloseTo(16, 1);
+    expect(defaultMetrics.slotCssInline).toBeCloseTo(16, 1);
+    expect(defaultMetrics.slotCssBlock).toBeCloseTo(16, 1);
+    expect(defaultMetrics.svgWidth).toBeCloseTo(16, 1);
+    expect(defaultMetrics.svgHeight).toBeCloseTo(16, 1);
+    expect(defaultMetrics.svgCssInline).toBeCloseTo(16, 1);
+    expect(defaultMetrics.svgCssBlock).toBeCloseTo(16, 1);
+
+    // 2. Explicit size icon button (XL -> 20px icon)
+    const xlIconBtn = page.locator('[data-testid="specimen-btn-xl-icon"]');
+    await expect(xlIconBtn).toBeVisible();
+
+    const xlMetrics = await xlIconBtn.evaluate((btn) => {
+      const slot = btn.querySelector('span[class*="icon"]') as HTMLElement;
+      const svg = btn.querySelector('svg') as SVGElement;
+      const btnStyle = window.getComputedStyle(btn);
+      const slotStyle = window.getComputedStyle(slot);
+      const svgStyle = window.getComputedStyle(svg);
+
+      return {
+        tokenPx: parseFloat(btnStyle.getPropertyValue('--_control-icon-size')),
+        slotWidth: slot.getBoundingClientRect().width,
+        slotHeight: slot.getBoundingClientRect().height,
+        slotCssInline: parseFloat(slotStyle.inlineSize),
+        slotCssBlock: parseFloat(slotStyle.blockSize),
+        svgWidth: svg.getBoundingClientRect().width,
+        svgHeight: svg.getBoundingClientRect().height,
+        svgCssInline: parseFloat(svgStyle.inlineSize),
+        svgCssBlock: parseFloat(svgStyle.blockSize),
+      };
+    });
+
+    expect(xlMetrics.tokenPx).toBe(20);
+    expect(xlMetrics.slotWidth).toBeCloseTo(20, 1);
+    expect(xlMetrics.slotHeight).toBeCloseTo(20, 1);
+    expect(xlMetrics.slotCssInline).toBeCloseTo(20, 1);
+    expect(xlMetrics.slotCssBlock).toBeCloseTo(20, 1);
+    expect(xlMetrics.svgWidth).toBeCloseTo(20, 1);
+    expect(xlMetrics.svgHeight).toBeCloseTo(20, 1);
+    expect(xlMetrics.svgCssInline).toBeCloseTo(20, 1);
+    expect(xlMetrics.svgCssBlock).toBeCloseTo(20, 1);
   });
 });

@@ -20,10 +20,16 @@ const FORM_STATUS_KEY: Record<FormStatusId, TranslationKey> = {
 export function TextareaGallery() {
   const { t } = useI18n();
 
-  // Controlled mode demonstration state
-  const [controlledVal, setControlledVal] = useState(
-    'Initial controlled multiline text.\nLine two of notes.',
-  );
+  // Controlled mode demonstration state (localized initial prose without overwriting user edits)
+  const localizedInitial = t('common.textareaGallery.controlledDefaultValue');
+  const isEditedRef = useRef(false);
+  const [controlledVal, setControlledVal] = useState(localizedInitial);
+
+  useEffect(() => {
+    if (!isEditedRef.current) {
+      setControlledVal(localizedInitial);
+    }
+  }, [localizedInitial]);
 
   // Form demo state
   const [formMessage, setFormMessage] = useState('');
@@ -349,6 +355,7 @@ export function TextareaGallery() {
           <Textarea
             id={feedbackFieldId}
             rows={4}
+            aria-invalid="true"
             placeholder={t('common.textareaGallery.descriptionPlaceholder')}
             aria-describedby={`${feedbackHelpId} ${feedbackErrorId}`}
           />
@@ -376,7 +383,10 @@ export function TextareaGallery() {
               id={controlledFieldId}
               rows={4}
               value={controlledVal}
-              onChange={(e) => setControlledVal(e.target.value)}
+              onChange={(e) => {
+                isEditedRef.current = true;
+                setControlledVal(e.target.value);
+              }}
               data-testid="specimen-controlled"
             />
             <span className={styles.helpText}>

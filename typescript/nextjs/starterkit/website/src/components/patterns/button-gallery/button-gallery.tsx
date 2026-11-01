@@ -68,6 +68,8 @@ export function ButtonGallery() {
   const themeId = useId();
   const responsiveId = useId();
   const usageId = useId();
+  const defaultButtonId = useId();
+  const loadingButtonId = useId();
 
   const activeNoticeKey = ASYNC_NOTICE_KEY[asyncState];
 
@@ -135,7 +137,7 @@ export function ButtonGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.gallery.defaultsDesc')}</p>
         <div className={styles.buttonRow}>
-          <Button id="gallery-btn-default" variant="primary">
+          <Button id={defaultButtonId} data-testid="specimen-btn-default" variant="primary">
             {t('common.gallery.defaultOmitted')}
           </Button>
           <Button variant="secondary">{t('common.gallery.secondaryDefault')}</Button>
@@ -188,6 +190,14 @@ export function ButtonGallery() {
           >
             {t('common.gallery.bothIcons')}
           </Button>
+          <Button
+            size="xl"
+            startIcon={<Icon name="add" />}
+            variant="secondary"
+            data-testid="specimen-btn-xl-icon"
+          >
+            {t('common.gallery.explicitSizeIcon')}
+          </Button>
           <Button variant="ghost" aria-label={t('common.search')} title={t('common.search')}>
             <Icon name="search" />
           </Button>
@@ -202,7 +212,8 @@ export function ButtonGallery() {
         <p className={styles.sectionDesc}>{t('common.gallery.loadingDesc')}</p>
         <div className={styles.buttonRow}>
           <Button
-            id="gallery-interactive-loading"
+            id={loadingButtonId}
+            data-testid="specimen-interactive-loading"
             variant="primary"
             loading={asyncState === 'pending'}
             onClick={handleSimulatedAsync}

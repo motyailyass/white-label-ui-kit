@@ -82,6 +82,7 @@ describe('Button Primitive', () => {
     expect(screen.getByTestId('start-icon')).toBeTruthy();
     expect(screen.getByTestId('end-icon')).toBeTruthy();
     expect(button.querySelector('[aria-hidden="true"]')).toBeTruthy();
+    expect(button.querySelector('[aria-hidden="true"] svg')).toBeTruthy();
   });
 
   it('handles click events when enabled via userEvent', async () => {

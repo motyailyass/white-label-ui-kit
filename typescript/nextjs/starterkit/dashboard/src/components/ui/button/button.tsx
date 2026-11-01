@@ -1,4 +1,5 @@
 import { type ComponentPropsWithoutRef, type ReactNode, forwardRef } from 'react';
+import { Icon } from '@/components/icons';
 import { cn } from '@/lib/cn';
 import type { ControlSizingProps } from '../control-sizing';
 import styles from './button.module.css';
@@ -53,7 +54,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       </span>
       {loading && (
         <span className={styles.spinnerWrapper} aria-hidden="true">
-          <span className={styles.spinner} />
+          <Icon name="loader" className={styles.spinner} />
         </span>
       )}
     </button>

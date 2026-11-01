@@ -379,6 +379,8 @@ test.describe('Input Primitive Real-Browser Verification', () => {
     await submitBtn.click();
     await expect(statusBox).toContainText(/Processing registration|simulated/i);
 
+    // Assert Reset is enabled while status is pending before clicking
+    await expect(resetBtn).toBeEnabled();
     await resetBtn.click();
     await expect(statusBox).toContainText(/Form reset to initial defaults/i);
 

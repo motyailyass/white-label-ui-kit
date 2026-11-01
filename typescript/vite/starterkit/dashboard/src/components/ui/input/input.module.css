@@ -92,18 +92,6 @@
   transition: none;
 }
 
-/* Invalid State: driven strictly by aria-invalid="true" */
-.input[aria-invalid="true"] {
-  border-color: var(--color-danger);
-}
-
-.input[aria-invalid="true"]:focus-visible,
-.input[aria-invalid="true"]:focus {
-  border-color: var(--color-danger);
-  outline-color: var(--color-danger);
-  transition: none;
-}
-
 /* Disabled State */
 .input:disabled {
   background-color: var(--color-control-disabled-bg);
@@ -117,6 +105,21 @@
   background-color: var(--color-surface-subtle);
   border-color: var(--color-border-subtle);
   color: var(--color-text-secondary);
+}
+
+/* Invalid State: driven strictly by aria-invalid="true" */
+.input[aria-invalid="true"],
+.input:read-only:not(:disabled)[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.input[aria-invalid="true"]:focus-visible,
+.input[aria-invalid="true"]:focus,
+.input:read-only:not(:disabled)[aria-invalid="true"]:focus-visible,
+.input:read-only:not(:disabled)[aria-invalid="true"]:focus {
+  border-color: var(--color-danger);
+  outline-color: var(--color-danger);
+  transition: none;
 }
 
 /* Placeholder */

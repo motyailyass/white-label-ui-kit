@@ -19,7 +19,7 @@
   line-height: var(--_control-line-height);
   font-weight: var(--font-weight-regular);
   text-align: start;
-  overflow-y: auto;
+  overflow-block: auto;
   resize: vertical;
   transition:
     border-color var(--transition-fast),
@@ -92,25 +92,13 @@
   transition: none;
 }
 
-/* Invalid State: driven strictly by aria-invalid="true" */
-.textarea[aria-invalid="true"] {
-  border-color: var(--color-danger);
-}
-
-.textarea[aria-invalid="true"]:focus-visible,
-.textarea[aria-invalid="true"]:focus {
-  border-color: var(--color-danger);
-  outline-color: var(--color-danger);
-  transition: none;
-}
-
 /* Disabled State: Non-editable and resize handle disabled */
 .textarea:disabled {
   background-color: var(--color-control-disabled-bg);
   border-color: var(--color-border-disabled);
   color: var(--color-text-disabled);
   cursor: not-allowed;
-  resize: none !important;
+  resize: none;
 }
 
 /* Read-Only State: Non-editable, but vertical resize preserved for reading long content */
@@ -118,6 +106,21 @@
   background-color: var(--color-surface-subtle);
   border-color: var(--color-border-subtle);
   color: var(--color-text-secondary);
+}
+
+/* Invalid State: driven strictly by aria-invalid="true" */
+.textarea[aria-invalid="true"],
+.textarea:read-only:not(:disabled)[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.textarea[aria-invalid="true"]:focus-visible,
+.textarea[aria-invalid="true"]:focus,
+.textarea:read-only:not(:disabled)[aria-invalid="true"]:focus-visible,
+.textarea:read-only:not(:disabled)[aria-invalid="true"]:focus {
+  border-color: var(--color-danger);
+  outline-color: var(--color-danger);
+  transition: none;
 }
 
 /* Placeholder Styling */

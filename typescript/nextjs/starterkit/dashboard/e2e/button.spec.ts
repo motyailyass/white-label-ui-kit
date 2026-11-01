@@ -44,9 +44,11 @@ test.describe('Button Primitive Real-Browser Verification', () => {
 
     // 2. Hover state: background changes to var(--color-surface-hover), but border remains STABLE at var(--color-border-control)
     await secondaryBtn.hover();
-    await expect.poll(async () => {
-      return secondaryBtn.evaluate((el) => window.getComputedStyle(el).backgroundColor);
-    }).toBe(colors.hoverBgRgb);
+    await expect
+      .poll(async () => {
+        return secondaryBtn.evaluate((el) => window.getComputedStyle(el).backgroundColor);
+      })
+      .toBe(colors.hoverBgRgb);
 
     const hoverStyle = await secondaryBtn.evaluate((el) => {
       const s = window.getComputedStyle(el);
@@ -118,9 +120,11 @@ test.describe('Button Primitive Real-Browser Verification', () => {
     });
 
     await primaryBtn.hover();
-    await expect.poll(async () => {
-      return primaryBtn.evaluate((el) => window.getComputedStyle(el).backgroundColor);
-    }).toBe(colors.hoverRgb);
+    await expect
+      .poll(async () => {
+        return primaryBtn.evaluate((el) => window.getComputedStyle(el).backgroundColor);
+      })
+      .toBe(colors.hoverRgb);
 
     const hoverStyle = await primaryBtn.evaluate((el) => {
       const s = window.getComputedStyle(el);
@@ -129,5 +133,26 @@ test.describe('Button Primitive Real-Browser Verification', () => {
     expect(hoverStyle.bg).toBe(colors.hoverRgb);
     expect(hoverStyle.border).toBe(colors.hoverRgb);
     expect(hoverStyle.borderWidth).toBe('1px');
+  });
+
+  test('verifies button icon SVG dimensions match control icon size', async ({ page }) => {
+    const iconBtn = page.locator('button:has(span svg)').first();
+    await expect(iconBtn).toBeVisible();
+
+    const iconSvg = iconBtn.locator('svg').first();
+    const svgBounds = await iconSvg.evaluate((el) => {
+      const rect = el.getBoundingClientRect();
+      const style = window.getComputedStyle(el);
+      return {
+        width: rect.width,
+        height: rect.height,
+        cssInlineSize: parseFloat(style.inlineSize),
+        cssBlockSize: parseFloat(style.blockSize),
+      };
+    });
+
+    expect(svgBounds.width).toBeGreaterThan(0);
+    expect(svgBounds.height).toBeGreaterThan(0);
+    expect(svgBounds.width).toBeCloseTo(svgBounds.height, 1);
   });
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useId, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { LanguageSwitcher, ThemeSwitcher } from '@/components/patterns';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,43 +29,91 @@ export function TextareaGallery() {
   const [formMessage, setFormMessage] = useState('');
   const [formError, setFormError] = useState(false);
   const [formStatusId, setFormStatusId] = useState<FormStatusId>('none');
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const handleFormSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
+      if (formStatusId === 'pending') return;
       if (!formMessage.trim()) {
         setFormError(true);
         return;
       }
       setFormError(false);
       setFormStatusId('pending');
-      setTimeout(() => {
+
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
         setFormStatusId('success');
+        timerRef.current = null;
       }, 600);
     },
-    [formMessage],
+    [formMessage, formStatusId],
   );
 
   const handleFormReset = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     setFormMessage('');
     setFormError(false);
     setFormStatusId('reset');
   }, []);
 
-  const overviewId = useId();
-  const densityId = useId();
-  const rowsId = useId();
-  const statesId = useId();
-  const helpErrorId = useId();
-  const modesId = useId();
-  const localizationId = useId();
-  const directionId = useId();
-  const responsiveId = useId();
-  const formId = useId();
-  const usageId = useId();
+  const baseId = useId();
+  const overviewId = `${baseId}-sec-overview`;
+  const densityId = `${baseId}-sec-density`;
+  const rowsId = `${baseId}-sec-rows`;
+  const statesId = `${baseId}-sec-states`;
+  const helpErrorId = `${baseId}-sec-help-error`;
+  const modesId = `${baseId}-sec-modes`;
+  const localizationId = `${baseId}-sec-localization`;
+  const directionId = `${baseId}-sec-direction`;
+  const responsiveId = `${baseId}-sec-responsive`;
+  const formId = `${baseId}-sec-form`;
+  const usageId = `${baseId}-sec-usage`;
 
-  const feedbackHelpId = useId();
-  const feedbackErrorId = useId();
+  // Field IDs
+  const defaultFieldId = `${baseId}-default`;
+  const densityXsId = `${baseId}-density-xs`;
+  const densitySmId = `${baseId}-density-sm`;
+  const densityMdId = `${baseId}-density-md`;
+  const densityLgId = `${baseId}-density-lg`;
+  const densityXlId = `${baseId}-density-xl`;
+  const density2xlId = `${baseId}-density-2xl`;
+
+  const rowsTwoId = `${baseId}-rows-2`;
+  const rowsFourId = `${baseId}-rows-4`;
+  const rowsSixId = `${baseId}-rows-6`;
+
+  const restingFieldId = `${baseId}-resting`;
+  const disabledFieldId = `${baseId}-disabled`;
+  const readOnlyFieldId = `${baseId}-readonly`;
+  const requiredFieldId = `${baseId}-required`;
+  const invalidFieldId = `${baseId}-invalid`;
+
+  const feedbackFieldId = `${baseId}-feedback`;
+  const feedbackHelpId = `${feedbackFieldId}-help`;
+  const feedbackErrorId = `${feedbackFieldId}-error`;
+
+  const controlledFieldId = `${baseId}-controlled`;
+  const uncontrolledFieldId = `${baseId}-uncontrolled`;
+  const arabicFieldId = `${baseId}-arabic`;
+  const mixedCodeFieldId = `${baseId}-mixed-ltr`;
+
+  const touchAutoFieldId = `${baseId}-touch-auto`;
+  const touchComfortableFieldId = `${baseId}-touch-comfortable`;
+
+  const formMessageId = `${baseId}-form-message`;
+  const formMessageHelpId = `${formMessageId}-help`;
+  const formMessageErrorId = `${formMessageId}-error`;
 
   return (
     <main className={styles.galleryContainer} data-testid="textarea-gallery">
@@ -88,12 +136,13 @@ export function TextareaGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.textareaGallery.overviewDesc')}</p>
         <div className={styles.fieldGroup}>
-          <label htmlFor="specimen-default" className={styles.label}>
+          <label htmlFor={defaultFieldId} className={styles.label}>
             {t('common.textareaGallery.defaultOmittedLabel')}
           </label>
           <Textarea
-            id="specimen-default"
+            id={defaultFieldId}
             placeholder={t('common.textareaGallery.defaultOmittedPlaceholder')}
+            data-testid="specimen-default"
           />
         </div>
       </section>
@@ -106,75 +155,75 @@ export function TextareaGallery() {
         <p className={styles.sectionDesc}>{t('common.textareaGallery.densityDesc')}</p>
         <div className={styles.gridTwo}>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-xs" className={styles.label}>
-              XS Density
+            <label htmlFor={densityXsId} className={styles.label}>
+              {t('common.textareaGallery.densityXs')}
             </label>
             <Textarea
-              id="specimen-xs"
+              id={densityXsId}
               size="xs"
               rows={4}
-              defaultValue="XS density multiline text."
-              aria-label="XS textarea"
+              defaultValue={t('common.textareaGallery.densityXsSpecimen')}
+              data-testid="specimen-xs"
             />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-sm" className={styles.label}>
-              SM Density
+            <label htmlFor={densitySmId} className={styles.label}>
+              {t('common.textareaGallery.densitySm')}
             </label>
             <Textarea
-              id="specimen-sm"
+              id={densitySmId}
               size="sm"
               rows={4}
-              defaultValue="SM density multiline text."
-              aria-label="SM textarea"
+              defaultValue={t('common.textareaGallery.densitySmSpecimen')}
+              data-testid="specimen-sm"
             />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-md" className={styles.label}>
-              MD Density
+            <label htmlFor={densityMdId} className={styles.label}>
+              {t('common.textareaGallery.densityMd')}
             </label>
             <Textarea
-              id="specimen-md"
+              id={densityMdId}
               size="md"
               rows={4}
-              defaultValue="MD density multiline text."
-              aria-label="MD textarea"
+              defaultValue={t('common.textareaGallery.densityMdSpecimen')}
+              data-testid="specimen-md"
             />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-lg" className={styles.label}>
-              LG Density
+            <label htmlFor={densityLgId} className={styles.label}>
+              {t('common.textareaGallery.densityLg')}
             </label>
             <Textarea
-              id="specimen-lg"
+              id={densityLgId}
               size="lg"
               rows={4}
-              defaultValue="LG density multiline text."
-              aria-label="LG textarea"
+              defaultValue={t('common.textareaGallery.densityLgSpecimen')}
+              data-testid="specimen-lg"
             />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-xl" className={styles.label}>
-              XL Density
+            <label htmlFor={densityXlId} className={styles.label}>
+              {t('common.textareaGallery.densityXl')}
             </label>
             <Textarea
-              id="specimen-xl"
+              id={densityXlId}
               size="xl"
               rows={4}
-              defaultValue="XL density multiline text."
-              aria-label="XL textarea"
+              defaultValue={t('common.textareaGallery.densityXlSpecimen')}
+              data-testid="specimen-xl"
             />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-2xl" className={styles.label}>
-              2XL Density
+            <label htmlFor={density2xlId} className={styles.label}>
+              {t('common.textareaGallery.density2xl')}
             </label>
             <Textarea
-              id="specimen-2xl"
+              id={density2xlId}
               size="2xl"
               rows={4}
-              defaultValue="2XL density multiline text."
-              aria-label="2XL textarea"
+              defaultValue={t('common.textareaGallery.density2xlSpecimen')}
+              data-testid="specimen-2xl"
             />
           </div>
         </div>
@@ -188,33 +237,36 @@ export function TextareaGallery() {
         <p className={styles.sectionDesc}>{t('common.textareaGallery.rowsDesc')}</p>
         <div className={styles.rowFlex}>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-rows-2" className={styles.label}>
+            <label htmlFor={rowsTwoId} className={styles.label}>
               {t('common.textareaGallery.rowsTwoLabel')}
             </label>
             <Textarea
-              id="specimen-rows-2"
+              id={rowsTwoId}
               rows={2}
-              defaultValue="Two visible lines of text by default."
+              defaultValue={t('common.textareaGallery.rowsTwoSpecimen')}
+              data-testid="specimen-rows-2"
             />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-rows-4" className={styles.label}>
+            <label htmlFor={rowsFourId} className={styles.label}>
               {t('common.textareaGallery.rowsFourLabel')}
             </label>
             <Textarea
-              id="specimen-rows-4"
+              id={rowsFourId}
               rows={4}
-              defaultValue="Four visible lines of text by default."
+              defaultValue={t('common.textareaGallery.rowsFourSpecimen')}
+              data-testid="specimen-rows-4"
             />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-rows-6" className={styles.label}>
+            <label htmlFor={rowsSixId} className={styles.label}>
               {t('common.textareaGallery.rowsSixLabel')}
             </label>
             <Textarea
-              id="specimen-rows-6"
+              id={rowsSixId}
               rows={6}
-              defaultValue="Six visible lines of text by default."
+              defaultValue={t('common.textareaGallery.rowsSixSpecimen')}
+              data-testid="specimen-rows-6"
             />
           </div>
         </div>
@@ -228,49 +280,57 @@ export function TextareaGallery() {
         <p className={styles.sectionDesc}>{t('common.textareaGallery.statesDesc')}</p>
         <div className={styles.gridTwo}>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-resting" className={styles.label}>
+            <label htmlFor={restingFieldId} className={styles.label}>
               {t('common.textareaGallery.restingLabel')}
             </label>
-            <Textarea id="specimen-resting" defaultValue="Resting editable content" />
+            <Textarea
+              id={restingFieldId}
+              defaultValue={t('common.textareaGallery.restingValue')}
+              data-testid="specimen-resting"
+            />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-disabled" className={styles.label}>
+            <label htmlFor={disabledFieldId} className={styles.label}>
               {t('common.textareaGallery.disabledLabel')}
             </label>
             <Textarea
-              id="specimen-disabled"
+              id={disabledFieldId}
               disabled
               defaultValue={t('common.textareaGallery.disabledValue')}
+              data-testid="specimen-disabled"
             />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-readonly" className={styles.label}>
+            <label htmlFor={readOnlyFieldId} className={styles.label}>
               {t('common.textareaGallery.readOnlyLabel')}
             </label>
             <Textarea
-              id="specimen-readonly"
+              id={readOnlyFieldId}
               readOnly
               defaultValue={t('common.textareaGallery.readOnlyValue')}
+              data-testid="specimen-readonly"
             />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-required" className={styles.label}>
+            <label htmlFor={requiredFieldId} className={styles.label}>
               {t('common.textareaGallery.requiredLabel')}
             </label>
             <Textarea
-              id="specimen-required"
+              id={requiredFieldId}
               required
               placeholder={t('common.textareaGallery.requiredPlaceholder')}
+              data-testid="specimen-required"
             />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-invalid" className={styles.label}>
+            <label htmlFor={invalidFieldId} className={styles.label}>
               {t('common.textareaGallery.invalidLabel')}
             </label>
             <Textarea
-              id="specimen-invalid"
+              id={invalidFieldId}
               aria-invalid="true"
               placeholder={t('common.textareaGallery.invalidPlaceholder')}
+              data-testid="specimen-invalid"
             />
           </div>
         </div>
@@ -283,11 +343,11 @@ export function TextareaGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.textareaGallery.helpErrorDesc')}</p>
         <div className={styles.fieldGroup}>
-          <label htmlFor="specimen-helped" className={styles.label}>
+          <label htmlFor={feedbackFieldId} className={styles.label}>
             {t('common.textareaGallery.descriptionLabel')}
           </label>
           <Textarea
-            id="specimen-helped"
+            id={feedbackFieldId}
             rows={4}
             placeholder={t('common.textareaGallery.descriptionPlaceholder')}
             aria-describedby={`${feedbackHelpId} ${feedbackErrorId}`}
@@ -309,25 +369,30 @@ export function TextareaGallery() {
         <p className={styles.sectionDesc}>{t('common.textareaGallery.modesDesc')}</p>
         <div className={styles.gridTwo}>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-controlled" className={styles.label}>
+            <label htmlFor={controlledFieldId} className={styles.label}>
               {t('common.textareaGallery.controlledLabel')}
             </label>
             <Textarea
-              id="specimen-controlled"
+              id={controlledFieldId}
               rows={4}
               value={controlledVal}
               onChange={(e) => setControlledVal(e.target.value)}
+              data-testid="specimen-controlled"
             />
-            <span className={styles.helpText}>Length: {controlledVal.length} chars</span>
+            <span className={styles.helpText}>
+              {t('common.textareaGallery.lengthPrefix')}: {controlledVal.length}{' '}
+              {t('common.textareaGallery.lengthChars')}
+            </span>
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-uncontrolled" className={styles.label}>
+            <label htmlFor={uncontrolledFieldId} className={styles.label}>
               {t('common.textareaGallery.uncontrolledLabel')}
             </label>
             <Textarea
-              id="specimen-uncontrolled"
+              id={uncontrolledFieldId}
               rows={4}
               defaultValue={t('common.textareaGallery.uncontrolledDefaultValue')}
+              data-testid="specimen-uncontrolled"
             />
           </div>
         </div>
@@ -340,14 +405,15 @@ export function TextareaGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.textareaGallery.localizationDesc')}</p>
         <div className={styles.fieldGroup} lang="ar" dir="rtl">
-          <label htmlFor="specimen-arabic" className={styles.label}>
+          <label htmlFor={arabicFieldId} className={styles.label}>
             {t('common.textareaGallery.arabicFeedbackLabel')}
           </label>
           <Textarea
-            id="specimen-arabic"
+            id={arabicFieldId}
             dir="rtl"
             rows={4}
             placeholder={t('common.textareaGallery.arabicFeedbackPlaceholder')}
+            data-testid="specimen-arabic"
           />
         </div>
       </section>
@@ -359,14 +425,15 @@ export function TextareaGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.textareaGallery.directionDesc')}</p>
         <div className={styles.fieldGroup}>
-          <label htmlFor="specimen-mixed-ltr" className={styles.label}>
+          <label htmlFor={mixedCodeFieldId} className={styles.label}>
             {t('common.textareaGallery.mixedCodeLabel')}
           </label>
           <Textarea
-            id="specimen-mixed-ltr"
+            id={mixedCodeFieldId}
             dir="ltr"
             rows={4}
             defaultValue={`{\n  "service": "telemetry-worker",\n  "status": "active",\n  "retries": 3\n}`}
+            data-testid="specimen-mixed-ltr"
           />
         </div>
       </section>
@@ -379,27 +446,29 @@ export function TextareaGallery() {
         <p className={styles.sectionDesc}>{t('common.inputGallery.responsiveDesc')}</p>
         <div className={styles.gridTwo}>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-touch-auto" className={styles.label}>
+            <label htmlFor={touchAutoFieldId} className={styles.label}>
               {t('common.gallery.xsAuto')}
             </label>
             <Textarea
-              id="specimen-touch-auto"
+              id={touchAutoFieldId}
               size="xs"
               rows={2}
               touchTarget="auto"
-              defaultValue="XS Auto Target"
+              defaultValue={t('common.textareaGallery.touchAutoSpecimen')}
+              data-testid="specimen-touch-auto"
             />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-touch-comfortable" className={styles.label}>
+            <label htmlFor={touchComfortableFieldId} className={styles.label}>
               {t('common.gallery.xsComfortable')}
             </label>
             <Textarea
-              id="specimen-touch-comfortable"
+              id={touchComfortableFieldId}
               size="xs"
               rows={2}
               touchTarget="comfortable"
-              defaultValue="XS Comfortable Target"
+              defaultValue={t('common.textareaGallery.touchComfortableSpecimen')}
+              data-testid="specimen-touch-comfortable"
             />
           </div>
         </div>
@@ -411,13 +480,17 @@ export function TextareaGallery() {
           {t('common.textareaGallery.formDemoTitle')}
         </h2>
         <p className={styles.sectionDesc}>{t('common.textareaGallery.formDemoDesc')}</p>
-        <form onSubmit={handleFormSubmit} onReset={handleFormReset} className={styles.formContainer}>
+        <form
+          onSubmit={handleFormSubmit}
+          onReset={handleFormReset}
+          className={styles.formContainer}
+        >
           <div className={styles.fieldGroup}>
-            <label htmlFor="form-message" className={styles.label}>
+            <label htmlFor={formMessageId} className={styles.label}>
               {t('common.textareaGallery.formMessageLabel')}
             </label>
             <Textarea
-              id="form-message"
+              id={formMessageId}
               rows={4}
               value={formMessage}
               onChange={(e) => {
@@ -426,13 +499,16 @@ export function TextareaGallery() {
               }}
               placeholder={t('common.textareaGallery.formMessagePlaceholder')}
               aria-invalid={formError ? 'true' : undefined}
+              aria-describedby={formError ? formMessageErrorId : formMessageHelpId}
             />
             {formError ? (
-              <p className={styles.errorText} role="alert">
+              <p id={formMessageErrorId} className={styles.errorText} role="alert">
                 {t('common.textareaGallery.formMessageError')}
               </p>
             ) : (
-              <p className={styles.helpText}>{t('common.textareaGallery.formMessageHelp')}</p>
+              <p id={formMessageHelpId} className={styles.helpText}>
+                {t('common.textareaGallery.formMessageHelp')}
+              </p>
             )}
           </div>
           <div className={styles.buttonRow}>

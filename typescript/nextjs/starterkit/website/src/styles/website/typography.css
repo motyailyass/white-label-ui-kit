@@ -19,6 +19,11 @@
   --typography-supporting-line-height: 1.25rem;
   --typography-supporting-weight: var(--font-weight-regular);
 
+  /* Label: 16px / 24px, 500 */
+  --typography-label-size: var(--font-size-base);
+  --typography-label-line-height: 1.5rem;
+  --typography-label-weight: var(--font-weight-medium);
+
   /* Page title: 32px / 40px mobile -> 48px / 56px desktop, 600 */
   --typography-page-title-size: var(--font-size-4xl);
   --typography-page-title-line-height: 2.5rem;
@@ -86,6 +91,9 @@
 
   /* Supporting text: 14px with diacritics clearance */
   --typography-supporting-line-height: 1.5rem;
+
+  /* Label: 16px with diacritics clearance */
+  --typography-label-line-height: 1.75rem;
 
   /* Page title: 32px with tall ascender/descender clearance */
   --typography-page-title-line-height: 3rem;

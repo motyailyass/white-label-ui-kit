@@ -6,13 +6,11 @@ test.describe('Textarea Primitive Real-Browser Verification', () => {
     await expect(page.locator('[data-testid="textarea-gallery"]')).toBeVisible();
   });
 
-  test('verifies initial height derives natively from rows and density scale', async ({
-    page,
-  }) => {
+  test('verifies initial height derives natively from rows and density scale', async ({ page }) => {
     // 1. Row counts: 2 rows < 4 rows < 6 rows
-    const rows2 = page.locator('#specimen-rows-2');
-    const rows4 = page.locator('#specimen-rows-4');
-    const rows6 = page.locator('#specimen-rows-6');
+    const rows2 = page.locator('[data-testid="specimen-rows-2"]');
+    const rows4 = page.locator('[data-testid="specimen-rows-4"]');
+    const rows6 = page.locator('[data-testid="specimen-rows-6"]');
 
     const h2 = await rows2.evaluate((el) => parseFloat(window.getComputedStyle(el).height));
     const h4 = await rows4.evaluate((el) => parseFloat(window.getComputedStyle(el).height));
@@ -22,15 +20,13 @@ test.describe('Textarea Primitive Real-Browser Verification', () => {
     expect(h4).toBeLessThan(h6);
 
     // 2. Default omitted size textarea uses 4 rows
-    const defaultTextarea = page.locator('#specimen-default');
-    const defaultRows = await defaultTextarea.evaluate((el) =>
-      el.getAttribute('rows'),
-    );
+    const defaultTextarea = page.locator('[data-testid="specimen-default"]');
+    const defaultRows = await defaultTextarea.evaluate((el) => el.getAttribute('rows'));
     expect(defaultRows).toBe('4');
 
     // 3. Density scale steps (xs to 2xl) with matching 4 rows
-    const xsTextarea = page.locator('#specimen-xs');
-    const xlTextarea = page.locator('#specimen-xl');
+    const xsTextarea = page.locator('[data-testid="specimen-xs"]');
+    const xlTextarea = page.locator('[data-testid="specimen-xl"]');
 
     const xsFontSize = await xsTextarea.evaluate((el) =>
       parseFloat(window.getComputedStyle(el).fontSize),
@@ -46,7 +42,7 @@ test.describe('Textarea Primitive Real-Browser Verification', () => {
   test('enforces 48x48px minimum target on coarse pointers and comfortable mode', async ({
     page,
   }) => {
-    const comfortable = page.locator('#specimen-touch-comfortable');
+    const comfortable = page.locator('[data-testid="specimen-touch-comfortable"]');
     await expect(comfortable).toBeVisible();
 
     const dimensions = await comfortable.evaluate((el) => {
@@ -63,10 +59,8 @@ test.describe('Textarea Primitive Real-Browser Verification', () => {
     expect(dimensions.minWidth).toBeGreaterThanOrEqual(48);
   });
 
-  test('verifies edge-click focus directly on the native textarea element', async ({
-    page,
-  }) => {
-    const textarea = page.locator('#specimen-default');
+  test('verifies edge-click focus directly on the native textarea element', async ({ page }) => {
+    const textarea = page.locator('[data-testid="specimen-default"]');
     await expect(textarea).toBeVisible();
 
     const box = await textarea.boundingBox();
@@ -88,7 +82,7 @@ test.describe('Textarea Primitive Real-Browser Verification', () => {
   test('verifies standard Textarea border remains stable on hover and indicates focus clearly', async ({
     page,
   }) => {
-    const textarea = page.locator('#specimen-resting');
+    const textarea = page.locator('[data-testid="specimen-resting"]');
     await expect(textarea).toBeVisible();
 
     const colors = await page.evaluate(() => {
@@ -108,16 +102,12 @@ test.describe('Textarea Primitive Real-Browser Verification', () => {
     });
 
     // 1. Resting state: border is var(--color-border-control)
-    const restingBorder = await textarea.evaluate(
-      (el) => window.getComputedStyle(el).borderColor,
-    );
+    const restingBorder = await textarea.evaluate((el) => window.getComputedStyle(el).borderColor);
     expect(restingBorder).toBe(colors.borderRgb);
 
     // 2. Hover state: border remains STABLE at var(--color-border-control) (no independent hover border emphasis)
     await textarea.hover();
-    const hoverBorder = await textarea.evaluate(
-      (el) => window.getComputedStyle(el).borderColor,
-    );
+    const hoverBorder = await textarea.evaluate((el) => window.getComputedStyle(el).borderColor);
     expect(hoverBorder).toBe(colors.borderRgb);
 
     // 3. Focus state (click): border and outline indicate focus clearly
@@ -162,7 +152,7 @@ test.describe('Textarea Primitive Real-Browser Verification', () => {
   test('verifies invalid Textarea border and focus precedence across hover, focus, and pointer exit', async ({
     page,
   }) => {
-    const invalidTextarea = page.locator('#specimen-invalid');
+    const invalidTextarea = page.locator('[data-testid="specimen-invalid"]');
     await expect(invalidTextarea).toBeVisible();
 
     const expectedDangerRgb = await page.evaluate(() => {
@@ -225,11 +215,9 @@ test.describe('Textarea Primitive Real-Browser Verification', () => {
     expect(blurredBorder).toBe(expectedDangerRgb);
   });
 
-  test('distinguishes required-only textarea from validation-error textarea', async ({
-    page,
-  }) => {
-    const requiredTextarea = page.locator('#specimen-required');
-    const invalidTextarea = page.locator('#specimen-invalid');
+  test('distinguishes required-only textarea from validation-error textarea', async ({ page }) => {
+    const requiredTextarea = page.locator('[data-testid="specimen-required"]');
+    const invalidTextarea = page.locator('[data-testid="specimen-invalid"]');
 
     await expect(requiredTextarea).toBeVisible();
     await expect(invalidTextarea).toBeVisible();
@@ -257,8 +245,8 @@ test.describe('Textarea Primitive Real-Browser Verification', () => {
   test('verifies vertical resize is preserved on read-only and suppressed on disabled', async ({
     page,
   }) => {
-    const readOnlyTextarea = page.locator('#specimen-readonly');
-    const disabledTextarea = page.locator('#specimen-disabled');
+    const readOnlyTextarea = page.locator('[data-testid="specimen-readonly"]');
+    const disabledTextarea = page.locator('[data-testid="specimen-disabled"]');
 
     const readOnlyResize = await readOnlyTextarea.evaluate(
       (el) => window.getComputedStyle(el).resize,
@@ -277,8 +265,8 @@ test.describe('Textarea Primitive Real-Browser Verification', () => {
   test('verifies Arabic multiline clearance, language/direction, and application-locale behavior', async ({
     page,
   }) => {
-    const arabicTextarea = page.locator('#specimen-arabic');
-    const mixedTextarea = page.locator('#specimen-mixed-ltr');
+    const arabicTextarea = page.locator('[data-testid="specimen-arabic"]');
+    const mixedTextarea = page.locator('[data-testid="specimen-mixed-ltr"]');
 
     await expect(arabicTextarea).toBeVisible();
     await expect(mixedTextarea).toBeVisible();
@@ -319,7 +307,7 @@ test.describe('Textarea Primitive Real-Browser Verification', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
 
     // Default textarea inherits document RTL direction
-    const defaultTextarea = page.locator('#specimen-default');
+    const defaultTextarea = page.locator('[data-testid="specimen-default"]');
     const defaultComputedDir = await defaultTextarea.evaluate(
       (el) => window.getComputedStyle(el).direction,
     );
@@ -330,5 +318,130 @@ test.describe('Textarea Primitive Real-Browser Verification', () => {
       (el) => window.getComputedStyle(el).direction,
     );
     expect(mixedComputedDir).toBe('ltr');
+  });
+
+  test('verifies all visible density labels are associated with textareas and clicking focuses them', async ({
+    page,
+  }) => {
+    const densities = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
+
+    for (const d of densities) {
+      const textarea = page.locator(`[data-testid="specimen-${d}"]`);
+      await expect(textarea).toBeVisible();
+
+      // Density specimens must NOT have overriding aria-label
+      const ariaLabel = await textarea.getAttribute('aria-label');
+      expect(ariaLabel).toBeNull();
+
+      const textareaId = await textarea.getAttribute('id');
+      expect(textareaId).toBeTruthy();
+
+      const label = page.locator(`label[for="${textareaId}"]`);
+      await expect(label).toBeVisible();
+      await expect(label).toContainText(new RegExp(`${d} density`, 'i'));
+
+      await label.click();
+      await expect(textarea).toBeFocused();
+    }
+  });
+
+  test('verifies read-only textarea with aria-invalid="true" renders danger border and outline', async ({
+    page,
+  }) => {
+    const expectedDangerRgb = await page.evaluate(() => {
+      const el = document.createElement('div');
+      el.style.color = 'var(--color-danger)';
+      document.body.appendChild(el);
+      const computed = window.getComputedStyle(el).color;
+      el.remove();
+      return computed;
+    });
+
+    const readOnlyTextarea = page.locator('[data-testid="specimen-readonly"]');
+    await expect(readOnlyTextarea).toBeVisible();
+
+    await readOnlyTextarea.evaluate((el) => el.setAttribute('aria-invalid', 'true'));
+
+    await expect
+      .poll(async () => {
+        return readOnlyTextarea.evaluate((el) => window.getComputedStyle(el).borderColor);
+      })
+      .toBe(expectedDangerRgb);
+
+    await readOnlyTextarea.click();
+    await expect(readOnlyTextarea).toBeFocused();
+
+    await expect
+      .poll(async () => {
+        return readOnlyTextarea.evaluate((el) => {
+          const style = window.getComputedStyle(el);
+          return {
+            border: style.borderColor,
+            outline: style.outlineColor,
+          };
+        });
+      })
+      .toEqual({
+        border: expectedDangerRgb,
+        outline: expectedDangerRgb,
+      });
+  });
+
+  test('verifies textarea form reset immediately cancels pending submission timer and connects aria-describedby', async ({
+    page,
+  }) => {
+    const textarea = page.locator('form textarea');
+    const submitBtn = page.locator('form button[type="submit"]');
+    const resetBtn = page.locator('form button[type="reset"]');
+    const statusBox = page.locator('[role="status"]');
+
+    // Check helper text aria-describedby linkage initially
+    const describedBy = await textarea.getAttribute('aria-describedby');
+    expect(describedBy).toBeTruthy();
+    const helperEl = page.locator(`#${describedBy}`);
+    await expect(helperEl).toBeVisible();
+
+    // Fill message and submit
+    await textarea.fill('Testing feedback submission');
+    await submitBtn.click();
+    await expect(statusBox).toContainText(/Submitting feedback|simulated/i);
+
+    // Immediately reset form
+    await resetBtn.click();
+    await expect(statusBox).toContainText(/Form reset to initial defaults/i);
+
+    // Wait past the 600ms timer to ensure it does NOT flip to success
+    await page.waitForTimeout(800);
+    await expect(statusBox).toContainText(/Form reset to initial defaults/i);
+    await expect(statusBox).not.toContainText(/Feedback submitted successfully/i);
+  });
+
+  test('verifies narrow viewport and 200% text zoom do not produce horizontal overflow', async ({
+    page,
+  }) => {
+    // 1. 320px viewport
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.waitForTimeout(100);
+
+    const overflow320 = await page.evaluate(() => {
+      return document.documentElement.scrollWidth <= window.innerWidth;
+    });
+    expect(overflow320).toBe(true);
+
+    // 2. 390px viewport + 200% root font size simulation
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.evaluate(() => {
+      document.documentElement.style.fontSize = '32px';
+    });
+    await page.waitForTimeout(100);
+
+    const overflow390Zoom = await page.evaluate(() => {
+      return document.documentElement.scrollWidth <= window.innerWidth;
+    });
+    expect(overflow390Zoom).toBe(true);
+
+    await page.evaluate(() => {
+      document.documentElement.style.fontSize = '';
+    });
   });
 });

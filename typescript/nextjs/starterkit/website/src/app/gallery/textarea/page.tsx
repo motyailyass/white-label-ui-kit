@@ -7,11 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const { locale } = await getServerI18nState('en');
   return {
     title: translate(defaultMessages, locale, 'common.textareaGallery.metaTitle'),
-    description: translate(
-      defaultMessages,
-      locale,
-      'common.textareaGallery.metaDescription',
-    ),
+    description: translate(defaultMessages, locale, 'common.textareaGallery.metaDescription'),
   };
 }
 

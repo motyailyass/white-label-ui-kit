@@ -38,11 +38,7 @@ export function OverviewContent() {
           <Button variant="secondary" size="sm">
             {t('common.filter')}
           </Button>
-          <Button
-            variant="primary"
-            loading={isExporting}
-            onClick={handleExport}
-          >
+          <Button variant="primary" loading={isExporting} onClick={handleExport}>
             {t('common.exportReport')}
           </Button>
         </div>

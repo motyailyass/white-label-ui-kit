@@ -192,4 +192,11 @@ describe('Input Primitive', () => {
     await user.click(screen.getByRole('button', { name: /reset/i }));
     expect(activeInput.value).toBe('activeValue');
   });
+
+  it('combines readOnly with aria-invalid="true" preserving invalid attribute', () => {
+    render(<Input readOnly aria-invalid="true" aria-label="ReadOnly Invalid" />);
+    const input = screen.getByRole('textbox', { name: /readonly invalid/i });
+    expect(input.hasAttribute('readonly')).toBe(true);
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+  });
 });

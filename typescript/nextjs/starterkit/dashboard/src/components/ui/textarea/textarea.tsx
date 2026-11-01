@@ -16,30 +16,22 @@ export interface TextareaProps
  * - Stable resting border across hover; high-visibility focus outlines.
  * - Initial height governed by native rows (defaulting to 4); vertical manual resizing.
  */
-export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  function Textarea(
-    {
-      size,
-      touchTarget = 'auto',
-      rows = 4,
-      className,
-      ...props
-    },
-    ref,
-  ) {
-    const classNames = [styles.textarea, className].filter(Boolean).join(' ');
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
+  { size, touchTarget = 'auto', rows = 4, className, ...props },
+  ref,
+) {
+  const classNames = [styles.textarea, className].filter(Boolean).join(' ');
 
-    return (
-      <textarea
-        ref={ref}
-        rows={rows}
-        data-size={size}
-        data-touch-target={touchTarget}
-        className={classNames}
-        {...props}
-      />
-    );
-  },
-);
+  return (
+    <textarea
+      ref={ref}
+      rows={rows}
+      data-size={size}
+      data-touch-target={touchTarget}
+      className={classNames}
+      {...props}
+    />
+  );
+});
 
 Textarea.displayName = 'Textarea';

@@ -21,9 +21,7 @@ describe('Textarea Primitive', () => {
     const sizes = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const;
 
     for (const size of sizes) {
-      const { unmount } = render(
-        <Textarea aria-label={`Textarea ${size}`} size={size} />,
-      );
+      const { unmount } = render(<Textarea aria-label={`Textarea ${size}`} size={size} />);
       const textarea = screen.getByRole('textbox', {
         name: `Textarea ${size}`,
       });
@@ -33,9 +31,7 @@ describe('Textarea Primitive', () => {
   });
 
   it('supports touchTarget="comfortable" and defaults to "auto"', () => {
-    const { rerender } = render(
-      <Textarea aria-label="Touch" touchTarget="comfortable" />,
-    );
+    const { rerender } = render(<Textarea aria-label="Touch" touchTarget="comfortable" />);
     let textarea = screen.getByRole('textbox', { name: 'Touch' });
     expect(textarea.getAttribute('data-touch-target')).toBe('comfortable');
 
@@ -49,13 +45,7 @@ describe('Textarea Primitive', () => {
 
     function ControlledComponent() {
       const [val, setVal] = useState('Line 1');
-      return (
-        <Textarea
-          aria-label="Notes"
-          value={val}
-          onChange={(e) => setVal(e.target.value)}
-        />
-      );
+      return <Textarea aria-label="Notes" value={val} onChange={(e) => setVal(e.target.value)} />;
     }
 
     render(<ControlledComponent />);
@@ -89,13 +79,7 @@ describe('Textarea Primitive', () => {
     const handleFocus = vi.fn();
     const handleBlur = vi.fn();
 
-    render(
-      <Textarea
-        aria-label="Focus target"
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-      />,
-    );
+    render(<Textarea aria-label="Focus target" onFocus={handleFocus} onBlur={handleBlur} />);
     const textarea = screen.getByRole('textbox', { name: 'Focus target' });
 
     await user.click(textarea);
@@ -120,13 +104,7 @@ describe('Textarea Primitive', () => {
 
   it('allows focus and selection but suppresses user typing when readOnly', async () => {
     const user = userEvent.setup();
-    render(
-      <Textarea
-        aria-label="Read-only field"
-        readOnly
-        defaultValue="Read only text"
-      />,
-    );
+    render(<Textarea aria-label="Read-only field" readOnly defaultValue="Read only text" />);
     const textarea = screen.getByRole('textbox', { name: 'Read-only field' });
 
     await user.click(textarea);
@@ -190,5 +168,12 @@ describe('Textarea Primitive', () => {
     // Reset form: restores defaultValue
     await user.click(resetBtn);
     expect(textarea.value).toBe('Initial message');
+  });
+
+  it('combines readOnly with aria-invalid="true" preserving invalid attribute', () => {
+    render(<Textarea readOnly aria-invalid="true" aria-label="ReadOnly Invalid" />);
+    const textarea = screen.getByRole('textbox', { name: /readonly invalid/i });
+    expect(textarea.hasAttribute('readonly')).toBe(true);
+    expect(textarea.getAttribute('aria-invalid')).toBe('true');
   });
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useId, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { LanguageSwitcher, ThemeSwitcher } from '@/components/patterns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,10 +34,18 @@ export function InputGallery() {
   const [formStatusId, setFormStatusId] = useState<FormStatusId>('none');
   const [formEmailInvalid, setFormEmailInvalid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const handleFormSubmit = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
+    (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      if (isSubmitting) return;
       if (!formEmail.includes('@') || !formEmail.includes('.')) {
         setFormEmailInvalid(true);
         return;
@@ -46,17 +54,21 @@ export function InputGallery() {
       setIsSubmitting(true);
       setFormStatusId('pending');
 
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 800));
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
         setFormStatusId('success');
-      } finally {
         setIsSubmitting(false);
-      }
+        timerRef.current = null;
+      }, 800);
     },
-    [formEmail],
+    [formEmail, isSubmitting],
   );
 
   const handleFormReset = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     setFormName('');
     setFormEmail('');
     setFormEmailInvalid(false);
@@ -64,29 +76,47 @@ export function InputGallery() {
     setFormStatusId('reset');
   }, []);
 
-  const overviewId = useId();
-  const sizesId = useId();
-  const defaultsId = useId();
-  const typesId = useId();
-  const statesId = useId();
-  const helpErrorId = useId();
-  const modesId = useId();
-  const localizationId = useId();
-  const directionId = useId();
-  const themeId = useId();
-  const responsiveId = useId();
-  const formDemoId = useId();
-  const usageId = useId();
+  const baseId = useId();
+  const overviewId = `${baseId}-sec-overview`;
+  const sizesId = `${baseId}-sec-sizes`;
+  const defaultsId = `${baseId}-sec-defaults`;
+  const typesId = `${baseId}-sec-types`;
+  const statesId = `${baseId}-sec-states`;
+  const helpErrorId = `${baseId}-sec-help-error`;
+  const modesId = `${baseId}-sec-modes`;
+  const localizationId = `${baseId}-sec-localization`;
+  const directionId = `${baseId}-sec-direction`;
+  const themeId = `${baseId}-sec-theme`;
+  const responsiveId = `${baseId}-sec-responsive`;
+  const formDemoId = `${baseId}-sec-form-demo`;
+  const usageId = `${baseId}-sec-usage`;
 
   // Field IDs
-  const overviewFieldId = useId();
-  const defaultFieldId = useId();
-  const helpErrorFieldId = useId();
+  const overviewFieldId = `${baseId}-overview`;
+  const defaultFieldId = `${baseId}-default`;
+  const emailFieldId = `${baseId}-email`;
+  const telFieldId = `${baseId}-tel`;
+  const urlFieldId = `${baseId}-url`;
+  const searchFieldId = `${baseId}-search`;
+  const passwordFieldId = `${baseId}-password`;
+  const restingFieldId = `${baseId}-resting`;
+  const disabledFieldId = `${baseId}-disabled`;
+  const readOnlyFieldId = `${baseId}-readonly`;
+  const requiredFieldId = `${baseId}-required`;
+  const invalidFieldId = `${baseId}-invalid`;
+  const helpErrorFieldId = `${baseId}-help-error-field`;
   const helpTextId = `${helpErrorFieldId}-help`;
   const errorTextId = `${helpErrorFieldId}-error`;
+  const controlledFieldId = `${baseId}-controlled`;
+  const uncontrolledFieldId = `${baseId}-uncontrolled`;
+  const arabicFieldId = `${baseId}-arabic`;
+  const mixedFieldId = `${baseId}-mixed-ltr`;
+  const themeFieldId = `${baseId}-theme`;
+  const touchAutoFieldId = `${baseId}-touch-auto`;
+  const touchComfortableFieldId = `${baseId}-touch-comfortable`;
 
-  const formNameId = useId();
-  const formEmailId = useId();
+  const formNameId = `${baseId}-form-name`;
+  const formEmailId = `${baseId}-form-email`;
   const formEmailHelpId = `${formEmailId}-help`;
   const formEmailErrorId = `${formEmailId}-error`;
 
@@ -129,12 +159,36 @@ export function InputGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.inputGallery.sizesDesc')}</p>
         <div className={styles.rowFlex}>
-          <Input size="xs" defaultValue="XS (28px min-height)" aria-label="XS input" />
-          <Input size="sm" defaultValue="SM (32px min-height)" aria-label="SM input" />
-          <Input size="md" defaultValue="MD (36px min-height)" aria-label="MD input" />
-          <Input size="lg" defaultValue="LG (40px min-height)" aria-label="LG input" />
-          <Input size="xl" defaultValue="XL (48px min-height)" aria-label="XL input" />
-          <Input size="2xl" defaultValue="2XL (56px min-height)" aria-label="2XL input" />
+          <Input
+            size="xs"
+            defaultValue={t('common.inputGallery.sizeXs')}
+            aria-label={t('common.inputGallery.sizeXsAria')}
+          />
+          <Input
+            size="sm"
+            defaultValue={t('common.inputGallery.sizeSm')}
+            aria-label={t('common.inputGallery.sizeSmAria')}
+          />
+          <Input
+            size="md"
+            defaultValue={t('common.inputGallery.sizeMd')}
+            aria-label={t('common.inputGallery.sizeMdAria')}
+          />
+          <Input
+            size="lg"
+            defaultValue={t('common.inputGallery.sizeLg')}
+            aria-label={t('common.inputGallery.sizeLgAria')}
+          />
+          <Input
+            size="xl"
+            defaultValue={t('common.inputGallery.sizeXl')}
+            aria-label={t('common.inputGallery.sizeXlAria')}
+          />
+          <Input
+            size="2xl"
+            defaultValue={t('common.inputGallery.size2xl')}
+            aria-label={t('common.inputGallery.size2xlAria')}
+          />
         </div>
       </section>
 
@@ -163,24 +217,59 @@ export function InputGallery() {
         <p className={styles.sectionDesc}>{t('common.inputGallery.typesDesc')}</p>
         <div className={styles.gridTwo}>
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.inputGallery.emailLabel')}</label>
-            <Input type="email" placeholder={t('common.inputGallery.emailPlaceholder')} />
+            <label htmlFor={emailFieldId} className={styles.label}>
+              {t('common.inputGallery.emailLabel')}
+            </label>
+            <Input
+              id={emailFieldId}
+              type="email"
+              placeholder={t('common.inputGallery.emailPlaceholder')}
+              data-testid="field-email"
+            />
           </div>
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.inputGallery.telLabel')}</label>
-            <Input type="tel" placeholder={t('common.inputGallery.telPlaceholder')} />
+            <label htmlFor={telFieldId} className={styles.label}>
+              {t('common.inputGallery.telLabel')}
+            </label>
+            <Input
+              id={telFieldId}
+              type="tel"
+              placeholder={t('common.inputGallery.telPlaceholder')}
+              data-testid="field-tel"
+            />
           </div>
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.inputGallery.urlLabel')}</label>
-            <Input type="url" placeholder={t('common.inputGallery.urlPlaceholder')} />
+            <label htmlFor={urlFieldId} className={styles.label}>
+              {t('common.inputGallery.urlLabel')}
+            </label>
+            <Input
+              id={urlFieldId}
+              type="url"
+              placeholder={t('common.inputGallery.urlPlaceholder')}
+              data-testid="field-url"
+            />
           </div>
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.inputGallery.searchLabel')}</label>
-            <Input type="search" placeholder={t('common.inputGallery.searchPlaceholder')} />
+            <label htmlFor={searchFieldId} className={styles.label}>
+              {t('common.inputGallery.searchLabel')}
+            </label>
+            <Input
+              id={searchFieldId}
+              type="search"
+              placeholder={t('common.inputGallery.searchPlaceholder')}
+              data-testid="field-search"
+            />
           </div>
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.inputGallery.passwordLabel')}</label>
-            <Input type="password" placeholder={t('common.inputGallery.passwordPlaceholder')} />
+            <label htmlFor={passwordFieldId} className={styles.label}>
+              {t('common.inputGallery.passwordLabel')}
+            </label>
+            <Input
+              id={passwordFieldId}
+              type="password"
+              placeholder={t('common.inputGallery.passwordPlaceholder')}
+              data-testid="field-password"
+            />
           </div>
         </div>
       </section>
@@ -193,35 +282,57 @@ export function InputGallery() {
         <p className={styles.sectionDesc}>{t('common.inputGallery.statesDesc')}</p>
         <div className={styles.gridTwo}>
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.inputGallery.restingLabel')}</label>
-            <Input defaultValue="Resting editable input" />
-          </div>
-          <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.inputGallery.disabledLabel')}</label>
-            <Input disabled defaultValue={t('common.inputGallery.disabledValue')} />
-          </div>
-          <div className={styles.fieldGroup}>
-            <label className={styles.label}>{t('common.inputGallery.readOnlyLabel')}</label>
-            <Input readOnly defaultValue={t('common.inputGallery.readOnlyValue')} />
-          </div>
-          <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-required" className={styles.label}>
-              {t('common.inputGallery.requiredLabel')}
+            <label htmlFor={restingFieldId} className={styles.label}>
+              {t('common.inputGallery.restingLabel')}
             </label>
             <Input
-              id="specimen-required"
-              required
-              placeholder={t('common.inputGallery.requiredPlaceholder')}
+              id={restingFieldId}
+              defaultValue={t('common.inputGallery.restingValue')}
+              data-testid="field-resting"
             />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-invalid" className={styles.label}>
+            <label htmlFor={disabledFieldId} className={styles.label}>
+              {t('common.inputGallery.disabledLabel')}
+            </label>
+            <Input
+              id={disabledFieldId}
+              disabled
+              defaultValue={t('common.inputGallery.disabledValue')}
+              data-testid="field-disabled"
+            />
+          </div>
+          <div className={styles.fieldGroup}>
+            <label htmlFor={readOnlyFieldId} className={styles.label}>
+              {t('common.inputGallery.readOnlyLabel')}
+            </label>
+            <Input
+              id={readOnlyFieldId}
+              readOnly
+              defaultValue={t('common.inputGallery.readOnlyValue')}
+              data-testid="field-readonly"
+            />
+          </div>
+          <div className={styles.fieldGroup}>
+            <label htmlFor={requiredFieldId} className={styles.label}>
+              {t('common.inputGallery.requiredLabel')}
+            </label>
+            <Input
+              id={requiredFieldId}
+              required
+              placeholder={t('common.inputGallery.requiredPlaceholder')}
+              data-testid="specimen-required"
+            />
+          </div>
+          <div className={styles.fieldGroup}>
+            <label htmlFor={invalidFieldId} className={styles.label}>
               {t('common.inputGallery.invalidLabel')}
             </label>
             <Input
-              id="specimen-invalid"
+              id={invalidFieldId}
               aria-invalid="true"
               placeholder={t('common.inputGallery.invalidPlaceholder')}
+              data-testid="specimen-invalid"
             />
           </div>
         </div>
@@ -268,23 +379,27 @@ export function InputGallery() {
         <p className={styles.sectionDesc}>{t('common.inputGallery.modesDesc')}</p>
         <div className={styles.gridTwo}>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-controlled" className={styles.label}>
+            <label htmlFor={controlledFieldId} className={styles.label}>
               {t('common.inputGallery.controlledLabel')}
             </label>
             <Input
-              id="specimen-controlled"
+              id={controlledFieldId}
               value={controlledVal}
               onChange={(e) => setControlledVal(e.target.value)}
+              data-testid="specimen-controlled"
             />
-            <span className={styles.helpText}>Value: {controlledVal}</span>
+            <span className={styles.helpText}>
+              {t('common.inputGallery.valuePrefix')}: {controlledVal}
+            </span>
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-uncontrolled" className={styles.label}>
+            <label htmlFor={uncontrolledFieldId} className={styles.label}>
               {t('common.inputGallery.uncontrolledLabel')}
             </label>
             <Input
-              id="specimen-uncontrolled"
+              id={uncontrolledFieldId}
               defaultValue={t('common.inputGallery.uncontrolledDefaultValue')}
+              data-testid="specimen-uncontrolled"
             />
           </div>
         </div>
@@ -297,13 +412,14 @@ export function InputGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.inputGallery.localizationDesc')}</p>
         <div className={styles.fieldGroup} lang="ar" dir="rtl">
-          <label htmlFor="specimen-arabic" className={styles.label}>
+          <label htmlFor={arabicFieldId} className={styles.label}>
             {t('common.inputGallery.arabicNameLabel')}
           </label>
           <Input
-            id="specimen-arabic"
+            id={arabicFieldId}
             dir="rtl"
             placeholder={t('common.inputGallery.arabicNamePlaceholder')}
+            data-testid="specimen-arabic"
           />
         </div>
       </section>
@@ -315,10 +431,15 @@ export function InputGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.inputGallery.directionDesc')}</p>
         <div className={styles.fieldGroup}>
-          <label htmlFor="specimen-mixed-ltr" className={styles.label}>
+          <label htmlFor={mixedFieldId} className={styles.label}>
             {t('common.inputGallery.mixedCodeLabel')}
           </label>
-          <Input id="specimen-mixed-ltr" dir="ltr" defaultValue="TRK-984210-X" />
+          <Input
+            id={mixedFieldId}
+            dir="ltr"
+            defaultValue="TRK-984210-X"
+            data-testid="specimen-mixed-ltr"
+          />
         </div>
       </section>
 
@@ -329,8 +450,14 @@ export function InputGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.inputGallery.themeDesc')}</p>
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>{t('common.inputGallery.emailLabel')}</label>
-          <Input defaultValue="theme-parity@example.com" />
+          <label htmlFor={themeFieldId} className={styles.label}>
+            {t('common.inputGallery.emailLabel')}
+          </label>
+          <Input
+            id={themeFieldId}
+            defaultValue={t('common.inputGallery.themeValue')}
+            data-testid="field-theme"
+          />
         </div>
       </section>
 
@@ -342,25 +469,27 @@ export function InputGallery() {
         <p className={styles.sectionDesc}>{t('common.inputGallery.responsiveDesc')}</p>
         <div className={styles.gridTwo}>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-touch-auto" className={styles.label}>
+            <label htmlFor={touchAutoFieldId} className={styles.label}>
               {t('common.gallery.xsAuto')}
             </label>
             <Input
-              id="specimen-touch-auto"
+              id={touchAutoFieldId}
               size="xs"
               touchTarget="auto"
-              defaultValue="XS Auto Target"
+              defaultValue={t('common.gallery.xsAuto')}
+              data-testid="specimen-touch-auto"
             />
           </div>
           <div className={styles.fieldGroup}>
-            <label htmlFor="specimen-touch-comfortable" className={styles.label}>
+            <label htmlFor={touchComfortableFieldId} className={styles.label}>
               {t('common.gallery.xsComfortable')}
             </label>
             <Input
-              id="specimen-touch-comfortable"
+              id={touchComfortableFieldId}
               size="xs"
               touchTarget="comfortable"
-              defaultValue="XS Comfortable Target"
+              defaultValue={t('common.gallery.xsComfortable')}
+              data-testid="specimen-touch-comfortable"
             />
           </div>
         </div>

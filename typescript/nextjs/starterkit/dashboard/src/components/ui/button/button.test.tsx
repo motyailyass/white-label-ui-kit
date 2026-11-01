@@ -169,7 +169,11 @@ describe('Button Primitive', () => {
     );
     expect(screen.getByRole('button', { name: 'Close dialog' })).toBeTruthy();
 
-    rerenderAria(<Button loading aria-label="Close dialog">X</Button>);
+    rerenderAria(
+      <Button loading aria-label="Close dialog">
+        X
+      </Button>,
+    );
     expect(screen.getByRole('button', { name: 'Close dialog' })).toBeTruthy();
     unmountAria();
 

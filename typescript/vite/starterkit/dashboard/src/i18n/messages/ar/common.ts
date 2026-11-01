@@ -35,17 +35,14 @@ export const common = {
   simulatedPending: 'جارٍ معالجة الطلب...',
   gallery: {
     title: 'معرض مكوّن الزر (Button)',
-    subtitle:
-      'التحقق البصري التفاعلي والمواصفات الفنية لزر واجهة المستخدم القياسي.',
+    subtitle: 'التحقق البصري التفاعلي والمواصفات الفنية لزر واجهة المستخدم القياسي.',
     overviewTitle: '١. نظرة عامة',
     overviewDesc:
       'يُشغّل الزر إجراءً محلياً (حفظ، إرسال، إلغاء، فتح نافذة أو تنفيذ أمر). تم بناؤه بدون مكتبات خارجية ويدعم كل السمات والاتجاهات.',
     variantsTitle: '٢. المتغيرات الدلالية',
-    variantsDesc:
-      'خمسة متغيرات دلالية توضح التدرج الهرمي للإجراءات دون تقييد بألوان ثابتة.',
+    variantsDesc: 'خمسة متغيرات دلالية توضح التدرج الهرمي للإجراءات دون تقييد بألوان ثابتة.',
     sizesTitle: '٣. مقياس الأحجام ذو الخطوات الست',
-    sizesDesc:
-      'الأحجام الصريحة من xs إلى 2xl توفر ارتفاعات متطابقة عبر جميع التطبيقات.',
+    sizesDesc: 'الأحجام الصريحة من xs إلى 2xl توفر ارتفاعات متطابقة عبر جميع التطبيقات.',
     defaultsTitle: '٤. الإعدادات الافتراضية للمنتج',
     defaultsDesc:
       'عند حذف خاصية الحجم، يستخدم الزر الحجم الافتراضي للمنتج (لوحة التحكم = md / ٣٦ بكسل، الموقع = xl / ٤٨ بكسل).',
@@ -65,16 +62,14 @@ export const common = {
     localizationDesc:
       'يتكيف الزر مع الإنجليزية والفرنسية والعربية RTL ويستوعب النصوص الطويلة دون اقتطاع.',
     themeTitle: '١٠. توافق المظهر والسمات',
-    themeDesc:
-      'تتبدل الرموز بسلاسة بين الوضعين الفاتح والداكن مع الحفاظ على الأبعاد والتباين.',
+    themeDesc: 'تتبدل الرموز بسلاسة بين الوضعين الفاتح والداكن مع الحفاظ على الأبعاد والتباين.',
     responsiveTitle: '١١. استجابة أهداف اللمس',
     responsiveDesc:
       'تتوسع الأزرار الصغيرة تلقائياً على الشاشات التي تعمل باللمس إلى هدف تفاعل لا يقل عن ٤٨×٤٨ بكسل.',
     usageTitle: '١٢. أمثلة برمجية للاستخدام',
     usageDesc: 'مقتطفات برمجية دقيقة وقابلة للنسخ للاستخدام في الإنتاج.',
     metaTitle: 'معرض مكوّن الزر | White Label UI Kit',
-    metaDescription:
-      'عرض توضيحي ومواصفات فنية لمكوّن الزر الأساسي في حزمة واجهة المستخدم.',
+    metaDescription: 'عرض توضيحي ومواصفات فنية لمكوّن الزر الأساسي في حزمة واجهة المستخدم.',
     variantPrimary: 'أساسي',
     variantSecondary: 'ثانوي',
     variantSubtle: 'خفيف',
@@ -105,17 +100,14 @@ export const common = {
   },
   inputGallery: {
     title: 'معرض مكوّن الإدخال (Input)',
-    subtitle:
-      'التحقق البصري التفاعلي والمواصفات الفنية لحقل الإدخال النصي القياسي.',
+    subtitle: 'التحقق البصري التفاعلي والمواصفات الفنية لحقل الإدخال النصي القياسي.',
     metaTitle: 'معرض مكوّن الإدخال | White Label UI Kit',
-    metaDescription:
-      'عرض توضيحي ومواصفات فنية لمكوّن إدخال النصوص الأساسي في حزمة واجهة المستخدم.',
+    metaDescription: 'عرض توضيحي ومواصفات فنية لمكوّن إدخال النصوص الأساسي في حزمة واجهة المستخدم.',
     overviewTitle: '١. نظرة عامة',
     overviewDesc:
       'يلتقط حقل الإدخال البيانات النصية أحادية السطر. تم بناؤه كمكوّن أصلي خالص يدعم كل السمات والاتجاهات والإعدادات الافتراضية.',
     sizesTitle: '٢. مقياس الأحجام ذو الخطوات الست',
-    sizesDesc:
-      'الأحجام الصريحة من xs إلى 2xl توفر ارتفاعات متطابقة عبر جميع التطبيقات.',
+    sizesDesc: 'الأحجام الصريحة من xs إلى 2xl توفر ارتفاعات متطابقة عبر جميع التطبيقات.',
     defaultsTitle: '٣. الإعدادات الافتراضية للمنتج',
     defaultsDesc:
       'عند حذف خاصية الحجم، يستخدم الحقل الإعداد الافتراضي للمنتج (لوحة التحكم = md / ٣٦ بكسل، الموقع = xl / ٤٨ بكسل).',
@@ -138,17 +130,14 @@ export const common = {
     directionDesc:
       'يرث الحقل اتجاه المستند تلقائياً، مع دعم الاتجاه الصريح للرموز التقنية والأرقام.',
     themeTitle: '١٠. توافق المظهر والسمات',
-    themeDesc:
-      'أبعاد وحدود ونسب تباين متطابقة بين الوضعين الفاتح والداكن.',
+    themeDesc: 'أبعاد وحدود ونسب تباين متطابقة بين الوضعين الفاتح والداكن.',
     responsiveTitle: '١١. استجابة أهداف اللمس',
-    responsiveDesc:
-      'تطبق الحقول على شاشات اللمس هدف تفاعل لا يقل عن ٤٨×٤٨ بكسل.',
+    responsiveDesc: 'تطبق الحقول على شاشات اللمس هدف تفاعل لا يقل عن ٤٨×٤٨ بكسل.',
     formDemoTitle: '١٢. عرض توضيحي لنموذج حقيقي',
     formDemoDesc:
       'نموذج تفاعلي يجمع بين حقل الإدخال والزر مع التحقق وإعادة الضبط. عرض محلي؛ لا يوجد حفظ في الخادم.',
     usageTitle: '١٣. أمثلة برمجية للاستخدام',
-    usageDesc:
-      'مقتطفات برمجية دقيقة وقابلة للنسخ للاستخدام في الإنتاج.',
+    usageDesc: 'مقتطفات برمجية دقيقة وقابلة للنسخ للاستخدام في الإنتاج.',
     defaultOmittedLabel: 'الافتراضي للمنتج (حجم غير محدد)',
     defaultOmittedPlaceholder: 'أدخل النص...',
     usernameLabel: 'اسم المستخدم',
@@ -165,7 +154,20 @@ export const common = {
     searchPlaceholder: 'بحث في المستندات...',
     passwordLabel: 'كلمة المرور',
     passwordPlaceholder: '••••••••••••',
+    sizeXs: 'XS (أدنى ارتفاع ٢٨ بكسل)',
+    sizeSm: 'SM (أدنى ارتفاع ٣٢ بكسل)',
+    sizeMd: 'MD (أدنى ارتفاع ٣٦ بكسل)',
+    sizeLg: 'LG (أدنى ارتفاع ٤٠ بكسل)',
+    sizeXl: 'XL (أدنى ارتفاع ٤٨ بكسل)',
+    size2xl: '2XL (أدنى ارتفاع ٥٦ بكسل)',
+    sizeXsAria: 'حقل إدخال XS',
+    sizeSmAria: 'حقل إدخال SM',
+    sizeMdAria: 'حقل إدخال MD',
+    sizeLgAria: 'حقل إدخال LG',
+    sizeXlAria: 'حقل إدخال XL',
+    size2xlAria: 'حقل إدخال 2XL',
     restingLabel: 'حالة السكون',
+    restingValue: 'حقل إدخال في حالة السكون وقابل للتعديل',
     disabledLabel: 'حالة التعطيل',
     disabledValue: 'قيمة معطلة (غير قابلة للتعديل أو الإرسال)',
     readOnlyLabel: 'حالة القراءة فقط',
@@ -175,37 +177,34 @@ export const common = {
     invalidLabel: 'حالة الخطأ (aria-invalid="true")',
     invalidPlaceholder: 'إدخال غير صالح...',
     controlledLabel: 'الحالة المتحكم بها',
+    valuePrefix: 'القيمة',
+    themeValue: 'theme-parity@example.com',
     uncontrolledLabel: 'الحالة غير المتحكم بها',
     uncontrolledDefaultValue: 'القيمة الافتراضية الأولية',
     arabicNameLabel: 'الاسم الكامل',
     arabicNamePlaceholder: 'أدخل الاسم بالكامل...',
     mixedCodeLabel: 'رمز التتبع (LTR صريح في واجهة عربية)',
     mixedCodePlaceholder: 'TRK-984210-X',
-    formDisclaimer:
-      'عرض تجريبي محلي للنموذج؛ لا يتم الحفظ في الخادم.',
+    formDisclaimer: 'عرض تجريبي محلي للنموذج؛ لا يتم الحفظ في الخادم.',
     formFullNameLabel: 'الاسم الكامل',
     formFullNamePlaceholder: 'Jane Doe',
     formEmailLabel: 'البريد الإلكتروني',
     formEmailPlaceholder: 'jane.doe@company.com',
-    formEmailHelp:
-      'سنستخدم هذا العنوان لإرسال إشعارات الحساب.',
+    formEmailHelp: 'سنستخدم هذا العنوان لإرسال إشعارات الحساب.',
     formEmailError: 'يرجى إدخال عنوان بريد إلكتروني صحيح.',
     formSubmitButton: 'إنشاء الحساب',
     formResetButton: 'إعادة ضبط النموذج',
     formEventNone: 'لم يتم الإرسال بعد.',
     formEventPending: 'جارٍ معالجة التسجيل (تجريبي)...',
-    formEventSuccess:
-      'تم إرسال النموذج بنجاح! (عرض تجريبي؛ لا يوجد حفظ في الخادم)',
+    formEventSuccess: 'تم إرسال النموذج بنجاح! (عرض تجريبي؛ لا يوجد حفظ في الخادم)',
     formEventReset: 'تمت إعادة ضبط النموذج إلى قيمه الافتراضية.',
     formStatusPrefix: 'حالة النموذج',
   },
   textareaGallery: {
     title: 'معرض مكوّن مساحة النص (Textarea)',
-    subtitle:
-      'التحقق البصري التفاعلي والمواصفات الفنية لحقل إدخال النصوص متعدد الأسطر.',
+    subtitle: 'التحقق البصري التفاعلي والمواصفات الفنية لحقل إدخال النصوص متعدد الأسطر.',
     metaTitle: 'معرض مكوّن مساحة النص | White Label UI Kit',
-    metaDescription:
-      'عرض توضيحي ومواصفات فنية والتحقق من الكثافة لمكوّن مساحة النص (Textarea).',
+    metaDescription: 'عرض توضيحي ومواصفات فنية والتحقق من الكثافة لمكوّن مساحة النص (Textarea).',
     overviewTitle: '١. نظرة عامة',
     overviewDesc:
       'يلتقط مكوّن مساحة النص البيانات النصية متعددة الأسطر. تم بناؤه كمكوّن أصلي خالص يدعم كل السمات والاتجاهات والإعدادات الافتراضية.',
@@ -240,14 +239,12 @@ export const common = {
     directionDesc:
       'ترث المساحة النصية اتجاه المستند تلقائياً، مع دعم الاتجاه الصريح من اليسار لليمين للأكواد وتتبعات الأخطاء.',
     themeTitle: '١٢. توافق المظهر والسمات',
-    themeDesc:
-      'أبعاد وحدود ونسب تباين متطابقة بين الوضعين الفاتح والداكن.',
+    themeDesc: 'أبعاد وحدود ونسب تباين متطابقة بين الوضعين الفاتح والداكن.',
     formDemoTitle: '١٣. عرض توضيحي لنموذج محلي',
     formDemoDesc:
       'نموذج تفاعلي يجمع بين مساحة النص والزر مع التحقق وإعادة الضبط. عرض محلي؛ لا يوجد حفظ في الخادم.',
     usageTitle: '١٤. أمثلة برمجية للاستخدام',
-    usageDesc:
-      'مقتطفات برمجية دقيقة وقابلة للنسخ للاستخدام في الإنتاج.',
+    usageDesc: 'مقتطفات برمجية دقيقة وقابلة للنسخ للاستخدام في الإنتاج.',
     defaultOmittedLabel: 'الافتراضي للمنتج (حجم غير محدد، ٤ أسطر)',
     defaultOmittedPlaceholder: 'أدخل الوصف أو الملاحظات...',
     descriptionLabel: 'وصف المشروع',
@@ -257,10 +254,25 @@ export const common = {
     rowsTwoLabel: 'مساحة نصية مدمجة (سطران rows={2})',
     rowsFourLabel: 'مساحة نصية قياسية (٤ أسطر rows={4})',
     rowsSixLabel: 'مساحة نصية موسعة (٦ أسطر rows={6})',
+    densityXs: 'كثافة XS',
+    densitySm: 'كثافة SM',
+    densityMd: 'كثافة MD',
+    densityLg: 'كثافة LG',
+    densityXl: 'كثافة XL',
+    density2xl: 'كثافة 2XL',
+    densityXsSpecimen: 'نص متعدد الأسطر بكثافة XS.',
+    densitySmSpecimen: 'نص متعدد الأسطر بكثافة SM.',
+    densityMdSpecimen: 'نص متعدد الأسطر بكثافة MD.',
+    densityLgSpecimen: 'نص متعدد الأسطر بكثافة LG.',
+    densityXlSpecimen: 'نص متعدد الأسطر بكثافة XL.',
+    density2xlSpecimen: 'نص متعدد الأسطر بكثافة 2XL.',
+    rowsTwoSpecimen: 'سطران مرئيان بشكل افتراضي.',
+    rowsFourSpecimen: 'أربعة أسطر مرئية بشكل افتراضي.',
+    rowsSixSpecimen: 'ستة أسطر مرئية بشكل افتراضي.',
     restingLabel: 'حالة السكون',
+    restingValue: 'محتوى قابل للتعديل في حالة السكون',
     disabledLabel: 'حالة التعطيل (التحجيم معطل)',
-    disabledValue:
-      'محتوى معطل (غير قابل للتعديل أو الإرسال، مقبض التحجيم مخفي)',
+    disabledValue: 'محتوى معطل (غير قابل للتعديل أو الإرسال، مقبض التحجيم مخفي)',
     readOnlyLabel: 'حالة القراءة فقط (التحجيم متاح)',
     readOnlyValue:
       'محتوى للقراءة فقط (قابل للتحديد والإرسال، مع الحفاظ على التحجيم الرأسي لقراءة السجلات الطويلة)',
@@ -269,12 +281,14 @@ export const common = {
     invalidLabel: 'حالة الخطأ (aria-invalid="true")',
     invalidPlaceholder: 'ملاحظات غير صالحة...',
     controlledLabel: 'الوضع المتحكم به',
+    lengthPrefix: 'الطول',
+    lengthChars: 'حرفاً',
+    touchAutoSpecimen: 'هدف لمس تلقائي XS',
+    touchComfortableSpecimen: 'هدف لمس مريح XS',
     uncontrolledLabel: 'الوضع غير المتحكم به',
-    uncontrolledDefaultValue:
-      'محتوى أولي غير متحكم به\nمع سطر جديد.',
+    uncontrolledDefaultValue: 'محتوى أولي غير متحكم به\nمع سطر جديد.',
     arabicFeedbackLabel: 'ملاحظات تفصيلية (نموذج بالخط العربي)',
-    arabicFeedbackPlaceholder:
-      'أدخل ملاحظاتك وتفاصيل الطلب هنا مع علامات التشكيل...',
+    arabicFeedbackPlaceholder: 'أدخل ملاحظاتك وتفاصيل الطلب هنا مع علامات التشكيل...',
     mixedCodeLabel: 'تكوين JSON (اتجاه LTR صريح)',
     formDisclaimer: 'عرض تجريبي لنموذج محلي؛ لا يوجد حفظ في الخادم.',
     formMessageLabel: 'رسالة الملاحظات',
@@ -285,8 +299,7 @@ export const common = {
     formResetButton: 'إعادة ضبط النموذج',
     formEventNone: 'لم يتم الإرسال بعد.',
     formEventPending: 'جارٍ إرسال الملاحظات (تجريبي)...',
-    formEventSuccess:
-      'تم إرسال الملاحظات بنجاح! (عرض محلي؛ لا يوجد حفظ في الخادم)',
+    formEventSuccess: 'تم إرسال الملاحظات بنجاح! (عرض محلي؛ لا يوجد حفظ في الخادم)',
     formEventReset: 'تمت إعادة ضبط النموذج إلى قيمه الافتراضية.',
     formStatusPrefix: 'حالة النموذج',
   },

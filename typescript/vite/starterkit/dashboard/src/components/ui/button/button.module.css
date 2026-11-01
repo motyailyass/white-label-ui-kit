@@ -215,7 +215,13 @@
   justify-content: center;
   inline-size: var(--_control-icon-size);
   block-size: var(--_control-icon-size);
+  font-size: var(--_control-icon-size);
   flex: none;
+}
+
+.icon svg {
+  inline-size: var(--_control-icon-size);
+  block-size: var(--_control-icon-size);
 }
 
 .spinnerWrapper {

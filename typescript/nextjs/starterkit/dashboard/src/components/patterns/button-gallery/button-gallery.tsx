@@ -4,42 +4,56 @@ import React, { useCallback, useId, useState } from 'react';
 import { Icon } from '@/components/icons';
 import { LanguageSwitcher, ThemeSwitcher } from '@/components/patterns';
 import { Button } from '@/components/ui/button';
+import type { TranslationKey } from '@/i18n';
 import { useI18n } from '@/providers';
 import styles from './button-gallery.module.css';
 
-export function ButtonGallery() {
-  const { t, locale, isRtl } = useI18n();
+type FormActionId = 'none' | 'submit' | 'nonSubmit';
 
-  // 7. Loading Interaction State
-  const [isLoadingActive, setIsLoadingActive] = useState(false);
-  const [loadingNotice, setLoadingNotice] = useState<string | null>(null);
+const FORM_ACTION_KEY: Record<FormActionId, TranslationKey> = {
+  none: 'common.gallery.eventNone',
+  submit: 'common.gallery.eventSubmit',
+  nonSubmit: 'common.gallery.eventNonSubmit',
+};
+
+type SimulatedAsyncState = 'idle' | 'pending' | 'success' | 'retry';
+
+const ASYNC_NOTICE_KEY: Record<SimulatedAsyncState, TranslationKey | null> = {
+  idle: null,
+  pending: 'common.simulatedPending',
+  success: 'common.simulatedSuccess',
+  retry: 'common.retry',
+};
+
+export function ButtonGallery() {
+  const { t } = useI18n();
+
+  // 7. Loading Interaction State (identifier stored in state; translated during render)
+  const [asyncState, setAsyncState] = useState<SimulatedAsyncState>('idle');
 
   const handleSimulatedAsync = useCallback(async () => {
-    if (isLoadingActive) return;
-    setIsLoadingActive(true);
-    setLoadingNotice(t('common.simulatedPending'));
+    if (asyncState === 'pending') return;
+    setAsyncState('pending');
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      setLoadingNotice(t('common.simulatedSuccess'));
+      setAsyncState('success');
     } catch {
-      setLoadingNotice(t('common.retry'));
-    } finally {
-      setIsLoadingActive(false);
+      setAsyncState('retry');
     }
-  }, [isLoadingActive, t]);
+  }, [asyncState]);
 
-  // 8. Form Behavior State
+  // 8. Form Behavior State (identifier stored in state; translated during render)
   const [formSubmitCount, setFormSubmitCount] = useState(0);
-  const [lastAction, setLastAction] = useState<string>('None');
+  const [lastActionId, setLastActionId] = useState<FormActionId>('none');
 
   const handleFormSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     setFormSubmitCount((prev) => prev + 1);
-    setLastAction('Form Submitted via type="submit"');
+    setLastActionId('submit');
   }, []);
 
   const handleNonSubmitClick = useCallback(() => {
-    setLastAction('Non-submit action clicked (did not trigger form submit)');
+    setLastActionId('nonSubmit');
   }, []);
 
   const overviewId = useId();
@@ -54,6 +68,8 @@ export function ButtonGallery() {
   const themeId = useId();
   const responsiveId = useId();
   const usageId = useId();
+
+  const activeNoticeKey = ASYNC_NOTICE_KEY[asyncState];
 
   return (
     <main className={styles.galleryContainer} data-testid="button-gallery">
@@ -88,10 +104,10 @@ export function ButtonGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.gallery.variantsDesc')}</p>
         <div className={styles.buttonRow}>
-          <Button variant="primary">Primary</Button>
-          <Button variant="secondary">Secondary</Button>
-          <Button variant="subtle">Subtle</Button>
-          <Button variant="ghost">Ghost</Button>
+          <Button variant="primary">{t('common.gallery.variantPrimary')}</Button>
+          <Button variant="secondary">{t('common.gallery.variantSecondary')}</Button>
+          <Button variant="subtle">{t('common.gallery.variantSubtle')}</Button>
+          <Button variant="ghost">{t('common.gallery.variantGhost')}</Button>
           <Button variant="danger">{t('common.delete')}</Button>
         </div>
       </section>
@@ -120,9 +136,9 @@ export function ButtonGallery() {
         <p className={styles.sectionDesc}>{t('common.gallery.defaultsDesc')}</p>
         <div className={styles.buttonRow}>
           <Button id="gallery-btn-default" variant="primary">
-            Product Default (Omitted Size)
+            {t('common.gallery.defaultOmitted')}
           </Button>
-          <Button variant="secondary">Secondary Default</Button>
+          <Button variant="secondary">{t('common.gallery.secondaryDefault')}</Button>
         </div>
       </section>
 
@@ -134,19 +150,19 @@ export function ButtonGallery() {
         <p className={styles.sectionDesc}>{t('common.gallery.statesDesc')}</p>
         <div className={styles.columnGrid}>
           <div className={styles.cardItem}>
-            <span className={styles.itemLabel}>Resting</span>
-            <Button variant="secondary">Resting State</Button>
+            <span className={styles.itemLabel}>{t('common.gallery.restingLabel')}</span>
+            <Button variant="secondary">{t('common.gallery.restingState')}</Button>
           </div>
           <div className={styles.cardItem}>
-            <span className={styles.itemLabel}>Disabled</span>
+            <span className={styles.itemLabel}>{t('common.gallery.disabledLabel')}</span>
             <Button variant="secondary" disabled>
-              Disabled State
+              {t('common.gallery.disabledState')}
             </Button>
           </div>
           <div className={styles.cardItem}>
-            <span className={styles.itemLabel}>Static Loading</span>
+            <span className={styles.itemLabel}>{t('common.gallery.staticLoadingLabel')}</span>
             <Button variant="secondary" loading>
-              Loading State
+              {t('common.gallery.loadingState')}
             </Button>
           </div>
         </div>
@@ -160,19 +176,19 @@ export function ButtonGallery() {
         <p className={styles.sectionDesc}>{t('common.gallery.iconsDesc')}</p>
         <div className={styles.buttonRow}>
           <Button startIcon={<Icon name="add" />} variant="primary">
-            Leading Icon
+            {t('common.gallery.leadingIcon')}
           </Button>
           <Button endIcon={<Icon name="arrow-right" />} variant="secondary">
-            Trailing Directional Icon
+            {t('common.gallery.trailingDirectionalIcon')}
           </Button>
           <Button
             startIcon={<Icon name="check" />}
             endIcon={<Icon name="arrow-right" />}
             variant="subtle"
           >
-            Both Icons
+            {t('common.gallery.bothIcons')}
           </Button>
-          <Button variant="ghost" aria-label={t('common.refresh')} title={t('common.refresh')}>
+          <Button variant="ghost" aria-label={t('common.search')} title={t('common.search')}>
             <Icon name="search" />
           </Button>
         </div>
@@ -188,16 +204,16 @@ export function ButtonGallery() {
           <Button
             id="gallery-interactive-loading"
             variant="primary"
-            loading={isLoadingActive}
+            loading={asyncState === 'pending'}
             onClick={handleSimulatedAsync}
             startIcon={<Icon name="check" />}
           >
             {t('common.save')}
           </Button>
         </div>
-        {loadingNotice && (
+        {activeNoticeKey && (
           <div role="status" aria-live="polite" className={styles.statusMessage}>
-            {loadingNotice}
+            {t(activeNoticeKey)}
           </div>
         )}
       </section>
@@ -218,7 +234,8 @@ export function ButtonGallery() {
             </Button>
           </div>
           <div className={styles.itemLabel}>
-            Submissions: {formSubmitCount} | Last Event: {lastAction}
+            {t('common.gallery.submissions')}: {formSubmitCount} | {t('common.gallery.lastEvent')}:{' '}
+            {t(FORM_ACTION_KEY[lastActionId])}
           </div>
         </form>
       </section>
@@ -230,15 +247,9 @@ export function ButtonGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.gallery.localizationDesc')}</p>
         <div className={styles.buttonRow}>
-          <Button variant="primary">
-            {locale === 'ar'
-              ? 'تصدير التقرير المالي المفصل لشهر أكتوبر'
-              : locale === 'fr'
-                ? "Exporter le rapport financier détaillé d'octobre"
-                : 'Export Detailed Financial October Report'}
-          </Button>
+          <Button variant="primary">{t('common.gallery.exportReportLong')}</Button>
           <Button variant="secondary" endIcon={<Icon name="arrow-right" />}>
-            {isRtl ? 'الانتقال إلى الخطوة التالية' : 'Proceed to Next Step'}
+            {t('common.gallery.proceedNextStep')}
           </Button>
         </div>
       </section>
@@ -250,9 +261,9 @@ export function ButtonGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.gallery.themeDesc')}</p>
         <div className={styles.buttonRow}>
-          <Button variant="primary">Primary Brand Surface</Button>
-          <Button variant="subtle">Subtle Accent</Button>
-          <Button variant="secondary">Neutral Surface Step</Button>
+          <Button variant="primary">{t('common.gallery.primaryBrandSurface')}</Button>
+          <Button variant="subtle">{t('common.gallery.subtleAccent')}</Button>
+          <Button variant="secondary">{t('common.gallery.neutralSurfaceStep')}</Button>
         </div>
       </section>
 
@@ -264,10 +275,10 @@ export function ButtonGallery() {
         <p className={styles.sectionDesc}>{t('common.gallery.responsiveDesc')}</p>
         <div className={styles.buttonRow}>
           <Button size="xs" touchTarget="auto">
-            XS Auto (Expands on coarse pointer)
+            {t('common.gallery.xsAuto')}
           </Button>
           <Button size="xs" touchTarget="comfortable">
-            XS Comfortable (Enforces 48px)
+            {t('common.gallery.xsComfortable')}
           </Button>
         </div>
       </section>

@@ -187,18 +187,17 @@ test.describe('Dashboard Control Sizing & Interaction Target Verification', () =
       .first();
     await expect(button).toBeVisible();
 
-    // Verify Arabic RTL mode
-    const langSelect = page.locator('select');
-    if (await langSelect.isVisible()) {
-      await langSelect.selectOption('ar');
-      await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+    // Verify Arabic RTL mode: control must be visible and exercised
+    const langSelect = page.locator('select').first();
+    await expect(langSelect).toBeVisible();
+    await langSelect.selectOption('ar');
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
 
-      const arabicBtn = page.locator('button:has-text("تصدير التقرير")');
-      await expect(arabicBtn).toBeVisible();
-      const box = await arabicBtn.boundingBox();
-      expect(box).not.toBeNull();
-      expect(box!.height).toBeGreaterThanOrEqual(36);
-    }
+    const arabicBtn = page.locator('button:has-text("تصدير التقرير")');
+    await expect(arabicBtn).toBeVisible();
+    const box = await arabicBtn.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.height).toBeGreaterThanOrEqual(36);
   });
 
   test('expands cleanly without text clipping under 200% font scaling', async ({ page }) => {

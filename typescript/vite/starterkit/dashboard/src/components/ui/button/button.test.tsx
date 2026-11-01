@@ -121,6 +121,13 @@ describe('Button Primitive', () => {
     await user.click(disabledBtn);
     expect(handleClick).not.toHaveBeenCalled();
 
+    // Verify keyboard activation is suppressed when disabled
+    disabledBtn.focus();
+    expect(document.activeElement).not.toBe(disabledBtn);
+    await user.keyboard('{Enter}');
+    await user.keyboard(' ');
+    expect(handleClick).not.toHaveBeenCalled();
+
     rerender(
       <Button loading onClick={handleClick}>
         Loading Action
@@ -130,24 +137,57 @@ describe('Button Primitive', () => {
     const loadingBtn = screen.getByRole('button', { name: /loading action/i });
     await user.click(loadingBtn);
     expect(handleClick).not.toHaveBeenCalled();
+
+    // Verify keyboard activation is suppressed when loading
+    loadingBtn.focus();
+    expect(document.activeElement).not.toBe(loadingBtn);
+    await user.keyboard('{Enter}');
+    await user.keyboard(' ');
+    expect(handleClick).not.toHaveBeenCalled();
   });
 
-  it('preserves accessible naming across plain text, nested elements, aria-label, and aria-labelledby', () => {
-    const { unmount } = render(
+  it('preserves accessible naming across plain text, nested elements, aria-label, and aria-labelledby in resting and loading states', () => {
+    // 1. Nested content resting and loading
+    const { rerender, unmount } = render(
       <Button>
+        <span>Save</span> <strong>Draft</strong>
+      </Button>,
+    );
+    expect(screen.getByRole('button', { name: 'Save Draft' })).toBeTruthy();
+
+    rerender(
+      <Button loading>
         <span>Save</span> <strong>Draft</strong>
       </Button>,
     );
     expect(screen.getByRole('button', { name: 'Save Draft' })).toBeTruthy();
     unmount();
 
-    render(<Button aria-label="Close dialog">X</Button>);
+    // 2. Explicit aria-label resting and loading
+    const { rerender: rerenderAria, unmount: unmountAria } = render(
+      <Button aria-label="Close dialog">X</Button>,
+    );
     expect(screen.getByRole('button', { name: 'Close dialog' })).toBeTruthy();
 
-    render(
+    rerenderAria(<Button loading aria-label="Close dialog">X</Button>);
+    expect(screen.getByRole('button', { name: 'Close dialog' })).toBeTruthy();
+    unmountAria();
+
+    // 3. aria-labelledby resting and loading
+    const { rerender: rerenderLabelled } = render(
       <div>
         <span id="heading-label">Delete Item</span>
         <Button aria-labelledby="heading-label" variant="danger">
+          Trash
+        </Button>
+      </div>,
+    );
+    expect(screen.getByRole('button', { name: 'Delete Item' })).toBeTruthy();
+
+    rerenderLabelled(
+      <div>
+        <span id="heading-label">Delete Item</span>
+        <Button loading aria-labelledby="heading-label" variant="danger">
           Trash
         </Button>
       </div>,

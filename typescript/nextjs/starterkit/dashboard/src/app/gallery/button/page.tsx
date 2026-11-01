@@ -1,10 +1,15 @@
 import type { Metadata } from 'next';
 import { ButtonGallery } from '@/components/patterns/button-gallery';
+import { defaultMessages, translate } from '@/i18n';
+import { getServerI18nState } from '../../i18n-server';
 
-export const metadata: Metadata = {
-  title: 'Button Component Gallery | White Label UI Kit',
-  description: 'Visual demonstration and usage specifications for the Button primitive.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale } = await getServerI18nState('en');
+  return {
+    title: translate(defaultMessages, locale, 'common.gallery.metaTitle'),
+    description: translate(defaultMessages, locale, 'common.gallery.metaDescription'),
+  };
+}
 
 export default function ButtonGalleryPage() {
   return <ButtonGallery />;

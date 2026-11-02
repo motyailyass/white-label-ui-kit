@@ -257,6 +257,9 @@ test.describe('Dashboard Checkbox Primitive Real-Browser Verification', () => {
     const invalidDisabledCheckedInput = page.locator(
       '[data-testid="specimen-invalid-disabled-checked"]',
     );
+    const invalidDisabledIndeterminateInput = page.locator(
+      '[data-testid="specimen-invalid-disabled-indeterminate"]',
+    );
 
     const checkedIndicator = checkedInput.locator('+ span');
     const uncheckedIndicator = uncheckedInput.locator('+ span');
@@ -267,6 +270,7 @@ test.describe('Dashboard Checkbox Primitive Real-Browser Verification', () => {
     const invalidIndeterminateIndicator = invalidIndeterminateInput.locator('+ span');
     const invalidDisabledUncheckedIndicator = invalidDisabledUncheckedInput.locator('+ span');
     const invalidDisabledCheckedIndicator = invalidDisabledCheckedInput.locator('+ span');
+    const invalidDisabledIndeterminateIndicator = invalidDisabledIndeterminateInput.locator('+ span');
 
     // Move pointer away to ensure resting assertions are free of hover
     await page.mouse.move(0, 0);
@@ -311,13 +315,22 @@ test.describe('Dashboard Checkbox Primitive Real-Browser Verification', () => {
       systemColors.grayText,
     );
 
-    // 3. High-contrast hover interactions
+    // Invalid + disabled + indeterminate at rest: GrayText border (disabled takes precedence)
+    await expect(invalidDisabledIndeterminateIndicator).toHaveCSS(
+      'border-color',
+      systemColors.grayText,
+    );
+
+    // 3. High-contrast hover interactions & pointer exit recovery
     // Checked hover: system highlight remains
     await checkedInput.hover();
     await expect(checkedIndicator).toHaveCSS('background-color', systemColors.highlight);
     await expect(checkedIndicator).toHaveCSS('border-color', systemColors.highlight);
+    await page.mouse.move(0, 0);
+    await expect(checkedIndicator).toHaveCSS('background-color', systemColors.highlight);
+    await expect(checkedIndicator).toHaveCSS('border-color', systemColors.highlight);
 
-    // Invalid + checked hover: system highlight remains
+    // Invalid + checked hover & pointer exit
     await invalidCheckedInput.hover();
     await expect(invalidCheckedIndicator).toHaveCSS(
       'background-color',
@@ -327,16 +340,64 @@ test.describe('Dashboard Checkbox Primitive Real-Browser Verification', () => {
       'border-color',
       systemColors.highlight,
     );
+    await page.mouse.move(0, 0);
+    await expect(invalidCheckedIndicator).toHaveCSS(
+      'background-color',
+      systemColors.highlight,
+    );
+    await expect(invalidCheckedIndicator).toHaveCSS(
+      'border-color',
+      systemColors.highlight,
+    );
 
-    // Invalid + disabled + unchecked hover: GrayText border remains
+    // Invalid + indeterminate hover & pointer exit
+    await invalidIndeterminateInput.hover();
+    await expect(invalidIndeterminateIndicator).toHaveCSS(
+      'background-color',
+      systemColors.highlight,
+    );
+    await expect(invalidIndeterminateIndicator).toHaveCSS(
+      'border-color',
+      systemColors.highlight,
+    );
+    await page.mouse.move(0, 0);
+    await expect(invalidIndeterminateIndicator).toHaveCSS(
+      'background-color',
+      systemColors.highlight,
+    );
+    await expect(invalidIndeterminateIndicator).toHaveCSS(
+      'border-color',
+      systemColors.highlight,
+    );
+
+    // Invalid + disabled + unchecked hover & pointer exit: GrayText border remains
     await invalidDisabledUncheckedInput.hover();
     await expect(invalidDisabledUncheckedIndicator).toHaveCSS(
       'border-color',
       systemColors.grayText,
     );
+    await page.mouse.move(0, 0);
+    await expect(invalidDisabledUncheckedIndicator).toHaveCSS(
+      'border-color',
+      systemColors.grayText,
+    );
 
-    // Unchecked hover: CanvasText border remains
+    // Invalid + disabled + indeterminate hover & pointer exit: GrayText border remains
+    await invalidDisabledIndeterminateInput.hover();
+    await expect(invalidDisabledIndeterminateIndicator).toHaveCSS(
+      'border-color',
+      systemColors.grayText,
+    );
+    await page.mouse.move(0, 0);
+    await expect(invalidDisabledIndeterminateIndicator).toHaveCSS(
+      'border-color',
+      systemColors.grayText,
+    );
+
+    // Unchecked hover & pointer exit
     await uncheckedInput.hover();
+    await expect(uncheckedIndicator).toHaveCSS('border-color', systemColors.canvasText);
+    await page.mouse.move(0, 0);
     await expect(uncheckedIndicator).toHaveCSS('border-color', systemColors.canvasText);
 
     // Reset pointer to corner

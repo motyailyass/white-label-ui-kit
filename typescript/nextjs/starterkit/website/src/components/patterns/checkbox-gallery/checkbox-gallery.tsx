@@ -409,6 +409,19 @@ export function CheckboxGallery() {
               {t('common.checkboxGallery.termsInvalidDisabledCheckedLabel')}
             </label>
           </div>
+
+          <div className={styles.fieldRow}>
+            <Checkbox
+              id={`${baseId}-terms-invalid-disabled-indeterminate`}
+              aria-invalid="true"
+              disabled
+              indeterminate
+              data-testid="specimen-invalid-disabled-indeterminate"
+            />
+            <label htmlFor={`${baseId}-terms-invalid-disabled-indeterminate`} className={styles.label}>
+              {t('common.checkboxGallery.termsInvalidDisabledIndeterminateLabel')}
+            </label>
+          </div>
         </div>
       </section>
 

@@ -1,0 +1,230 @@
+/**
+ * White Label UI Kit — Radio Component Gallery Stylesheet
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.galleryContainer {
+  inline-size: 100%;
+  max-inline-size: 64rem;
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+  padding-block: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.galleryHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border-block-end: 1px solid var(--color-border-subtle);
+  padding-block-end: var(--space-6);
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.title {
+  font-size: var(--typography-page-title-size);
+  line-height: var(--typography-page-title-line-height);
+  font-weight: var(--typography-page-title-weight);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: var(--typography-body-size);
+  line-height: var(--typography-body-line-height);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.controlsRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-inline: var(--space-4);
+  padding-block: var(--space-6);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface);
+  min-inline-size: 0;
+  inline-size: 100%;
+  box-sizing: border-box;
+}
+
+.sectionTitle {
+  font-size: var(--typography-section-title-size);
+  line-height: var(--typography-section-title-line-height);
+  font-weight: var(--typography-section-title-weight);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.sectionDesc {
+  font-size: var(--typography-body-size);
+  line-height: var(--typography-body-line-height);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.legend {
+  font-size: var(--typography-body-size);
+  line-height: var(--typography-body-line-height);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+  padding: 0;
+  margin-block-end: var(--space-2);
+}
+
+.fieldRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.fieldRowSpaced {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-inline-size: 0;
+  margin-block-start: var(--space-3);
+}
+
+.label {
+  font-size: var(--typography-body-size);
+  line-height: var(--typography-body-line-height);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.helpText {
+  font-size: var(--font-size-xs, 0.75rem);
+  line-height: var(--line-height-xs, 1rem);
+  color: var(--color-text-muted);
+}
+
+.errorText {
+  font-size: var(--font-size-xs, 0.75rem);
+  line-height: var(--line-height-xs, 1rem);
+  color: var(--color-danger);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.scaleGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.gridTwo {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  gap: var(--space-4);
+}
+
+.statusCard {
+  padding-inline: var(--space-3);
+  padding-block: var(--space-2);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-raised, var(--color-surface));
+  border: 1px solid var(--color-border-subtle);
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block-start: var(--space-2);
+}
+
+.statusValue {
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+}
+
+.formGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-inline-size: 32rem;
+}
+
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-block-start: var(--space-2);
+}
+
+.themeSpecimenRow {
+  display: flex;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.themeBox {
+  flex: 1;
+  min-inline-size: min(100%, 14rem);
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-sizing: border-box;
+}
+
+.themeBoxLight {
+  background-color: #ffffff;
+  color: #111827;
+}
+
+.themeBoxDark {
+  background-color: #0b0f19;
+  color: #f9fafb;
+}
+
+.codeBlock {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs, 0.75rem);
+  line-height: 1.5;
+  background-color: var(--color-surface-raised, var(--color-surface));
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
+  overflow-x: auto;
+  max-inline-size: 100%;
+  box-sizing: border-box;
+  white-space: pre;
+  color: var(--color-text-primary);
+}

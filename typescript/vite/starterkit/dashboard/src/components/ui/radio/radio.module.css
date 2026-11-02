@@ -1,0 +1,274 @@
+/*
+ * Radio Component Stylesheet
+ *
+ * Core UI Primitive: 100% logical CSS properties, zero shadows in dashboard.
+ * Decouples minimum interaction target from visible circular indicator.
+ */
+
+.root {
+  /* Default density aliases */
+  --_radio-target: var(--control-height-default, 2.25rem);
+  --_radio-box-size: var(--control-icon-size-default, 1rem);
+  --_radio-dot-size: calc(var(--_radio-box-size) * 0.5);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--_radio-target);
+  block-size: var(--_radio-target);
+  min-inline-size: var(--_radio-target);
+  min-block-size: var(--_radio-target);
+  vertical-align: middle;
+  flex: none;
+  box-sizing: border-box;
+}
+
+/* Six-Step Density Overrides */
+.root[data-size="xs"] {
+  --_radio-target: var(--control-height-xs, 1.75rem);
+  --_radio-box-size: var(--control-icon-size-xs, 0.875rem); /* 14px */
+}
+
+.root[data-size="sm"] {
+  --_radio-target: var(--control-height-sm, 2rem);
+  --_radio-box-size: var(--control-icon-size-sm, 1rem); /* 16px */
+}
+
+.root[data-size="md"] {
+  --_radio-target: var(--control-height-md, 2.25rem);
+  --_radio-box-size: var(--control-icon-size-md, 1rem); /* 16px */
+}
+
+.root[data-size="lg"] {
+  --_radio-target: var(--control-height-lg, 2.5rem);
+  --_radio-box-size: var(--control-icon-size-lg, 1.125rem); /* 18px */
+}
+
+.root[data-size="xl"] {
+  --_radio-target: var(--control-height-xl, 3rem);
+  --_radio-box-size: var(--control-icon-size-xl, 1.25rem); /* 20px */
+}
+
+.root[data-size="2xl"] {
+  --_radio-target: var(--control-height-2xl, 3.5rem);
+  --_radio-box-size: var(--control-icon-size-2xl, 1.5rem); /* 24px */
+}
+
+/* Touch-Target Policy (Separate Valid CSS Rules) */
+.root[data-touch-target="comfortable"] {
+  min-inline-size: max(var(--_radio-target), var(--control-touch-target-min, 3rem));
+  min-block-size: max(var(--_radio-target), var(--control-touch-target-min, 3rem));
+  inline-size: max(var(--_radio-target), var(--control-touch-target-min, 3rem));
+  block-size: max(var(--_radio-target), var(--control-touch-target-min, 3rem));
+}
+
+@media (any-pointer: coarse) {
+  .root[data-touch-target="auto"] {
+    min-inline-size: max(var(--_radio-target), var(--control-touch-target-min, 3rem));
+    min-block-size: max(var(--_radio-target), var(--control-touch-target-min, 3rem));
+    inline-size: max(var(--_radio-target), var(--control-touch-target-min, 3rem));
+    block-size: max(var(--_radio-target), var(--control-touch-target-min, 3rem));
+  }
+}
+
+/* Native Input (Occupies 100% of the Real Hitbox Target) */
+.input {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+/* Visible Circular Indicator Box */
+.indicator {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--_radio-box-size);
+  block-size: var(--_radio-box-size);
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-control);
+  box-sizing: border-box;
+  pointer-events: none;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    border-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+/* Inner Bullet Dot (50% Outer Diameter) */
+.dot {
+  inline-size: var(--_radio-dot-size);
+  block-size: var(--_radio-dot-size);
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--color-primary-foreground);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+/* Hover State (Stable Border Principle) */
+.input:hover:not(:disabled) + .indicator {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-control);
+}
+
+/* Focus-Visible Outline (Immediate 0ms Ring) */
+.input:focus-visible + .indicator {
+  outline: var(--focus-ring-width, 2px) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+
+/* Checked Active State */
+.input:checked + .indicator {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.input:checked + .indicator .dot {
+  opacity: 1;
+}
+
+.input:checked:hover:not(:disabled) + .indicator {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+/* Invalid State (aria-invalid="true") */
+.input[aria-invalid="true"]:not(:checked) + .indicator {
+  border-color: var(--color-danger);
+}
+
+.input[aria-invalid="true"]:checked + .indicator {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.input[aria-invalid="true"]:checked + .indicator .dot {
+  background-color: var(--color-danger-foreground);
+}
+
+/* Invalid Hover Precedence:
+ * - Unchecked invalid hover retains surface hover and danger border.
+ * - Checked invalid hover retains danger fill and border.
+ */
+.input[aria-invalid="true"]:not(:checked):hover:not(:disabled) + .indicator {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-danger);
+}
+
+.input[aria-invalid="true"]:checked:hover:not(:disabled) + .indicator {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.input[aria-invalid="true"]:focus-visible + .indicator {
+  outline-color: var(--color-danger);
+}
+
+/* Disabled State (Highest Specificity Precedence) */
+.input:disabled {
+  cursor: not-allowed;
+}
+
+.input:disabled + .indicator,
+.input:disabled:hover + .indicator,
+.input[aria-invalid="true"]:disabled + .indicator,
+.input[aria-invalid="true"]:disabled:hover + .indicator {
+  background-color: var(--color-control-disabled-bg);
+  border-color: var(--color-border-disabled);
+  outline: none;
+}
+
+.input:disabled:checked + .indicator,
+.input[aria-invalid="true"]:disabled:checked + .indicator {
+  background-color: var(--color-control-disabled-bg);
+  border-color: var(--color-border-disabled);
+}
+
+.input:disabled:checked + .indicator .dot,
+.input[aria-invalid="true"]:disabled:checked + .indicator .dot {
+  background-color: var(--color-text-disabled);
+  opacity: 1;
+}
+
+/* Reduced Motion Guarantee */
+@media (prefers-reduced-motion: reduce) {
+  .indicator,
+  .dot {
+    transition: none;
+  }
+}
+
+/* Forced Colors Mode (High Contrast Accessibility) */
+@media (forced-colors: active) {
+  .indicator {
+    forced-color-adjust: none;
+    background-color: Canvas;
+    border-color: CanvasText;
+    color: CanvasText;
+  }
+
+  /* Unchecked resting and hover (not disabled) */
+  .input:not(:checked):not(:disabled) + .indicator,
+  .input:not(:checked):hover:not(:disabled) + .indicator {
+    background-color: Canvas;
+    border-color: CanvasText;
+  }
+
+  /* Checked resting and hover (valid or invalid, not disabled) */
+  .input:checked:not(:disabled) + .indicator,
+  .input:checked:hover:not(:disabled) + .indicator,
+  .input[aria-invalid="true"]:checked:not(:disabled) + .indicator,
+  .input[aria-invalid="true"]:checked:hover:not(:disabled) + .indicator {
+    background-color: Highlight;
+    border-color: Highlight;
+  }
+
+  .input:checked:not(:disabled) + .indicator .dot,
+  .input[aria-invalid="true"]:checked:not(:disabled) + .indicator .dot {
+    background-color: HighlightText;
+  }
+
+  /* Invalid unchecked resting and hover (not disabled) */
+  .input[aria-invalid="true"]:not(:checked):not(:disabled) + .indicator,
+  .input[aria-invalid="true"]:not(:checked):hover:not(:disabled) + .indicator {
+    background-color: Canvas;
+    border-color: Highlight;
+  }
+
+  /* Focus visible outline (not disabled) */
+  .input:focus-visible:not(:disabled) + .indicator,
+  .input[aria-invalid="true"]:focus-visible:not(:disabled) + .indicator {
+    outline-color: Highlight;
+  }
+
+  /* Disabled State: Highest Precedence (GrayText Always Wins) */
+  .input:disabled + .indicator,
+  .input:disabled:hover + .indicator,
+  .input:disabled:checked + .indicator,
+  .input:disabled:checked:hover + .indicator,
+  .input[aria-invalid="true"]:disabled + .indicator,
+  .input[aria-invalid="true"]:disabled:hover + .indicator,
+  .input[aria-invalid="true"]:disabled:checked + .indicator,
+  .input[aria-invalid="true"]:disabled:checked:hover + .indicator,
+  .input[aria-invalid="true"]:disabled:not(:checked) + .indicator,
+  .input[aria-invalid="true"]:disabled:not(:checked):hover + .indicator {
+    background-color: Canvas;
+    border-color: GrayText;
+    outline: none;
+  }
+
+  .input:disabled:checked + .indicator .dot,
+  .input[aria-invalid="true"]:disabled:checked + .indicator .dot {
+    background-color: GrayText;
+  }
+}

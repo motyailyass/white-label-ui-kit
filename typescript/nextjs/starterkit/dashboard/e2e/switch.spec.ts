@@ -181,6 +181,19 @@ test.describe('Dashboard Switch Primitive Real-Browser Verification', () => {
     await touchPage.goto('/gallery/switch');
     await expect(touchPage.locator('[data-testid="switch-gallery"]')).toBeVisible();
 
+    // Assert (any-pointer: coarse) media query matches
+    const isAnyCoarse = await touchPage.evaluate(
+      () => window.matchMedia('(any-pointer: coarse)').matches,
+    );
+    expect(isAnyCoarse).toBe(true);
+
+    // On coarse pointer, explicit xs target expands from 28px to >= 48px
+    const coarseXsRoot = touchPage.locator('[data-testid="specimen-size-xs"]').locator('..');
+    const coarseXsBox = await coarseXsRoot.boundingBox();
+    expect(coarseXsBox).not.toBeNull();
+    expect(coarseXsBox!.width).toBeGreaterThanOrEqual(48);
+    expect(coarseXsBox!.height).toBeGreaterThanOrEqual(48);
+
     const coarseDefaultRoot = touchPage.locator('[data-testid="specimen-default"]').locator('..');
     const coarseBox = await coarseDefaultRoot.boundingBox();
     expect(coarseBox).not.toBeNull();
@@ -193,6 +206,19 @@ test.describe('Dashboard Switch Primitive Real-Browser Verification', () => {
     expect(coarseTwoXlBox!.width).toBeCloseTo(56, 1);
     expect(coarseTwoXlBox!.height).toBeCloseTo(56, 1);
 
+    // 4. Contrast against fine pointer (hasTouch: false) where xs is unexpanded 28x28px
+    const fineContext = await browser.newContext({ hasTouch: false });
+    const finePage = await fineContext.newPage();
+    await finePage.goto('/gallery/switch');
+    await expect(finePage.locator('[data-testid="switch-gallery"]')).toBeVisible();
+
+    const fineXsRoot = finePage.locator('[data-testid="specimen-size-xs"]').locator('..');
+    const fineXsBox = await fineXsRoot.boundingBox();
+    expect(fineXsBox).not.toBeNull();
+    expect(fineXsBox!.width).toBeCloseTo(28, 1);
+    expect(fineXsBox!.height).toBeCloseTo(28, 1);
+
+    await fineContext.close();
     await touchContext.close();
   });
 
@@ -387,41 +413,8 @@ test.describe('Dashboard Switch Primitive Real-Browser Verification', () => {
       expect(outlineWidth, `Visible focus outline expected for ${testId}`).toBeGreaterThanOrEqual(1);
     }
 
-    // 3. Hover and pointer exit recovery across relevant combined states
-    const hoverRecoveryStates = [
-      {
-        id: 'specimen-unchecked',
-        bg: systemColors.canvas,
-        border: systemColors.canvasText,
-        thumb: systemColors.canvasText,
-      },
-      {
-        id: 'specimen-checked',
-        bg: systemColors.highlight,
-        border: systemColors.highlight,
-        thumb: systemColors.highlightText,
-      },
-      {
-        id: 'specimen-invalid-unchecked',
-        bg: systemColors.canvas,
-        border: systemColors.highlight,
-        thumb: systemColors.canvasText,
-      },
-      {
-        id: 'specimen-invalid-checked',
-        bg: systemColors.highlight,
-        border: systemColors.highlight,
-        thumb: systemColors.highlightText,
-      },
-      {
-        id: 'specimen-disabled-checked',
-        bg: systemColors.canvas,
-        border: systemColors.grayText,
-        thumb: systemColors.grayText,
-      },
-    ];
-
-    for (const s of hoverRecoveryStates) {
+    // 3. Hover and pointer exit recovery across all 8 operational, invalid, and disabled states
+    for (const s of states) {
       const input = page.locator(`[data-testid="${s.id}"]`);
       const track = input.locator('+ span');
       const thumb = track.locator('span');

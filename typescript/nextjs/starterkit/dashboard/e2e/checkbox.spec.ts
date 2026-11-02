@@ -316,6 +316,13 @@ test.describe('Dashboard Checkbox Primitive Real-Browser Verification', () => {
     );
 
     // Invalid + disabled + indeterminate at rest: GrayText border (disabled takes precedence)
+    // Poll native indeterminate property to verify DOM commitment before style assertions
+    await expect.poll(async () => {
+      return await invalidDisabledIndeterminateInput.evaluate(
+        (el) => (el as HTMLInputElement).indeterminate,
+      );
+    }).toBe(true);
+
     await expect(invalidDisabledIndeterminateIndicator).toHaveCSS(
       'border-color',
       systemColors.grayText,

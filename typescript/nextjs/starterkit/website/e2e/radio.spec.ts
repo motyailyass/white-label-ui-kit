@@ -229,22 +229,28 @@ test.describe('Website Radio Primitive Real-Browser Verification', () => {
   test('verifies native keyboard interaction (Space to check, Arrow keys to navigate)', async ({
     page,
   }) => {
-    const kbdFirst = page.locator('[data-testid="specimen-kbd-first"]');
-    const kbdSecond = page.locator('[data-testid="specimen-kbd-second"]');
+    const dev = page.locator('[data-testid="specimen-ctrl-dev"]');
+    const staging = page.locator('[data-testid="specimen-ctrl-staging"]');
+    const prod = page.locator('[data-testid="specimen-ctrl-prod"]');
 
-    // 1. Focus first radio
-    await kbdFirst.focus();
-    await expect(kbdFirst).toBeFocused();
+    // 1. Focus element
+    await dev.focus();
+    await expect(dev).toBeFocused();
 
     // 2. Press Space to select
     await page.keyboard.press('Space');
-    expect(await kbdFirst.isChecked()).toBe(true);
+    expect(await dev.isChecked()).toBe(true);
 
     // 3. Native Down arrow moves to next radio in group and checks it
     await page.keyboard.press('ArrowDown');
-    await expect(kbdSecond).toBeFocused();
-    expect(await kbdSecond.isChecked()).toBe(true);
-    expect(await kbdFirst.isChecked()).toBe(false);
+    await expect(staging).toBeFocused();
+    expect(await staging.isChecked()).toBe(true);
+    expect(await dev.isChecked()).toBe(false);
+
+    await page.keyboard.press('ArrowDown');
+    await expect(prod).toBeFocused();
+    expect(await prod.isChecked()).toBe(true);
+    expect(await staging.isChecked()).toBe(false);
   });
 
   test('verifies forced-colors system highlight and state precedence with pointer recovery', async ({
@@ -350,6 +356,35 @@ test.describe('Website Radio Primitive Real-Browser Verification', () => {
     );
   });
 
+  test('verifies required group state-driven invalid-to-valid transition', async ({
+    page,
+  }) => {
+    const cardRadio = page.locator('[data-testid="specimen-required-card"]');
+    const bankRadio = page.locator('[data-testid="specimen-required-bank"]');
+    const fieldset = cardRadio.locator('xpath=ancestor::fieldset');
+    const alert = fieldset.locator('[role="alert"]');
+
+    // 1. Initial state before selection: error message is displayed, inputs are invalid
+    await expect(alert).toBeVisible();
+    expect(await cardRadio.getAttribute('aria-invalid')).toBe('true');
+    expect(await bankRadio.getAttribute('aria-invalid')).toBe('true');
+
+    const descBefore = await fieldset.getAttribute('aria-describedby');
+    expect(descBefore).toContain('error');
+
+    // 2. Select card option -> invalid-to-valid transition
+    await cardRadio.click();
+    expect(await cardRadio.isChecked()).toBe(true);
+
+    // 3. Error cleared, role="alert" removed, aria-invalid updated
+    await expect(alert).toHaveCount(0);
+    expect(await cardRadio.getAttribute('aria-invalid')).toBe('false');
+    expect(await bankRadio.getAttribute('aria-invalid')).toBe('false');
+
+    const descAfter = await fieldset.getAttribute('aria-describedby');
+    expect(descAfter).not.toContain('error');
+  });
+
   test('verifies native form submit, validation, and form reset lifecycles', async ({
     page,
   }) => {
@@ -360,21 +395,26 @@ test.describe('Website Radio Primitive Real-Browser Verification', () => {
     const dedicatedOpt = page.locator('[data-testid="specimen-form-dedicated"]');
     const sharedOpt = page.locator('[data-testid="specimen-form-shared"]');
 
-    // Initial state: shared is checked
-    expect(await sharedOpt.isChecked()).toBe(true);
+    // 1. Initial state: unselected
+    expect(await sharedOpt.isChecked()).toBe(false);
+    expect(await dedicatedOpt.isChecked()).toBe(false);
 
-    // Select dedicated
+    // 2. Submit while unselected triggers empty-selection error branch
+    await submitBtn.click();
+    await expect(statusDisplay).toContainText(/select|erreur|خطأ|error/i);
+
+    // 3. Select dedicated
     await dedicatedOpt.click();
     expect(await dedicatedOpt.isChecked()).toBe(true);
     expect(await sharedOpt.isChecked()).toBe(false);
 
-    // Submit form -> enters pending
+    // 4. Submit form -> enters pending
     await submitBtn.click();
     await expect(statusDisplay).toContainText(/simulated|جارٍ|simulé/i);
 
-    // Reset while pending cancels submit and restores defaults
+    // 5. Reset restores defaults and cancels submit
     await resetBtn.click();
-    expect(await sharedOpt.isChecked()).toBe(true);
+    expect(await sharedOpt.isChecked()).toBe(false);
     expect(await dedicatedOpt.isChecked()).toBe(false);
     await expect(statusDisplay).toContainText(/reset|réinitialisé|إعادة/i);
   });

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Radio } from '@/components/ui/radio';
-import { BidiText, type TranslationKey } from '@/i18n';
+import type { TranslationKey } from '@/i18n';
 import { useI18n } from '@/providers';
 import { LanguageSwitcher } from '../language-switcher';
 import { ThemeSwitcher } from '../theme-switcher';
@@ -34,8 +34,12 @@ export function RadioGallery() {
   // Controlled mode state
   const [controlledValue, setControlledValue] = useState('dev');
 
+  // Required section validation state
+  const [requiredPayment, setRequiredPayment] = useState('');
+  const [requiredError, setRequiredError] = useState(true);
+
   // Form demonstration state
-  const [formCompute, setFormCompute] = useState<string>('shared');
+  const [formCompute, setFormCompute] = useState<string>('');
   const [formStatusId, setFormStatusId] = useState<FormStatusId>('none');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -74,7 +78,7 @@ export function RadioGallery() {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-    setFormCompute('shared');
+    setFormCompute('');
     setIsSubmitting(false);
     setFormStatusId('reset');
   }, []);
@@ -459,7 +463,7 @@ export function RadioGallery() {
         <p className={styles.sectionDesc}>{t('common.radioGallery.helpErrorDesc')}</p>
         <fieldset
           className={styles.fieldset}
-          aria-describedby={`${reqHelpId} ${reqErrorId}`}
+          aria-describedby={requiredError ? `${reqHelpId} ${reqErrorId}` : reqHelpId}
         >
           <legend className={styles.legend}>
             {t('common.radioGallery.requiredLegend')}
@@ -470,6 +474,12 @@ export function RadioGallery() {
               name={`${baseId}-payment-method`}
               value="card"
               required
+              checked={requiredPayment === 'card'}
+              aria-invalid={requiredError ? 'true' : 'false'}
+              onChange={(e) => {
+                setRequiredPayment(e.target.value);
+                setRequiredError(false);
+              }}
               data-testid="specimen-required-card"
             />
             <label htmlFor={reqCardId} className={styles.label}>
@@ -482,6 +492,12 @@ export function RadioGallery() {
               name={`${baseId}-payment-method`}
               value="bank"
               required
+              checked={requiredPayment === 'bank'}
+              aria-invalid={requiredError ? 'true' : 'false'}
+              onChange={(e) => {
+                setRequiredPayment(e.target.value);
+                setRequiredError(false);
+              }}
               data-testid="specimen-required-bank"
             />
             <label htmlFor={reqBankId} className={styles.label}>
@@ -491,9 +507,11 @@ export function RadioGallery() {
           <span id={reqHelpId} className={styles.helpText}>
             {t('common.radioGallery.requiredHelpText')}
           </span>
-          <span id={reqErrorId} className={styles.errorText} role="alert">
-            {t('common.radioGallery.requiredErrorText')}
-          </span>
+          {requiredError && (
+            <span id={reqErrorId} className={styles.errorText} role="alert">
+              {t('common.radioGallery.requiredErrorText')}
+            </span>
+          )}
         </fieldset>
       </section>
 
@@ -604,8 +622,7 @@ export function RadioGallery() {
               data-testid="specimen-mixed-code"
             />
             <label htmlFor={mixedId} className={styles.label}>
-              Activate telemetry sensor ID:{' '}
-              <BidiText dir="ltr">SENS-84920-X</BidiText>
+              {t('common.radioGallery.mixedTechLabel')}
             </label>
           </div>
 
@@ -662,36 +679,29 @@ export function RadioGallery() {
           </div>
         </div>
 
-        <div className={styles.themeSpecimenRow}>
-          <div className={`${styles.themeBox} ${styles.themeBoxLight}`}>
-            <span className={styles.label}>Light Theme Specimen</span>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={`${baseId}-light-chk`}
-                name={`${baseId}-light-theme`}
-                value="1"
-                defaultChecked
-                data-testid="specimen-theme-light"
-              />
-              <label htmlFor={`${baseId}-light-chk`} className={styles.label}>
-                {t('common.radioGallery.themeCheckedLabel')}
-              </label>
-            </div>
+        <div className={styles.gridTwo}>
+          <div className={styles.fieldRow}>
+            <Radio
+              id={`${baseId}-theme-checked`}
+              name={`${baseId}-theme-specimen`}
+              value="checked"
+              defaultChecked
+              data-testid="specimen-theme-checked"
+            />
+            <label htmlFor={`${baseId}-theme-checked`} className={styles.label}>
+              {t('common.radioGallery.themeCheckedLabel')}
+            </label>
           </div>
-          <div className={`${styles.themeBox} ${styles.themeBoxDark}`}>
-            <span className={styles.label}>Dark Theme Specimen</span>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={`${baseId}-dark-chk`}
-                name={`${baseId}-dark-theme`}
-                value="1"
-                defaultChecked
-                data-testid="specimen-theme-dark"
-              />
-              <label htmlFor={`${baseId}-dark-chk`} className={styles.label}>
-                {t('common.radioGallery.themeCheckedLabel')}
-              </label>
-            </div>
+          <div className={styles.fieldRow}>
+            <Radio
+              id={`${baseId}-theme-unchecked`}
+              name={`${baseId}-theme-specimen`}
+              value="unchecked"
+              data-testid="specimen-theme-unchecked"
+            />
+            <label htmlFor={`${baseId}-theme-unchecked`} className={styles.label}>
+              {t('common.radioGallery.themeUncheckedLabel')}
+            </label>
           </div>
         </div>
       </section>

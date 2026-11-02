@@ -505,6 +505,98 @@ export const common = {
     formDisclaimer: 'Local form demonstration; no backend persistence.',
     formStatusPrefix: 'Form Status',
   },
+  switchGallery: {
+    title: 'Switch Component Gallery',
+    subtitle:
+      'Interactive visual verification and usage specifications for the white-label Switch primitive.',
+    metaTitle: 'Switch Component Gallery | White Label UI Kit',
+    metaDescription:
+      'Visual demonstration and usage specifications for the Switch primitive.',
+    overviewTitle: '1. Overview & Product Defaults',
+    overviewDesc:
+      'Switch captures an immediate binary toggle ("on" / "off"). When size is omitted, it consumes local product presets (Dashboard = md / 36px target, Website = xl / 48px target).',
+    sizesTitle: '2. Six-Step Sizing Scale',
+    sizesDesc:
+      'Explicit sizes xs through 2xl decouple the minimum interaction target from the visible pill track and circular thumb.',
+    controlledTitle: '3. Controlled Mode',
+    controlledDesc:
+      'Parent component tracks switch state and coordinates updates through onChange.',
+    uncontrolledTitle: '4. Uncontrolled Mode & Form Reset',
+    uncontrolledDesc:
+      'Relies on native browser DOM state and restores initial defaultChecked values on form reset.',
+    statesTitle: '5. Operational States & Combined Precedence',
+    statesDesc:
+      'Demonstrating unchecked, checked, hover, disabled, and high-contrast combined states.',
+    helpErrorTitle: '6. Required Validation & Accessible Relationships',
+    helpErrorDesc:
+      'Required switch with aria-invalid, aria-describedby, and external accessible label.',
+    independentTitle: '7. Independent Switches & Disabled Fieldset',
+    independentDesc:
+      'Independent switches operate without mutual interference, and naturally inherit disabled state from parent fieldsets.',
+    localizationTitle: '8. Localization, RTL & Long Labels',
+    localizationDesc:
+      'Switches align to inline start and end in RTL, respect nested direction overrides, and clear Arabic script with multi-line wrapping.',
+    themeTitle: '9. Touch Targets & Theme Parity',
+    themeDesc:
+      '48px minimum comfortable touch targets and identical contrast preserved across Light and Dark themes with zero dashboard shadows.',
+    formDemoTitle: '10. Local Form Demonstration',
+    formDemoDesc:
+      'Interactive account privacy form featuring client validation, submit simulation, and reset timer cleanup.',
+    usageTitle: '11. Code Usage Examples',
+    usageDesc: 'Short, verified, and copyable snippets for production patterns.',
+    defaultOptionAirplane: 'Airplane Mode',
+    defaultOptionDnd: 'Do Not Disturb',
+    sizeXsLabel: 'Size XS',
+    sizeSmLabel: 'Size SM',
+    sizeMdLabel: 'Size MD',
+    sizeLgLabel: 'Size LG',
+    sizeXlLabel: 'Size XL',
+    size2xlLabel: 'Size 2XL',
+    controlledLabel: 'Real-time telemetry stream',
+    controlledStatusPrefix: 'Switch State',
+    controlledStatusActive: 'Active (On)',
+    controlledStatusInactive: 'Inactive (Off)',
+    uncontrolledOptAutosave: 'Auto-save document changes',
+    uncontrolledOptDiagnostics: 'Diagnostic crash reports',
+    uncontrolledResetButton: 'Reset Defaults',
+    stateUncheckedLabel: 'Unchecked Resting',
+    stateCheckedLabel: 'Checked Resting',
+    stateDisabledUncheckedLabel: 'Disabled Unchecked',
+    stateDisabledCheckedLabel: 'Disabled Checked',
+    stateInvalidUncheckedLabel: 'Invalid Unchecked',
+    stateInvalidCheckedLabel: 'Invalid Checked',
+    stateInvalidDisabledUncheckedLabel: 'Invalid Disabled Unchecked',
+    stateInvalidDisabledCheckedLabel: 'Invalid Disabled Checked',
+    requiredLabel: 'Enable security firewall (Required)',
+    requiredHelpText: 'Firewall rules are mandatory for production deployments.',
+    requiredErrorText: 'Enabling the security firewall is required.',
+    requiredValidateButton: 'Validate Setting',
+    independentActiveLabel: 'Automatic synchronization',
+    fieldsetDisabledLegend: 'Restricted Administration',
+    fieldsetDisabledOption: 'Override cluster security policy',
+    arabicSpecimenLabel: 'تفعيل التنبيهات المباشرة والتحديثات الفورية للوحة التحكم',
+    arabicSpecimenHelp: 'مفتاح تبديل يدعم حركة اليمين إلى اليسار مع علامات التشكيل.',
+    mixedTechLabel: 'Activate telemetry sensor ID: SENS-84920-X',
+    mixedTechPrefix: 'Activate telemetry sensor ID:',
+    touchAutoSpecimen: 'Fine Pointer Target (36px)',
+    touchComfortableSpecimen: 'Comfortable Touch Target (48px min)',
+    themeCheckedLabel: 'Checked Theme Specimen',
+    themeUncheckedLabel: 'Unchecked Theme Specimen',
+    longLabelSpecimen:
+      'Extended descriptive feature toggle explaining continuous real-time multi-region failover replication, automatic disaster recovery orchestration, and end-to-end cryptographic audit trails.',
+    formTermsLabel: 'Accept platform security and privacy policies (Required)',
+    formMarketingLabel: 'Subscribe to platform release notes and webinars',
+    formSubmitButton: 'Save Privacy Settings',
+    formResetButton: 'Reset Settings',
+    formEventNone: 'No privacy update request yet.',
+    formEventPending: 'Saving privacy preferences (simulated)...',
+    formEventSuccess:
+      'Privacy preferences saved successfully! (Local demo; no server persistence)',
+    formEventReset: 'Form reset to initial defaults.',
+    formEventError: 'You must accept the security and privacy policies to proceed.',
+    formDisclaimer: 'Local form demonstration; no backend persistence.',
+    formStatusPrefix: 'Form Status',
+  },
 } as const;
 
 export type CommonMessages = MessageShape<typeof common>;

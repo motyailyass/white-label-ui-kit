@@ -443,6 +443,29 @@ test.describe('Website Radio Primitive Real-Browser Verification', () => {
     expect(arabicBox!.x).toBeGreaterThan(labelBox!.x);
   });
 
+  test('verifies native required-group form validation regression', async ({ page }) => {
+    // Verifies that native HTML form validation detects valueMissing on untouched required radio group,
+    // and transitions to valid once a radio in the required group is selected.
+    const isValueMissingInitially = await page.evaluate(() => {
+      const card = document.querySelector<HTMLInputElement>(
+        '[data-testid="specimen-required-card"]',
+      );
+      return card ? card.validity.valueMissing && !card.checkValidity() : false;
+    });
+    expect(isValueMissingInitially).toBe(true);
+
+    const cardRadio = page.locator('[data-testid="specimen-required-card"]');
+    await cardRadio.click();
+
+    const isValidAfterSelection = await page.evaluate(() => {
+      const card = document.querySelector<HTMLInputElement>(
+        '[data-testid="specimen-required-card"]',
+      );
+      return card ? !card.validity.valueMissing && card.checkValidity() : false;
+    });
+    expect(isValidAfterSelection).toBe(true);
+  });
+
   test('verifies responsive reflow without horizontal clipping at narrow and desktop viewports', async ({
     page,
   }) => {

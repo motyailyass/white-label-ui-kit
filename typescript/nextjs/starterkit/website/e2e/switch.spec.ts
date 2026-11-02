@@ -1,0 +1,346 @@
+import { test, expect } from '@playwright/test';
+
+test.describe('Website Switch Primitive Real-Browser Verification', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/gallery/switch');
+    await expect(page.locator('[data-testid="switch-gallery"]')).toBeVisible();
+  });
+
+  test('verifies native input real hitbox target dimensions and six-step scale', async ({
+    page,
+  }) => {
+    const isCoarse = await page.evaluate(
+      () => window.matchMedia('(pointer: coarse)').matches,
+    );
+
+    // 1. Website product default (omitted size): xl (48px target, 40×20px track)
+    const defaultSpecimen = page.locator('[data-testid="specimen-default"]');
+    await expect(defaultSpecimen).toBeVisible();
+
+    const defaultRoot = defaultSpecimen.locator('..');
+    const defaultRootBox = await defaultRoot.boundingBox();
+    expect(defaultRootBox).not.toBeNull();
+
+    if (isCoarse) {
+      expect(defaultRootBox!.height).toBeGreaterThanOrEqual(48);
+      expect(defaultRootBox!.width).toBeGreaterThanOrEqual(48);
+    } else {
+      expect(defaultRootBox!.height).toBeCloseTo(48, 1);
+      expect(defaultRootBox!.width).toBeCloseTo(48, 1);
+    }
+
+    // 2. Explicit scale targets (strictly square targets at rest)
+    const scaleTargets: Record<string, number> = {
+      'specimen-size-xs': 28,
+      'specimen-size-sm': 32,
+      'specimen-size-md': 36,
+      'specimen-size-lg': 40,
+      'specimen-size-xl': 48,
+      'specimen-size-2xl': 56,
+    };
+
+    for (const [testId, expectedTarget] of Object.entries(scaleTargets)) {
+      const specimen = page.locator(`[data-testid="${testId}"]`);
+      const root = specimen.locator('..');
+      const box = await root.boundingBox();
+      expect(box).not.toBeNull();
+
+      if (isCoarse) {
+        expect(box!.height).toBeGreaterThanOrEqual(Math.max(48, expectedTarget));
+      } else {
+        expect(box!.height).toBeCloseTo(expectedTarget, 1);
+        expect(box!.width).toBeCloseTo(expectedTarget, 1);
+      }
+    }
+
+    // 3. Real input hitbox occupies 100% of the target container
+    const defaultInputBox = await defaultSpecimen.boundingBox();
+    expect(defaultInputBox).not.toBeNull();
+    expect(defaultInputBox!.width).toBeCloseTo(defaultRootBox!.width, 0.5);
+    expect(defaultInputBox!.height).toBeCloseTo(defaultRootBox!.height, 0.5);
+  });
+
+  test('verifies track and thumb geometry, end insets, and omitted-versus-explicit default parity', async ({
+    page,
+  }) => {
+    const defaultInput = page.locator('[data-testid="specimen-default"]');
+    const xlInput = page.locator('[data-testid="specimen-size-xl"]');
+    const twoXlInput = page.locator('[data-testid="specimen-size-2xl"]');
+
+    const defaultTrack = defaultInput.locator('+ span');
+    const xlTrack = xlInput.locator('+ span');
+    const twoXlTrack = twoXlInput.locator('+ span');
+
+    const defaultThumb = defaultTrack.locator('span');
+    const xlThumb = xlTrack.locator('span');
+    const twoXlThumb = twoXlTrack.locator('span');
+
+    // 1. Omitted size on website matches explicit xl (40×20px track, 16px thumb)
+    const defaultTrackBox = await defaultTrack.boundingBox();
+    const xlTrackBox = await xlTrack.boundingBox();
+    expect(defaultTrackBox).not.toBeNull();
+    expect(xlTrackBox).not.toBeNull();
+    expect(defaultTrackBox!.width).toBeCloseTo(40, 1);
+    expect(defaultTrackBox!.height).toBeCloseTo(20, 1);
+    expect(defaultTrackBox!.width).toBeCloseTo(xlTrackBox!.width, 0.5);
+    expect(defaultTrackBox!.height).toBeCloseTo(xlTrackBox!.height, 0.5);
+
+    const defaultThumbBox = await defaultThumb.boundingBox();
+    const xlThumbBox = await xlThumb.boundingBox();
+    expect(defaultThumbBox).not.toBeNull();
+    expect(xlThumbBox).not.toBeNull();
+    expect(defaultThumbBox!.width).toBeCloseTo(16, 1);
+    expect(defaultThumbBox!.height).toBeCloseTo(16, 1);
+    expect(defaultThumbBox!.width).toBeCloseTo(xlThumbBox!.width, 0.5);
+    expect(defaultThumbBox!.height).toBeCloseTo(xlThumbBox!.height, 0.5);
+
+    // 2. Explicit 2xl: 48×24px track, 20px thumb
+    const twoXlTrackBox = await twoXlTrack.boundingBox();
+    const twoXlThumbBox = await twoXlThumb.boundingBox();
+    expect(twoXlTrackBox).not.toBeNull();
+    expect(twoXlThumbBox).not.toBeNull();
+    expect(twoXlTrackBox!.width).toBeCloseTo(48, 1);
+    expect(twoXlTrackBox!.height).toBeCloseTo(24, 1);
+    expect(twoXlThumbBox!.width).toBeCloseTo(20, 1);
+    expect(twoXlThumbBox!.height).toBeCloseTo(20, 1);
+
+    // 3. Equal 2px end insets (1px border + 1px padding from track outer edge)
+    const rightInset =
+      defaultTrackBox!.x + defaultTrackBox!.width - (defaultThumbBox!.x + defaultThumbBox!.width);
+    expect(rightInset).toBeCloseTo(2, 0.75);
+
+    const altInput = page.locator('[data-testid="specimen-default-alt"]');
+    const altTrack = altInput.locator('+ span');
+    const altThumb = altTrack.locator('span');
+    const altTrackBox = await altTrack.boundingBox();
+    const altThumbBox = await altThumb.boundingBox();
+    const leftInset = altThumbBox!.x - altTrackBox!.x;
+    expect(leftInset).toBeCloseTo(2, 0.75);
+  });
+
+  test('verifies real hitbox edge clicks toggle switch state on and off', async ({
+    page,
+  }) => {
+    const defaultAlt = page.locator('[data-testid="specimen-default-alt"]');
+    expect(await defaultAlt.isChecked()).toBe(false);
+
+    const altBox = await defaultAlt.boundingBox();
+    expect(altBox).not.toBeNull();
+
+    // 1. Click top-left edge (1px, 1px) toggles the switch on
+    await page.mouse.click(altBox!.x + 1, altBox!.y + 1);
+    expect(await defaultAlt.isChecked()).toBe(true);
+
+    // 2. Click bottom-right edge toggles the switch back off
+    await page.mouse.click(
+      altBox!.x + altBox!.width - 1,
+      altBox!.y + altBox!.height - 1,
+    );
+    expect(await defaultAlt.isChecked()).toBe(false);
+  });
+
+  test('verifies comfortable and coarse touch-target policy and 2xl preservation', async ({
+    page,
+  }) => {
+    const comfortableSwitch = page.locator(
+      '[data-testid="specimen-touch-comfortable"]',
+    );
+    const comfortableRoot = comfortableSwitch.locator('..');
+    const comfortableBox = await comfortableRoot.boundingBox();
+    expect(comfortableBox).not.toBeNull();
+
+    expect(comfortableBox!.width).toBeGreaterThanOrEqual(48);
+    expect(comfortableBox!.height).toBeGreaterThanOrEqual(48);
+
+    const twoXlRoot = page.locator('[data-testid="specimen-size-2xl"]').locator('..');
+    const twoXlBox = await twoXlRoot.boundingBox();
+    expect(twoXlBox).not.toBeNull();
+    expect(twoXlBox!.height).toBeCloseTo(56, 1);
+    expect(twoXlBox!.width).toBeCloseTo(56, 1);
+  });
+
+  test('verifies hover border stability and visible keyboard focus outline', async ({
+    page,
+  }) => {
+    const uncheckedInput = page.locator('[data-testid="specimen-unchecked"]');
+    const uncheckedTrack = uncheckedInput.locator('+ span');
+
+    await uncheckedInput.hover();
+    await expect(uncheckedTrack).toHaveCSS('border-width', '1px');
+    await expect(uncheckedTrack).toHaveCSS('border-style', 'solid');
+
+    await page.mouse.move(0, 0);
+    await uncheckedInput.focus();
+    await expect(uncheckedTrack).toHaveCSS('outline-style', 'solid');
+    await expect(uncheckedTrack).toHaveCSS('outline-width', '2px');
+  });
+
+  test('verifies keyboard Space toggles switch and Enter does not toggle', async ({
+    page,
+  }) => {
+    const controlled = page.locator('[data-testid="specimen-controlled"]');
+    expect(await controlled.isChecked()).toBe(true);
+
+    await controlled.focus();
+
+    await page.keyboard.press('Enter');
+    expect(await controlled.isChecked()).toBe(true);
+
+    await page.keyboard.press('Space');
+    expect(await controlled.isChecked()).toBe(false);
+
+    await page.keyboard.press('Space');
+    expect(await controlled.isChecked()).toBe(true);
+  });
+
+  test('verifies forced-colors system highlight and state precedence with pointer recovery', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ forcedColors: 'active' });
+
+    const systemColors = await page.evaluate(() => {
+      const el = document.createElement('div');
+      el.style.backgroundColor = 'Highlight';
+      el.style.borderColor = 'Highlight';
+      el.style.color = 'GrayText';
+      document.body.appendChild(el);
+      const style = window.getComputedStyle(el);
+      const res = {
+        highlight: style.backgroundColor,
+        grayText: style.color,
+      };
+      el.remove();
+      return res;
+    });
+
+    const checkedInput = page.locator('[data-testid="specimen-checked"]');
+    const checkedTrack = checkedInput.locator('+ span');
+    const invalidCheckedInput = page.locator(
+      '[data-testid="specimen-invalid-checked"]',
+    );
+    const invalidCheckedTrack = invalidCheckedInput.locator('+ span');
+    const disabledTrack = page
+      .locator('[data-testid="specimen-invalid-disabled-unchecked"]')
+      .locator('+ span');
+
+    await expect(checkedTrack).toHaveCSS(
+      'background-color',
+      systemColors.highlight,
+    );
+    await expect(invalidCheckedTrack).toHaveCSS(
+      'background-color',
+      systemColors.highlight,
+    );
+    await expect(disabledTrack).toHaveCSS(
+      'border-color',
+      systemColors.grayText,
+    );
+
+    await checkedInput.hover();
+    await expect(checkedTrack).toHaveCSS(
+      'background-color',
+      systemColors.highlight,
+    );
+    await page.mouse.move(0, 0);
+    await expect(checkedTrack).toHaveCSS(
+      'background-color',
+      systemColors.highlight,
+    );
+  });
+
+  test('verifies LTR, RTL, and nested direction override placement', async ({
+    page,
+  }) => {
+    const arabicInput = page.locator('[data-testid="specimen-arabic"]');
+    const arabicTrack = arabicInput.locator('+ span');
+    const arabicThumb = arabicTrack.locator('span');
+
+    const arabicTrackBox = await arabicTrack.boundingBox();
+    const arabicThumbBox = await arabicThumb.boundingBox();
+    expect(arabicTrackBox).not.toBeNull();
+    expect(arabicThumbBox).not.toBeNull();
+
+    const arabicLeftInset = arabicThumbBox!.x - arabicTrackBox!.x;
+    expect(arabicLeftInset).toBeCloseTo(2, 0.75);
+
+    const nestedInput = page.locator('[data-testid="specimen-nested-ltr"]');
+    const nestedTrack = nestedInput.locator('+ span');
+    const nestedThumb = nestedTrack.locator('span');
+
+    const nestedTrackBox = await nestedTrack.boundingBox();
+    const nestedThumbBox = await nestedThumb.boundingBox();
+    expect(nestedTrackBox).not.toBeNull();
+    expect(nestedThumbBox).not.toBeNull();
+
+    expect(nestedThumbBox!.x + nestedThumbBox!.width).toBeLessThanOrEqual(
+      nestedTrackBox!.x + nestedTrackBox!.width + 0.5,
+    );
+    const nestedRightInset =
+      nestedTrackBox!.x + nestedTrackBox!.width - (nestedThumbBox!.x + nestedThumbBox!.width);
+    expect(nestedRightInset).toBeCloseTo(2, 0.75);
+  });
+
+  test('verifies state-driven required validation transition', async ({ page }) => {
+    const reqSwitch = page.locator('[data-testid="specimen-required"]');
+    const validateBtn = page.locator(
+      '[data-testid="specimen-required-validate-btn"]',
+    );
+    const container = reqSwitch.locator('xpath=ancestor::div[contains(@class, "fieldset")]');
+    const alert = container.locator('[role="alert"]');
+
+    await expect(alert).toHaveCount(0);
+    expect(await reqSwitch.getAttribute('aria-invalid')).toBe('false');
+
+    await validateBtn.click();
+    await expect(alert).toBeVisible();
+    expect(await reqSwitch.getAttribute('aria-invalid')).toBe('true');
+
+    await reqSwitch.click();
+    expect(await reqSwitch.isChecked()).toBe(true);
+    await expect(alert).toHaveCount(0);
+    expect(await reqSwitch.getAttribute('aria-invalid')).toBe('false');
+  });
+
+  test('verifies native form submit, validation, and form reset lifecycles', async ({
+    page,
+  }) => {
+    const termsSwitch = page.locator('[data-testid="specimen-form-terms"]');
+    const marketingSwitch = page.locator('[data-testid="specimen-form-marketing"]');
+    const submitBtn = page.locator('[data-testid="specimen-form-submit-btn"]');
+    const resetBtn = page.locator('[data-testid="specimen-form-reset-btn"]');
+    const statusDisplay = page.locator('[data-testid="form-status-display"]');
+
+    expect(await termsSwitch.isChecked()).toBe(false);
+    expect(await marketingSwitch.isChecked()).toBe(false);
+
+    await submitBtn.click();
+    await expect(statusDisplay).toContainText(/accept|accepter|موافقة|error/i);
+
+    await termsSwitch.click();
+    await marketingSwitch.click();
+    expect(await termsSwitch.isChecked()).toBe(true);
+    expect(await marketingSwitch.isChecked()).toBe(true);
+
+    await submitBtn.click();
+    await expect(statusDisplay).toContainText(/saving|enregistrement|حفظ/i);
+
+    await resetBtn.click();
+    expect(await termsSwitch.isChecked()).toBe(false);
+    expect(await marketingSwitch.isChecked()).toBe(false);
+    await expect(statusDisplay).toContainText(/reset|réinitialisé|إعادة/i);
+  });
+
+  test('verifies responsive reflow without horizontal clipping at narrow and desktop viewports', async ({
+    page,
+  }) => {
+    for (const width of [320, 375, 768, 1280]) {
+      await page.setViewportSize({ width, height: 800 });
+      const overflow = await page.evaluate(() => {
+        return (
+          document.documentElement.scrollWidth > document.documentElement.clientWidth
+        );
+      });
+      expect(overflow, `Horizontal overflow detected at ${width}px`).toBe(false);
+    }
+  });
+});

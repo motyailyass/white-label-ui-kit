@@ -1,0 +1,252 @@
+/*
+ * Switch Component Stylesheet
+ *
+ * Core UI Primitive: 100% logical CSS properties, zero shadows in dashboard.
+ * Decouples minimum interaction target from visible pill track.
+ */
+
+.root {
+  /* Default density aliases (Dashboard defaults to md) */
+  --_switch-target: var(--control-height-default, 2.25rem);
+  --_switch-track-height: var(--control-icon-size-default, 1rem);
+  --_switch-track-width: calc(var(--_switch-track-height) * 2);
+  --_switch-thumb-size: calc(var(--_switch-track-height) - 4px);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: max(var(--_switch-target), var(--_switch-track-width));
+  block-size: var(--_switch-target);
+  min-inline-size: max(var(--_switch-target), var(--_switch-track-width));
+  min-block-size: var(--_switch-target);
+  flex: none;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+/* Six-Step Density Overrides */
+.root[data-size="xs"] {
+  --_switch-target: var(--control-height-xs, 1.75rem);
+  --_switch-track-height: var(--control-icon-size-xs, 0.875rem);
+}
+
+.root[data-size="sm"] {
+  --_switch-target: var(--control-height-sm, 2rem);
+  --_switch-track-height: var(--control-icon-size-sm, 1rem);
+}
+
+.root[data-size="md"] {
+  --_switch-target: var(--control-height-md, 2.25rem);
+  --_switch-track-height: var(--control-icon-size-md, 1rem);
+}
+
+.root[data-size="lg"] {
+  --_switch-target: var(--control-height-lg, 2.5rem);
+  --_switch-track-height: var(--control-icon-size-lg, 1.125rem);
+}
+
+.root[data-size="xl"] {
+  --_switch-target: var(--control-height-xl, 3rem);
+  --_switch-track-height: var(--control-icon-size-xl, 1.25rem);
+}
+
+.root[data-size="2xl"] {
+  --_switch-target: var(--control-height-2xl, 3.5rem);
+  --_switch-track-height: var(--control-icon-size-2xl, 1.5rem);
+}
+
+/* Touch-Target Policy */
+.root[data-touch-target="comfortable"] {
+  inline-size: max(
+    var(--_switch-target),
+    var(--_switch-track-width),
+    var(--control-touch-target-min, 3rem)
+  );
+  block-size: max(var(--_switch-target), var(--control-touch-target-min, 3rem));
+  min-inline-size: max(
+    var(--_switch-target),
+    var(--_switch-track-width),
+    var(--control-touch-target-min, 3rem)
+  );
+  min-block-size: max(var(--_switch-target), var(--control-touch-target-min, 3rem));
+}
+
+@media (any-pointer: coarse) {
+  .root[data-touch-target="auto"] {
+    inline-size: max(
+      var(--_switch-target),
+      var(--_switch-track-width),
+      var(--control-touch-target-min, 3rem)
+    );
+    block-size: max(var(--_switch-target), var(--control-touch-target-min, 3rem));
+    min-inline-size: max(
+      var(--_switch-target),
+      var(--_switch-track-width),
+      var(--control-touch-target-min, 3rem)
+    );
+    min-block-size: max(var(--_switch-target), var(--control-touch-target-min, 3rem));
+  }
+}
+
+/* Native Input (Spans 100% of Hitbox Target Area) */
+.input {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+/* Visible Pill Track */
+.track {
+  --_switch-thumb-color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  inline-size: var(--_switch-track-width);
+  block-size: var(--_switch-track-height);
+  padding: 1px;
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--color-surface);
+  box-sizing: border-box;
+  pointer-events: none;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    border-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+/* Circular Thumb */
+.thumb {
+  flex: none;
+  inline-size: var(--_switch-thumb-size);
+  block-size: var(--_switch-thumb-size);
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--_switch-thumb-color);
+  pointer-events: none;
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+/* Immediate Position Change via Logical Flexbox */
+.input:where(:checked) + .track {
+  justify-content: flex-end;
+}
+
+/* Hover State (Stable Border Principle) */
+.input:where(:not(:checked):hover:not(:disabled)) + .track {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-control);
+}
+
+/* Checked State */
+.input:where(:checked:not(:disabled)) + .track {
+  --_switch-thumb-color: var(--color-primary-foreground);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.input:where(:checked:hover:not(:disabled)) + .track {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+/* Focus-Visible Outline */
+.input:where(:focus-visible:not(:disabled)) + .track {
+  outline: var(--focus-ring-width, 2px) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+
+/* Invalid State */
+.input:where([aria-invalid="true"]:not(:checked):not(:disabled)) + .track {
+  border-color: var(--color-danger);
+}
+
+.input:where([aria-invalid="true"]:not(:checked):hover:not(:disabled)) + .track {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-danger);
+}
+
+.input:where([aria-invalid="true"]:checked:not(:disabled)) + .track {
+  --_switch-thumb-color: var(--color-danger-foreground);
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.input:where([aria-invalid="true"]:checked:hover:not(:disabled)) + .track {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.input:where([aria-invalid="true"]:focus-visible:not(:disabled)) + .track {
+  outline-color: var(--color-danger);
+}
+
+/* Disabled State (Highest Precedence) */
+.input:where(:disabled) {
+  cursor: not-allowed;
+}
+
+.input:where(:disabled) + .track {
+  --_switch-thumb-color: var(--color-text-disabled);
+  background-color: var(--color-control-disabled-bg);
+  border-color: var(--color-border-disabled);
+  outline: none;
+}
+
+/* Reduced Motion Guarantee */
+@media (prefers-reduced-motion: reduce) {
+  .track,
+  .thumb {
+    transition: none;
+  }
+}
+
+/* Forced Colors Mode (High Contrast Accessibility) */
+@media (forced-colors: active) {
+  .track {
+    forced-color-adjust: none;
+  }
+
+  .input:where(:not(:disabled):not(:checked)) + .track {
+    --_switch-thumb-color: CanvasText;
+    background-color: Canvas;
+    border-color: CanvasText;
+  }
+
+  .input:where(:not(:disabled):checked) + .track {
+    --_switch-thumb-color: HighlightText;
+    background-color: Highlight;
+    border-color: Highlight;
+  }
+
+  .input:where([aria-invalid="true"]:not(:disabled):not(:checked)) + .track {
+    --_switch-thumb-color: CanvasText;
+    background-color: Canvas;
+    border-color: Highlight;
+  }
+
+  .input:where([aria-invalid="true"]:not(:disabled):checked) + .track {
+    --_switch-thumb-color: HighlightText;
+    background-color: Highlight;
+    border-color: Highlight;
+  }
+
+  .input:where(:focus-visible:not(:disabled)) + .track {
+    outline-color: Highlight;
+  }
+
+  /* Disabled State: Highest Precedence (GrayText Always Wins) */
+  .input:where(:disabled) + .track {
+    --_switch-thumb-color: GrayText;
+    background-color: Canvas;
+    border-color: GrayText;
+    outline: none;
+  }
+}

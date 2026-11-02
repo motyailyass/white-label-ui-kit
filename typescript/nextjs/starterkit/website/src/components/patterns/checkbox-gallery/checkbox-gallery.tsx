@@ -360,6 +360,55 @@ export function CheckboxGallery() {
           <span id={termsErrorId} className={styles.errorText} role="alert">
             {t('common.checkboxGallery.termsRequiredError')}
           </span>
+
+          <div className={styles.fieldRowSpaced}>
+            <Checkbox
+              id={`${baseId}-terms-invalid-checked`}
+              aria-invalid="true"
+              defaultChecked
+              data-testid="specimen-invalid-checked"
+            />
+            <label htmlFor={`${baseId}-terms-invalid-checked`} className={styles.label}>
+              {t('common.checkboxGallery.termsInvalidCheckedLabel')}
+            </label>
+          </div>
+
+          <div className={styles.fieldRow}>
+            <Checkbox
+              id={`${baseId}-terms-invalid-indeterminate`}
+              aria-invalid="true"
+              indeterminate
+              data-testid="specimen-invalid-indeterminate"
+            />
+            <label htmlFor={`${baseId}-terms-invalid-indeterminate`} className={styles.label}>
+              {t('common.checkboxGallery.termsInvalidIndeterminateLabel')}
+            </label>
+          </div>
+
+          <div className={styles.fieldRow}>
+            <Checkbox
+              id={`${baseId}-terms-invalid-disabled`}
+              aria-invalid="true"
+              disabled
+              data-testid="specimen-invalid-disabled-unchecked"
+            />
+            <label htmlFor={`${baseId}-terms-invalid-disabled`} className={styles.label}>
+              {t('common.checkboxGallery.termsInvalidDisabledLabel')}
+            </label>
+          </div>
+
+          <div className={styles.fieldRow}>
+            <Checkbox
+              id={`${baseId}-terms-invalid-disabled-checked`}
+              aria-invalid="true"
+              disabled
+              defaultChecked
+              data-testid="specimen-invalid-disabled-checked"
+            />
+            <label htmlFor={`${baseId}-terms-invalid-disabled-checked`} className={styles.label}>
+              {t('common.checkboxGallery.termsInvalidDisabledCheckedLabel')}
+            </label>
+          </div>
         </div>
       </section>
 

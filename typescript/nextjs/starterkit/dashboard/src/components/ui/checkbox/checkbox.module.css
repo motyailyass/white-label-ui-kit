@@ -251,20 +251,21 @@
     color: CanvasText;
   }
 
-  .input:not(:checked):not(:indeterminate) + .indicator,
-  .input:not(:checked):not(:indeterminate):hover + .indicator,
+  /* Unchecked resting and hover (not disabled) */
+  .input:not(:checked):not(:indeterminate):not(:disabled) + .indicator,
   .input:not(:checked):not(:indeterminate):hover:not(:disabled) + .indicator {
     background-color: Canvas;
     border-color: CanvasText;
     color: CanvasText;
   }
 
-  .input:checked + .indicator,
-  .input:indeterminate + .indicator,
-  .input:checked:hover + .indicator,
-  .input:indeterminate:hover + .indicator,
+  /* Checked & Indeterminate resting and hover (valid or invalid, not disabled) */
+  .input:checked:not(:disabled) + .indicator,
+  .input:indeterminate:not(:disabled) + .indicator,
   .input:checked:hover:not(:disabled) + .indicator,
   .input:indeterminate:hover:not(:disabled) + .indicator,
+  .input[aria-invalid="true"]:checked:not(:disabled) + .indicator,
+  .input[aria-invalid="true"]:indeterminate:not(:disabled) + .indicator,
   .input[aria-invalid="true"]:checked:hover:not(:disabled) + .indicator,
   .input[aria-invalid="true"]:indeterminate:hover:not(:disabled) + .indicator {
     background-color: Highlight;
@@ -272,27 +273,38 @@
     color: HighlightText;
   }
 
-  .input:focus-visible + .indicator,
-  .input[aria-invalid="true"]:focus-visible + .indicator {
+  /* Invalid unchecked resting and hover (not disabled) */
+  .input[aria-invalid="true"]:not(:checked):not(:indeterminate):not(:disabled) + .indicator,
+  .input[aria-invalid="true"]:not(:checked):not(:indeterminate):hover:not(:disabled) + .indicator {
+    background-color: Canvas;
+    border-color: Highlight;
+    color: CanvasText;
+  }
+
+  /* Focus visible outline (not disabled) */
+  .input:focus-visible:not(:disabled) + .indicator,
+  .input[aria-invalid="true"]:focus-visible:not(:disabled) + .indicator {
     outline-color: Highlight;
   }
 
+  /* Disabled State: Highest Precedence in Forced Colors (GrayText Always Wins) */
   .input:disabled + .indicator,
   .input:disabled:hover + .indicator,
   .input:disabled:checked + .indicator,
+  .input:disabled:checked:hover + .indicator,
   .input:disabled:indeterminate + .indicator,
+  .input:disabled:indeterminate:hover + .indicator,
   .input[aria-invalid="true"]:disabled + .indicator,
-  .input[aria-invalid="true"]:disabled:hover + .indicator {
+  .input[aria-invalid="true"]:disabled:hover + .indicator,
+  .input[aria-invalid="true"]:disabled:checked + .indicator,
+  .input[aria-invalid="true"]:disabled:checked:hover + .indicator,
+  .input[aria-invalid="true"]:disabled:indeterminate + .indicator,
+  .input[aria-invalid="true"]:disabled:indeterminate:hover + .indicator,
+  .input[aria-invalid="true"]:disabled:not(:checked):not(:indeterminate) + .indicator,
+  .input[aria-invalid="true"]:disabled:not(:checked):not(:indeterminate):hover + .indicator {
     background-color: Canvas;
     border-color: GrayText;
     color: GrayText;
-  }
-
-  .input[aria-invalid="true"] + .indicator,
-  .input[aria-invalid="true"]:hover + .indicator,
-  .input[aria-invalid="true"]:not(:checked):not(:indeterminate) + .indicator,
-  .input[aria-invalid="true"]:not(:checked):not(:indeterminate):hover + .indicator,
-  .input[aria-invalid="true"]:not(:checked):not(:indeterminate):hover:not(:disabled) + .indicator {
-    border-color: Highlight;
+    outline: none;
   }
 }

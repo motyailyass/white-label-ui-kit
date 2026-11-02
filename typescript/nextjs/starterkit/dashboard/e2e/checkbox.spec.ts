@@ -247,30 +247,100 @@ test.describe('Dashboard Checkbox Primitive Real-Browser Verification', () => {
     const invalidInput = page.locator('[data-testid="specimen-invalid"]');
     const disabledInput = page.locator('[data-testid="specimen-disabled-checked"]');
 
+    const invalidCheckedInput = page.locator('[data-testid="specimen-invalid-checked"]');
+    const invalidIndeterminateInput = page.locator(
+      '[data-testid="specimen-invalid-indeterminate"]',
+    );
+    const invalidDisabledUncheckedInput = page.locator(
+      '[data-testid="specimen-invalid-disabled-unchecked"]',
+    );
+    const invalidDisabledCheckedInput = page.locator(
+      '[data-testid="specimen-invalid-disabled-checked"]',
+    );
+
     const checkedIndicator = checkedInput.locator('+ span');
     const uncheckedIndicator = uncheckedInput.locator('+ span');
     const invalidIndicator = invalidInput.locator('+ span');
     const disabledIndicator = disabledInput.locator('+ span');
 
-    // Checked resting: background is Highlight, border is Highlight
+    const invalidCheckedIndicator = invalidCheckedInput.locator('+ span');
+    const invalidIndeterminateIndicator = invalidIndeterminateInput.locator('+ span');
+    const invalidDisabledUncheckedIndicator = invalidDisabledUncheckedInput.locator('+ span');
+    const invalidDisabledCheckedIndicator = invalidDisabledCheckedInput.locator('+ span');
+
+    // Move pointer away to ensure resting assertions are free of hover
+    await page.mouse.move(0, 0);
+
+    // 1. Standard states at rest
     await expect(checkedIndicator).toHaveCSS('background-color', systemColors.highlight);
     await expect(checkedIndicator).toHaveCSS('border-color', systemColors.highlight);
+    await expect(uncheckedIndicator).toHaveCSS('border-color', systemColors.canvasText);
+    await expect(disabledIndicator).toHaveCSS('border-color', systemColors.grayText);
+    await expect(invalidIndicator).toHaveCSS('border-color', systemColors.highlight);
 
-    // Checked hover: system highlight remains (does NOT regress to ordinary primary-hover)
+    // 2. High-contrast combined states at rest (pointer away)
+    // Invalid + checked at rest: System Highlight treatment
+    await expect(invalidCheckedIndicator).toHaveCSS(
+      'background-color',
+      systemColors.highlight,
+    );
+    await expect(invalidCheckedIndicator).toHaveCSS(
+      'border-color',
+      systemColors.highlight,
+    );
+
+    // Invalid + indeterminate at rest: System Highlight treatment
+    await expect(invalidIndeterminateIndicator).toHaveCSS(
+      'background-color',
+      systemColors.highlight,
+    );
+    await expect(invalidIndeterminateIndicator).toHaveCSS(
+      'border-color',
+      systemColors.highlight,
+    );
+
+    // Invalid + disabled + unchecked at rest: GrayText border (disabled takes precedence)
+    await expect(invalidDisabledUncheckedIndicator).toHaveCSS(
+      'border-color',
+      systemColors.grayText,
+    );
+
+    // Invalid + disabled + checked at rest: GrayText border (disabled takes precedence)
+    await expect(invalidDisabledCheckedIndicator).toHaveCSS(
+      'border-color',
+      systemColors.grayText,
+    );
+
+    // 3. High-contrast hover interactions
+    // Checked hover: system highlight remains
     await checkedInput.hover();
     await expect(checkedIndicator).toHaveCSS('background-color', systemColors.highlight);
     await expect(checkedIndicator).toHaveCSS('border-color', systemColors.highlight);
 
-    // Unchecked resting and hover: CanvasText border
-    await expect(uncheckedIndicator).toHaveCSS('border-color', systemColors.canvasText);
+    // Invalid + checked hover: system highlight remains
+    await invalidCheckedInput.hover();
+    await expect(invalidCheckedIndicator).toHaveCSS(
+      'background-color',
+      systemColors.highlight,
+    );
+    await expect(invalidCheckedIndicator).toHaveCSS(
+      'border-color',
+      systemColors.highlight,
+    );
+
+    // Invalid + disabled + unchecked hover: GrayText border remains
+    await invalidDisabledUncheckedInput.hover();
+    await expect(invalidDisabledUncheckedIndicator).toHaveCSS(
+      'border-color',
+      systemColors.grayText,
+    );
+
+    // Unchecked hover: CanvasText border remains
     await uncheckedInput.hover();
     await expect(uncheckedIndicator).toHaveCSS('border-color', systemColors.canvasText);
 
-    // Disabled: GrayText border
-    await expect(disabledIndicator).toHaveCSS('border-color', systemColors.grayText);
-
-    // Invalid: Highlight border
-    await expect(invalidIndicator).toHaveCSS('border-color', systemColors.highlight);
+    // Reset pointer to corner
+    await page.mouse.move(0, 0);
   });
 
   test('verifies parent/child tri-state "Select All" dynamic synchronization', async ({

@@ -535,26 +535,70 @@ test.describe('Dashboard Radio Primitive Real-Browser Verification', () => {
   });
 
   test('verifies native required-group form validation regression', async ({ page }) => {
-    // Verifies that native HTML form validation detects valueMissing on untouched required radio group,
-    // and transitions to valid once a radio in the required group is selected.
-    const isValueMissingInitially = await page.evaluate(() => {
-      const card = document.querySelector<HTMLInputElement>(
-        '[data-testid="specimen-required-card"]',
-      );
-      return card ? card.validity.valueMissing && !card.checkValidity() : false;
-    });
-    expect(isValueMissingInitially).toBe(true);
-
+    // Verifies that native HTML form validation on a real <form> detects valueMissing on untouched
+    // required radio group, blocks form submission, transitions to valid on selection, and includes the selected value.
+    const form = page.locator('[data-testid="specimen-required-form"]');
     const cardRadio = page.locator('[data-testid="specimen-required-card"]');
-    await cardRadio.click();
 
-    const isValidAfterSelection = await page.evaluate(() => {
-      const card = document.querySelector<HTMLInputElement>(
-        '[data-testid="specimen-required-card"]',
-      );
-      return card ? !card.validity.valueMissing && card.checkValidity() : false;
+    // 1. Initial state: untouched required radio group in form is invalid (valueMissing)
+    const initialValidity = await form.evaluate((f: HTMLFormElement) => {
+      const card = f.querySelector<HTMLInputElement>('[data-testid="specimen-required-card"]');
+      return {
+        formValid: f.checkValidity(),
+        radioValueMissing: card ? card.validity.valueMissing : false,
+      };
     });
-    expect(isValidAfterSelection).toBe(true);
+    expect(initialValidity.formValid).toBe(false);
+    expect(initialValidity.radioValueMissing).toBe(true);
+
+    // 2. Attempting to submit via native form submission is blocked by browser constraint validation
+    const submitBlocked = await form.evaluate((f: HTMLFormElement) => {
+      let submitted = false;
+      const handler = (e: Event) => {
+        e.preventDefault();
+        submitted = true;
+      };
+      f.addEventListener('submit', handler);
+      try {
+        f.requestSubmit();
+      } catch {
+        // Native requestSubmit fails or is blocked
+      }
+      f.removeEventListener('submit', handler);
+      return !submitted;
+    });
+    expect(submitBlocked).toBe(true);
+
+    // 3. Select an option in the required group
+    await cardRadio.click();
+    expect(await cardRadio.isChecked()).toBe(true);
+
+    // 4. Form and radio transition to valid
+    const validAfterSelection = await form.evaluate((f: HTMLFormElement) => {
+      const card = f.querySelector<HTMLInputElement>('[data-testid="specimen-required-card"]');
+      return {
+        formValid: f.checkValidity(),
+        radioValueMissing: card ? card.validity.valueMissing : true,
+      };
+    });
+    expect(validAfterSelection.formValid).toBe(true);
+    expect(validAfterSelection.radioValueMissing).toBe(false);
+
+    // 5. Native submission succeeds and includes the selected radio value in FormData
+    const submittedData = await form.evaluate((f: HTMLFormElement) => {
+      let value: string | null = null;
+      const handler = (e: Event) => {
+        e.preventDefault();
+        const fd = new FormData(f);
+        const card = f.querySelector<HTMLInputElement>('[data-testid="specimen-required-card"]');
+        value = card ? (fd.get(card.name) as string) : null;
+      };
+      f.addEventListener('submit', handler);
+      f.requestSubmit();
+      f.removeEventListener('submit', handler);
+      return value;
+    });
+    expect(submittedData).toBe('card');
   });
 
   test('verifies zero dashboard shadows policy', async ({ page }) => {

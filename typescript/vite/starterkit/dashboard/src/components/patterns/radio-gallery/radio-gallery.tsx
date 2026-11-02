@@ -461,75 +461,100 @@ export function RadioGallery() {
           {t('common.radioGallery.helpErrorTitle')}
         </h2>
         <p className={styles.sectionDesc}>{t('common.radioGallery.helpErrorDesc')}</p>
-        <fieldset
+        <form
           className={styles.fieldset}
-          aria-describedby={requiredError ? `${reqHelpId} ${reqErrorId}` : reqHelpId}
+          data-testid="specimen-required-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!requiredPayment) {
+              setRequiredError(true);
+            } else {
+              setRequiredError(false);
+            }
+          }}
         >
-          <legend className={styles.legend}>
-            {t('common.radioGallery.requiredLegend')}
-          </legend>
-          <div className={styles.fieldRow}>
-            <Radio
-              id={reqCardId}
-              name={`${baseId}-payment-method`}
-              value="card"
-              required
-              checked={requiredPayment === 'card'}
-              aria-invalid={requiredError ? 'true' : 'false'}
-              onChange={(e) => {
-                setRequiredPayment(e.target.value);
-                setRequiredError(false);
-              }}
-              data-testid="specimen-required-card"
-            />
-            <label htmlFor={reqCardId} className={styles.label}>
-              {t('common.radioGallery.requiredOptCard')}
-            </label>
-          </div>
-          <div className={styles.fieldRow}>
-            <Radio
-              id={reqBankId}
-              name={`${baseId}-payment-method`}
-              value="bank"
-              required
-              checked={requiredPayment === 'bank'}
-              aria-invalid={requiredError ? 'true' : 'false'}
-              onChange={(e) => {
-                setRequiredPayment(e.target.value);
-                setRequiredError(false);
-              }}
-              data-testid="specimen-required-bank"
-            />
-            <label htmlFor={reqBankId} className={styles.label}>
-              {t('common.radioGallery.requiredOptBank')}
-            </label>
-          </div>
-          <span id={reqHelpId} className={styles.helpText}>
-            {t('common.radioGallery.requiredHelpText')}
-          </span>
-          {requiredError && (
-            <span id={reqErrorId} className={styles.errorText} role="alert">
-              {t('common.radioGallery.requiredErrorText')}
-            </span>
-          )}
-          <div className={styles.formActions}>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                if (!requiredPayment) {
-                  setRequiredError(true);
-                } else {
+          <fieldset
+            className={styles.fieldset}
+            aria-describedby={requiredError ? `${reqHelpId} ${reqErrorId}` : reqHelpId}
+          >
+            <legend className={styles.legend}>
+              {t('common.radioGallery.requiredLegend')}
+            </legend>
+            <div className={styles.fieldRow}>
+              <Radio
+                id={reqCardId}
+                name={`${baseId}-payment-method`}
+                value="card"
+                required
+                checked={requiredPayment === 'card'}
+                aria-invalid={requiredError ? 'true' : 'false'}
+                onChange={(e) => {
+                  setRequiredPayment(e.target.value);
                   setRequiredError(false);
-                }
-              }}
-              data-testid="specimen-required-validate-btn"
-            >
-              {t('common.radioGallery.requiredValidateButton')}
-            </Button>
-          </div>
-        </fieldset>
+                }}
+                data-testid="specimen-required-card"
+              />
+              <label htmlFor={reqCardId} className={styles.label}>
+                {t('common.radioGallery.requiredOptCard')}
+              </label>
+            </div>
+            <div className={styles.fieldRow}>
+              <Radio
+                id={reqBankId}
+                name={`${baseId}-payment-method`}
+                value="bank"
+                required
+                checked={requiredPayment === 'bank'}
+                aria-invalid={requiredError ? 'true' : 'false'}
+                onChange={(e) => {
+                  setRequiredPayment(e.target.value);
+                  setRequiredError(false);
+                }}
+                data-testid="specimen-required-bank"
+              />
+              <label htmlFor={reqBankId} className={styles.label}>
+                {t('common.radioGallery.requiredOptBank')}
+              </label>
+            </div>
+            <span id={reqHelpId} className={styles.helpText}>
+              {t('common.radioGallery.requiredHelpText')}
+            </span>
+            {requiredError && (
+              <span id={reqErrorId} className={styles.errorText} role="alert">
+                {t('common.radioGallery.requiredErrorText')}
+              </span>
+            )}
+            <div className={styles.formActions}>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  if (!requiredPayment) {
+                    setRequiredError(true);
+                  } else {
+                    setRequiredError(false);
+                  }
+                }}
+                data-testid="specimen-required-validate-btn"
+              >
+                {t('common.radioGallery.requiredValidateButton')}
+              </Button>
+              <button
+                type="submit"
+                aria-hidden="true"
+                tabIndex={-1}
+                style={{
+                  position: 'absolute',
+                  width: 1,
+                  height: 1,
+                  opacity: 0,
+                  pointerEvents: 'none',
+                }}
+              />
+            </div>
+          </fieldset>
+        </form>
       </section>
 
       {/* 7. Independent Groups */}

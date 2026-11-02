@@ -39,8 +39,8 @@ export function SwitchGallery() {
   const [requiredError, setRequiredError] = useState(false);
 
   // Form demonstration state
-  const [formTerms, setFormTerms] = useState(false);
-  const [formMarketing, setFormMarketing] = useState(false);
+  const [formTelemetry, setFormTelemetry] = useState(false);
+  const [formDiagnostics, setFormDiagnostics] = useState(false);
   const [formStatusId, setFormStatusId] = useState<FormStatusId>('none');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -56,7 +56,7 @@ export function SwitchGallery() {
       e.preventDefault();
       if (isSubmitting) return;
 
-      if (!formTerms) {
+      if (!formTelemetry && !formDiagnostics) {
         setFormStatusId('error');
         return;
       }
@@ -71,7 +71,7 @@ export function SwitchGallery() {
         timerRef.current = null;
       }, 800);
     },
-    [isSubmitting, formTerms],
+    [isSubmitting, formTelemetry, formDiagnostics],
   );
 
   const handleFormReset = useCallback(() => {
@@ -79,8 +79,8 @@ export function SwitchGallery() {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-    setFormTerms(false);
-    setFormMarketing(false);
+    setFormTelemetry(false);
+    setFormDiagnostics(false);
     setIsSubmitting(false);
     setFormStatusId('reset');
   }, []);
@@ -115,8 +115,8 @@ export function SwitchGallery() {
   const nestedLtrId = `${baseId}-nested-ltr-opt`;
   const mixedId = `${baseId}-mixed-opt`;
   const longLabelId = `${baseId}-long-label-opt`;
-  const formTermsId = `${baseId}-form-terms`;
-  const formMarketingId = `${baseId}-form-marketing`;
+  const formTelemetryId = `${baseId}-form-telemetry`;
+  const formDiagnosticsId = `${baseId}-form-diagnostics`;
 
   return (
     <main className={styles.galleryContainer} data-testid="switch-gallery">
@@ -407,10 +407,7 @@ export function SwitchGallery() {
         <p className={styles.sectionDesc}>
           {t('common.switchGallery.helpErrorDesc')}
         </p>
-        <div
-          className={styles.fieldset}
-          aria-describedby={requiredError ? `${reqHelpId} ${reqErrorId}` : reqHelpId}
-        >
+        <div className={styles.fieldset}>
           <div className={styles.fieldRow}>
             <Switch
               id={reqFirewallId}
@@ -418,6 +415,7 @@ export function SwitchGallery() {
               required
               checked={requiredChecked}
               aria-invalid={requiredError ? 'true' : 'false'}
+              aria-describedby={requiredError ? `${reqHelpId} ${reqErrorId}` : reqHelpId}
               onChange={(e) => {
                 setRequiredChecked(e.target.checked);
                 setRequiredError(false);
@@ -532,7 +530,7 @@ export function SwitchGallery() {
                 data-testid="specimen-nested-ltr"
               />
               <label htmlFor={nestedLtrId} className={styles.label}>
-                Nested LTR override inside RTL document
+                {t('common.switchGallery.nestedLtrLabel')}
               </label>
             </div>
           </div>
@@ -643,27 +641,26 @@ export function SwitchGallery() {
           <div className={styles.fieldset}>
             <div className={styles.fieldRow}>
               <Switch
-                id={formTermsId}
-                name="terms-consent"
-                required
-                checked={formTerms}
-                onChange={(e) => setFormTerms(e.target.checked)}
-                data-testid="specimen-form-terms"
+                id={formTelemetryId}
+                name="telemetry-stream"
+                checked={formTelemetry}
+                onChange={(e) => setFormTelemetry(e.target.checked)}
+                data-testid="specimen-form-telemetry"
               />
-              <label htmlFor={formTermsId} className={styles.label}>
-                {t('common.switchGallery.formTermsLabel')}
+              <label htmlFor={formTelemetryId} className={styles.label}>
+                {t('common.switchGallery.formTelemetryLabel')}
               </label>
             </div>
             <div className={styles.fieldRow}>
               <Switch
-                id={formMarketingId}
-                name="marketing-opt-in"
-                checked={formMarketing}
-                onChange={(e) => setFormMarketing(e.target.checked)}
-                data-testid="specimen-form-marketing"
+                id={formDiagnosticsId}
+                name="crash-diagnostics"
+                checked={formDiagnostics}
+                onChange={(e) => setFormDiagnostics(e.target.checked)}
+                data-testid="specimen-form-diagnostics"
               />
-              <label htmlFor={formMarketingId} className={styles.label}>
-                {t('common.switchGallery.formMarketingLabel')}
+              <label htmlFor={formDiagnosticsId} className={styles.label}>
+                {t('common.switchGallery.formDiagnosticsLabel')}
               </label>
             </div>
           </div>

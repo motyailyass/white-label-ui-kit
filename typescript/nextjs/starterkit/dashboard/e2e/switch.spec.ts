@@ -260,65 +260,103 @@ test.describe('Dashboard Switch Primitive Real-Browser Verification', () => {
     );
   });
 
-  test('verifies forced-colors system highlight and state precedence with pointer recovery', async ({
+  test('verifies forced-colors system highlight and state precedence across all 8 states with pointer recovery', async ({
     page,
   }) => {
     await page.emulateMedia({ forcedColors: 'active' });
 
     const systemColors = await page.evaluate(() => {
-      const el = document.createElement('div');
-      el.style.backgroundColor = 'Highlight';
-      el.style.borderColor = 'Highlight';
-      el.style.color = 'GrayText';
-      document.body.appendChild(el);
-      const style = window.getComputedStyle(el);
-      const res = {
-        highlight: style.backgroundColor,
-        grayText: style.color,
+      const getSysColor = (colorName: string) => {
+        const el = document.createElement('div');
+        el.style.backgroundColor = colorName;
+        document.body.appendChild(el);
+        const resolved = window.getComputedStyle(el).backgroundColor;
+        el.remove();
+        return resolved;
       };
-      el.remove();
-      return res;
+      return {
+        highlight: getSysColor('Highlight'),
+        highlightText: getSysColor('HighlightText'),
+        canvas: getSysColor('Canvas'),
+        canvasText: getSysColor('CanvasText'),
+        grayText: getSysColor('GrayText'),
+      };
     });
 
+    const states = [
+      {
+        id: 'specimen-unchecked',
+        bg: systemColors.canvas,
+        border: systemColors.canvasText,
+        thumb: systemColors.canvasText,
+      },
+      {
+        id: 'specimen-checked',
+        bg: systemColors.highlight,
+        border: systemColors.highlight,
+        thumb: systemColors.highlightText,
+      },
+      {
+        id: 'specimen-invalid-unchecked',
+        bg: systemColors.canvas,
+        border: systemColors.highlight,
+        thumb: systemColors.canvasText,
+      },
+      {
+        id: 'specimen-invalid-checked',
+        bg: systemColors.highlight,
+        border: systemColors.highlight,
+        thumb: systemColors.highlightText,
+      },
+      {
+        id: 'specimen-disabled-unchecked',
+        bg: systemColors.canvas,
+        border: systemColors.grayText,
+        thumb: systemColors.grayText,
+      },
+      {
+        id: 'specimen-disabled-checked',
+        bg: systemColors.canvas,
+        border: systemColors.grayText,
+        thumb: systemColors.grayText,
+      },
+      {
+        id: 'specimen-invalid-disabled-unchecked',
+        bg: systemColors.canvas,
+        border: systemColors.grayText,
+        thumb: systemColors.grayText,
+      },
+      {
+        id: 'specimen-invalid-disabled-checked',
+        bg: systemColors.canvas,
+        border: systemColors.grayText,
+        thumb: systemColors.grayText,
+      },
+    ];
+
+    for (const s of states) {
+      const input = page.locator(`[data-testid="${s.id}"]`);
+      const track = input.locator('+ span');
+      const thumb = track.locator('span');
+
+      await expect(track).toHaveCSS('background-color', s.bg);
+      await expect(track).toHaveCSS('border-color', s.border);
+      await expect(thumb).toHaveCSS('background-color', s.thumb);
+    }
+
+    // 9. Focus-visible outline in forced colors
+    const uncheckedInput = page.locator('[data-testid="specimen-unchecked"]');
+    await uncheckedInput.focus();
+    const track = uncheckedInput.locator('+ span');
+    await expect(track).toHaveCSS('outline-color', systemColors.highlight);
+
+    // 10. Hover and pointer exit recovery on enabled switch
     const checkedInput = page.locator('[data-testid="specimen-checked"]');
     const checkedTrack = checkedInput.locator('+ span');
-    const invalidCheckedInput = page.locator(
-      '[data-testid="specimen-invalid-checked"]',
-    );
-    const invalidCheckedTrack = invalidCheckedInput.locator('+ span');
-    const disabledTrack = page
-      .locator('[data-testid="specimen-invalid-disabled-unchecked"]')
-      .locator('+ span');
-
-    // 1. Checked has Highlight background in forced colors
-    await expect(checkedTrack).toHaveCSS(
-      'background-color',
-      systemColors.highlight,
-    );
-
-    // 2. Invalid checked has Highlight in forced colors
-    await expect(invalidCheckedTrack).toHaveCSS(
-      'background-color',
-      systemColors.highlight,
-    );
-
-    // 3. Disabled takes precedence: GrayText border
-    await expect(disabledTrack).toHaveCSS(
-      'border-color',
-      systemColors.grayText,
-    );
-
-    // 4. Hover and pointer exit recovery
     await checkedInput.hover();
-    await expect(checkedTrack).toHaveCSS(
-      'background-color',
-      systemColors.highlight,
-    );
+    await expect(checkedTrack).toHaveCSS('background-color', systemColors.highlight);
     await page.mouse.move(0, 0);
-    await expect(checkedTrack).toHaveCSS(
-      'background-color',
-      systemColors.highlight,
-    );
+    await expect(checkedTrack).toHaveCSS('background-color', systemColors.highlight);
   });
 
   test('verifies LTR, RTL, and nested direction override placement', async ({
@@ -357,7 +395,9 @@ test.describe('Dashboard Switch Primitive Real-Browser Verification', () => {
     expect(nestedRightInset).toBeCloseTo(2, 0.75);
   });
 
-  test('verifies state-driven required validation transition', async ({ page }) => {
+  test('verifies state-driven required validation transition and direct aria-describedby association', async ({
+    page,
+  }) => {
     const reqSwitch = page.locator('[data-testid="specimen-required"]');
     const validateBtn = page.locator(
       '[data-testid="specimen-required-validate-btn"]',
@@ -369,50 +409,102 @@ test.describe('Dashboard Switch Primitive Real-Browser Verification', () => {
     await expect(alert).toHaveCount(0);
     expect(await reqSwitch.getAttribute('aria-invalid')).toBe('false');
 
+    // Input's description before validation: points to help text only
+    const descInitial = await reqSwitch.getAttribute('aria-describedby');
+    expect(descInitial).not.toBeNull();
+    expect(descInitial).toContain('help');
+    expect(descInitial).not.toContain('error');
+
     // 2. Trigger validation without checking -> error alert appears
     await validateBtn.click();
     await expect(alert).toBeVisible();
     expect(await reqSwitch.getAttribute('aria-invalid')).toBe('true');
+
+    // Input's description during error: associates both help and error IDs directly on the switch
+    const descError = await reqSwitch.getAttribute('aria-describedby');
+    expect(descError).toContain('help');
+    expect(descError).toContain('error');
 
     // 3. Toggle switch on -> error clears immediately
     await reqSwitch.click();
     expect(await reqSwitch.isChecked()).toBe(true);
     await expect(alert).toHaveCount(0);
     expect(await reqSwitch.getAttribute('aria-invalid')).toBe('false');
+
+    // Input's description after correction: error removed, help remains
+    const descAfter = await reqSwitch.getAttribute('aria-describedby');
+    expect(descAfter).not.toContain('error');
+    expect(descAfter).toContain('help');
   });
 
-  test('verifies native form submit, validation, and form reset lifecycles', async ({
+  test('verifies form submit, validation, and form reset lifecycles', async ({
     page,
   }) => {
-    const termsSwitch = page.locator('[data-testid="specimen-form-terms"]');
-    const marketingSwitch = page.locator('[data-testid="specimen-form-marketing"]');
+    const telemetrySwitch = page.locator('[data-testid="specimen-form-telemetry"]');
+    const diagnosticsSwitch = page.locator(
+      '[data-testid="specimen-form-diagnostics"]',
+    );
     const submitBtn = page.locator('[data-testid="specimen-form-submit-btn"]');
     const resetBtn = page.locator('[data-testid="specimen-form-reset-btn"]');
     const statusDisplay = page.locator('[data-testid="form-status-display"]');
 
     // 1. Initial state: unchecked
-    expect(await termsSwitch.isChecked()).toBe(false);
-    expect(await marketingSwitch.isChecked()).toBe(false);
+    expect(await telemetrySwitch.isChecked()).toBe(false);
+    expect(await diagnosticsSwitch.isChecked()).toBe(false);
 
-    // 2. Submit while required terms unchecked -> triggers error branch
+    // 2. Submit while neither switch is checked -> triggers validation error branch
     await submitBtn.click();
-    await expect(statusDisplay).toContainText(/accept|accepter|موافقة|error/i);
+    await expect(statusDisplay).toContainText(/enable|activer|تفعيل|error/i);
 
-    // 3. Check terms and marketing
-    await termsSwitch.click();
-    await marketingSwitch.click();
-    expect(await termsSwitch.isChecked()).toBe(true);
-    expect(await marketingSwitch.isChecked()).toBe(true);
+    // 3. Check telemetry and diagnostics
+    await telemetrySwitch.click();
+    await diagnosticsSwitch.click();
+    expect(await telemetrySwitch.isChecked()).toBe(true);
+    expect(await diagnosticsSwitch.isChecked()).toBe(true);
 
-    // 4. Submit form -> enters simulated pending
+    // 4. Submit form -> enters simulated pending and then success
     await submitBtn.click();
     await expect(statusDisplay).toContainText(/saving|enregistrement|حفظ/i);
+    await expect(statusDisplay).toContainText(/success|succès|بنجاح/i);
 
     // 5. Reset restores initial defaults and resets status
     await resetBtn.click();
-    expect(await termsSwitch.isChecked()).toBe(false);
-    expect(await marketingSwitch.isChecked()).toBe(false);
+    expect(await telemetrySwitch.isChecked()).toBe(false);
+    expect(await diagnosticsSwitch.isChecked()).toBe(false);
     await expect(statusDisplay).toContainText(/reset|réinitialisé|إعادة/i);
+  });
+
+  test('verifies switch state preservation across locale changes', async ({ page }) => {
+    const controlledSwitch = page.locator('[data-testid="specimen-controlled"]');
+    expect(await controlledSwitch.isChecked()).toBe(true);
+
+    // Toggle controlled switch off
+    await controlledSwitch.click();
+    expect(await controlledSwitch.isChecked()).toBe(false);
+
+    // Switch locale to French
+    const langSelect = page.locator('header select');
+    await langSelect.selectOption('fr');
+
+    // Section title updates to French
+    const secTitle = controlledSwitch.locator('xpath=ancestor::section//h2');
+    await expect(secTitle).toContainText(/contrôlé/i);
+
+    // Switch state remains preserved (still unchecked)
+    expect(await controlledSwitch.isChecked()).toBe(false);
+
+    // Toggle back on
+    await controlledSwitch.click();
+    expect(await controlledSwitch.isChecked()).toBe(true);
+
+    // Switch to Arabic
+    await langSelect.selectOption('ar');
+    expect(await controlledSwitch.isChecked()).toBe(true);
+    expect(await page.locator('html').getAttribute('dir')).toBe('rtl');
+
+    // Switch back to English for cleanup
+    await langSelect.selectOption('en');
+    expect(await controlledSwitch.isChecked()).toBe(true);
   });
 
   test('verifies responsive reflow without horizontal clipping at narrow and desktop viewports', async ({

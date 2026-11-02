@@ -56,11 +56,6 @@ export function SwitchGallery() {
       e.preventDefault();
       if (isSubmitting) return;
 
-      if (!formTelemetry && !formDiagnostics) {
-        setFormStatusId('error');
-        return;
-      }
-
       setIsSubmitting(true);
       setFormStatusId('pending');
 
@@ -71,7 +66,7 @@ export function SwitchGallery() {
         timerRef.current = null;
       }, 800);
     },
-    [isSubmitting, formTelemetry, formDiagnostics],
+    [isSubmitting],
   );
 
   const handleFormReset = useCallback(() => {

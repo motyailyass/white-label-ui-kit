@@ -139,24 +139,46 @@ test.describe('Website Switch Primitive Real-Browser Verification', () => {
     expect(await defaultAlt.isChecked()).toBe(false);
   });
 
-  test('verifies comfortable and coarse touch-target policy and 2xl preservation', async ({
+  test('verifies comfortable mode and coarse pointer (hasTouch) touch-target policy and 2xl preservation', async ({
     page,
+    browser,
   }) => {
+    // 1. Comfortable explicitly enforces min 48px on standard page
     const comfortableSwitch = page.locator(
       '[data-testid="specimen-touch-comfortable"]',
     );
     const comfortableRoot = comfortableSwitch.locator('..');
     const comfortableBox = await comfortableRoot.boundingBox();
     expect(comfortableBox).not.toBeNull();
-
     expect(comfortableBox!.width).toBeGreaterThanOrEqual(48);
     expect(comfortableBox!.height).toBeGreaterThanOrEqual(48);
 
+    // 2. 2xl size preserves larger 56px target
     const twoXlRoot = page.locator('[data-testid="specimen-size-2xl"]').locator('..');
     const twoXlBox = await twoXlRoot.boundingBox();
     expect(twoXlBox).not.toBeNull();
     expect(twoXlBox!.height).toBeCloseTo(56, 1);
     expect(twoXlBox!.width).toBeCloseTo(56, 1);
+
+    // 3. Native coarse pointer emulation via hasTouch: true (matches any-pointer: coarse)
+    const touchContext = await browser.newContext({ hasTouch: true });
+    const touchPage = await touchContext.newPage();
+    await touchPage.goto('/gallery/switch');
+    await expect(touchPage.locator('[data-testid="switch-gallery"]')).toBeVisible();
+
+    const coarseDefaultRoot = touchPage.locator('[data-testid="specimen-default"]').locator('..');
+    const coarseBox = await coarseDefaultRoot.boundingBox();
+    expect(coarseBox).not.toBeNull();
+    expect(coarseBox!.width).toBeGreaterThanOrEqual(48);
+    expect(coarseBox!.height).toBeGreaterThanOrEqual(48);
+
+    const coarseTwoXlRoot = touchPage.locator('[data-testid="specimen-size-2xl"]').locator('..');
+    const coarseTwoXlBox = await coarseTwoXlRoot.boundingBox();
+    expect(coarseTwoXlBox).not.toBeNull();
+    expect(coarseTwoXlBox!.width).toBeCloseTo(56, 1);
+    expect(coarseTwoXlBox!.height).toBeCloseTo(56, 1);
+
+    await touchContext.close();
   });
 
   test('verifies hover border stability and visible keyboard focus outline', async ({
@@ -193,7 +215,7 @@ test.describe('Website Switch Primitive Real-Browser Verification', () => {
     expect(await controlled.isChecked()).toBe(true);
   });
 
-  test('verifies forced-colors system highlight and state precedence across all 8 states with pointer recovery', async ({
+  test('verifies forced-colors system highlight, state precedence across all 8 states, visible focus outlines, and pointer recovery', async ({
     page,
   }) => {
     await page.emulateMedia({ forcedColors: 'active' });
@@ -267,6 +289,7 @@ test.describe('Website Switch Primitive Real-Browser Verification', () => {
       },
     ];
 
+    // 1. Verify all 8 states at rest
     for (const s of states) {
       const input = page.locator(`[data-testid="${s.id}"]`);
       const track = input.locator('+ span');
@@ -277,19 +300,79 @@ test.describe('Website Switch Primitive Real-Browser Verification', () => {
       await expect(thumb).toHaveCSS('background-color', s.thumb);
     }
 
-    // Focus-visible outline in forced colors
-    const uncheckedInput = page.locator('[data-testid="specimen-unchecked"]');
-    await uncheckedInput.focus();
-    const track = uncheckedInput.locator('+ span');
-    await expect(track).toHaveCSS('outline-color', systemColors.highlight);
+    // 2. Visible focus outlines across operational and invalid states in forced colors
+    const focusStates = [
+      'specimen-unchecked',
+      'specimen-checked',
+      'specimen-invalid-unchecked',
+      'specimen-invalid-checked',
+    ];
 
-    // Hover and pointer exit recovery on enabled switch
-    const checkedInput = page.locator('[data-testid="specimen-checked"]');
-    const checkedTrack = checkedInput.locator('+ span');
-    await checkedInput.hover();
-    await expect(checkedTrack).toHaveCSS('background-color', systemColors.highlight);
-    await page.mouse.move(0, 0);
-    await expect(checkedTrack).toHaveCSS('background-color', systemColors.highlight);
+    for (const testId of focusStates) {
+      const input = page.locator(`[data-testid="${testId}"]`);
+      const track = input.locator('+ span');
+
+      await input.focus();
+      await expect(track).toHaveCSS('outline-style', 'solid');
+      await expect(track).toHaveCSS('outline-color', systemColors.highlight);
+
+      const outlineWidth = await track.evaluate((el) => {
+        return parseFloat(window.getComputedStyle(el).outlineWidth);
+      });
+      expect(outlineWidth, `Visible focus outline expected for ${testId}`).toBeGreaterThanOrEqual(1);
+    }
+
+    // 3. Hover and pointer exit recovery across relevant combined states
+    const hoverRecoveryStates = [
+      {
+        id: 'specimen-unchecked',
+        bg: systemColors.canvas,
+        border: systemColors.canvasText,
+        thumb: systemColors.canvasText,
+      },
+      {
+        id: 'specimen-checked',
+        bg: systemColors.highlight,
+        border: systemColors.highlight,
+        thumb: systemColors.highlightText,
+      },
+      {
+        id: 'specimen-invalid-unchecked',
+        bg: systemColors.canvas,
+        border: systemColors.highlight,
+        thumb: systemColors.canvasText,
+      },
+      {
+        id: 'specimen-invalid-checked',
+        bg: systemColors.highlight,
+        border: systemColors.highlight,
+        thumb: systemColors.highlightText,
+      },
+      {
+        id: 'specimen-disabled-checked',
+        bg: systemColors.canvas,
+        border: systemColors.grayText,
+        thumb: systemColors.grayText,
+      },
+    ];
+
+    for (const s of hoverRecoveryStates) {
+      const input = page.locator(`[data-testid="${s.id}"]`);
+      const track = input.locator('+ span');
+      const thumb = track.locator('span');
+
+      // Hover preserves forced colors without leaking author colors
+      await input.hover();
+      await expect(track).toHaveCSS('background-color', s.bg);
+      await expect(track).toHaveCSS('border-color', s.border);
+      await expect(thumb).toHaveCSS('background-color', s.thumb);
+
+      // Pointer exit restores rest forced colors cleanly
+      await page.mouse.move(0, 0);
+      await expect(track).toHaveCSS('background-color', s.bg);
+      await expect(track).toHaveCSS('border-color', s.border);
+      await expect(thumb).toHaveCSS('background-color', s.thumb);
+    }
   });
 
   test('verifies LTR, RTL, and nested direction override placement', async ({
@@ -366,7 +449,7 @@ test.describe('Website Switch Primitive Real-Browser Verification', () => {
     expect(descAfter).toContain('help');
   });
 
-  test('verifies form submit, validation, and form reset lifecycles', async ({
+  test('verifies form submit with optional settings off, pending reset cancellation, and lifecycle', async ({
     page,
   }) => {
     const telemetrySwitch = page.locator('[data-testid="specimen-form-telemetry"]');
@@ -377,30 +460,44 @@ test.describe('Website Switch Primitive Real-Browser Verification', () => {
     const resetBtn = page.locator('[data-testid="specimen-form-reset-btn"]');
     const statusDisplay = page.locator('[data-testid="form-status-display"]');
 
-    // 1. Initial state: unchecked
+    // 1. Initial state: both optional settings are unchecked
     expect(await telemetrySwitch.isChecked()).toBe(false);
     expect(await diagnosticsSwitch.isChecked()).toBe(false);
 
-    // 2. Submit while neither switch is checked -> triggers validation error branch
+    // 2. Submit while both settings are off: completely valid choice, saves successfully
     await submitBtn.click();
-    await expect(statusDisplay).toContainText(/enable|activer|تفعيل|error/i);
+    await expect(statusDisplay).toContainText(/saving|enregistrement|حفظ/i);
+    await expect(statusDisplay).toContainText(/success|succès|بنجاح/i);
 
-    // 3. Check telemetry and diagnostics
+    // Both remain off
+    expect(await telemetrySwitch.isChecked()).toBe(false);
+    expect(await diagnosticsSwitch.isChecked()).toBe(false);
+
+    // 3. Enable telemetry and diagnostics, and submit
     await telemetrySwitch.click();
     await diagnosticsSwitch.click();
     expect(await telemetrySwitch.isChecked()).toBe(true);
     expect(await diagnosticsSwitch.isChecked()).toBe(true);
 
-    // 4. Submit form -> enters simulated pending and then success
     await submitBtn.click();
     await expect(statusDisplay).toContainText(/saving|enregistrement|حفظ/i);
     await expect(statusDisplay).toContainText(/success|succès|بنجاح/i);
 
-    // 5. Reset restores initial defaults and resets status
+    // 4. Test reset during pending submission, waiting beyond the timer to confirm cancellation
+    await submitBtn.click();
+    // Enters pending submission
+    await expect(statusDisplay).toContainText(/saving|enregistrement|حفظ/i);
+
+    // Immediately click reset button during pending state
     await resetBtn.click();
+    await expect(statusDisplay).toContainText(/reset|réinitialisé|إعادة/i);
     expect(await telemetrySwitch.isChecked()).toBe(false);
     expect(await diagnosticsSwitch.isChecked()).toBe(false);
+
+    // Wait beyond the 800ms submission timer (1000ms) to ensure pending timer was cancelled and does NOT fire success
+    await page.waitForTimeout(1000);
     await expect(statusDisplay).toContainText(/reset|réinitialisé|إعادة/i);
+    expect(await statusDisplay.textContent()).not.toMatch(/success|succès|بنجاح/i);
   });
 
   test('verifies switch state preservation across locale changes', async ({ page }) => {

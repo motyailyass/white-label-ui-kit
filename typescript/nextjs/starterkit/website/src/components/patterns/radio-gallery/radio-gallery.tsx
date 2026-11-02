@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Radio } from '@/components/ui/radio';
-import type { TranslationKey } from '@/i18n';
+import { BidiText, type TranslationKey } from '@/i18n';
 import { useI18n } from '@/providers';
 import { LanguageSwitcher } from '../language-switcher';
 import { ThemeSwitcher } from '../theme-switcher';
@@ -34,9 +34,9 @@ export function RadioGallery() {
   // Controlled mode state
   const [controlledValue, setControlledValue] = useState('dev');
 
-  // Required section validation state
+  // Required section validation state (starts without premature error)
   const [requiredPayment, setRequiredPayment] = useState('');
-  const [requiredError, setRequiredError] = useState(true);
+  const [requiredError, setRequiredError] = useState(false);
 
   // Form demonstration state
   const [formCompute, setFormCompute] = useState<string>('');
@@ -512,6 +512,23 @@ export function RadioGallery() {
               {t('common.radioGallery.requiredErrorText')}
             </span>
           )}
+          <div className={styles.formActions}>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                if (!requiredPayment) {
+                  setRequiredError(true);
+                } else {
+                  setRequiredError(false);
+                }
+              }}
+              data-testid="specimen-required-validate-btn"
+            >
+              {t('common.radioGallery.requiredValidateButton')}
+            </Button>
+          </div>
         </fieldset>
       </section>
 
@@ -622,7 +639,8 @@ export function RadioGallery() {
               data-testid="specimen-mixed-code"
             />
             <label htmlFor={mixedId} className={styles.label}>
-              {t('common.radioGallery.mixedTechLabel')}
+              {t('common.radioGallery.mixedTechPrefix')}{' '}
+              <BidiText dir="ltr">SENS-84920-X</BidiText>
             </label>
           </div>
 

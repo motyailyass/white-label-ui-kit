@@ -229,9 +229,9 @@ test.describe('Website Radio Primitive Real-Browser Verification', () => {
   test('verifies native keyboard interaction (Space to check, Arrow keys to navigate)', async ({
     page,
   }) => {
-    const dev = page.locator('[data-testid="specimen-ctrl-dev"]');
-    const staging = page.locator('[data-testid="specimen-ctrl-staging"]');
-    const prod = page.locator('[data-testid="specimen-ctrl-prod"]');
+    const dev = page.locator('[data-testid="specimen-controlled-dev"]');
+    const staging = page.locator('[data-testid="specimen-controlled-staging"]');
+    const prod = page.locator('[data-testid="specimen-controlled-prod"]');
 
     // 1. Focus element
     await dev.focus();
@@ -361,28 +361,38 @@ test.describe('Website Radio Primitive Real-Browser Verification', () => {
   }) => {
     const cardRadio = page.locator('[data-testid="specimen-required-card"]');
     const bankRadio = page.locator('[data-testid="specimen-required-bank"]');
+    const validateBtn = page.locator('[data-testid="specimen-required-validate-btn"]');
     const fieldset = cardRadio.locator('xpath=ancestor::fieldset');
     const alert = fieldset.locator('[role="alert"]');
 
-    // 1. Initial state before selection: error message is displayed, inputs are invalid
-    await expect(alert).toBeVisible();
-    expect(await cardRadio.getAttribute('aria-invalid')).toBe('true');
-    expect(await bankRadio.getAttribute('aria-invalid')).toBe('true');
-
-    const descBefore = await fieldset.getAttribute('aria-describedby');
-    expect(descBefore).toContain('error');
-
-    // 2. Select card option -> invalid-to-valid transition
-    await cardRadio.click();
-    expect(await cardRadio.isChecked()).toBe(true);
-
-    // 3. Error cleared, role="alert" removed, aria-invalid updated
+    // 1. Initial state before interaction: starts clean without premature error
     await expect(alert).toHaveCount(0);
     expect(await cardRadio.getAttribute('aria-invalid')).toBe('false');
     expect(await bankRadio.getAttribute('aria-invalid')).toBe('false');
 
-    const descAfter = await fieldset.getAttribute('aria-describedby');
-    expect(descAfter).not.toContain('error');
+    const descInitial = await fieldset.getAttribute('aria-describedby');
+    expect(descInitial).not.toContain('error');
+
+    // 2. Trigger validation attempt without selection -> error is displayed
+    await validateBtn.click();
+    await expect(alert).toBeVisible();
+    expect(await cardRadio.getAttribute('aria-invalid')).toBe('true');
+    expect(await bankRadio.getAttribute('aria-invalid')).toBe('true');
+
+    const descAfterError = await fieldset.getAttribute('aria-describedby');
+    expect(descAfterError).toContain('error');
+
+    // 3. Select card option -> invalid-to-valid transition clears error
+    await cardRadio.click();
+    expect(await cardRadio.isChecked()).toBe(true);
+
+    // 4. Error cleared, role="alert" removed, aria-invalid updated to false
+    await expect(alert).toHaveCount(0);
+    expect(await cardRadio.getAttribute('aria-invalid')).toBe('false');
+    expect(await bankRadio.getAttribute('aria-invalid')).toBe('false');
+
+    const descAfterSelect = await fieldset.getAttribute('aria-describedby');
+    expect(descAfterSelect).not.toContain('error');
   });
 
   test('verifies native form submit, validation, and form reset lifecycles', async ({

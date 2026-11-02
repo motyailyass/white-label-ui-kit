@@ -8,6 +8,7 @@ export * from './input-gallery';
 export * from './language-switcher';
 export * from './not-found-state';
 export * from './radio-gallery';
+export * from './select-gallery';
 export * from './switch-gallery';
 export * from './textarea-gallery';
 export * from './theme-switcher';

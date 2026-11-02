@@ -1,0 +1,174 @@
+/**
+ * White Label UI Kit — Select Primitive Stylesheet
+ * Single Native <select> Element, Zero Dashboard Shadows, 100% CSS Logical Properties.
+ */
+
+.select {
+  /* Scoped private fallback bindings to product presets */
+  --_control-height: var(--control-height-default);
+  --_control-padding-inline: var(--control-padding-default);
+  --_control-padding-block: var(--control-padding-block-default);
+  --_control-font-size: var(--control-font-size-default);
+  --_control-line-height: var(--control-line-height-default);
+
+  position: relative;
+  box-sizing: border-box;
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: var(--_control-height);
+  padding-inline: var(--_control-padding-inline);
+  padding-block: var(--_control-padding-block);
+  border-radius: var(--radius-control);
+  background-color: var(--color-control-bg);
+  border: 1px solid var(--color-border-control);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--_control-font-size);
+  line-height: var(--_control-line-height);
+  font-weight: var(--font-weight-regular);
+  text-align: start;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+/* Explicit Six-Step Scale Bindings */
+.select[data-size="xs"] {
+  --_control-height: var(--control-height-xs);
+  --_control-padding-inline: var(--control-padding-xs);
+  --_control-padding-block: var(--control-padding-block-xs);
+  --_control-font-size: var(--control-font-size-xs);
+  --_control-line-height: var(--control-line-height-xs);
+}
+
+.select[data-size="sm"] {
+  --_control-height: var(--control-height-sm);
+  --_control-padding-inline: var(--control-padding-sm);
+  --_control-padding-block: var(--control-padding-block-sm);
+  --_control-font-size: var(--control-font-size-sm);
+  --_control-line-height: var(--control-line-height-sm);
+}
+
+.select[data-size="md"] {
+  --_control-height: var(--control-height-md);
+  --_control-padding-inline: var(--control-padding-md);
+  --_control-padding-block: var(--control-padding-block-md);
+  --_control-font-size: var(--control-font-size-md);
+  --_control-line-height: var(--control-line-height-md);
+}
+
+.select[data-size="lg"] {
+  --_control-height: var(--control-height-lg);
+  --_control-padding-inline: var(--control-padding-lg);
+  --_control-padding-block: var(--control-padding-block-lg);
+  --_control-font-size: var(--control-font-size-lg);
+  --_control-line-height: var(--control-line-height-lg);
+}
+
+.select[data-size="xl"] {
+  --_control-height: var(--control-height-xl);
+  --_control-padding-inline: var(--control-padding-xl);
+  --_control-padding-block: var(--control-padding-block-xl);
+  --_control-font-size: var(--control-font-size-xl);
+  --_control-line-height: var(--control-line-height-xl);
+}
+
+.select[data-size="2xl"] {
+  --_control-height: var(--control-height-2xl);
+  --_control-padding-inline: var(--control-padding-2xl);
+  --_control-padding-block: var(--control-padding-block-2xl);
+  --_control-font-size: var(--control-font-size-2xl);
+  --_control-line-height: var(--control-line-height-2xl);
+}
+
+/* Stable Resting & Neutral Hover Border */
+.select:hover:not(:disabled):not(:focus-visible):not([aria-invalid="true"]) {
+  border-color: var(--color-border-control);
+}
+
+/* Focus State (Immediate 0ms Visible Outline) */
+.select:focus-visible,
+.select:focus {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+  border-color: var(--color-border-focus);
+  transition: none;
+}
+
+/* Invalid State: driven strictly by aria-invalid="true" */
+.select[aria-invalid="true"]:not(:disabled) {
+  border-color: var(--color-danger);
+}
+
+.select[aria-invalid="true"]:focus-visible,
+.select[aria-invalid="true"]:focus {
+  border-color: var(--color-danger);
+  outline-color: var(--color-danger);
+  transition: none;
+}
+
+/* Disabled State: wins over invalid and hover */
+.select:disabled {
+  background-color: var(--color-control-disabled-bg);
+  border-color: var(--color-border-disabled);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+/* Touch-Target Policy: at least 48px in both dimensions */
+.select[data-touch-target="comfortable"] {
+  min-block-size: max(var(--_control-height), var(--control-touch-target-min, 3rem));
+  min-inline-size: max(var(--control-touch-target-min, 3rem), 0px);
+}
+
+@media (any-pointer: coarse) {
+  .select[data-touch-target="auto"],
+  .select[data-touch-target="comfortable"] {
+    min-block-size: max(var(--_control-height), var(--control-touch-target-min, 3rem));
+    min-inline-size: max(var(--control-touch-target-min, 3rem), 0px);
+  }
+}
+
+/* Forced Colors Mode */
+@media (forced-colors: active) {
+  .select {
+    border-color: ButtonBorder;
+    background-color: Field;
+    color: FieldText;
+  }
+
+  .select:hover:not(:disabled):not(:focus-visible):not([aria-invalid="true"]) {
+    border-color: ButtonBorder;
+  }
+
+  .select:focus-visible,
+  .select:focus {
+    border-color: Highlight;
+    outline: 2px solid Highlight;
+  }
+
+  .select[aria-invalid="true"]:not(:disabled) {
+    border-color: Highlight;
+  }
+
+  .select[aria-invalid="true"]:focus-visible,
+  .select[aria-invalid="true"]:focus {
+    border-color: Highlight;
+    outline: 2px solid Highlight;
+  }
+
+  .select:disabled {
+    border-color: GrayText;
+    color: GrayText;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .select {
+    transition: none;
+  }
+}

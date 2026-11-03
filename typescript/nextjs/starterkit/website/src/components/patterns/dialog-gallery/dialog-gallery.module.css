@@ -1,0 +1,163 @@
+/**
+ * White Label UI Kit — Dialog Component Gallery Stylesheet
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.galleryContainer {
+  inline-size: 100%;
+  max-inline-size: 64rem;
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+  padding-block: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.galleryHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border-block-end: 1px solid var(--color-border-subtle);
+  padding-block-end: var(--space-6);
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.title {
+  font-size: var(--typography-page-title-size);
+  line-height: var(--typography-page-title-line-height);
+  font-weight: var(--typography-page-title-weight);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: var(--typography-body-size);
+  line-height: var(--typography-body-line-height);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.controlsRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-block-end: var(--space-6);
+  border-block-end: 1px solid var(--color-border-subtle);
+}
+
+.sectionTitle {
+  font-size: var(--typography-section-title-size);
+  line-height: var(--typography-section-title-line-height);
+  font-weight: var(--typography-section-title-weight);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.sectionDesc {
+  font-size: var(--typography-body-size);
+  line-height: var(--typography-body-line-height);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.buttonGrid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.statusCard {
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.statusLabel {
+  font-size: var(--typography-supporting-size);
+  line-height: var(--typography-supporting-line-height);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.statusText {
+  font-size: var(--typography-body-size);
+  line-height: var(--typography-body-line-height);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.fieldRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-block-end: var(--space-4);
+}
+
+.label {
+  font-size: var(--typography-card-title-size);
+  line-height: var(--typography-card-title-line-height);
+  font-weight: var(--typography-card-title-weight);
+  color: var(--color-text-primary);
+}
+
+.errorText {
+  font-size: var(--typography-supporting-size);
+  line-height: var(--typography-supporting-line-height);
+  color: var(--color-danger);
+  margin: 0;
+}
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--typography-body-size);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.th {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  text-align: start;
+  padding: var(--space-3) var(--space-4);
+  border-block-end: 1px solid var(--color-border-subtle);
+  font-weight: var(--font-weight-semibold);
+}
+
+.td {
+  padding: var(--space-3) var(--space-4);
+  border-block-end: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+}
+
+.longContentBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  font-size: var(--typography-body-size);
+  line-height: var(--typography-body-line-height);
+  color: var(--color-text-secondary);
+}

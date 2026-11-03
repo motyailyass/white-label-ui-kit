@@ -1,0 +1,174 @@
+/**
+ * White Label UI Kit — Native Dialog Primitive Stylesheet
+ * Native HTML5 <dialog> in browser Top Layer.
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.dialog {
+  /* Scoped max-width defaults */
+  --_dialog-max-width: 540px;
+
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  padding: 0;
+  box-sizing: border-box;
+  inline-size: min(calc(100% - var(--space-8)), var(--_dialog-max-width));
+  max-block-size: min(calc(100vh - var(--space-8)), 90vh);
+  border-radius: var(--radius-dialog);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  overflow: hidden;
+  outline: none;
+}
+
+/* Ensure closed dialog remains hidden and does not override browser default */
+.dialog:not([open]) {
+  display: none !important;
+}
+
+/* Open layout box */
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sizing scale */
+.dialog[data-size="sm"] {
+  --_dialog-max-width: 400px;
+}
+
+.dialog[data-size="md"] {
+  --_dialog-max-width: 540px;
+}
+
+.dialog[data-size="lg"] {
+  --_dialog-max-width: 720px;
+}
+
+.dialog[data-size="xl"] {
+  --_dialog-max-width: 960px;
+}
+
+.dialog[data-size="full"] {
+  --_dialog-max-width: calc(100vw - var(--space-8));
+  max-block-size: calc(100vh - var(--space-8));
+}
+
+/* Native Top-Layer Scrim Backdrop */
+.dialog::backdrop {
+  background-color: var(--color-overlay);
+}
+
+/* Header */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-inline: var(--space-6);
+  padding-block: var(--space-5);
+  border-block-end: 1px solid var(--color-border-subtle);
+}
+
+.title {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.description {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+}
+
+/* Body */
+.body {
+  flex: 1 1 auto;
+  padding-inline: var(--space-6);
+  padding-block: var(--space-5);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-inline: var(--space-6);
+  padding-block: var(--space-4);
+  border-block-start: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface);
+}
+
+/* Prevent duplicate separator when body is omitted */
+.header + .footer {
+  border-block-start: none;
+}
+
+/* Optional Top-Corner Close Button */
+.closeButton {
+  position: absolute;
+  inset-block-start: var(--space-4);
+  inset-inline-end: var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--control-height-sm);
+  block-size: var(--control-height-sm);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  outline: none;
+}
+
+/* Ensure minimum 48px touch target on coarse pointers without enlarging visible icon button */
+.closeButton::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.closeButton:hover {
+  background-color: var(--color-primary-subtle);
+  color: var(--color-text-primary);
+}
+
+.closeButton:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Forced Colors Mode */
+@media (forced-colors: active) {
+  .dialog {
+    border: 2px solid ButtonBorder;
+    background-color: Canvas;
+    color: CanvasText;
+  }
+
+  .dialog::backdrop {
+    background-color: Canvas;
+    opacity: 0.85;
+  }
+
+  .closeButton {
+    border: 1px solid ButtonBorder;
+  }
+
+  .closeButton:focus-visible {
+    outline: 2px solid Highlight;
+  }
+}

@@ -469,8 +469,8 @@ export function DialogGallery() {
           <DialogBody data-testid="long-dialog-body">
             <div className={styles.longContentBody}>
               {Array.from({ length: 15 }, (_, i) => {
-                const clauseKey = `common.dialogGallery.termsClause${i + 1}` as const;
-                return <p key={i}>{t(clauseKey as any)}</p>;
+                const clauseKey = `common.dialogGallery.termsClause${i + 1}` as unknown as Parameters<typeof t>[0];
+                return <p key={i}>{t(clauseKey)}</p>;
               })}
             </div>
           </DialogBody>

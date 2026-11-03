@@ -3,6 +3,7 @@ export * from './checkbox';
 export * from './control-sizing';
 export * from './dialog';
 export * from './input';
+export * from './popover';
 export * from './radio';
 export * from './select';
 export * from './switch';

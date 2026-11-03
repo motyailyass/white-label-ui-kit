@@ -856,6 +856,81 @@ export const common = {
     deleteRowButton: 'Delete Resource',
     rowDeletedMessage: 'Resource deleted from inventory. Focus returned to table heading.',
   },
+  popoverGallery: {
+    title: 'Popover Component Gallery',
+    subtitle:
+      'Interactive visual verification and usage specifications for the non-modal anchored Popover primitive.',
+    metaTitle: 'Popover Component Gallery | White Label UI Kit',
+    metaDescription:
+      'Non-modal anchored floating overlay with native light dismissal, coordinate positioning, and zero shadows.',
+    sectionOverviewTitle: '1. Overview & Basic Disclosure',
+    sectionOverviewDesc:
+      'Generic floating disclosure without forced dialog semantics. Focus remains on trigger, moving naturally into content.',
+    openBasicPopover: 'Open Details Popover',
+    basicPopoverHeading: 'Deployment Status',
+    basicPopoverDesc: 'Edge nodes operating within normal baseline latency thresholds.',
+    sectionFilterTitle: '2. Interactive Filter (role="dialog")',
+    sectionFilterDesc:
+      'Interactive micro-form popover with role="dialog", accessible name, and internal form controls.',
+    openFilterPopover: 'Filter Analytics',
+    filterPopoverTitle: 'Filter Analytics Telemetry',
+    filterPopoverDesc: 'Refine analytics streams by environment and latency tier.',
+    filterEnvLabel: 'Target Environment',
+    filterEnvProduction: 'Production (Live)',
+    filterEnvStaging: 'Staging (Pre-release)',
+    filterEnvSandbox: 'Sandbox (Testing)',
+    filterResetButton: 'Reset',
+    filterApplyButton: 'Apply Filters',
+    filterAppliedStatus: 'Applied filters: Environment =',
+    sectionPlacementTitle: '3. Placement Matrix',
+    sectionPlacementDesc:
+      'Supports top, bottom, and logical inline-start and inline-end placements.',
+    placementTop: 'Top Placement',
+    placementBottom: 'Bottom Placement',
+    placementInlineStart: 'Inline-Start Placement',
+    placementInlineEnd: 'Inline-End Placement',
+    placementSurfaceText: 'Anchored overlay surface.',
+    sectionCollisionTitle: '4. Viewport Edge Collision & Auto-Flip',
+    sectionCollisionDesc:
+      'Near-edge placement automatically flips from bottom to top when constrained by viewport boundaries.',
+    openCollisionPopover: 'Open Near-Edge Popover',
+    collisionPopoverText: 'Flipped to top automatically to remain fully within viewport bounds.',
+    sectionLightDismissTitle: '5. Light Dismiss vs Manual Close',
+    sectionLightDismissDesc:
+      'Dismissable via outside click, Escape, or explicit close button without stealing focus.',
+    openManualClosePopover: 'Open with Close Button',
+    closeButtonLabel: 'Dismiss popover',
+    sectionControlledTitle: '6. Controlled vs Uncontrolled Mode',
+    sectionControlledDesc:
+      'Programmatic state toggle from an external button synchronized with internal state.',
+    externalToggleBtn: 'Toggle Popover Externally',
+    controlledPopoverText: 'Controlled popover state synchronized with parent component.',
+    sectionNestedSelectTitle: '7. Nested Select Integration',
+    sectionNestedSelectDesc:
+      'Pure Select primitive embedded inside PopoverContent without premature dismissal.',
+    openNestedSelectPopover: 'Open Popover with Select',
+    nestedSelectLabel: 'Choose Cluster Region',
+    nestedSelectPrompt: 'Select cluster region...',
+    nestedRegionUsEast: 'US East (N. Virginia)',
+    nestedRegionEuCentral: 'EU Central (Frankfurt)',
+    nestedRegionApSouth: 'AP South (Mumbai)',
+    sectionCompetingTitle: '8. Competing Popovers',
+    sectionCompetingDesc:
+      'Two auto popovers coordinate cleanly: opening one dismisses the other without loop thrashing.',
+    openPopoverA: 'Open Popover Alpha',
+    openPopoverB: 'Open Popover Beta',
+    popoverAText: 'Alpha popover content.',
+    popoverBText: 'Beta popover content.',
+    sectionInsideDialogTitle: '9. Popover Inside Modal Dialog',
+    sectionInsideDialogDesc:
+      'Native Popover API renders in Top Layer, cleanly appearing in front of modal dialog surfaces.',
+    openParentDialog: 'Open Modal Dialog with Inner Popover',
+    parentDialogTitle: 'Modal Dialog Surface',
+    parentDialogDesc: 'This modal dialog contains an embedded popover to test top layer stacking.',
+    openNestedPopoverInDialog: 'Trigger Nested Popover',
+    nestedPopoverInDialogText: 'Popover cleanly elevated in front of modal dialog in browser top layer.',
+    closeDialogButton: 'Close Modal Dialog',
+  },
 } as const;
 
 export type CommonMessages = MessageShape<typeof common>;

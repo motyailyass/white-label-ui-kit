@@ -1,0 +1,151 @@
+/**
+ * White Label UI Kit — Popover Stylesheet
+ * Native HTML Popover API with Coordinate Positioning Engine.
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.popover {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+}
+
+/* Primary Top Layer & Fallback Layering via data-state */
+.popover[data-state="open"] {
+  display: block;
+}
+
+.popover[data-state="closed"] {
+  display: none !important;
+}
+
+/* Floating Surface Box */
+.surface {
+  position: fixed;
+  z-index: var(--z-dropdown); /* 200 */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-inline-size: min(100%, 200px);
+  max-inline-size: min(calc(100vw - var(--space-8)), var(--_popover-max-width, 340px));
+  max-block-size: min(calc(100vh - var(--space-8)), 480px);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  outline: none;
+  overflow: visible;
+}
+
+/* Scrollable Internal Body */
+.body {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  padding-inline: var(--space-4);
+  padding-block: var(--space-3);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Header */
+.header {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-inline: var(--space-4);
+  padding-block: var(--space-3);
+  border-block-end: 1px solid var(--color-border-subtle);
+}
+
+.title {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+}
+
+.description {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+}
+
+/* Footer */
+.footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding-inline: var(--space-4);
+  padding-block: var(--space-3);
+  border-block-start: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface);
+}
+
+/* Prevent duplicate separator when body is omitted */
+.header + .footer {
+  border-block-start: none;
+}
+
+/* Close button within popover */
+.closeButton {
+  position: absolute;
+  inset-block-start: var(--space-3);
+  inset-inline-end: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--control-height-xs);
+  block-size: var(--control-height-xs);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  outline: none;
+}
+
+/* Coarse touch target expander */
+.closeButton::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.closeButton:hover {
+  background-color: var(--color-primary-subtle);
+  color: var(--color-text-primary);
+}
+
+.closeButton:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Forced Colors Mode */
+@media (forced-colors: active) {
+  .surface {
+    border: 2px solid ButtonBorder;
+    background-color: Canvas;
+    color: CanvasText;
+  }
+
+  .closeButton {
+    border: 1px solid ButtonBorder;
+  }
+
+  .closeButton:focus-visible {
+    outline: 2px solid Highlight;
+  }
+}

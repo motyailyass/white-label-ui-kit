@@ -29,23 +29,27 @@ test.describe('Dashboard Popover Primitive Real-Browser Verification', () => {
     await expect(trigger).toBeFocused();
   });
 
-  test('2. Outside click light-dismiss does NOT steal focus back to trigger', async ({
+  test('2. Outside click light-dismiss does NOT steal focus and executes external action', async ({
     page,
   }) => {
-    const trigger = page.locator('[data-testid="open-basic-popover-btn"]');
-    const content = page.locator('[data-testid="basic-popover-content"]');
-    const externalBtn = page.locator('[data-testid="open-filter-popover-btn"]');
+    const trigger = page.locator('[data-testid="open-manual-close-popover-btn"]');
+    const content = page.locator('[data-testid="manual-close-popover-content"]');
+    const outsideActionBtn = page.locator('[data-testid="outside-action-btn"]');
 
     await trigger.click();
     await expect(content).toBeVisible();
+    await expect(outsideActionBtn).toHaveText('Outside Action Count: 0');
 
     // Click external button directly
-    await externalBtn.click();
+    await outsideActionBtn.click();
 
     // Popover is dismissed
     await expect(content).not.toBeVisible();
 
-    // Focus is NOT stolen back to trigger
+    // Outside click actually executed its action
+    await expect(outsideActionBtn).toHaveText('Outside Action Count: 1');
+
+    // Focus is NOT stolen back to old trigger
     await expect(trigger).not.toBeFocused();
   });
 
@@ -92,25 +96,45 @@ test.describe('Dashboard Popover Primitive Real-Browser Verification', () => {
     await expect(trigger).toBeFocused();
   });
 
-  test('5. Viewport collision & auto-flip: clamps within viewport boundaries', async ({ page }) => {
+  test('5. Viewport collision & auto-flip: flips from bottom to top near viewport edge', async ({
+    page,
+  }) => {
     const trigger = page.locator('[data-testid="open-collision-popover-btn"]');
     const content = page.locator('[data-testid="collision-popover-content"]');
+
+    // Scroll window so trigger is positioned near the bottom edge of the viewport
+    await trigger.scrollIntoViewIfNeeded();
+    await page.evaluate(() => {
+      const btn = document.querySelector('[data-testid="open-collision-popover-btn"]');
+      if (btn) {
+        const rect = btn.getBoundingClientRect();
+        // Scroll so button bottom is 30px from bottom of viewport
+        window.scrollBy(0, rect.bottom - (window.innerHeight - 30));
+      }
+    });
 
     await trigger.click();
     await expect(content).toBeVisible();
 
+    const triggerBox = await trigger.boundingBox();
     const contentBox = await content.boundingBox();
     const viewportSize = page.viewportSize();
 
+    expect(triggerBox).not.toBeNull();
     expect(contentBox).not.toBeNull();
-    if (contentBox && viewportSize) {
-      expect(contentBox.y + contentBox.height).toBeLessThanOrEqual(viewportSize.height + 2);
-      expect(contentBox.x + contentBox.width).toBeLessThanOrEqual(viewportSize.width);
+
+    if (triggerBox && contentBox && viewportSize) {
+      // Because trigger is near bottom, content must flip to top: content bottom <= trigger top
+      expect(contentBox.y + contentBox.height).toBeLessThanOrEqual(triggerBox.y + 10);
+      // Viewport bounds respected
       expect(contentBox.x).toBeGreaterThanOrEqual(0);
+      expect(contentBox.x + contentBox.width).toBeLessThanOrEqual(viewportSize.width);
     }
   });
 
-  test('6. Controlled mode: external button toggle synchronizes state', async ({ page }) => {
+  test('6. Controlled mode: external button toggle and rejection reconciliation', async ({
+    page,
+  }) => {
     const externalToggle = page.locator('[data-testid="external-toggle-controlled-btn"]');
     const content = page.locator('[data-testid="controlled-popover-content"]');
 
@@ -121,9 +145,26 @@ test.describe('Dashboard Popover Primitive Real-Browser Verification', () => {
 
     await externalToggle.click();
     await expect(content).not.toBeVisible();
+
+    // Test rejection: parent keeps open={true} despite native dismissal attempt
+    const persistedTrigger = page.locator('[data-testid="open-persisted-popover-btn"]');
+    const persistedContent = page.locator('[data-testid="persisted-popover-content"]');
+    const explicitDismiss = page.locator('[data-testid="explicit-close-persisted-popover-btn"]');
+
+    await persistedTrigger.click();
+    await expect(persistedContent).toBeVisible();
+
+    // Outside click attempt
+    await page.mouse.click(10, 10);
+    // Popover reconciles and remains open because parent kept state true
+    await expect(persistedContent).toBeVisible();
+
+    // Explicit parent dismiss closes it
+    await explicitDismiss.click();
+    await expect(persistedContent).not.toBeVisible();
   });
 
-  test('7. Competing popovers: opening one closes the other without infinite loops', async ({
+  test('7. Competing controlled popovers: opening one closes the other without infinite loops', async ({
     page,
   }) => {
     const triggerA = page.locator('[data-testid="open-popover-alpha-btn"]');
@@ -141,20 +182,36 @@ test.describe('Dashboard Popover Primitive Real-Browser Verification', () => {
     await expect(contentA).not.toBeVisible();
   });
 
-  test('8. Nested Select integration: choosing option does not close popover', async ({ page }) => {
-    const trigger = page.locator('[data-testid="open-nested-select-popover-btn"]');
-    const content = page.locator('[data-testid="nested-select-popover-content"]');
-    const select = page.locator('[data-testid="nested-region-select"]');
+  test('8. True lateral inline placement: inline-start is left in LTR, inline-end is right in LTR', async ({
+    page,
+  }) => {
+    // 1. inline-end in LTR (should place surface to the RIGHT of trigger)
+    const triggerEnd = page.locator('[data-testid="placement-inline-end-btn"]');
+    const contentEnd = page.locator('[data-testid="placement-inline-end-content"]');
 
-    await trigger.click();
-    await expect(content).toBeVisible();
+    await triggerEnd.click();
+    await expect(contentEnd).toBeVisible();
 
-    // Select option
-    await select.selectOption('eu-central');
-    await expect(select).toHaveValue('eu-central');
+    const triggerEndBox = await triggerEnd.boundingBox();
+    const contentEndBox = await contentEnd.boundingBox();
+    const viewportSize = page.viewportSize();
 
-    // Popover remains open
-    await expect(content).toBeVisible();
+    expect(triggerEndBox).not.toBeNull();
+    expect(contentEndBox).not.toBeNull();
+    if (triggerEndBox && contentEndBox && viewportSize) {
+      if (viewportSize.width >= 600) {
+        // On desktop, lateral placement is strictly to the right of the trigger
+        expect(contentEndBox.x).toBeGreaterThanOrEqual(triggerEndBox.x + triggerEndBox.width - 2);
+      } else {
+        // On mobile, lateral placement clamps safely within viewport boundaries
+        expect(contentEndBox.x + contentEndBox.width).toBeLessThanOrEqual(viewportSize.width);
+        expect(contentEndBox.x).toBeGreaterThanOrEqual(0);
+      }
+    }
+
+    // Dismiss
+    await page.keyboard.press('Escape');
+    await expect(contentEnd).not.toBeVisible();
   });
 
   test('9. Popover inside Modal Dialog: elevates to top layer above dialog surface', async ({

@@ -13,13 +13,25 @@
   overflow: visible;
 }
 
-/* Primary Top Layer & Fallback Layering via data-state */
-.popover[data-state="open"] {
-  display: block;
+/* Primary Top Layer & Fallback Layering */
+@supports selector(:popover-open) {
+  .popover:not(:popover-open):not([data-fallback="true"]) {
+    display: none !important;
+  }
 }
 
-.popover[data-state="closed"] {
+@supports not selector(:popover-open) {
+  .popover[data-state="closed"] {
+    display: none !important;
+  }
+}
+
+.popover[data-fallback="true"][data-state="closed"] {
   display: none !important;
+}
+
+.popover[data-fallback="true"][data-state="open"] {
+  display: block;
 }
 
 /* Floating Surface Box */

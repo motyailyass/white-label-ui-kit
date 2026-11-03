@@ -36,8 +36,16 @@ export function PopoverGallery() {
   const [selectedEnv, setSelectedEnv] = useState('production');
   const [appliedEnv, setAppliedEnv] = useState('production');
 
-  // Specimen 6: Controlled State
+  // Specimen 5: Outside Click Counter
+  const [outsideCounter, setOutsideCounter] = useState(0);
+
+  // Specimen 6: Controlled State & Rejection
   const [controlledOpen, setControlledOpen] = useState(false);
+  const [persistedOpen, setPersistedOpen] = useState(false);
+
+  // Specimen 8: Controlled Competing Popovers
+  const [competingAOpen, setCompetingAOpen] = useState(false);
+  const [competingBOpen, setCompetingBOpen] = useState(false);
 
   // Specimen 9: Modal Dialog with Inner Popover
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -288,6 +296,14 @@ export function PopoverGallery() {
               </PopoverBody>
             </PopoverContent>
           </Popover>
+
+          <Button
+            variant="secondary"
+            onClick={() => setOutsideCounter((c) => c + 1)}
+            data-testid="outside-action-btn"
+          >
+            Outside Action Count: {outsideCounter}
+          </Button>
         </div>
       </section>
 
@@ -301,6 +317,7 @@ export function PopoverGallery() {
           <Button
             variant="secondary"
             onClick={() => setControlledOpen(!controlledOpen)}
+            data-popover-toggle
             data-testid="external-toggle-controlled-btn"
           >
             {t('common.popoverGallery.externalToggleBtn')}
@@ -317,6 +334,35 @@ export function PopoverGallery() {
                 <p className={styles.surfaceText}>
                   {t('common.popoverGallery.controlledPopoverText')}
                 </p>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+
+          <Popover
+            open={persistedOpen}
+            onOpenChange={() => {
+              // Rejects native close requests: caller keeps state true
+            }}
+          >
+            <PopoverTrigger asChild>
+              <Button
+                variant="secondary"
+                onClick={() => setPersistedOpen(true)}
+                data-testid="open-persisted-popover-btn"
+              >
+                Open Persistent Popover
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent data-testid="persisted-popover-content">
+              <PopoverBody>
+                <p className={styles.surfaceText}>Parent rejects dismissal and stays open.</p>
+                <Button
+                  variant="primary"
+                  onClick={() => setPersistedOpen(false)}
+                  data-testid="explicit-close-persisted-popover-btn"
+                >
+                  Explicit Parent Dismiss
+                </Button>
               </PopoverBody>
             </PopoverContent>
           </Popover>
@@ -364,7 +410,7 @@ export function PopoverGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.popoverGallery.sectionCompetingDesc')}</p>
         <div className={styles.buttonGrid}>
-          <Popover>
+          <Popover open={competingAOpen} onOpenChange={setCompetingAOpen}>
             <PopoverTrigger asChild>
               <Button variant="secondary" data-testid="open-popover-alpha-btn">
                 {t('common.popoverGallery.openPopoverA')}
@@ -377,7 +423,7 @@ export function PopoverGallery() {
             </PopoverContent>
           </Popover>
 
-          <Popover>
+          <Popover open={competingBOpen} onOpenChange={setCompetingBOpen}>
             <PopoverTrigger asChild>
               <Button variant="secondary" data-testid="open-popover-beta-btn">
                 {t('common.popoverGallery.openPopoverB')}

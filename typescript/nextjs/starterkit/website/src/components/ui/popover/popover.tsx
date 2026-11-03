@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Children,
   cloneElement,
@@ -26,6 +28,33 @@ import { Icon } from '@/components/icons';
 import { cn } from '@/lib/cn';
 import styles from './popover.module.css';
 
+/**
+ * Utility to compose multiple refs (callback or object refs) onto a single DOM node.
+ */
+function composeRefs<T>(...refs: Array<Ref<T> | undefined | null>) {
+  return (node: T | null) => {
+    for (const ref of refs) {
+      if (!ref) continue;
+      if (typeof ref === 'function') {
+        ref(node);
+      } else if (typeof ref === 'object' && 'current' in ref) {
+        (ref as React.MutableRefObject<T | null>).current = node;
+      }
+    }
+  };
+}
+
+/**
+ * Safely extracts ref from a React element across React 18 and React 19.
+ */
+function getElementRef<T>(element: ReactElement): Ref<T> | undefined {
+  const props = element.props as Record<string, unknown> | undefined;
+  if (props && 'ref' in props) {
+    return props.ref as Ref<T>;
+  }
+  return undefined;
+}
+
 export type PopoverPlacement =
   | 'top'
   | 'top-start'
@@ -33,12 +62,20 @@ export type PopoverPlacement =
   | 'bottom'
   | 'bottom-start'
   | 'bottom-end'
+  | 'left'
+  | 'left-start'
+  | 'left-end'
+  | 'right'
+  | 'right-start'
+  | 'right-end'
   | 'inline-start'
   | 'inline-end';
 
 export interface PopoverContextValue {
   open: boolean;
   setOpen: (open: boolean) => void;
+  isControlled: boolean;
+  controlledOpen?: boolean;
   triggerRef: RefObject<HTMLElement | null>;
   contentRef: RefObject<HTMLDivElement | null>;
   surfaceRef: RefObject<HTMLDivElement | null>;
@@ -47,6 +84,7 @@ export interface PopoverContextValue {
   autoFlip: boolean;
   popoverId: string;
   role: 'dialog' | 'region' | 'none' | undefined;
+  popoverRole: 'dialog' | 'region' | 'none' | undefined;
   setRole: (role: 'dialog' | 'region' | 'none' | undefined) => void;
   updatePosition: () => void;
   onOpenChange?: (open: boolean) => void;
@@ -64,7 +102,7 @@ function usePopoverContext(): PopoverContextValue {
 
 export interface PopoverProps {
   /**
-   * Controlled open state.
+   * Controlled open state. Single source of truth when supplied.
    */
   open?: boolean;
 
@@ -148,14 +186,22 @@ export function Popover({
 
     const triggerRect = trigger.getBoundingClientRect();
     const surfaceRect = surface.getBoundingClientRect();
-    const isRtl = document.documentElement.dir === 'rtl' || trigger.closest('[dir="rtl"]') !== null;
+
+    // Accurately determine resolved CSS direction on the trigger element itself
+    const computedDir =
+      typeof window !== 'undefined'
+        ? window.getComputedStyle(trigger).direction
+        : 'ltr';
+    const isRtl = computedDir === 'rtl';
 
     // Resolve logical to physical orientation
-    let physicalPlacement = placement;
+    // inline-start: in LTR is left (side), in RTL is right (side)
+    // inline-end: in LTR is right (side), in RTL is left (side)
+    let physicalPlacement: string = placement;
     if (placement === 'inline-start') {
-      physicalPlacement = isRtl ? 'bottom-end' : 'bottom-start';
+      physicalPlacement = isRtl ? 'right' : 'left';
     } else if (placement === 'inline-end') {
-      physicalPlacement = isRtl ? 'bottom-start' : 'bottom-end';
+      physicalPlacement = isRtl ? 'left' : 'right';
     }
 
     const viewportWidth = window.innerWidth;
@@ -165,32 +211,71 @@ export function Popover({
     let top = 0;
     let left = 0;
 
-    // Vertical base calculation
     const spaceBelow = viewportHeight - triggerRect.bottom - offset;
     const spaceAbove = triggerRect.top - offset;
+    const spaceRight = viewportWidth - triggerRect.right - offset;
+    const spaceLeft = triggerRect.left - offset;
 
-    let effectiveSide: 'top' | 'bottom' = physicalPlacement.startsWith('top') ? 'top' : 'bottom';
+    let effectiveSide: 'top' | 'bottom' | 'left' | 'right';
+    if (physicalPlacement.startsWith('left')) {
+      effectiveSide = 'left';
+    } else if (physicalPlacement.startsWith('right')) {
+      effectiveSide = 'right';
+    } else if (physicalPlacement.startsWith('top')) {
+      effectiveSide = 'top';
+    } else {
+      effectiveSide = 'bottom';
+    }
+
     if (autoFlip) {
       if (effectiveSide === 'bottom' && spaceBelow < surfaceRect.height && spaceAbove > spaceBelow) {
         effectiveSide = 'top';
       } else if (effectiveSide === 'top' && spaceAbove < surfaceRect.height && spaceBelow > spaceAbove) {
         effectiveSide = 'bottom';
+      } else if (effectiveSide === 'left' && spaceLeft < surfaceRect.width && spaceRight > spaceLeft) {
+        effectiveSide = 'right';
+      } else if (effectiveSide === 'right' && spaceRight < surfaceRect.width && spaceLeft > spaceRight) {
+        effectiveSide = 'left';
       }
     }
 
-    if (effectiveSide === 'bottom') {
-      top = triggerRect.bottom + offset;
-    } else {
+    if (effectiveSide === 'left') {
+      left = triggerRect.left - surfaceRect.width - offset;
+      if (physicalPlacement.endsWith('start')) {
+        top = triggerRect.top;
+      } else if (physicalPlacement.endsWith('end')) {
+        top = triggerRect.bottom - surfaceRect.height;
+      } else {
+        top = triggerRect.top + (triggerRect.height - surfaceRect.height) / 2;
+      }
+    } else if (effectiveSide === 'right') {
+      left = triggerRect.right + offset;
+      if (physicalPlacement.endsWith('start')) {
+        top = triggerRect.top;
+      } else if (physicalPlacement.endsWith('end')) {
+        top = triggerRect.bottom - surfaceRect.height;
+      } else {
+        top = triggerRect.top + (triggerRect.height - surfaceRect.height) / 2;
+      }
+    } else if (effectiveSide === 'top') {
       top = triggerRect.top - surfaceRect.height - offset;
-    }
-
-    // Horizontal base calculation
-    if (physicalPlacement.endsWith('center')) {
-      left = triggerRect.left + (triggerRect.width - surfaceRect.width) / 2;
-    } else if (physicalPlacement.endsWith('end')) {
-      left = triggerRect.right - surfaceRect.width;
+      if (physicalPlacement.endsWith('center')) {
+        left = triggerRect.left + (triggerRect.width - surfaceRect.width) / 2;
+      } else if (physicalPlacement.endsWith('end')) {
+        left = triggerRect.right - surfaceRect.width;
+      } else {
+        left = triggerRect.left;
+      }
     } else {
-      left = triggerRect.left;
+      // bottom
+      top = triggerRect.bottom + offset;
+      if (physicalPlacement.endsWith('center')) {
+        left = triggerRect.left + (triggerRect.width - surfaceRect.width) / 2;
+      } else if (physicalPlacement.endsWith('end')) {
+        left = triggerRect.right - surfaceRect.width;
+      } else {
+        left = triggerRect.left;
+      }
     }
 
     // Clamp coordinates within safe viewport boundaries
@@ -210,6 +295,8 @@ export function Popover({
     () => ({
       open,
       setOpen,
+      isControlled,
+      controlledOpen,
       triggerRef,
       contentRef,
       surfaceRef,
@@ -218,11 +305,25 @@ export function Popover({
       autoFlip,
       popoverId,
       role,
+      popoverRole: initialRole,
       setRole,
       updatePosition,
       onOpenChange,
     }),
-    [open, setOpen, placement, offset, autoFlip, popoverId, role, updatePosition, onOpenChange],
+    [
+      open,
+      setOpen,
+      isControlled,
+      controlledOpen,
+      placement,
+      offset,
+      autoFlip,
+      popoverId,
+      role,
+      initialRole,
+      updatePosition,
+      onOpenChange,
+    ],
   );
 
   return <PopoverContext.Provider value={contextValue}>{children}</PopoverContext.Provider>;
@@ -244,13 +345,8 @@ export const PopoverTrigger = forwardRef<HTMLElement, PopoverTriggerProps>(funct
   const handleRef = useCallback(
     (node: HTMLElement | null) => {
       triggerRef.current = node;
-      if (typeof forwardedRef === 'function') {
-        forwardedRef(node);
-      } else if (forwardedRef) {
-        (forwardedRef as { current: HTMLElement | null }).current = node;
-      }
     },
-    [triggerRef, forwardedRef],
+    [triggerRef],
   );
 
   const handleClick = (e: MouseEvent<HTMLElement>) => {
@@ -270,7 +366,6 @@ export const PopoverTrigger = forwardRef<HTMLElement, PopoverTriggerProps>(funct
   };
 
   const triggerAttributes = {
-    ref: handleRef,
     'aria-expanded': open,
     'aria-haspopup': role === 'dialog' ? ('dialog' as const) : undefined,
     'aria-controls': open ? popoverId : undefined,
@@ -285,9 +380,14 @@ export const PopoverTrigger = forwardRef<HTMLElement, PopoverTriggerProps>(funct
       onClick?: (e: React.MouseEvent<HTMLElement>) => void;
       onKeyDown?: (e: React.KeyboardEvent<HTMLElement>) => void;
     };
+    const childRef = getElementRef<HTMLElement>(child);
+    const composedRef = composeRefs(handleRef, forwardedRef, childRef);
+
     return cloneElement(child, {
+      ...props,
       ...triggerAttributes,
       ...childProps,
+      ref: composedRef,
       className: cn(childProps.className, className),
       onClick: (e: React.MouseEvent<HTMLElement>) => {
         childProps.onClick?.(e);
@@ -304,11 +404,14 @@ export const PopoverTrigger = forwardRef<HTMLElement, PopoverTriggerProps>(funct
     } as Record<string, unknown>);
   }
 
+  const composedRef = composeRefs(handleRef, forwardedRef);
+
   return (
     <button
       type="button"
       {...props}
       {...triggerAttributes}
+      ref={composedRef}
       className={className}
     >
       {children}
@@ -329,27 +432,33 @@ export interface PopoverContentBaseProps extends ComponentPropsWithRef<'div'> {
    * @default 340px
    */
   maxWidth?: number | string;
-
-  /**
-   * Accessible name when role="dialog".
-   */
-  'aria-label'?: string;
-
-  /**
-   * Element ID for accessible name when role="dialog".
-   */
-  'aria-labelledby'?: string;
 }
 
-export type PopoverContentProps = PopoverContentBaseProps & {
+export type PopoverContentRoleDialogProps = PopoverContentBaseProps & {
+  /**
+   * Non-modal dialog surface for interactive forms and settings.
+   * Requires an accessible name via `aria-label` or `aria-labelledby`.
+   */
+  role: 'dialog';
+} & (
+  | { 'aria-label': string; 'aria-labelledby'?: string }
+  | { 'aria-labelledby': string; 'aria-label'?: string }
+);
+
+export type PopoverContentGenericProps = PopoverContentBaseProps & {
   /**
    * Semantic role for the floating surface.
-   * - `'dialog'`: Non-modal dialog surface for interactive forms and settings. Requires accessible name.
    * - `'region'`: Named landmark region.
    * - `'none'` / `undefined`: Generic floating disclosure (default).
    */
-  role?: 'dialog' | 'region' | 'none';
+  role?: 'region' | 'none';
+  'aria-label'?: string;
+  'aria-labelledby'?: string;
 };
+
+export type PopoverContentProps =
+  | PopoverContentRoleDialogProps
+  | PopoverContentGenericProps;
 
 export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(function PopoverContent(
   {
@@ -368,11 +477,13 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(fu
   const {
     open,
     setOpen,
+    isControlled,
+    controlledOpen,
     triggerRef,
     contentRef,
     surfaceRef,
     popoverId,
-    role: contextRole,
+    popoverRole,
     setRole,
     updatePosition,
   } = usePopoverContext();
@@ -380,14 +491,31 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(fu
   const internalSurfaceRef = useRef<HTMLDivElement>(null);
   useImperativeHandle(forwardedRef, () => internalSurfaceRef.current as HTMLDivElement);
 
-  const effectiveRole = role ?? contextRole;
+  const effectiveRole = role !== undefined ? role : popoverRole;
+
+  // Validate accessible name for role="dialog"
+  if (effectiveRole === 'dialog') {
+    const hasAccessibleName =
+      Boolean(ariaLabel?.trim()) ||
+      Boolean(ariaLabelledby?.trim()) ||
+      Boolean((props as Record<string, unknown>)['aria-label']) ||
+      Boolean((props as Record<string, unknown>)['aria-labelledby']);
+
+    if (!hasAccessibleName) {
+      throw new Error(
+        'PopoverContent: When role="dialog" is specified, a non-empty accessible name is required via `aria-label` or `aria-labelledby`.',
+      );
+    }
+  }
+
+  // Ref tracking controlled open prop for async reconciliation
+  const controlledOpenRef = useRef(controlledOpen);
+  controlledOpenRef.current = controlledOpen;
 
   // Sync role to context so PopoverTrigger can conditionally attach aria-haspopup="dialog"
   useLayoutEffect(() => {
-    if (role !== undefined) {
-      setRole(role);
-    }
-  }, [role, setRole]);
+    setRole(effectiveRole);
+  }, [effectiveRole, setRole]);
 
   // Synchronize native HTML Popover API with open state
   useLayoutEffect(() => {
@@ -469,8 +597,15 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(fu
         return;
       }
 
-      // Outside click: dismiss popover.
-      // Crucial: Do NOT call e.preventDefault() or focus trigger; allow clicked control to receive focus naturally.
+      // If clicked element is a designated external toggle, let its click handler toggle state
+      if (
+        target instanceof Element &&
+        (target.closest('[data-popover-toggle]') || target.closest('[data-popover-trigger]'))
+      ) {
+        return;
+      }
+
+      // Outside click: dismiss popover without stealing focus
       setOpen(false);
     };
 
@@ -484,37 +619,62 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(fu
       }
     };
 
-    // Native toggle event support
+    // Native toggle event support with controlled-state reconciliation
     const content = contentRef.current;
     const handleNativeToggle = (e: Event) => {
       const toggleEvent = e as unknown as { newState?: string };
-      if (toggleEvent.newState === 'closed' && open) {
-        setOpen(false);
+      if (toggleEvent.newState === 'closed') {
+        if (open) {
+          setOpen(false);
+
+          if (isControlled) {
+            // Reconcile: If parent component rejects dismissal and still supplies open={true},
+            // reopen the native popover, UNLESS another competing popover took over the top layer.
+            queueMicrotask(() => {
+              const currentContent = contentRef.current;
+              if (!currentContent) return;
+
+              // Check if another popover is currently open in the top layer
+              const isAnotherPopoverOpen =
+                typeof document !== 'undefined' &&
+                document.querySelector('[popover]:popover-open') !== null;
+
+              if (isAnotherPopoverOpen) {
+                return;
+              }
+
+              // If parent kept controlled open={true}, reconcile top layer
+              if (controlledOpenRef.current) {
+                const hasNative = typeof currentContent.showPopover === 'function';
+                if (hasNative && !currentContent.matches(':popover-open')) {
+                  try {
+                    currentContent.showPopover();
+                    updatePosition();
+                  } catch {
+                    // Safe guard against invocation errors
+                  }
+                }
+              }
+            });
+          }
+        }
       }
     };
 
-    const supportsNativePopover =
-      typeof HTMLElement !== 'undefined' &&
-      typeof HTMLElement.prototype.showPopover === 'function';
-
-    if (!supportsNativePopover) {
-      document.addEventListener('pointerdown', handlePointerDown);
-    }
+    document.addEventListener('pointerdown', handlePointerDown);
     document.addEventListener('keydown', handleKeyDown, true);
     if (content) {
       content.addEventListener('toggle', handleNativeToggle);
     }
 
     return () => {
-      if (!supportsNativePopover) {
-        document.removeEventListener('pointerdown', handlePointerDown);
-      }
+      document.removeEventListener('pointerdown', handlePointerDown);
       document.removeEventListener('keydown', handleKeyDown, true);
       if (content) {
         content.removeEventListener('toggle', handleNativeToggle);
       }
     };
-  }, [open, setOpen, triggerRef, contentRef]);
+  }, [open, setOpen, isControlled, triggerRef, contentRef, updatePosition]);
 
   // Assign combined surface ref
   const setCombinedSurfaceRef = useCallback(
@@ -525,11 +685,16 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(fu
     [surfaceRef],
   );
 
+  const supportsNativePopover =
+    typeof HTMLElement !== 'undefined' &&
+    typeof HTMLElement.prototype.showPopover === 'function';
+
   return (
     <div
       ref={contentRef as Ref<HTMLDivElement>}
       id={popoverId}
       popover="auto"
+      data-fallback={!supportsNativePopover ? 'true' : undefined}
       data-state={open ? 'open' : 'closed'}
       className={styles.popover}
     >
@@ -571,7 +736,11 @@ export const PopoverHeader = forwardRef<HTMLDivElement, PopoverHeaderProps>(func
 PopoverHeader.displayName = 'PopoverHeader';
 
 export interface PopoverTitleProps extends ComponentPropsWithRef<'h3'> {
-  as?: 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+  /**
+   * Heading level element.
+   * @default 'h3'
+   */
+  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }
 
 export const PopoverTitle = forwardRef<HTMLHeadingElement, PopoverTitleProps>(function PopoverTitle(
@@ -631,9 +800,9 @@ export const PopoverFooter = forwardRef<HTMLDivElement, PopoverFooterProps>(func
 
 PopoverFooter.displayName = 'PopoverFooter';
 
-export interface PopoverCloseProps extends ComponentPropsWithRef<'button'> {
+export type PopoverCloseProps = ComponentPropsWithRef<'button'> & {
   /**
-   * Accessible label for close button when icon-only.
+   * Accessible label for close button. Required when icon-only (no children).
    */
   closeLabel?: string;
 
@@ -641,13 +810,27 @@ export interface PopoverCloseProps extends ComponentPropsWithRef<'button'> {
    * Whether to delegate rendering to the immediate child element.
    */
   asChild?: boolean;
-}
+};
 
 export const PopoverClose = forwardRef<HTMLButtonElement, PopoverCloseProps>(function PopoverClose(
   { asChild, closeLabel, className, children, onClick, ...props },
-  ref,
+  forwardedRef,
 ) {
   const { setOpen, triggerRef } = usePopoverContext();
+
+  // Enforce accessible name for icon-only close button
+  if (!asChild && !children) {
+    const hasAccessibleName =
+      Boolean(closeLabel?.trim()) ||
+      Boolean((props['aria-label'] as string | undefined)?.trim()) ||
+      Boolean((props['aria-labelledby'] as string | undefined)?.trim());
+
+    if (!hasAccessibleName) {
+      throw new Error(
+        'PopoverClose: Icon-only close button requires a valid caller-supplied accessible name via `closeLabel`, `aria-label`, or `aria-labelledby`.',
+      );
+    }
+  }
 
   const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     onClick?.(e);
@@ -662,9 +845,13 @@ export const PopoverClose = forwardRef<HTMLButtonElement, PopoverCloseProps>(fun
       className?: string;
       onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
     };
+    const childRef = getElementRef<HTMLButtonElement>(child);
+    const composedRef = composeRefs(forwardedRef, childRef);
+
     return cloneElement(child, {
       ...props,
       ...childProps,
+      ref: composedRef,
       className: cn(childProps.className, className),
       onClick: (e: MouseEvent<HTMLButtonElement>) => {
         childProps.onClick?.(e);
@@ -680,10 +867,10 @@ export const PopoverClose = forwardRef<HTMLButtonElement, PopoverCloseProps>(fun
       type="button"
       data-testid="popover-close-button"
       {...props}
-      ref={ref}
+      ref={forwardedRef}
       className={cn(styles.closeButton, className)}
       onClick={handleClick}
-      aria-label={closeLabel}
+      aria-label={closeLabel || (props['aria-label'] as string)}
     >
       {children || <Icon name="close" />}
     </button>

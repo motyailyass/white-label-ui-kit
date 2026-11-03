@@ -1,8 +1,8 @@
 'use client';
 
 import { useId } from 'react';
-import { Icon } from '@/components/icons';
 import type { ControlSizingProps } from '@/components/ui';
+import { Select } from '@/components/ui/select';
 import { getDirectionForLocale, type SupportedLocale } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { useI18n } from '@/providers';
@@ -25,7 +25,7 @@ export const supportedLocales: readonly {
 
 /**
  * Connected Language Switcher pattern.
- * Calls useI18n() and allows switching between locales.
+ * Reuses the shared Select primitive while binding useI18n() locale state.
  * Changes to locale automatically derive layout direction (ar -> rtl, en/fr -> ltr).
  */
 export function LanguageSwitcher({
@@ -44,14 +44,16 @@ export function LanguageSwitcher({
       <label htmlFor={selectId} className="sr-only">
         {t('common.language')}
       </label>
-      <select
+      <Select
         id={selectId}
+        size={size}
+        touchTarget={touchTarget}
+        showIcon={showIcon}
         value={locale}
-        data-size={size}
-        data-touch-target={touchTarget}
         onChange={(e) => setLocale(e.target.value as SupportedLocale)}
-        className={styles.select}
         aria-label={t('common.language')}
+        className={styles.select}
+        data-testid="language-switcher-select"
       >
         {supportedLocales.map((loc) => (
           <option
@@ -63,12 +65,7 @@ export function LanguageSwitcher({
             {loc.label}
           </option>
         ))}
-      </select>
-      {showIcon && (
-        <span className={styles.icon} aria-hidden="true">
-          <Icon name="chevron-down" size={12} />
-        </span>
-      )}
+      </Select>
     </div>
   );
 }

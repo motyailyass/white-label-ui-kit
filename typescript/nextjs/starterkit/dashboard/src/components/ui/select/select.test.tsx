@@ -210,6 +210,69 @@ describe('Select Primitive', () => {
     expect(select.validity.valid).toBe(true);
   });
 
+  it('renders decorative chevron by default and supports showIcon={false}', () => {
+    const { container, rerender } = render(
+      <Select aria-label="Icon test">
+        <option value="1">1</option>
+      </Select>,
+    );
+
+    const select = screen.getByRole('combobox', { name: /icon test/i });
+    expect(select.getAttribute('data-show-icon')).toBe('true');
+    expect(container.querySelector('[aria-hidden="true"]')).not.toBeNull();
+
+    rerender(
+      <Select aria-label="Icon test" showIcon={false}>
+        <option value="1">1</option>
+      </Select>,
+    );
+    expect(select.getAttribute('data-show-icon')).toBe('false');
+    expect(container.querySelector('[aria-hidden="true"]')).toBeNull();
+  });
+
+  it('reflects dir attribute directly onto root wrapper and select element', () => {
+    const { container, rerender } = render(
+      <Select aria-label="Dir test" dir="rtl">
+        <option value="1">1</option>
+      </Select>,
+    );
+
+    const root = container.firstElementChild as HTMLElement;
+    const select = screen.getByRole('combobox', { name: /dir test/i });
+    expect(root.getAttribute('dir')).toBe('rtl');
+    expect(select.getAttribute('dir')).toBe('rtl');
+
+    rerender(
+      <Select aria-label="Dir test" dir="ltr">
+        <option value="1">1</option>
+      </Select>,
+    );
+    expect(root.getAttribute('dir')).toBe('ltr');
+    expect(select.getAttribute('dir')).toBe('ltr');
+  });
+
+  it('forwards className and style to the root wrapper element, keeping wrapper and select unified', () => {
+    const { container } = render(
+      <Select
+        aria-label="Style test"
+        className="custom-class"
+        style={{ width: '150px' }}
+        selectClassName="inner-class"
+        selectStyle={{ color: 'red' }}
+      >
+        <option value="1">1</option>
+      </Select>,
+    );
+
+    const root = container.querySelector('span');
+    const select = screen.getByRole('combobox', { name: /style test/i });
+
+    expect(root?.classList.contains('custom-class')).toBe(true);
+    expect(root?.style.width).toBe('150px');
+    expect(select.classList.contains('inner-class')).toBe(true);
+    expect(select.style.color).toBe('red');
+  });
+
   it('filters multiple and readOnly props at runtime', () => {
     const rawProps = {
       multiple: true,

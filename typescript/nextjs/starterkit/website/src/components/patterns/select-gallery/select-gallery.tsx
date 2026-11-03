@@ -137,7 +137,7 @@ export function SelectGallery() {
         <div className={styles.gridTwo}>
           <div className={styles.fieldRow}>
             <label htmlFor={overviewId} className={styles.label}>
-              {t('common.selectGallery.defaultPrompt')} (Omitted Size)
+              {t('common.selectGallery.defaultPromptOmitted')}
             </label>
             <Select id={overviewId} data-testid="specimen-default" defaultValue="admin">
               <option value="admin">{t('common.selectGallery.defaultOptionAdmin')}</option>
@@ -148,7 +148,7 @@ export function SelectGallery() {
 
           <div className={styles.fieldRow}>
             <label htmlFor={`${overviewId}-alt`} className={styles.label}>
-              {t('common.selectGallery.defaultPrompt')} (Secondary Specimen)
+              {t('common.selectGallery.defaultPromptAlt')}
             </label>
             <Select
               id={`${overviewId}-alt`}
@@ -182,8 +182,12 @@ export function SelectGallery() {
                 data-testid={`specimen-size-${size}`}
                 defaultValue="opt1"
               >
-                <option value="opt1">Option 1 ({size})</option>
-                <option value="opt2">Option 2 ({size})</option>
+                <option value="opt1">
+                  {t('common.selectGallery.scaleOption1')} ({size})
+                </option>
+                <option value="opt2">
+                  {t('common.selectGallery.scaleOption2')} ({size})
+                </option>
               </Select>
             </div>
           ))}
@@ -270,7 +274,7 @@ export function SelectGallery() {
               {t('common.selectGallery.stateRestingLabel')}
             </label>
             <Select id="state-resting" data-testid="specimen-resting" defaultValue="val">
-              <option value="val">Value 1</option>
+              <option value="val">{t('common.selectGallery.stateRestingOption')}</option>
             </Select>
           </div>
 
@@ -284,7 +288,7 @@ export function SelectGallery() {
               data-testid="specimen-invalid"
               defaultValue="val"
             >
-              <option value="val">Invalid Choice</option>
+              <option value="val">{t('common.selectGallery.stateInvalidOption')}</option>
             </Select>
           </div>
 
@@ -293,7 +297,7 @@ export function SelectGallery() {
               {t('common.selectGallery.stateDisabledLabel')}
             </label>
             <Select id="state-disabled" disabled data-testid="specimen-disabled" defaultValue="val">
-              <option value="val">Disabled Option</option>
+              <option value="val">{t('common.selectGallery.stateDisabledOption')}</option>
             </Select>
           </div>
 
@@ -306,9 +310,9 @@ export function SelectGallery() {
               data-testid="specimen-disabled-option"
               defaultValue="active"
             >
-              <option value="active">Active Option</option>
+              <option value="active">{t('common.selectGallery.stateActiveOption')}</option>
               <option value="dis" disabled>
-                Disabled Option
+                {t('common.selectGallery.stateDisabledOption')}
               </option>
             </Select>
           </div>
@@ -324,7 +328,7 @@ export function SelectGallery() {
               data-testid="specimen-invalid-disabled"
               defaultValue="val"
             >
-              <option value="val">Invalid & Disabled</option>
+              <option value="val">{t('common.selectGallery.stateInvalidDisabledOption')}</option>
             </Select>
           </div>
         </div>
@@ -421,6 +425,7 @@ export function SelectGallery() {
             </label>
             <Select
               id={arabicId}
+              dir="rtl"
               data-testid="specimen-arabic"
               aria-describedby={arabicHelpId}
               defaultValue="ar"
@@ -442,22 +447,22 @@ export function SelectGallery() {
               <BidiText dir="ltr">GW-7700-ALPHA</BidiText>
             </label>
             <Select id={mixedTechId} data-testid="specimen-mixed-tech" defaultValue="gw1">
-              <option value="gw1">Gateway Alpha (Region 1)</option>
-              <option value="gw2">Gateway Beta (Region 2)</option>
+              <option value="gw1">{t('common.selectGallery.mixedTechOption1')}</option>
+              <option value="gw2">{t('common.selectGallery.mixedTechOption2')}</option>
             </Select>
           </div>
         </div>
 
         {/* Nested LTR override inside RTL context */}
         <div className={styles.fieldset} dir="rtl">
-          <legend className={styles.legend}>RTL Container with Nested LTR Override</legend>
+          <legend className={styles.legend}>{t('common.selectGallery.nestedLtrLegend')}</legend>
           <div className={styles.fieldRow} dir="ltr" data-testid="specimen-nested-ltr-container">
             <label htmlFor="nested-ltr-select" className={styles.label}>
               {t('common.selectGallery.nestedLtrLabel')}
             </label>
-            <Select id="nested-ltr-select" data-testid="specimen-nested-ltr" defaultValue="eng">
-              <option value="eng">English (LTR Subtree)</option>
-              <option value="lat">Latin Option</option>
+            <Select id="nested-ltr-select" dir="ltr" data-testid="specimen-nested-ltr" defaultValue="eng">
+              <option value="eng">{t('common.selectGallery.nestedLtrOption1')}</option>
+              <option value="lat">{t('common.selectGallery.nestedLtrOption2')}</option>
             </Select>
           </div>
         </div>
@@ -481,7 +486,7 @@ export function SelectGallery() {
         </h2>
         <p className={styles.sectionDesc}>{t('common.selectGallery.themeDesc')}</p>
 
-        <div className={styles.gridTwo}>
+        <div className={styles.scaleGrid}>
           <div className={styles.fieldRow}>
             <label htmlFor="touch-comfortable-select" className={styles.label}>
               {t('common.selectGallery.touchComfortableSpecimen')}
@@ -493,7 +498,7 @@ export function SelectGallery() {
               data-testid="specimen-touch-comfortable"
               defaultValue="comfort"
             >
-              <option value="comfort">Comfortable Touch Target (sm)</option>
+              <option value="comfort">{t('common.selectGallery.touchComfortableOption')}</option>
             </Select>
           </div>
 
@@ -508,10 +513,85 @@ export function SelectGallery() {
               data-testid="specimen-touch-auto"
               defaultValue="auto"
             >
-              <option value="auto">Auto Touch Target (xs)</option>
+              <option value="auto">{t('common.selectGallery.touchAutoOption')}</option>
+            </Select>
+          </div>
+
+          <div className={styles.fieldRow}>
+            <label htmlFor="no-icon-select" className={styles.label}>
+              {t('common.selectGallery.noIconSpecimen')}
+            </label>
+            <Select
+              id="no-icon-select"
+              showIcon={false}
+              data-testid="specimen-no-icon"
+              defaultValue="plain"
+            >
+              <option value="plain">{t('common.selectGallery.noIconOption')}</option>
+            </Select>
+          </div>
+
+          <div className={styles.fieldRow}>
+            <label htmlFor="custom-width-select" className={styles.label}>
+              {t('common.selectGallery.customWidthSpecimen')}
+            </label>
+            <Select
+              id="custom-width-select"
+              style={{ width: '180px' }}
+              data-testid="specimen-custom-width"
+              defaultValue="w180"
+            >
+              <option value="w180">{t('common.selectGallery.customWidthOption')}</option>
+            </Select>
+          </div>
+
+          <div className={styles.fieldRow}>
+            <label htmlFor="custom-width-class-select" className={styles.label}>
+              {t('common.selectGallery.customWidthClassSpecimen')}
+            </label>
+            <Select
+              id="custom-width-class-select"
+              className={styles.fixedWidth}
+              data-testid="specimen-custom-width-class"
+              defaultValue="w200"
+            >
+              <option value="w200">{t('common.selectGallery.customWidthClassOption')}</option>
+            </Select>
+          </div>
+
+          <div className={styles.fieldRow}>
+            <label htmlFor="custom-width-rtl-select" className={styles.label}>
+              {t('common.selectGallery.customWidthRtlSpecimen')}
+            </label>
+            <Select
+              id="custom-width-rtl-select"
+              dir="rtl"
+              style={{ width: '180px' }}
+              data-testid="specimen-custom-width-rtl"
+              defaultValue="w180rtl"
+            >
+              <option value="w180rtl">{t('common.selectGallery.customWidthRtlOption')}</option>
             </Select>
           </div>
         </div>
+
+        <fieldset disabled className={styles.fieldset}>
+          <legend className={styles.legend}>
+            {t('common.selectGallery.fieldsetDisabledLegend')}
+          </legend>
+          <div className={styles.fieldRow}>
+            <label htmlFor="fieldset-disabled-select" className={styles.label}>
+              {t('common.selectGallery.fieldsetDisabledLabel')}
+            </label>
+            <Select
+              id="fieldset-disabled-select"
+              data-testid="specimen-fieldset-disabled"
+              defaultValue="fdis"
+            >
+              <option value="fdis">{t('common.selectGallery.fieldsetDisabledOption')}</option>
+            </Select>
+          </div>
+        </fieldset>
       </section>
 
       {/* 10. Local Form Demonstration */}
@@ -599,7 +679,7 @@ export function SelectGallery() {
         <p className={styles.sectionDesc}>{t('common.selectGallery.usageDesc')}</p>
 
         <pre className={styles.codeBlock}>
-          {`// Standard single-select dropdown
+          {`// Standard single-select dropdown with token-spaced indicator
 <Select name="role" defaultValue="editor">
   <option value="admin">Administrator</option>
   <option value="editor">Editor</option>

@@ -1,87 +1,118 @@
 /**
  * White Label UI Kit — Select Primitive Stylesheet
- * Single Native <select> Element, Zero Dashboard Shadows, 100% CSS Logical Properties.
+ * Single Native <select> with Custom Token-Spaced Registry Chevron.
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
  */
 
-.select {
+.root {
   /* Scoped private fallback bindings to product presets */
   --_control-height: var(--control-height-default);
   --_control-padding-inline: var(--control-padding-default);
   --_control-padding-block: var(--control-padding-block-default);
   --_control-font-size: var(--control-font-size-default);
   --_control-line-height: var(--control-line-height-default);
+  --_control-icon-size: var(--control-icon-size-default);
 
   position: relative;
   box-sizing: border-box;
-  display: block;
+  display: inline-block;
   inline-size: 100%;
   min-inline-size: 0;
+  vertical-align: middle;
+  color: var(--color-text-primary);
+  font-family: inherit;
+}
+
+/* Explicit Six-Step Scale Bindings */
+.root[data-size="xs"] {
+  --_control-height: var(--control-height-xs);
+  --_control-padding-inline: var(--control-padding-xs);
+  --_control-padding-block: var(--control-padding-block-xs);
+  --_control-font-size: var(--control-font-size-xs);
+  --_control-line-height: var(--control-line-height-xs);
+  --_control-icon-size: var(--control-icon-size-xs);
+}
+
+.root[data-size="sm"] {
+  --_control-height: var(--control-height-sm);
+  --_control-padding-inline: var(--control-padding-sm);
+  --_control-padding-block: var(--control-padding-block-sm);
+  --_control-font-size: var(--control-font-size-sm);
+  --_control-line-height: var(--control-line-height-sm);
+  --_control-icon-size: var(--control-icon-size-sm);
+}
+
+.root[data-size="md"] {
+  --_control-height: var(--control-height-md);
+  --_control-padding-inline: var(--control-padding-md);
+  --_control-padding-block: var(--control-padding-block-md);
+  --_control-font-size: var(--control-font-size-md);
+  --_control-line-height: var(--control-line-height-md);
+  --_control-icon-size: var(--control-icon-size-md);
+}
+
+.root[data-size="lg"] {
+  --_control-height: var(--control-height-lg);
+  --_control-padding-inline: var(--control-padding-lg);
+  --_control-padding-block: var(--control-padding-block-lg);
+  --_control-font-size: var(--control-font-size-lg);
+  --_control-line-height: var(--control-line-height-lg);
+  --_control-icon-size: var(--control-icon-size-lg);
+}
+
+.root[data-size="xl"] {
+  --_control-height: var(--control-height-xl);
+  --_control-padding-inline: var(--control-padding-xl);
+  --_control-padding-block: var(--control-padding-block-xl);
+  --_control-font-size: var(--control-font-size-xl);
+  --_control-line-height: var(--control-line-height-xl);
+  --_control-icon-size: var(--control-icon-size-xl);
+}
+
+.root[data-size="2xl"] {
+  --_control-height: var(--control-height-2xl);
+  --_control-padding-inline: var(--control-padding-2xl);
+  --_control-padding-block: var(--control-padding-block-2xl);
+  --_control-font-size: var(--control-font-size-2xl);
+  --_control-line-height: var(--control-line-height-2xl);
+  --_control-icon-size: var(--control-icon-size-2xl);
+}
+
+/* Native Select Element */
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  margin: 0;
+  box-sizing: border-box;
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
   min-block-size: var(--_control-height);
-  padding-inline: var(--_control-padding-inline);
+  padding-inline-start: var(--_control-padding-inline);
+  padding-inline-end: calc(var(--_control-padding-inline) * 2 + var(--_control-icon-size));
   padding-block: var(--_control-padding-block);
   border-radius: var(--radius-control);
   background-color: var(--color-control-bg);
   border: 1px solid var(--color-border-control);
-  color: var(--color-text-primary);
+  color: inherit;
   font-family: inherit;
   font-size: var(--_control-font-size);
   line-height: var(--_control-line-height);
   font-weight: var(--font-weight-regular);
   text-align: start;
   cursor: pointer;
+  outline: none;
   transition:
     border-color var(--transition-fast),
     background-color var(--transition-fast),
     color var(--transition-fast);
 }
 
-/* Explicit Six-Step Scale Bindings */
-.select[data-size="xs"] {
-  --_control-height: var(--control-height-xs);
-  --_control-padding-inline: var(--control-padding-xs);
-  --_control-padding-block: var(--control-padding-block-xs);
-  --_control-font-size: var(--control-font-size-xs);
-  --_control-line-height: var(--control-line-height-xs);
-}
-
-.select[data-size="sm"] {
-  --_control-height: var(--control-height-sm);
-  --_control-padding-inline: var(--control-padding-sm);
-  --_control-padding-block: var(--control-padding-block-sm);
-  --_control-font-size: var(--control-font-size-sm);
-  --_control-line-height: var(--control-line-height-sm);
-}
-
-.select[data-size="md"] {
-  --_control-height: var(--control-height-md);
-  --_control-padding-inline: var(--control-padding-md);
-  --_control-padding-block: var(--control-padding-block-md);
-  --_control-font-size: var(--control-font-size-md);
-  --_control-line-height: var(--control-line-height-md);
-}
-
-.select[data-size="lg"] {
-  --_control-height: var(--control-height-lg);
-  --_control-padding-inline: var(--control-padding-lg);
-  --_control-padding-block: var(--control-padding-block-lg);
-  --_control-font-size: var(--control-font-size-lg);
-  --_control-line-height: var(--control-line-height-lg);
-}
-
-.select[data-size="xl"] {
-  --_control-height: var(--control-height-xl);
-  --_control-padding-inline: var(--control-padding-xl);
-  --_control-padding-block: var(--control-padding-block-xl);
-  --_control-font-size: var(--control-font-size-xl);
-  --_control-line-height: var(--control-line-height-xl);
-}
-
-.select[data-size="2xl"] {
-  --_control-height: var(--control-height-2xl);
-  --_control-padding-inline: var(--control-padding-2xl);
-  --_control-padding-block: var(--control-padding-block-2xl);
-  --_control-font-size: var(--control-font-size-2xl);
-  --_control-line-height: var(--control-line-height-2xl);
+/* Symmetrical padding when chevron is omitted */
+.select[data-show-icon="false"] {
+  padding-inline-end: var(--_control-padding-inline);
 }
 
 /* Stable Resting & Neutral Hover Border */
@@ -118,15 +149,60 @@
   cursor: not-allowed;
 }
 
+/* Decorative Chevron Arrow */
+.arrow {
+  position: absolute;
+  inset-inline-end: var(--_control-padding-inline);
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--_control-icon-size);
+  block-size: var(--_control-icon-size);
+  font-size: var(--_control-icon-size);
+  color: var(--color-text-secondary);
+  transition:
+    transform var(--transition-fast),
+    color var(--transition-fast);
+}
+
+/* Arrow hover, focus, and state colors */
+.select:hover:not(:disabled) ~ .arrow {
+  color: var(--color-text-primary);
+}
+
+.select:focus-visible:not(:disabled) ~ .arrow,
+.select:focus:not(:disabled) ~ .arrow {
+  color: var(--color-border-focus);
+}
+
+.select[aria-invalid="true"]:not(:disabled) ~ .arrow {
+  color: var(--color-danger);
+}
+
+.select:disabled ~ .arrow {
+  color: var(--color-text-disabled);
+}
+
+/* Progressive enhancement: rotate arrow when browser exposes native :open */
+.select:open ~ .arrow {
+  transform: translateY(-50%) rotate(180deg);
+}
+
 /* Touch-Target Policy: at least 48px in both dimensions */
-.select[data-touch-target="comfortable"] {
+.root[data-touch-target="comfortable"],
+.root[data-touch-target="comfortable"] .select {
   min-block-size: max(var(--_control-height), var(--control-touch-target-min, 3rem));
   min-inline-size: max(var(--control-touch-target-min, 3rem), 0px);
 }
 
 @media (any-pointer: coarse) {
-  .select[data-touch-target="auto"],
-  .select[data-touch-target="comfortable"] {
+  .root[data-touch-target="auto"],
+  .root[data-touch-target="auto"] .select,
+  .root[data-touch-target="comfortable"],
+  .root[data-touch-target="comfortable"] .select {
     min-block-size: max(var(--_control-height), var(--control-touch-target-min, 3rem));
     min-inline-size: max(var(--control-touch-target-min, 3rem), 0px);
   }
@@ -164,11 +240,25 @@
     border-color: GrayText;
     color: GrayText;
   }
+
+  .arrow {
+    color: CanvasText;
+  }
+
+  .select:disabled ~ .arrow {
+    color: GrayText;
+  }
+
+  .select:hover:not(:disabled) ~ .arrow,
+  .select:focus-visible:not(:disabled) ~ .arrow {
+    color: Highlight;
+  }
 }
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  .select {
+  .select,
+  .arrow {
     transition: none;
   }
 }

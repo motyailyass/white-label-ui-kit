@@ -200,7 +200,7 @@ test.describe('Dashboard Select Primitive Real-Browser Verification', () => {
     expect(invalidDisabledBg).toBe(disabledBg);
   });
 
-  test('verifies high-contrast forced-colors mode across combined states', async ({
+  test('verifies high-contrast forced-colors mode across combined states and state precedence', async ({
     browser,
   }) => {
     const context = await browser.newContext({
@@ -211,32 +211,72 @@ test.describe('Dashboard Select Primitive Real-Browser Verification', () => {
     await page.goto('/gallery/select');
     await expect(page.locator('[data-testid="select-gallery"]')).toBeVisible();
 
-    const states = [
-      { id: 'specimen-resting', label: 'Resting' },
-      { id: 'specimen-invalid', label: 'Invalid' },
-      { id: 'specimen-disabled', label: 'Disabled' },
-      { id: 'specimen-invalid-disabled', label: 'Invalid Disabled' },
-    ];
+    // Create reference elements inside the page to obtain exact computed system color strings
+    const systemColors = await page.evaluate(() => {
+      const createRef = (style: string) => {
+        const el = document.createElement('div');
+        el.style.cssText = style;
+        document.body.appendChild(el);
+        const comp = window.getComputedStyle(el);
+        const res = { color: comp.color, border: comp.borderColor, outline: comp.outlineColor };
+        document.body.removeChild(el);
+        return res;
+      };
+      return {
+        buttonBorder: createRef('border: 1px solid ButtonBorder;').border,
+        highlight: createRef('color: Highlight; outline: 1px solid Highlight; border: 1px solid Highlight;'),
+        grayText: createRef('color: GrayText; border: 1px solid GrayText;').color,
+        fieldText: createRef('color: FieldText;').color,
+      };
+    });
 
-    for (const s of states) {
-      const select = page.locator(`[data-testid="${s.id}"]`);
-      await expect(select).toBeVisible();
+    const restingSelect = page.locator('[data-testid="specimen-resting"]');
+    const invalidSelect = page.locator('[data-testid="specimen-invalid"]');
+    const disabledSelect = page.locator('[data-testid="specimen-disabled"]');
+    const invalidDisabledSelect = page.locator('[data-testid="specimen-invalid-disabled"]');
 
-      // Check visible border
-      const borderWidth = await select.evaluate((el) =>
-        parseFloat(window.getComputedStyle(el).borderWidth),
-      );
-      expect(borderWidth, `Border width for ${s.label}`).toBeGreaterThanOrEqual(1);
+    // 1. Resting state: border matches ButtonBorder, text matches FieldText
+    const restStyle = await restingSelect.evaluate((el) => {
+      const s = window.getComputedStyle(el);
+      return { border: s.borderColor, color: s.color };
+    });
+    expect(restStyle.border).toBe(systemColors.buttonBorder);
+    expect(restStyle.color).toBe(systemColors.fieldText);
 
-      // Check focus outline on enabled selects
-      if (!s.id.includes('disabled')) {
-        await select.focus();
-        const outlineWidth = await select.evaluate((el) =>
-          parseFloat(window.getComputedStyle(el).outlineWidth),
-        );
-        expect(outlineWidth, `Focus outline for ${s.label}`).toBeGreaterThanOrEqual(1);
-      }
-    }
+    // 2. Focused state: border and outline match Highlight
+    await restingSelect.focus();
+    const focusStyle = await restingSelect.evaluate((el) => {
+      const s = window.getComputedStyle(el);
+      return { border: s.borderColor, outline: s.outlineColor };
+    });
+    expect(focusStyle.border).toBe(systemColors.highlight.border);
+    expect(focusStyle.outline).toBe(systemColors.highlight.outline);
+
+    // 3. Invalid state: border matches Highlight
+    const invalidStyle = await invalidSelect.evaluate((el) => window.getComputedStyle(el).borderColor);
+    expect(invalidStyle).toBe(systemColors.highlight.border);
+
+    // 4. Disabled state: border and text match GrayText
+    const disabledStyle = await disabledSelect.evaluate((el) => {
+      const s = window.getComputedStyle(el);
+      return { border: s.borderColor, color: s.color };
+    });
+    expect(disabledStyle.border).toBe(systemColors.grayText);
+    expect(disabledStyle.color).toBe(systemColors.grayText);
+
+    // 5. Disabled arrow matches GrayText
+    const disabledArrowColor = await disabledSelect.locator('..').locator('> [aria-hidden="true"]').evaluate(
+      (el) => window.getComputedStyle(el).color,
+    );
+    expect(disabledArrowColor).toBe(systemColors.grayText);
+
+    // 6. State precedence: Disabled wins over Invalid (border and color are GrayText, NOT Highlight)
+    const invalidDisabledStyle = await invalidDisabledSelect.evaluate((el) => {
+      const s = window.getComputedStyle(el);
+      return { border: s.borderColor, color: s.color };
+    });
+    expect(invalidDisabledStyle.border).toBe(systemColors.grayText);
+    expect(invalidDisabledStyle.color).toBe(systemColors.grayText);
 
     await context.close();
   });
@@ -327,6 +367,246 @@ test.describe('Dashboard Select Primitive Real-Browser Verification', () => {
       });
       expect(shadow === 'none' || shadow === 'rgba(0, 0, 0, 0) 0px 0px 0px 0px').toBe(true);
     }
+  });
+
+  test('verifies chevron indicator hit-testing, pointer-events: none, and direct edge clicks', async ({
+    page,
+  }) => {
+    const select = page.locator('[data-testid="specimen-default"]');
+    const wrapper = select.locator('..');
+    const arrow = wrapper.locator('> [aria-hidden="true"]');
+
+    await expect(arrow).toBeVisible();
+
+    // Verify arrow itself has pointer-events: none
+    const pointerEvents = await arrow.evaluate((el) => window.getComputedStyle(el).pointerEvents);
+    expect(pointerEvents).toBe('none');
+
+    // Click right on top of the arrow coordinates
+    const arrowBox = await arrow.boundingBox();
+    expect(arrowBox).not.toBeNull();
+    await page.mouse.click(arrowBox!.x + arrowBox!.width / 2, arrowBox!.y + arrowBox!.height / 2);
+
+    // Native select must receive focus
+    const isFocused = await select.evaluate((el) => document.activeElement === el);
+    expect(isFocused).toBe(true);
+  });
+
+  test('verifies showIcon={false} omits arrow and establishes symmetrical inline padding', async ({
+    page,
+  }) => {
+    const noIconSelect = page.locator('[data-testid="specimen-no-icon"]');
+    await expect(noIconSelect).toBeVisible();
+
+    const wrapper = noIconSelect.locator('..');
+    const arrowCount = await wrapper.locator('> [aria-hidden="true"]').count();
+    expect(arrowCount).toBe(0);
+
+    const padding = await noIconSelect.evaluate((el) => {
+      const s = window.getComputedStyle(el);
+      return {
+        start: parseFloat(s.paddingInlineStart),
+        end: parseFloat(s.paddingInlineEnd),
+      };
+    });
+    expect(padding.end).toBeCloseTo(padding.start, 1);
+  });
+
+  test('verifies chevron logical positioning under LTR and RTL and text clearance', async ({
+    page,
+  }) => {
+    const select = page.locator('[data-testid="specimen-default"]');
+    const wrapper = select.locator('..');
+    const arrow = wrapper.locator('> [aria-hidden="true"]');
+
+    // 1. Under LTR (default), arrow is at the physical right side
+    const ltrSelectBox = await select.boundingBox();
+    const ltrArrowBox = await arrow.boundingBox();
+    expect(ltrSelectBox).not.toBeNull();
+    expect(ltrArrowBox).not.toBeNull();
+    expect(ltrArrowBox!.x).toBeGreaterThan(ltrSelectBox!.x + ltrSelectBox!.width / 2);
+
+    // LTR padding-inline-end has clearance for the arrow
+    const ltrPadding = await select.evaluate((el) => {
+      const s = window.getComputedStyle(el);
+      return {
+        start: parseFloat(s.paddingInlineStart),
+        end: parseFloat(s.paddingInlineEnd),
+      };
+    });
+    expect(ltrPadding.end).toBeGreaterThan(ltrPadding.start);
+
+    // 2. Switch to Arabic (RTL) via LanguageSwitcher
+    const langSelect = page.locator('[data-testid="language-switcher-select"]');
+    await langSelect.selectOption('ar');
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+
+    // Under RTL, arrow is at the physical left side
+    const rtlSelectBox = await select.boundingBox();
+    const rtlArrowBox = await arrow.boundingBox();
+    expect(rtlSelectBox).not.toBeNull();
+    expect(rtlArrowBox).not.toBeNull();
+    expect(rtlArrowBox!.x + rtlArrowBox!.width).toBeLessThan(
+      rtlSelectBox!.x + rtlSelectBox!.width / 2,
+    );
+
+    // Switch back to English
+    await langSelect.selectOption('en');
+    await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
+  });
+
+  test('verifies LanguageSwitcher integration with Select primitive', async ({ page }) => {
+    const langSelect = page.locator('[data-testid="language-switcher-select"]');
+    await expect(langSelect).toBeVisible();
+
+    // Verify option count and values
+    const options = await langSelect.locator('option').allInnerTexts();
+    expect(options.length).toBe(3);
+
+    // Switch to French
+    await langSelect.selectOption('fr');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
+    await expect(page.locator('h1')).toHaveText(/Composant Select|Galerie/i);
+
+    // Switch back to English
+    await langSelect.selectOption('en');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  });
+
+  test('verifies custom width, class-based width, and RTL width alignment with direct hit-testing', async ({
+    page,
+  }) => {
+    // 1. Inline style width (180px)
+    const customWidthSelect = page.locator('[data-testid="specimen-custom-width"]');
+    await customWidthSelect.scrollIntoViewIfNeeded();
+    const customWidthRoot = customWidthSelect.locator('..');
+    const customWidthArrow = customWidthRoot.locator('> [aria-hidden="true"]');
+
+    const rootBox = await customWidthRoot.boundingBox();
+    const selectBox = await customWidthSelect.boundingBox();
+    const arrowBox = await customWidthArrow.boundingBox();
+
+    expect(rootBox).not.toBeNull();
+    expect(selectBox).not.toBeNull();
+    expect(arrowBox).not.toBeNull();
+
+    // Wrapper and select must match the specified 180px width
+    expect(rootBox!.width).toBeCloseTo(180, 1);
+    expect(selectBox!.width).toBeCloseTo(180, 1);
+
+    // Arrow must be positioned inside the 180px select near the trailing edge
+    expect(arrowBox!.x).toBeGreaterThan(selectBox!.x + selectBox!.width - 45);
+    expect(arrowBox!.x + arrowBox!.width).toBeLessThanOrEqual(selectBox!.x + selectBox!.width + 2);
+
+    // Clicking at the arrow's coordinates must hit-test the 180px select
+    await page.mouse.click(arrowBox!.x + arrowBox!.width / 2, arrowBox!.y + arrowBox!.height / 2);
+    const isCustomWidthFocused = await customWidthSelect.evaluate((el) => document.activeElement === el);
+    expect(isCustomWidthFocused).toBe(true);
+
+    // 2. Class-based width (200px via .fixedWidth)
+    const classWidthSelect = page.locator('[data-testid="specimen-custom-width-class"]');
+    await classWidthSelect.scrollIntoViewIfNeeded();
+    const classWidthRoot = classWidthSelect.locator('..');
+    const classWidthArrow = classWidthRoot.locator('> [aria-hidden="true"]');
+
+    const classRootBox = await classWidthRoot.boundingBox();
+    const classSelectBox = await classWidthSelect.boundingBox();
+    const classArrowBox = await classWidthArrow.boundingBox();
+
+    expect(classRootBox!.width).toBeCloseTo(200, 1);
+    expect(classSelectBox!.width).toBeCloseTo(200, 1);
+    expect(classArrowBox!.x).toBeGreaterThan(classSelectBox!.x + classSelectBox!.width - 45);
+
+    await page.mouse.click(classArrowBox!.x + classArrowBox!.width / 2, classArrowBox!.y + classArrowBox!.height / 2);
+    const isClassWidthFocused = await classWidthSelect.evaluate((el) => document.activeElement === el);
+    expect(isClassWidthFocused).toBe(true);
+
+    // 3. RTL custom width (180px)
+    const rtlWidthSelect = page.locator('[data-testid="specimen-custom-width-rtl"]');
+    await rtlWidthSelect.scrollIntoViewIfNeeded();
+    const rtlWidthRoot = rtlWidthSelect.locator('..');
+    const rtlWidthArrow = rtlWidthRoot.locator('> [aria-hidden="true"]');
+
+    const rtlRootBox = await rtlWidthRoot.boundingBox();
+    const rtlSelectBox = await rtlWidthSelect.boundingBox();
+    const rtlArrowBox = await rtlWidthArrow.boundingBox();
+
+    expect(rtlRootBox!.width).toBeCloseTo(180, 1);
+    expect(rtlSelectBox!.width).toBeCloseTo(180, 1);
+
+    // In RTL, arrow must be positioned inside near the physical left edge
+    expect(rtlArrowBox!.x).toBeGreaterThanOrEqual(rtlSelectBox!.x - 2);
+    expect(rtlArrowBox!.x).toBeLessThan(rtlSelectBox!.x + 45);
+
+    await page.mouse.click(rtlArrowBox!.x + rtlArrowBox!.width / 2, rtlArrowBox!.y + rtlArrowBox!.height / 2);
+    const isRtlWidthFocused = await rtlWidthSelect.evaluate((el) => document.activeElement === el);
+    expect(isRtlWidthFocused).toBe(true);
+  });
+
+  test('verifies keyboard navigation, arrow keys, and typeahead interaction', async ({ page }) => {
+    const select = page.locator('[data-testid="specimen-default"]');
+    await select.focus();
+
+    // Initial value is admin
+    expect(await select.inputValue()).toBe('admin');
+
+    // Typeahead: pressing 'e' selects editor
+    await page.keyboard.press('e');
+    expect(await select.inputValue()).toBe('editor');
+
+    // Wait for typeahead search buffer to clear
+    await page.waitForTimeout(1000);
+
+    // Typeahead: pressing 'a' selects administrator
+    await page.keyboard.press('a');
+    expect(await select.inputValue()).toBe('admin');
+  });
+
+  test('verifies disabled fieldset inheritance blocks user interaction', async ({ page }) => {
+    const fieldsetSelect = page.locator('[data-testid="specimen-fieldset-disabled"]');
+    await fieldsetSelect.scrollIntoViewIfNeeded();
+    await expect(fieldsetSelect).toBeVisible();
+
+    // Must be disabled via parent fieldset inheritance
+    await expect(fieldsetSelect).toBeDisabled();
+
+    // Arrow color must match disabled color
+    const arrow = fieldsetSelect.locator('..').locator('> [aria-hidden="true"]');
+    const arrowColor = await arrow.evaluate((el) => window.getComputedStyle(el).color);
+    const selectColor = await fieldsetSelect.evaluate((el) => window.getComputedStyle(el).color);
+    expect(arrowColor).toBe(selectColor);
+  });
+
+  test('verifies optional :open behavior, escape dismiss, and reduced-motion suppression', async ({
+    page,
+    browser,
+  }) => {
+    const select = page.locator('[data-testid="specimen-default"]');
+    const arrow = select.locator('..').locator('> [aria-hidden="true"]');
+
+    // 1. In standard context, verify arrow transitions are active
+    const normalTransition = await arrow.evaluate((el) => window.getComputedStyle(el).transition);
+    expect(normalTransition).not.toBe('none');
+
+    // 2. Under reduced motion, transition collapses to none
+    const reducedMotionContext = await browser.newContext({
+      reducedMotion: 'reduce',
+    });
+    const reducedPage = await reducedMotionContext.newPage();
+    await reducedPage.goto('/gallery/select');
+    await expect(reducedPage.locator('[data-testid="select-gallery"]')).toBeVisible();
+
+    const reducedArrow = reducedPage
+      .locator('[data-testid="specimen-default"]')
+      .locator('..')
+      .locator('> [aria-hidden="true"]');
+
+    const reducedTransition = await reducedArrow.evaluate(
+      (el) => window.getComputedStyle(el).transition,
+    );
+    expect(reducedTransition === 'none' || reducedTransition.includes('0s')).toBe(true);
+
+    await reducedMotionContext.close();
   });
 
   test('verifies responsive reflow without horizontal clipping at narrow viewport', async ({

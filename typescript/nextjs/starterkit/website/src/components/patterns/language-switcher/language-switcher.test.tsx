@@ -41,4 +41,21 @@ describe('LanguageSwitcher (Connected Pattern)', () => {
     expect(selects[1].id).toBeTruthy();
     expect(selects[0].id).not.toBe(selects[1].id);
   });
+
+  it('supports showIcon={false} and omits the decorative arrow', () => {
+    const { container, rerender } = render(
+      <I18nProvider initialLocale="en">
+        <LanguageSwitcher showIcon={false} />
+      </I18nProvider>,
+    );
+
+    expect(container.querySelector('[aria-hidden="true"]')).toBeNull();
+
+    rerender(
+      <I18nProvider initialLocale="en">
+        <LanguageSwitcher showIcon={true} />
+      </I18nProvider>,
+    );
+    expect(container.querySelector('[aria-hidden="true"]')).not.toBeNull();
+  });
 });

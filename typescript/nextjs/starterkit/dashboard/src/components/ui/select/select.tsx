@@ -29,13 +29,22 @@ export interface SelectProps
 
   /**
    * Optional className applied directly to the inner native select element.
-   * (The standard `className` prop applies to the control root wrapper).
+   *
+   * Note: The primary `className` prop applies to the control root wrapper, which owns
+   * the outer layout box (width, margin, flex). `selectClassName` is an escape hatch
+   * for inner text properties (e.g. text color, text alignment). Geometry changes must
+   * be applied to the root wrapper to prevent detaching the custom indicator.
    */
   selectClassName?: string;
 
   /**
    * Optional inline styles applied directly to the inner native select element.
-   * (The standard `style` prop applies to the control root wrapper).
+   *
+   * Note: The primary `style` prop applies to the control root wrapper, which owns
+   * the outer layout box (width, margin, flex). `selectStyle` is an escape hatch
+   * for inner text properties (e.g. text color). Outer box geometry is enforced at 100%
+   * to ensure indicator alignment and pointer hit-testing remain unified. Any geometry
+   * passed here (width, inlineSize) is synchronized to the root wrapper box.
    */
   selectStyle?: CSSProperties;
 
@@ -70,10 +79,23 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     },
     ref,
   ) {
+    const resolvedWrapperStyle: CSSProperties | undefined =
+      selectStyle?.width != null || selectStyle?.inlineSize != null
+        ? {
+            ...(selectStyle.width != null && style?.width == null
+              ? { width: selectStyle.width }
+              : {}),
+            ...(selectStyle.inlineSize != null && style?.inlineSize == null
+              ? { inlineSize: selectStyle.inlineSize }
+              : {}),
+            ...style,
+          }
+        : style;
+
     return (
       <span
         className={cn(styles.root, className)}
-        style={style}
+        style={resolvedWrapperStyle}
         data-size={size}
         data-touch-target={touchTarget}
         data-disabled={disabled ? 'true' : undefined}

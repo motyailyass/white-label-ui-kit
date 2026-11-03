@@ -573,6 +573,20 @@ export function SelectGallery() {
               <option value="w180rtl">{t('common.selectGallery.customWidthRtlOption')}</option>
             </Select>
           </div>
+
+          <div className={styles.fieldRow}>
+            <label htmlFor="inner-style-width-select" className={styles.label}>
+              {t('common.selectGallery.customInnerWidthSpecimen')}
+            </label>
+            <Select
+              id="inner-style-width-select"
+              selectStyle={{ width: '160px' }}
+              data-testid="specimen-inner-style-width"
+              defaultValue="w160inner"
+            >
+              <option value="w160inner">{t('common.selectGallery.customInnerWidthOption')}</option>
+            </Select>
+          </div>
         </div>
 
         <fieldset disabled className={styles.fieldset}>

@@ -18,10 +18,11 @@ Examples include choosing a country, language, currency, billing cycle, or accou
 ### 1.1 Architectural Decisions
 
 1. **Custom Token-Spaced Indicator & Native Picker**:
-   - Render a native `<select>` wrapped in an inline-flex container with an accessible-hidden decorative Hugeicons chevron (`Icon name="chevron-down"`).
+   - Render a native `<select>` wrapped in an inline-flex container (`span.root`) with an accessible-hidden decorative Hugeicons chevron (`Icon name="chevron-down"`).
+   - Outer layout geometry (width, inline-size, margins, display) is owned by the root wrapper element (`span.root`) via `className` and `style` (consistent with `Checkbox`, `Radio`, and `Switch`).
    - Native OS picker affordance and interaction are preserved: the chevron has `pointer-events: none`, allowing clicks across the entire control to hit the `<select>`.
    - Closed-state appearance uses standard `appearance: none` with token-based clearance: `padding-inline-end: calc(var(--_control-padding-inline) * 2 + var(--_control-icon-size))`.
-   - Forward `ref`, `className`, `style`, and native attributes directly to the `<select>`.
+   - Forward `ref` and native form/accessibility attributes (`id`, `name`, `disabled`, `required`, `aria-*`, `data-*`, `onChange`, `value`, `defaultValue`) directly to the inner `<select>`.
    - Provide `showIcon?: boolean` (default `true`) allowing callers to omit the decorative indicator when minimal styling is desired.
    - Progressive-enhancement arrow rotation via `.select:open ~ .arrow { transform: translateY(-50%) rotate(180deg); }`, suppressed under `prefers-reduced-motion: reduce`.
 2. **Native Selection & Form Authority**:
@@ -42,7 +43,7 @@ To maintain architectural rigor and audit clarity, the Select implementation sep
    - **Accessible Name & Descriptions (WCAG 4.1.2, 1.3.1)**: As a pure UI primitive, `Select` cannot guarantee an accessible name on its own because labels are supplied by callers. The primitive renders an honest semantic `<select>` target, and consumers (connected patterns, forms, and pages) must provide an accessible name via an associated `<label htmlFor="...">`, `aria-label`, or `aria-labelledby`. Supporting hints and validation messages are associated via `aria-describedby`.
    - **Visible Keyboard Focus (WCAG 2.4.7, 2.4.11)**: Focus indicator appears immediately with high visual contrast (`outline: var(--focus-ring-width) solid var(--color-border-focus)`), meeting minimum 3:1 non-text contrast against adjacent colors.
    - **Target Size Minimum (WCAG 2.5.8 Level AA)**: WCAG 2.2 Level AA establishes a 24×24 CSS pixel minimum pointer target size in both dimensions (subject to spacing, inline, and essential exceptions). `Select` uses `inline-size: 100%` with minimum block sizes starting at 28px (`xs`), ensuring target area in standard container layouts satisfies this criterion.
-   - **Color Contrast (WCAG 1.4.3, 1.4.11)**: Measured against concrete token values. In the default Dashboard neutral light theme: text `--color-text-primary` (`#141414`) against white (`#FFFFFF`) achieves 18.42:1 (exceeding 4.5:1 WCAG AA text threshold); focus border `--color-border-focus` (`#525252`) achieves 7.81:1 and danger border `--color-danger` (`#b91c1c`) achieves 6.47:1 against white (exceeding 3:1 non-text threshold). In dark theme: text `--color-text-primary` (`#FAFAFA`) against `--color-control-bg` (`#18181B`) achieves 15.8:1; focus border achieves 5.2:1. Custom brand palettes or adjacent tinted surfaces must be independently checked against these criteria.
+   - **Color Contrast (WCAG 1.4.3, 1.4.11)**: Measured against concrete token values. In the default Dashboard neutral light theme: text `--color-text-primary` (`#141414`) against white (`#FFFFFF`) achieves 18.42:1 (exceeding 4.5:1 WCAG AA text threshold); focus border `--color-border-focus` (`#525252`) achieves 7.81:1 and danger border `--color-danger` (`#b91c1c`) achieves 6.47:1 against white (exceeding 3:1 non-text threshold). In dark theme: rendered control background `--color-control-bg` resolves to `--color-neutral-7` (`#141414`). Text `--color-text-primary` (`#FAFAFA` / `--color-neutral-1`) against `#141414` achieves 17.6:1 (exceeding 4.5:1 WCAG AA text threshold); focus border `--color-border-focus` (`#a3a3a3` / `--color-neutral-3`) achieves 7.3:1 and danger border `--color-danger` (`#fca5a5`) achieves 7.9:1 against `#141414` (exceeding 3:1 non-text threshold). Custom brand palettes or adjacent tinted surfaces must be independently checked against these criteria.
    - **Native Dropdown Semantics & Keyboard Navigation**: Built strictly on `<select>` and `<option>`, ensuring native keyboard typeahead, Arrow Up/Down navigation, Enter/Space activation, and platform screen reader role announcement.
 
 2. **Established Design System Guidance (e.g., GOV.UK, USWDS)**:
@@ -65,7 +66,7 @@ To maintain architectural rigor and audit clarity, the Select implementation sep
 │  2. Honest Native Foundation: Native <select> with standard picker     │
 │  3. Custom Indicator: Hugeicons chevron, pointer-events: none          │
 │  4. Direct Ref Forwarding: Forwards ref to HTMLSelectElement           │
-│  5. Direct Attribute Application: className, style forwarded to select │
+│  5. Box Model Layout: className & style apply to root wrapper box      │
 │  6. Six-Step Scale: xs (28px), sm (32px), md (36px), lg (40px),        │
 │                     xl (48px), 2xl (56px)                              │
 │  7. Product Defaults: Dashboard = md (36px), Website = xl (48px)       │
@@ -160,13 +161,22 @@ export interface SelectProps
 
   /**
    * Optional className applied directly to the inner native select element.
-   * (The standard `className` prop applies to the control root wrapper).
+   *
+   * Note: The primary `className` prop applies to the control root wrapper, which owns
+   * the outer layout box (width, margin, flex). `selectClassName` is an escape hatch
+   * for inner text properties (e.g. text color, text alignment). Geometry changes must
+   * be applied to the root wrapper to prevent detaching the custom indicator.
    */
   selectClassName?: string;
 
   /**
    * Optional inline styles applied directly to the inner native select element.
-   * (The standard `style` prop applies to the control root wrapper).
+   *
+   * Note: The primary `style` prop applies to the control root wrapper, which owns
+   * the outer layout box (width, margin, flex). `selectStyle` is an escape hatch
+   * for inner text properties (e.g. text color). Outer box geometry is enforced at 100%
+   * to ensure indicator alignment and pointer hit-testing remain unified. Any geometry
+   * passed here (width, inlineSize) is synchronized to the root wrapper box.
    */
   selectStyle?: CSSProperties;
 
@@ -195,8 +205,10 @@ export interface SelectProps
 | `id` | `string` | `undefined` | Caller-provided ID for external `<label htmlFor={id}>` association. |
 | `aria-invalid` | `boolean \| 'true' \| 'false'` | `undefined` | Drives application error styling. |
 | `aria-describedby`| `string` | `undefined` | Associates helper text and error message descriptions. |
-| `className` | `string` | `undefined` | Applied directly to `<select>`. |
-| `style` | `CSSProperties` | `undefined` | Applied directly to `<select>`. |
+| `className` | `string` | `undefined` | Applied to the root wrapper (`span.root`) to control outer layout box, margins, and width. |
+| `style` | `CSSProperties` | `undefined` | Applied to the root wrapper (`span.root`) to control outer inline styles (width, display, etc.). |
+| `selectClassName` | `string` | `undefined` | Escape hatch applied directly to inner `<select>` for non-geometry text styling. |
+| `selectStyle` | `CSSProperties` | `undefined` | Escape hatch applied directly to inner `<select>`. Width/geometry is synchronized with wrapper. |
 | `children` | `ReactNode` | Caller-supplied | Standard `<option>` and `<optgroup>` elements. |
 | `ref` | `Ref<HTMLSelectElement>`| `undefined` | Forwards directly to native `HTMLSelectElement`. |
 
@@ -401,6 +413,9 @@ In `@media (forced-colors: active)`:
   inline-size: 100%;
   min-inline-size: 0;
   vertical-align: middle;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-weight: var(--font-weight-regular);
 }
 
 /* Explicit Six-Step Scale Bindings */
@@ -465,7 +480,11 @@ In `@media (forced-colors: active)`:
   -moz-appearance: none;
   box-sizing: border-box;
   display: block;
-  inline-size: 100%;
+  inline-size: 100% !important;
+  max-inline-size: 100% !important;
+  width: 100% !important;
+  block-size: 100% !important;
+  height: 100% !important;
   min-inline-size: 0;
   min-block-size: var(--_control-height);
   padding-inline-start: var(--_control-padding-inline);
@@ -474,11 +493,11 @@ In `@media (forced-colors: active)`:
   border-radius: var(--radius-control);
   background-color: var(--color-control-bg);
   border: 1px solid var(--color-border-control);
-  color: var(--color-text-primary);
+  color: inherit;
   font-family: inherit;
   font-size: var(--_control-font-size);
   line-height: var(--_control-line-height);
-  font-weight: var(--font-weight-regular);
+  font-weight: inherit;
   text-align: start;
   cursor: pointer;
   outline: none;
@@ -716,10 +735,23 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     },
     ref,
   ) {
+    const resolvedWrapperStyle: CSSProperties | undefined =
+      selectStyle?.width != null || selectStyle?.inlineSize != null
+        ? {
+            ...(selectStyle.width != null && style?.width == null
+              ? { width: selectStyle.width }
+              : {}),
+            ...(selectStyle.inlineSize != null && style?.inlineSize == null
+              ? { inlineSize: selectStyle.inlineSize }
+              : {}),
+            ...style,
+          }
+        : style;
+
     return (
       <span
         className={cn(styles.root, className)}
-        style={style}
+        style={resolvedWrapperStyle}
         data-size={size}
         data-touch-target={touchTarget}
         data-disabled={disabled ? 'true' : undefined}

@@ -273,6 +273,17 @@ describe('Select Primitive', () => {
     expect(select.style.color).toBe('red');
   });
 
+  it('synchronizes width geometry from selectStyle to wrapper to prevent arrow detachment', () => {
+    const { container } = render(
+      <Select aria-label="Inner width test" selectStyle={{ width: '150px' }}>
+        <option value="1">1</option>
+      </Select>,
+    );
+
+    const root = container.firstElementChild as HTMLElement;
+    expect(root?.style.width).toBe('150px');
+  });
+
   it('filters multiple and readOnly props at runtime', () => {
     const rawProps = {
       multiple: true,

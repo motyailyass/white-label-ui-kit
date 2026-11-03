@@ -322,6 +322,12 @@ test.describe('Website Select Primitive Real-Browser Verification', () => {
     await planSelect.selectOption('pro');
     await submitBtn.click();
 
+    // Verify native FormData serialization contains selected subscriptionPlan
+    const formDataEntries = await page
+      .locator('[data-testid="select-demo-form"]')
+      .evaluate((form: HTMLFormElement) => Array.from(new FormData(form).entries()));
+    expect(formDataEntries).toContainEqual(['subscriptionPlan', 'pro']);
+
     // 3. Pending state
     await expect(submitBtn).toBeDisabled();
     await expect(statusValue).toContainText('Saving billing');
@@ -452,6 +458,10 @@ test.describe('Website Select Primitive Real-Browser Verification', () => {
     // Switch back to English
     await langSelect.selectOption('en');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+
+    // Verify typography parity: wrapper specifies 500, inner select inherits 500
+    const fontWeight = await langSelect.evaluate((el) => window.getComputedStyle(el).fontWeight);
+    expect(fontWeight).toBe('500');
   });
 
   test('verifies custom width, class-based width, and RTL width alignment with direct hit-testing on Website', async ({
@@ -522,9 +532,34 @@ test.describe('Website Select Primitive Real-Browser Verification', () => {
     await page.mouse.click(rtlArrowBox!.x + rtlArrowBox!.width / 2, rtlArrowBox!.y + rtlArrowBox!.height / 2);
     const isRtlWidthFocused = await rtlWidthSelect.evaluate((el) => document.activeElement === el);
     expect(isRtlWidthFocused).toBe(true);
+
+    // 4. Inner style width regression (160px via selectStyle={{ width: '160px' }})
+    const innerWidthSelect = page.locator('[data-testid="specimen-inner-style-width"]');
+    await innerWidthSelect.scrollIntoViewIfNeeded();
+    const innerWidthRoot = innerWidthSelect.locator('..');
+    const innerWidthArrow = innerWidthRoot.locator('> [aria-hidden="true"]');
+
+    const innerRootBox = await innerWidthRoot.boundingBox();
+    const innerSelectBox = await innerWidthSelect.boundingBox();
+    const innerArrowBox = await innerWidthArrow.boundingBox();
+
+    expect(innerRootBox).not.toBeNull();
+    expect(innerSelectBox).not.toBeNull();
+    expect(innerArrowBox).not.toBeNull();
+
+    expect(innerRootBox!.width).toBeCloseTo(160, 1);
+    expect(innerSelectBox!.width).toBeCloseTo(160, 1);
+
+    // Arrow must be positioned inside the 160px select near the trailing edge
+    expect(innerArrowBox!.x).toBeGreaterThan(innerSelectBox!.x + innerSelectBox!.width - 45);
+    expect(innerArrowBox!.x + innerArrowBox!.width).toBeLessThanOrEqual(innerSelectBox!.x + innerSelectBox!.width + 2);
+
+    await page.mouse.click(innerArrowBox!.x + innerArrowBox!.width / 2, innerArrowBox!.y + innerArrowBox!.height / 2);
+    const isInnerWidthFocused = await innerWidthSelect.evaluate((el) => document.activeElement === el);
+    expect(isInnerWidthFocused).toBe(true);
   });
 
-  test('verifies keyboard navigation, arrow keys, and typeahead interaction on Website', async ({ page }) => {
+  test('verifies keyboard focus and typeahead option selection on Website', async ({ page }) => {
     const select = page.locator('[data-testid="specimen-default"]');
     await select.focus();
 
@@ -558,7 +593,7 @@ test.describe('Website Select Primitive Real-Browser Verification', () => {
     expect(arrowColor).toBe(selectColor);
   });
 
-  test('verifies optional :open behavior, escape dismiss, and reduced-motion suppression on Website', async ({
+  test('verifies motion tokens and reduced-motion transition suppression on Website', async ({
     page,
     browser,
   }) => {

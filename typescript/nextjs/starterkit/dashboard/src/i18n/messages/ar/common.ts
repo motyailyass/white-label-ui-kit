@@ -693,6 +693,8 @@ export const common = {
     customWidthClassOption: 'خيار (200px)',
     customWidthRtlSpecimen: 'عرض مخصص في وضع RTL (180px)',
     customWidthRtlOption: 'خيار (180px RTL)',
+    customInnerWidthSpecimen: 'عرض النمط الداخلي (selectStyle={{ width: 160 }})',
+    customInnerWidthOption: 'خيار (160 بكسل داخلي)',
     fieldsetDisabledLegend: 'قائمة اختيار داخل مجموعة حقول معطلة (Fieldset)',
     fieldsetDisabledLabel: 'قائمة معطلة عبر الحاوية',
     fieldsetDisabledOption: 'خيار معطل موروث',

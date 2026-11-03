@@ -705,6 +705,8 @@ export const common = {
     customWidthClassOption: 'Option (200px)',
     customWidthRtlSpecimen: 'RTL Custom Width (180px)',
     customWidthRtlOption: 'Option (180px RTL)',
+    customInnerWidthSpecimen: 'Inner Style Width (selectStyle={{ width: 160 }})',
+    customInnerWidthOption: 'Option (160px Inner)',
     fieldsetDisabledLegend: 'Select inside Disabled Fieldset',
     fieldsetDisabledLabel: 'Fieldset-Disabled Select',
     fieldsetDisabledOption: 'Inherited Disabled Option',

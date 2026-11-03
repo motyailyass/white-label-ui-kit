@@ -21,6 +21,7 @@
   vertical-align: middle;
   color: var(--color-text-primary);
   font-family: inherit;
+  font-weight: var(--font-weight-regular);
 }
 
 /* Explicit Six-Step Scale Bindings */
@@ -86,8 +87,11 @@
   margin: 0;
   box-sizing: border-box;
   display: block;
-  inline-size: 100%;
-  block-size: 100%;
+  inline-size: 100% !important;
+  max-inline-size: 100% !important;
+  width: 100% !important;
+  block-size: 100% !important;
+  height: 100% !important;
   min-inline-size: 0;
   min-block-size: var(--_control-height);
   padding-inline-start: var(--_control-padding-inline);
@@ -100,7 +104,7 @@
   font-family: inherit;
   font-size: var(--_control-font-size);
   line-height: var(--_control-line-height);
-  font-weight: var(--font-weight-regular);
+  font-weight: inherit;
   text-align: start;
   cursor: pointer;
   outline: none;

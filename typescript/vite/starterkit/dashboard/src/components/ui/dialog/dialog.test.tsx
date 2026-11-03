@@ -300,4 +300,104 @@ describe('Dialog (Pure Primitive)', () => {
     expect(screen.getByTestId('body')).toBeTruthy();
     expect(screen.getByTestId('footer')).toBeTruthy();
   });
+
+  it('cycles focus correctly across focusable elements, skipping elements with tabIndex={-1}', () => {
+    render(
+      <Dialog open={true} onOpenChange={vi.fn()}>
+        <button data-testid="btn-1">Button 1</button>
+        <button data-testid="btn-2">Button 2</button>
+        <input data-testid="inp-disabled" tabIndex={-1} />
+      </Dialog>,
+    );
+
+    const btn1 = screen.getByTestId('btn-1');
+    const btn2 = screen.getByTestId('btn-2');
+
+    btn2.focus();
+    expect(document.activeElement).toBe(btn2);
+
+    const dialog = screen.getByRole('dialog');
+    fireEvent.keyDown(dialog, { key: 'Tab', shiftKey: false });
+
+    // Focus loops to btn1, skipping inp-disabled with tabIndex={-1}
+    expect(document.activeElement).toBe(btn1);
+  });
+
+  it('reconciles native close and restores open modal if caller maintains open=true', async () => {
+    const handleOpenChange = vi.fn();
+    const showModalSpy = vi.spyOn(HTMLDialogElement.prototype, 'showModal');
+
+    const dialogRef = React.createRef<HTMLDialogElement>();
+
+    render(
+      <Dialog open={true} onOpenChange={handleOpenChange} ref={dialogRef}>
+        <p>Modal content</p>
+      </Dialog>,
+    );
+
+    showModalSpy.mockClear();
+
+    // Trigger native close via DOM API
+    dialogRef.current?.close();
+
+    expect(handleOpenChange).toHaveBeenCalledWith(false, { reason: 'native-close' });
+
+    // Wait for microtask reconciliation
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    // showModal was called to restore alignment with controlled open=true prop
+    expect(showModalSpy).toHaveBeenCalledTimes(1);
+
+    showModalSpy.mockRestore();
+  });
+
+  it('composes caller event handlers (onClick, onKeyDown, onCancel, onClose)', () => {
+    const handleClick = vi.fn();
+    const handleKeyDown = vi.fn();
+    const handleCancel = vi.fn();
+    const handleClose = vi.fn();
+
+    render(
+      <Dialog
+        open={true}
+        onOpenChange={vi.fn()}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        onCancel={handleCancel}
+        onClose={handleClose}
+      >
+        <p>Modal</p>
+      </Dialog>,
+    );
+
+    const dialog = screen.getByRole('dialog');
+
+    fireEvent.click(dialog);
+    expect(handleClick).toHaveBeenCalledTimes(1);
+
+    fireEvent.keyDown(dialog, { key: 'Enter' });
+    expect(handleKeyDown).toHaveBeenCalledTimes(1);
+
+    fireEvent(dialog, new Event('cancel', { cancelable: true }));
+    expect(handleCancel).toHaveBeenCalledTimes(1);
+
+    fireEvent(dialog, new Event('close'));
+    expect(handleClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders closeLabel as aria-label without hardcoded fallback', () => {
+    render(
+      <Dialog
+        open={true}
+        onOpenChange={vi.fn()}
+        showCloseButton={true}
+        closeLabel="Fermer la boîte"
+      >
+        <p>Modal</p>
+      </Dialog>,
+    );
+
+    const closeBtn = screen.getByTestId('dialog-close-button');
+    expect(closeBtn.getAttribute('aria-label')).toBe('Fermer la boîte');
+  });
 });

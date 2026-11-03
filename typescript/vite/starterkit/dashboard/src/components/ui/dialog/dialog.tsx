@@ -25,7 +25,7 @@ export interface DialogOpenChangeDetails {
   reason: DialogCloseReason;
 }
 
-export interface DialogProps extends Omit<ComponentPropsWithRef<'dialog'>, 'open' | 'onClose'> {
+export interface DialogProps extends Omit<ComponentPropsWithRef<'dialog'>, 'open'> {
   /**
    * Controlled open state. Single source of truth.
    */
@@ -99,6 +99,10 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
     closeLabel,
     className,
     children,
+    onClick,
+    onKeyDown,
+    onCancel,
+    onClose,
     ...props
   },
   forwardedRef,
@@ -107,6 +111,11 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
   useImperativeHandle(forwardedRef, () => internalRef.current as HTMLDialogElement);
 
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
+  const openRef = useRef(open);
+
+  useLayoutEffect(() => {
+    openRef.current = open;
+  });
 
   // Synchronize native <dialog> with React controlled `open` prop
   useLayoutEffect(() => {
@@ -160,6 +169,8 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
     // remains the single source of truth and prevents state desynchronization.
     e.preventDefault();
 
+    onCancel?.(e);
+
     if (preventEscapeClose) {
       return;
     }
@@ -167,15 +178,30 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
     onOpenChange(false, { reason: 'escape' });
   };
 
-  const handleClose = () => {
-    // If a native close occurred (e.g. via <form method="dialog"> or DOM API)
-    // while open is still true in React state, reconcile immediately.
+  const handleClose = (e: React.SyntheticEvent<HTMLDialogElement>) => {
+    onClose?.(e);
+
+    // If a native close occurred (e.g. via dialogRef.current.close() or <form method="dialog">)
+    // while open is still true in React controlled state:
     if (open) {
       onOpenChange(false, { reason: 'native-close' });
+
+      // Controlled state reconciliation guarantee:
+      // If the caller rejects/ignores the close request and maintains open={true},
+      // restore the native modal so DOM state remains strictly identical to the prop.
+      queueMicrotask(() => {
+        const dialog = internalRef.current;
+        if (dialog && openRef.current && !dialog.open) {
+          dialog.showModal();
+        }
+      });
     }
   };
 
   const handleClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+    onClick?.(e);
+    if (e.defaultPrevented) return;
+
     if (!closeOnBackdropClick) return;
 
     const dialog = internalRef.current;
@@ -194,6 +220,9 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {
+    onKeyDown?.(e);
+    if (e.defaultPrevented) return;
+
     // WAI-ARIA modal Tab loop guarantee across all browser engines
     if (e.key === 'Tab') {
       const dialog = internalRef.current;
@@ -201,9 +230,24 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
 
       const focusable = Array.from(
         dialog.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          'a[href], button, textarea, input, select, [tabindex]',
         ),
-      ).filter((el) => el.offsetParent !== null || el.offsetWidth > 0 || el.offsetHeight > 0);
+      ).filter((el) => {
+        if (el.getAttribute('tabindex') === '-1') return false;
+        if ('disabled' in el && (el as HTMLButtonElement).disabled) return false;
+        if (el.getAttribute('aria-hidden') === 'true') return false;
+
+        // Check layout visibility in real browsers, with computed style fallback in jsdom
+        const isVisible =
+          el.offsetParent !== null ||
+          el.offsetWidth > 0 ||
+          el.offsetHeight > 0 ||
+          (typeof window !== 'undefined' &&
+            window.getComputedStyle(el).display !== 'none' &&
+            window.getComputedStyle(el).visibility !== 'hidden');
+
+        return isVisible;
+      });
 
       if (focusable.length === 0) {
         e.preventDefault();
@@ -243,7 +287,7 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
           type="button"
           className={styles.closeButton}
           onClick={() => onOpenChange(false, { reason: 'close-button' })}
-          aria-label={closeLabel || 'Close dialog'}
+          aria-label={closeLabel}
           data-testid="dialog-close-button"
         >
           <Icon name="close" />

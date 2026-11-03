@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -23,6 +23,7 @@ export function DialogGallery() {
 
   // 1. Basic Dialog
   const [basicOpen, setBasicOpen] = useState(false);
+  const [basicSavedStatus, setBasicSavedStatus] = useState<string | null>(null);
   const basicTitleId = useId();
   const basicDescId = useId();
 
@@ -37,6 +38,7 @@ export function DialogGallery() {
   const [formName, setFormName] = useState('');
   const [formRole, setFormRole] = useState('');
   const [formStatus, setFormStatus] = useState<string>('');
+  const formTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const formTitleId = useId();
   const formDescId = useId();
 
@@ -80,6 +82,12 @@ export function DialogGallery() {
   const deleteTitleId = useId();
   const deleteDescId = useId();
 
+  const handleCancelForm = useCallback(() => {
+    if (formTimerRef.current) clearTimeout(formTimerRef.current);
+    setFormOpen(false);
+    setFormStatus(t('common.dialogGallery.formEventReset'));
+  }, [t]);
+
   const handleFormSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -88,7 +96,8 @@ export function DialogGallery() {
         return;
       }
       setFormStatus(t('common.dialogGallery.formEventPending'));
-      setTimeout(() => {
+      if (formTimerRef.current) clearTimeout(formTimerRef.current);
+      formTimerRef.current = setTimeout(() => {
         setFormStatus(t('common.dialogGallery.formEventSuccess'));
         setFormOpen(false);
       }, 500);
@@ -114,6 +123,13 @@ export function DialogGallery() {
     setTimeout(() => {
       fallbackHeadingRef.current?.focus();
     }, 50);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (formTimerRef.current) clearTimeout(formTimerRef.current);
+      if (pendingTimerRef.current) clearTimeout(pendingTimerRef.current);
+    };
   }, []);
 
   return (
@@ -145,6 +161,15 @@ export function DialogGallery() {
           </Button>
         </div>
 
+        {basicSavedStatus && (
+          <div className={styles.statusRow} data-testid="basic-status-row">
+            <span className={styles.statusBadge}>
+              {t('common.dialogGallery.basicPolicyStatusPrefix')}
+            </span>
+            <span className={styles.statusText}>{basicSavedStatus}</span>
+          </div>
+        )}
+
         <Dialog
           open={basicOpen}
           onOpenChange={(open) => setBasicOpen(open)}
@@ -174,7 +199,10 @@ export function DialogGallery() {
             <Button
               variant="primary"
               data-testid="basic-dialog-save-btn"
-              onClick={() => setBasicOpen(false)}
+              onClick={() => {
+                setBasicSavedStatus(t('common.dialogGallery.basicSavedNotification'));
+                setBasicOpen(false);
+              }}
             >
               {t('common.dialogGallery.saveChangesButton')}
             </Button>
@@ -262,7 +290,12 @@ export function DialogGallery() {
 
         <Dialog
           open={formOpen}
-          onOpenChange={(open) => setFormOpen(open)}
+          onOpenChange={(open) => {
+            if (!open && formTimerRef.current) {
+              clearTimeout(formTimerRef.current);
+            }
+            setFormOpen(open);
+          }}
           aria-labelledby={formTitleId}
           aria-describedby={formDescId}
           data-testid="form-dialog"
@@ -313,10 +346,7 @@ export function DialogGallery() {
                 type="button"
                 variant="secondary"
                 data-testid="form-cancel-btn"
-                onClick={() => {
-                  setFormStatus(t('common.dialogGallery.formEventReset'));
-                  setFormOpen(false);
-                }}
+                onClick={handleCancelForm}
               >
                 {t('common.dialogGallery.cancelButton')}
               </Button>
@@ -424,56 +454,10 @@ export function DialogGallery() {
           </DialogHeader>
           <DialogBody data-testid="long-dialog-body">
             <div className={styles.longContentBody}>
-              <p>
-                1. Master Agreement: This Software Subscription Agreement governs the terms of use
-                for all cloud resources, databases, endpoints, and integrated analytics services.
-              </p>
-              <p>
-                2. Data Processing: Customer retains sole ownership and IP of all telemetry,
-                database rows, and session parameters processed through our edge nodes.
-              </p>
-              <p>
-                3. Service Level Agreement: We guarantee 99.99% monthly availability for high-availability
-                regional clusters with automatic failover quorum management.
-              </p>
-              <p>
-                4. Security Standards: All data in transit is encrypted using TLS 1.3; data at rest
-                is secured with AES-256 with customer-managed keys (CMK) support.
-              </p>
-              <p>
-                5. Audit & Compliance: Independent SOC 2 Type II and ISO 27001 reports are available
-                annually upon authorized request.
-              </p>
-              <p>
-                6. Termination: Either party may terminate with 30 days written notice upon material breach.
-              </p>
-              <p>
-                7. Confidentiality: Each party agrees to protect the other's proprietary technical and commercial data with reasonable standard of care.
-              </p>
-              <p>
-                8. Export Controls: Customer certifies full compliance with global trade compliance regulations and export controls.
-              </p>
-              <p>
-                9. Intellectual Property: Antigravity and its suppliers retain all rights, title, and interest in and to the platform codebase and documentation.
-              </p>
-              <p>
-                10. Indemnification: Vendor agrees to defend Customer against third-party claims alleging that the software infringes a valid copyright or patent.
-              </p>
-              <p>
-                11. Limitation of Liability: Neither party shall be liable for indirect, incidental, special, or consequential damages.
-              </p>
-              <p>
-                12. Severability: If any provision of this agreement is held unenforceable, the remaining provisions will continue in full force and effect.
-              </p>
-              <p>
-                13. Force Majeure: Neither party shall be liable for delays resulting from circumstances beyond reasonable control.
-              </p>
-              <p>
-                14. Governing Law: This agreement shall be governed by and construed in accordance with the laws of Delaware.
-              </p>
-              <p>
-                15. Entire Agreement: This document supersedes all prior proposals, communications, and representations.
-              </p>
+              {Array.from({ length: 15 }, (_, i) => {
+                const clauseKey = `common.dialogGallery.termsClause${i + 1}` as const;
+                return <p key={i}>{t(clauseKey as any)}</p>;
+              })}
             </div>
           </DialogBody>
           <DialogFooter>

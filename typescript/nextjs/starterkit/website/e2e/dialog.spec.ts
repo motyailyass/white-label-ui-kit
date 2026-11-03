@@ -1,14 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('Website Dialog Primitive Real-Browser Verification', () => {
+test.describe('Dashboard Dialog Primitive Real-Browser Verification', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/gallery/dialog');
     await expect(page.locator('[data-testid="dialog-gallery"]')).toBeVisible();
   });
 
-  test('verifies native <dialog> top-layer modal activation and background inertness on Website', async ({
-    page,
-  }) => {
+  test('verifies native <dialog> top-layer modal activation and background inertness', async ({ page }) => {
     const trigger = page.locator('[data-testid="basic-dialog-trigger"]');
     const dialog = page.locator('[data-testid="basic-dialog"]');
 
@@ -20,9 +18,10 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await expect(dialog).toBeVisible();
     await expect(dialog).toHaveAttribute('open', '');
 
-    // 3. Background content is inert
+    // 3. Background content is inert: clicking a background button is blocked
     const bgButton = page.locator('[data-testid="confirmation-dialog-trigger"]');
     await expect(bgButton).toBeDisabled({ timeout: 1000 }).catch(async () => {
+      // In Chromium top-layer modals, background elements are inert and non-clickable
       let wasClicked = false;
       try {
         await bgButton.click({ timeout: 500, force: false });
@@ -39,7 +38,7 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await expect(dialog).not.toBeVisible();
   });
 
-  test('verifies focus trap containment and initialFocusRef targeting non-destructive action on Website', async ({
+  test('verifies focus trap containment and initialFocusRef targeting non-destructive action', async ({
     page,
   }) => {
     const trigger = page.locator('[data-testid="confirmation-dialog-trigger"]');
@@ -70,7 +69,7 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await expect(dialog).not.toBeVisible();
   });
 
-  test('verifies focus restoration to invoking trigger upon closure on Website', async ({ page }) => {
+  test('verifies focus restoration to invoking trigger upon closure', async ({ page }) => {
     const trigger = page.locator('[data-testid="basic-dialog-trigger"]');
     const dialog = page.locator('[data-testid="basic-dialog"]');
     const cancelBtn = page.locator('[data-testid="basic-dialog-cancel-btn"]');
@@ -90,7 +89,7 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await expect(trigger).toBeFocused();
   });
 
-  test('verifies form submission, input validation, and cancel guard on Website', async ({ page }) => {
+  test('verifies form submission, input validation, and cancel guard', async ({ page }) => {
     const trigger = page.locator('[data-testid="form-dialog-trigger"]');
     const dialog = page.locator('[data-testid="form-dialog"]');
     const nameInput = page.locator('[data-testid="form-name-input"]');
@@ -124,12 +123,49 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await expect(statusText).toContainText('successfully');
   });
 
-  test('verifies nested Select integration, OS picker visibility, and Escape dismiss on Website', async ({
+  test('verifies form timer cancellation on dismiss and prevents closing reopened dialog', async ({
+    page,
+  }) => {
+    const trigger = page.locator('[data-testid="form-dialog-trigger"]');
+    const dialog = page.locator('[data-testid="form-dialog"]');
+    const nameInput = page.locator('[data-testid="form-name-input"]');
+    const roleSelect = page.locator('[data-testid="form-role-select"]');
+    const submitBtn = page.locator('[data-testid="form-submit-btn"]');
+    const cancelBtn = page.locator('[data-testid="form-cancel-btn"]');
+
+    // 1. Open and submit form to start simulated pending timer
+    await trigger.click();
+    await expect(dialog).toBeVisible();
+    await nameInput.fill('Timer Test');
+    await roleSelect.selectOption('editor');
+    await submitBtn.click();
+
+    // 2. Immediately cancel before 500ms timer finishes
+    await cancelBtn.click();
+    await expect(dialog).not.toBeVisible();
+
+    // 3. Reopen dialog immediately
+    await trigger.click();
+    await expect(dialog).toBeVisible();
+
+    // 4. Wait past the old 500ms timer window
+    await page.waitForTimeout(650);
+
+    // Dialog must remain open; the stale cancelled timer must not close it
+    await expect(dialog).toBeVisible();
+
+    // Clean close
+    await cancelBtn.click();
+    await expect(dialog).not.toBeVisible();
+  });
+
+  test('verifies nested Select integration, selection change, and keyboard dismissal', async ({
     page,
   }) => {
     const trigger = page.locator('[data-testid="nested-select-dialog-trigger"]');
     const dialog = page.locator('[data-testid="nested-select-dialog"]');
     const select = page.locator('[data-testid="nested-select-element"]');
+    const closeBtn = page.locator('[data-testid="nested-dialog-close-btn"]');
 
     await trigger.click();
     await expect(dialog).toBeVisible();
@@ -145,9 +181,7 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await expect(dialog).not.toBeVisible();
   });
 
-  test('verifies long content scroll containment without background scroll on Website', async ({
-    page,
-  }) => {
+  test('verifies long content scroll containment without background scroll', async ({ page }) => {
     const trigger = page.locator('[data-testid="long-dialog-trigger"]');
     const dialog = page.locator('[data-testid="long-dialog"]');
     const dialogBody = page.locator('[data-testid="long-dialog-body"]');
@@ -156,17 +190,17 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await trigger.click();
     await expect(dialog).toBeVisible();
 
+    // Verify dialog body has scrollable content
     const isScrollable = await dialogBody.evaluate((el) => el.scrollHeight > el.clientHeight);
     expect(isScrollable).toBe(true);
 
+    // Header and footer actions remain fully visible and clickable
     await expect(acceptBtn).toBeVisible();
     await acceptBtn.click();
     await expect(dialog).not.toBeVisible();
   });
 
-  test('verifies sizing scale data-size attributes and max-width application on Website', async ({
-    page,
-  }) => {
+  test('verifies sizing scale data-size attributes and max-width application', async ({ page }) => {
     const sizes = ['sm', 'md', 'lg', 'xl'] as const;
 
     for (const size of sizes) {
@@ -178,6 +212,7 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
       await expect(dialog).toBeVisible();
       await expect(dialog).toHaveAttribute('data-size', size);
 
+      // Verify max-width reflects size token
       const box = await dialog.boundingBox();
       expect(box).not.toBeNull();
       if (size === 'sm') expect(box!.width).toBeLessThanOrEqual(401);
@@ -190,7 +225,7 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     }
   });
 
-  test('verifies backdrop dismissal policy: off by default, opt-in via closeOnBackdropClick on Website', async ({
+  test('verifies backdrop dismissal policy: off by default, opt-in via closeOnBackdropClick', async ({
     page,
   }) => {
     // 1. Basic dialog (default: closeOnBackdropClick = false)
@@ -219,7 +254,7 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await expect(backdropDialog).not.toBeVisible();
   });
 
-  test('verifies optional top-corner close button with accessible label on Website', async ({ page }) => {
+  test('verifies optional top-corner close button with accessible label', async ({ page }) => {
     const trigger = page.locator('[data-testid="close-button-dialog-trigger"]');
     const dialog = page.locator('[data-testid="close-button-dialog"]');
     const closeBtn = page.locator('[data-testid="dialog-close-button"]');
@@ -228,6 +263,7 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await trigger.click();
     await expect(dialog).toBeVisible();
 
+    // Close button must exist, have type="button", and accessible label
     await expect(closeBtn).toBeVisible();
     await expect(closeBtn).toHaveAttribute('type', 'button');
     expect(await closeBtn.getAttribute('aria-label')).toBeTruthy();
@@ -236,7 +272,7 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await expect(dialog).not.toBeVisible();
   });
 
-  test('verifies preventEscapeClose prevents premature dismissal during pending save on Website', async ({
+  test('verifies preventEscapeClose prevents premature dismissal during pending save', async ({
     page,
   }) => {
     const trigger = page.locator('[data-testid="pending-dialog-trigger"]');
@@ -248,6 +284,7 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await trigger.click();
     await expect(dialog).toBeVisible();
 
+    // Start migration
     await startBtn.click();
     await expect(cancelBtn).toBeDisabled();
 
@@ -255,14 +292,16 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await page.keyboard.press('Escape');
     await expect(dialog).toBeVisible();
 
+    // Wait for migration to finish
     await page.waitForTimeout(1600);
     await expect(cancelBtn).toBeEnabled();
 
+    // Now Escape closes dialog
     await page.keyboard.press('Escape');
     await expect(dialog).not.toBeVisible();
   });
 
-  test('verifies asymmetric focus restoration when invoking trigger element is removed on Website', async ({
+  test('verifies asymmetric focus restoration when invoking trigger element is removed', async ({
     page,
   }) => {
     const deleteTrigger = page.locator('[data-testid="delete-row-trigger-btn"]');
@@ -275,15 +314,32 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await deleteTrigger.click();
     await expect(deleteDialog).toBeVisible();
 
+    // Confirm deletion of row
     await confirmDeleteBtn.click();
     await expect(deleteDialog).not.toBeVisible();
 
+    // Row is deleted from DOM
     await expect(deleteTrigger).toHaveCount(0);
     await expect(deletedMsg).toBeVisible();
+
+    // Focus safely transferred to fallback heading
     await expect(fallbackHeading).toBeFocused();
   });
 
-  test('verifies RTL direction and Arabic layout on Website', async ({ page }) => {
+  test('verifies zero dashboard shadows on dialog surface', async ({ page }) => {
+    const trigger = page.locator('[data-testid="basic-dialog-trigger"]');
+    const dialog = page.locator('[data-testid="basic-dialog"]');
+
+    await trigger.click();
+    await expect(dialog).toBeVisible();
+
+    const boxShadow = await dialog.evaluate((el) => window.getComputedStyle(el).boxShadow);
+    expect(boxShadow).toBe('none');
+
+    await page.keyboard.press('Escape');
+  });
+
+  test('verifies RTL direction and Arabic layout', async ({ page }) => {
     const langSelect = page.locator('[data-testid="language-switcher-select"]');
     await langSelect.selectOption('ar');
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
@@ -294,6 +350,7 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await trigger.click();
     await expect(dialog).toBeVisible();
 
+    // Title should be right-aligned or start-aligned in RTL
     const title = dialog.locator('h2');
     await expect(title).toBeVisible();
 
@@ -301,7 +358,7 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     await langSelect.selectOption('en');
   });
 
-  test('verifies responsive reflow without horizontal overflow at narrow viewport (320px) on Website', async ({
+  test('verifies responsive reflow without horizontal overflow at narrow viewport (320px)', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 320, height: 600 });
@@ -321,5 +378,48 @@ test.describe('Website Dialog Primitive Real-Browser Verification', () => {
     expect(isBodyOverflowing).toBe(false);
 
     await page.keyboard.press('Escape');
+  });
+
+  test('verifies form fields and action buttons remain reachable at small viewport (320x400)', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 400 });
+    const trigger = page.locator('[data-testid="form-dialog-trigger"]');
+    const dialog = page.locator('[data-testid="form-dialog"]');
+    const submitBtn = page.locator('[data-testid="form-submit-btn"]');
+    const cancelBtn = page.locator('[data-testid="form-cancel-btn"]');
+
+    await trigger.click();
+    await expect(dialog).toBeVisible();
+
+    // Verify submit button is visible, in-bounds, and clickable without clipping
+    await expect(submitBtn).toBeVisible();
+    await expect(cancelBtn).toBeVisible();
+
+    const submitBox = await submitBtn.boundingBox();
+    expect(submitBox).not.toBeNull();
+    if (submitBox) {
+      expect(submitBox.y + submitBox.height).toBeLessThanOrEqual(400);
+    }
+
+    await cancelBtn.click();
+    await expect(dialog).not.toBeVisible();
+  });
+
+  test('verifies basic dialog saves policy preferences and displays confirmation', async ({
+    page,
+  }) => {
+    const trigger = page.locator('[data-testid="basic-dialog-trigger"]');
+    const dialog = page.locator('[data-testid="basic-dialog"]');
+    const saveBtn = page.locator('[data-testid="basic-dialog-save-btn"]');
+    const statusRow = page.locator('[data-testid="basic-status-row"]');
+
+    await trigger.click();
+    await expect(dialog).toBeVisible();
+    await saveBtn.click();
+    await expect(dialog).not.toBeVisible();
+
+    await expect(statusRow).toBeVisible();
+    await expect(statusRow).toContainText('saved successfully');
   });
 });

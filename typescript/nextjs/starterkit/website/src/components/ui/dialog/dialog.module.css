@@ -35,6 +35,16 @@
   flex-direction: column;
 }
 
+/* Ensure child form elements behave as full flex containers so body can shrink and scroll */
+.dialog > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-block-size: 0;
+  max-block-size: 100%;
+  overflow: hidden;
+}
+
 /* Sizing scale */
 .dialog[data-size="sm"] {
   --_dialog-max-width: 400px;
@@ -64,6 +74,7 @@
 
 /* Header */
 .header {
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -92,6 +103,7 @@
 /* Body */
 .body {
   flex: 1 1 auto;
+  min-block-size: 0;
   padding-inline: var(--space-6);
   padding-block: var(--space-5);
   overflow-y: auto;
@@ -100,6 +112,7 @@
 
 /* Footer */
 .footer {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;

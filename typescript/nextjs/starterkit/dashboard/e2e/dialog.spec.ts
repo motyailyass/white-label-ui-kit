@@ -123,7 +123,43 @@ test.describe('Dashboard Dialog Primitive Real-Browser Verification', () => {
     await expect(statusText).toContainText('successfully');
   });
 
-  test('verifies nested Select integration, OS picker visibility, and Escape dismiss', async ({
+  test('verifies form timer cancellation on dismiss and prevents closing reopened dialog', async ({
+    page,
+  }) => {
+    const trigger = page.locator('[data-testid="form-dialog-trigger"]');
+    const dialog = page.locator('[data-testid="form-dialog"]');
+    const nameInput = page.locator('[data-testid="form-name-input"]');
+    const roleSelect = page.locator('[data-testid="form-role-select"]');
+    const submitBtn = page.locator('[data-testid="form-submit-btn"]');
+    const cancelBtn = page.locator('[data-testid="form-cancel-btn"]');
+
+    // 1. Open and submit form to start simulated pending timer
+    await trigger.click();
+    await expect(dialog).toBeVisible();
+    await nameInput.fill('Timer Test');
+    await roleSelect.selectOption('editor');
+    await submitBtn.click();
+
+    // 2. Immediately cancel before 500ms timer finishes
+    await cancelBtn.click();
+    await expect(dialog).not.toBeVisible();
+
+    // 3. Reopen dialog immediately
+    await trigger.click();
+    await expect(dialog).toBeVisible();
+
+    // 4. Wait past the old 500ms timer window
+    await page.waitForTimeout(650);
+
+    // Dialog must remain open; the stale cancelled timer must not close it
+    await expect(dialog).toBeVisible();
+
+    // Clean close
+    await cancelBtn.click();
+    await expect(dialog).not.toBeVisible();
+  });
+
+  test('verifies nested Select integration, selection change, and keyboard dismissal', async ({
     page,
   }) => {
     const trigger = page.locator('[data-testid="nested-select-dialog-trigger"]');
@@ -342,5 +378,48 @@ test.describe('Dashboard Dialog Primitive Real-Browser Verification', () => {
     expect(isBodyOverflowing).toBe(false);
 
     await page.keyboard.press('Escape');
+  });
+
+  test('verifies form fields and action buttons remain reachable at small viewport (320x400)', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 400 });
+    const trigger = page.locator('[data-testid="form-dialog-trigger"]');
+    const dialog = page.locator('[data-testid="form-dialog"]');
+    const submitBtn = page.locator('[data-testid="form-submit-btn"]');
+    const cancelBtn = page.locator('[data-testid="form-cancel-btn"]');
+
+    await trigger.click();
+    await expect(dialog).toBeVisible();
+
+    // Verify submit button is visible, in-bounds, and clickable without clipping
+    await expect(submitBtn).toBeVisible();
+    await expect(cancelBtn).toBeVisible();
+
+    const submitBox = await submitBtn.boundingBox();
+    expect(submitBox).not.toBeNull();
+    if (submitBox) {
+      expect(submitBox.y + submitBox.height).toBeLessThanOrEqual(400);
+    }
+
+    await cancelBtn.click();
+    await expect(dialog).not.toBeVisible();
+  });
+
+  test('verifies basic dialog saves policy preferences and displays confirmation', async ({
+    page,
+  }) => {
+    const trigger = page.locator('[data-testid="basic-dialog-trigger"]');
+    const dialog = page.locator('[data-testid="basic-dialog"]');
+    const saveBtn = page.locator('[data-testid="basic-dialog-save-btn"]');
+    const statusRow = page.locator('[data-testid="basic-status-row"]');
+
+    await trigger.click();
+    await expect(dialog).toBeVisible();
+    await saveBtn.click();
+    await expect(dialog).not.toBeVisible();
+
+    await expect(statusRow).toBeVisible();
+    await expect(statusRow).toContainText('saved successfully');
   });
 });

@@ -479,6 +479,66 @@ describe('Popover (Pure Primitive)', () => {
     expect(document.activeElement).toBe(trigger);
   });
 
+  it('moves initial focus into dialog, skipping disabled controls to first enabled interactive element', () => {
+    render(
+      <Popover defaultOpen={true}>
+        <PopoverTrigger data-testid="trigger">Open</PopoverTrigger>
+        <PopoverContent role="dialog" aria-label="Action Dialog" data-testid="surface">
+          <button disabled data-testid="disabled-btn">
+            Disabled Action
+          </button>
+          <fieldset disabled>
+            <button data-testid="fieldset-disabled-btn">Fieldset Disabled</button>
+          </fieldset>
+          <button data-testid="enabled-btn">First Enabled Action</button>
+        </PopoverContent>
+      </Popover>,
+    );
+
+    const enabledBtn = screen.getByTestId('enabled-btn');
+    expect(document.activeElement).toBe(enabledBtn);
+  });
+
+  it('safely focuses surface container when role="dialog" has no focusable enabled controls', () => {
+    render(
+      <Popover defaultOpen={true}>
+        <PopoverTrigger data-testid="trigger">Open</PopoverTrigger>
+        <PopoverContent role="dialog" aria-label="Informational Dialog" data-testid="surface">
+          <p>Read-only notification</p>
+          <button disabled data-testid="disabled-only-btn">
+            Unavailable
+          </button>
+        </PopoverContent>
+      </Popover>,
+    );
+
+    const surface = screen.getByTestId('surface');
+    expect(document.activeElement).toBe(surface);
+    expect(surface.getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('emits exactly one close notification on dismiss without duplicates', () => {
+    const handleOpenChange = vi.fn();
+
+    render(
+      <div>
+        <Popover open={true} onOpenChange={handleOpenChange}>
+          <PopoverTrigger data-testid="trigger">Open</PopoverTrigger>
+          <PopoverContent data-testid="surface">
+            <p>Content</p>
+          </PopoverContent>
+        </Popover>
+        <button data-testid="outside-btn">Outside Target</button>
+      </div>,
+    );
+
+    const outsideBtn = screen.getByTestId('outside-btn');
+    fireEvent.pointerDown(outsideBtn);
+
+    expect(handleOpenChange).toHaveBeenCalledTimes(1);
+    expect(handleOpenChange).toHaveBeenCalledWith(false);
+  });
+
   it('renders compound subcomponents with semantic classes and attributes', () => {
     render(
       <Popover defaultOpen={true}>

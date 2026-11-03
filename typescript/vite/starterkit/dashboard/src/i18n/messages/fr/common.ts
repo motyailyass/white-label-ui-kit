@@ -885,6 +885,9 @@ export const common = {
     filterResetButton: 'Réinitialiser',
     filterApplyButton: 'Appliquer les filtres',
     filterAppliedStatus: 'Filtres appliqués : Environnement =',
+    openDisabledFirstPopover: 'Dialogue avec premier contrôle désactivé',
+    disabledFirstAction: 'Action principale indisponible',
+    enabledSecondAction: 'Action secondaire disponible',
     sectionPlacementTitle: '3. Matrice de positionnement',
     sectionPlacementDesc:
       'Prend en charge les positions haut, bas, et logiques début et fin.',
@@ -903,11 +906,15 @@ export const common = {
       'Fermable par clic extérieur, Échap, ou bouton explicite sans détourner le focus.',
     openManualClosePopover: 'Ouvrir avec bouton de fermeture',
     closeButtonLabel: 'Fermer le popover',
+    outsideActionBtn: 'Compteur d’action extérieure :',
     sectionControlledTitle: '6. Mode contrôlé vs non contrôlé',
     sectionControlledDesc:
       'Bascule d’état programmatique depuis un bouton externe synchronisé avec l’état interne.',
     externalToggleBtn: 'Basculer le popover de l’extérieur',
     controlledPopoverText: 'État du popover contrôlé et synchronisé avec le composant parent.',
+    openPersistedPopover: 'Ouvrir le popover persistant',
+    persistedPopoverText: 'Le composant parent rejette la fermeture et reste ouvert.',
+    explicitDismissPersistedBtn: 'Fermeture explicite par le parent',
     sectionNestedSelectTitle: '7. Intégration de Select imbriqué',
     sectionNestedSelectDesc:
       'Primitive Select pure intégrée dans PopoverContent sans fermeture prématurée.',

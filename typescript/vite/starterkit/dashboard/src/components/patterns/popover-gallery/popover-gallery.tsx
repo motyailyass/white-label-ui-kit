@@ -176,6 +176,30 @@ export function PopoverGallery() {
               </PopoverFooter>
             </PopoverContent>
           </Popover>
+
+          <Popover role="dialog">
+            <PopoverTrigger asChild>
+              <Button variant="secondary" data-testid="open-disabled-first-popover-btn">
+                {t('common.popoverGallery.openDisabledFirstPopover')}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              role="dialog"
+              aria-label={t('common.popoverGallery.openDisabledFirstPopover')}
+              data-testid="disabled-first-popover-content"
+            >
+              <PopoverBody>
+                <div className={styles.dialogBodyContent}>
+                  <Button disabled variant="secondary" data-testid="popover-disabled-first-btn">
+                    {t('common.popoverGallery.disabledFirstAction')}
+                  </Button>
+                  <Button variant="primary" data-testid="popover-enabled-second-btn">
+                    {t('common.popoverGallery.enabledSecondAction')}
+                  </Button>
+                </div>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
         </div>
         <div className={styles.statusCard}>
           <span className={styles.statusLabel}>{t('common.popoverGallery.filterAppliedStatus')}</span>
@@ -302,7 +326,7 @@ export function PopoverGallery() {
             onClick={() => setOutsideCounter((c) => c + 1)}
             data-testid="outside-action-btn"
           >
-            Outside Action Count: {outsideCounter}
+            {t('common.popoverGallery.outsideActionBtn')} {outsideCounter}
           </Button>
         </div>
       </section>
@@ -350,18 +374,20 @@ export function PopoverGallery() {
                 onClick={() => setPersistedOpen(true)}
                 data-testid="open-persisted-popover-btn"
               >
-                Open Persistent Popover
+                {t('common.popoverGallery.openPersistedPopover')}
               </Button>
             </PopoverTrigger>
             <PopoverContent data-testid="persisted-popover-content">
               <PopoverBody>
-                <p className={styles.surfaceText}>Parent rejects dismissal and stays open.</p>
+                <p className={styles.surfaceText}>
+                  {t('common.popoverGallery.persistedPopoverText')}
+                </p>
                 <Button
                   variant="primary"
                   onClick={() => setPersistedOpen(false)}
                   data-testid="explicit-close-persisted-popover-btn"
                 >
-                  Explicit Parent Dismiss
+                  {t('common.popoverGallery.explicitDismissPersistedBtn')}
                 </Button>
               </PopoverBody>
             </PopoverContent>

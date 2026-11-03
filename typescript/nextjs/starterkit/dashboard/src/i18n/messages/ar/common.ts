@@ -870,6 +870,9 @@ export const common = {
     filterResetButton: 'إعادة ضبط',
     filterApplyButton: 'تطبيق عوامل التصفية',
     filterAppliedStatus: 'عوامل التصفية المطبقة: بيئة التشغيل =',
+    openDisabledFirstPopover: 'مربع حوار مع تعطيل عنصر التحكم الأول',
+    disabledFirstAction: 'إجراء رئيسي غير متاح',
+    enabledSecondAction: 'إجراء ثانوي متاح',
     sectionPlacementTitle: '3. مصفوفة المحاذاة والاتجاهات',
     sectionPlacementDesc:
       'يدعم التمركز في الأعلى والأسفل والمواضع المنطقية لبداية ونهاية السطر.',
@@ -888,11 +891,15 @@ export const common = {
       'قابل للإغلاق بالنقر الخارجي أو مفتاح الهروب Escape أو زر الإغلاق الصريح دون سرقة التركيز.',
     openManualClosePopover: 'فتح مع زر الإغلاق',
     closeButtonLabel: 'إغلاق النافذة المنبثقة',
+    outsideActionBtn: 'عدد الإجراءات الخارجية:',
     sectionControlledTitle: '6. النمط المتحكّم به مقابل غير المتحكّم به',
     sectionControlledDesc:
       'تبديل برمجي للحالة من زر خارجي متزامن بشكل كامل مع الحالة الداخلية.',
     externalToggleBtn: 'تبديل حالة النافذة خارجياً',
     controlledPopoverText: 'حالة النافذة المنبثقة متحكم بها ومتزامنة مع المكوّن الأب.',
+    openPersistedPopover: 'فتح نافذة منبثقة مستمرة',
+    persistedPopoverText: 'يرفض المكون الأب الإغلاق التلقائي ويبقى مفتوحاً.',
+    explicitDismissPersistedBtn: 'إغلاق صريح من المكون الأب',
     sectionNestedSelectTitle: '7. تكامل القائمة المنسدلة Select المتداخلة',
     sectionNestedSelectDesc:
       'دمج مكوّن Select النقي داخل PopoverContent دون التسبب في إغلاق مفاجئ أو مبكر.',

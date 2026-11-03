@@ -257,4 +257,18 @@ test.describe('Dashboard Popover Primitive Real-Browser Verification', () => {
       expect(box.x + box.width).toBeLessThanOrEqual(320);
     }
   });
+
+  test('11. Initial dialog focus skips disabled controls to first enabled interactive control', async ({
+    page,
+  }) => {
+    const trigger = page.locator('[data-testid="open-disabled-first-popover-btn"]');
+    const content = page.locator('[data-testid="disabled-first-popover-content"]');
+    const disabledBtn = page.locator('[data-testid="popover-disabled-first-btn"]');
+    const enabledBtn = page.locator('[data-testid="popover-enabled-second-btn"]');
+
+    await trigger.click();
+    await expect(content).toBeVisible();
+    await expect(disabledBtn).toBeDisabled();
+    await expect(enabledBtn).toBeFocused();
+  });
 });

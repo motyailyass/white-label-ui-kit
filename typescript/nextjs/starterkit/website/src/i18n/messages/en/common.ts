@@ -882,6 +882,9 @@ export const common = {
     filterResetButton: 'Reset',
     filterApplyButton: 'Apply Filters',
     filterAppliedStatus: 'Applied filters: Environment =',
+    openDisabledFirstPopover: 'Dialog with Disabled First Control',
+    disabledFirstAction: 'Unavailable Primary Action',
+    enabledSecondAction: 'Available Secondary Action',
     sectionPlacementTitle: '3. Placement Matrix',
     sectionPlacementDesc:
       'Supports top, bottom, and logical inline-start and inline-end placements.',
@@ -900,11 +903,15 @@ export const common = {
       'Dismissable via outside click, Escape, or explicit close button without stealing focus.',
     openManualClosePopover: 'Open with Close Button',
     closeButtonLabel: 'Dismiss popover',
+    outsideActionBtn: 'Outside Action Count:',
     sectionControlledTitle: '6. Controlled vs Uncontrolled Mode',
     sectionControlledDesc:
       'Programmatic state toggle from an external button synchronized with internal state.',
     externalToggleBtn: 'Toggle Popover Externally',
     controlledPopoverText: 'Controlled popover state synchronized with parent component.',
+    openPersistedPopover: 'Open Persistent Popover',
+    persistedPopoverText: 'Parent rejects dismissal and stays open.',
+    explicitDismissPersistedBtn: 'Explicit Parent Dismiss',
     sectionNestedSelectTitle: '7. Nested Select Integration',
     sectionNestedSelectDesc:
       'Pure Select primitive embedded inside PopoverContent without premature dismissal.',

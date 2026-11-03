@@ -55,6 +55,54 @@ function getElementRef<T>(element: ReactElement): Ref<T> | undefined {
   return undefined;
 }
 
+/**
+ * Checks whether an interactive candidate is disabled natively or through a disabled <fieldset> ancestor.
+ */
+function isElementDisabled(el: HTMLElement): boolean {
+  if ('disabled' in el && (el as HTMLButtonElement).disabled) return true;
+  if (typeof el.matches === 'function' && el.matches(':disabled')) return true;
+
+  const fieldset = el.closest('fieldset[disabled]');
+  if (fieldset) {
+    const firstLegend = fieldset.querySelector(':scope > legend');
+    if (!firstLegend || !firstLegend.contains(el)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Finds the first focusable, enabled, and visible element inside a container.
+ */
+function findFirstFocusableElement(container: HTMLElement): HTMLElement | null {
+  const candidates = container.querySelectorAll<HTMLElement>(
+    'a[href], button, textarea, input:not([type="hidden"]), select, [tabindex]',
+  );
+
+  for (let i = 0; i < candidates.length; i++) {
+    const el = candidates[i];
+    if (el.getAttribute('tabindex') === '-1') continue;
+    if (isElementDisabled(el)) continue;
+    if (el.getAttribute('aria-hidden') === 'true') continue;
+
+    const isVisible =
+      el.offsetParent !== null ||
+      el.offsetWidth > 0 ||
+      el.offsetHeight > 0 ||
+      (typeof window !== 'undefined' &&
+        window.getComputedStyle(el).display !== 'none' &&
+        window.getComputedStyle(el).visibility !== 'hidden');
+
+    if (isVisible) {
+      return el;
+    }
+  }
+
+  return null;
+}
+
 export type PopoverPlacement =
   | 'top'
   | 'top-start'
@@ -508,24 +556,33 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(fu
     }
   }
 
-  // Ref tracking controlled open prop for async reconciliation
+  // Ref tracking controlled open prop and loop guard for async reconciliation
   const controlledOpenRef = useRef(controlledOpen);
   controlledOpenRef.current = controlledOpen;
+  const reconcileAttemptsRef = useRef(0);
+  const lastReconcileTimeRef = useRef(0);
+  const isClosingRef = useRef(false);
 
   // Sync role to context so PopoverTrigger can conditionally attach aria-haspopup="dialog"
   useLayoutEffect(() => {
     setRole(effectiveRole);
   }, [effectiveRole, setRole]);
 
+  const supportsNativePopover =
+    typeof HTMLElement !== 'undefined' &&
+    typeof HTMLElement.prototype.showPopover === 'function' &&
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('selector(:popover-open)');
+
   // Synchronize native HTML Popover API with open state
   useLayoutEffect(() => {
     const content = contentRef.current;
     if (!content) return;
 
-    const hasNativePopover = typeof content.showPopover === 'function';
-
     if (open) {
-      if (hasNativePopover) {
+      isClosingRef.current = false;
+      if (supportsNativePopover) {
         try {
           if (!content.matches(':popover-open')) {
             content.showPopover();
@@ -537,20 +594,27 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(fu
 
       updatePosition();
 
-      // Focus management: If initialFocusRef or role="dialog", focus the first interactive element
-      if (initialFocusRef?.current) {
+      // Focus management: If initialFocusRef or role="dialog", focus the first interactive, enabled element
+      if (initialFocusRef?.current && !isElementDisabled(initialFocusRef.current)) {
         initialFocusRef.current.focus();
       } else if (effectiveRole === 'dialog') {
         const surface = internalSurfaceRef.current;
         if (surface) {
-          const firstInteractive = surface.querySelector<HTMLElement>(
-            'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
-          );
-          firstInteractive?.focus();
+          const focusTarget = findFirstFocusableElement(surface);
+          if (focusTarget) {
+            focusTarget.focus();
+          } else {
+            // Safe fallback when no focusable control exists: focus the dialog surface itself
+            if (!surface.hasAttribute('tabindex')) {
+              surface.setAttribute('tabindex', '-1');
+            }
+            surface.focus();
+          }
         }
       }
     } else {
-      if (hasNativePopover) {
+      isClosingRef.current = false;
+      if (supportsNativePopover) {
         try {
           if (content.matches(':popover-open')) {
             content.hidePopover();
@@ -560,7 +624,7 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(fu
         }
       }
     }
-  }, [open, effectiveRole, initialFocusRef, contentRef, updatePosition]);
+  }, [open, effectiveRole, initialFocusRef, contentRef, updatePosition, supportsNativePopover]);
 
   // Continuous coordinate tracking during scroll and resize
   useEffect(() => {
@@ -585,6 +649,8 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(fu
   useEffect(() => {
     if (!open) return;
 
+    const content = contentRef.current;
+
     const handlePointerDown = (e: globalThis.PointerEvent) => {
       const surface = internalSurfaceRef.current;
       const trigger = triggerRef.current;
@@ -605,7 +671,9 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(fu
         return;
       }
 
-      // Outside click: dismiss popover without stealing focus
+      // Outside click: dismiss popover without stealing focus (prevent duplicate close notifications)
+      if (isClosingRef.current) return;
+      isClosingRef.current = true;
       setOpen(false);
     };
 
@@ -613,40 +681,48 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(fu
       if (e.key === 'Escape') {
         e.preventDefault();
         e.stopPropagation();
-        setOpen(false);
+        if (!isClosingRef.current) {
+          isClosingRef.current = true;
+          setOpen(false);
+        }
         // Restore focus to trigger on keyboard Escape
         triggerRef.current?.focus();
       }
     };
 
     // Native toggle event support with controlled-state reconciliation
-    const content = contentRef.current;
     const handleNativeToggle = (e: Event) => {
       const toggleEvent = e as unknown as { newState?: string };
       if (toggleEvent.newState === 'closed') {
         if (open) {
-          setOpen(false);
+          if (!isClosingRef.current) {
+            isClosingRef.current = true;
+            setOpen(false);
+          }
 
           if (isControlled) {
             // Reconcile: If parent component rejects dismissal and still supplies open={true},
-            // reopen the native popover, UNLESS another competing popover took over the top layer.
+            // authoritatively re-assert open state in the top layer.
             queueMicrotask(() => {
               const currentContent = contentRef.current;
               if (!currentContent) return;
 
-              // Check if another popover is currently open in the top layer
-              const isAnotherPopoverOpen =
-                typeof document !== 'undefined' &&
-                document.querySelector('[popover]:popover-open') !== null;
-
-              if (isAnotherPopoverOpen) {
-                return;
-              }
-
               // If parent kept controlled open={true}, reconcile top layer
               if (controlledOpenRef.current) {
-                const hasNative = typeof currentContent.showPopover === 'function';
-                if (hasNative && !currentContent.matches(':popover-open')) {
+                isClosingRef.current = false;
+                const now = Date.now();
+                if (now - lastReconcileTimeRef.current > 300) {
+                  reconcileAttemptsRef.current = 0;
+                }
+                lastReconcileTimeRef.current = now;
+
+                if (reconcileAttemptsRef.current >= 3) {
+                  // Circuit breaker against ping-pong infinite loop when competing controlled popovers both reject closure
+                  return;
+                }
+                reconcileAttemptsRef.current += 1;
+
+                if (supportsNativePopover && !currentContent.matches(':popover-open')) {
                   try {
                     currentContent.showPopover();
                     updatePosition();
@@ -661,20 +737,25 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(fu
       }
     };
 
-    document.addEventListener('pointerdown', handlePointerDown);
+    // Only attach manual pointerdown dismiss when native Popover light dismiss is not supported
+    if (!supportsNativePopover) {
+      document.addEventListener('pointerdown', handlePointerDown);
+    }
     document.addEventListener('keydown', handleKeyDown, true);
     if (content) {
       content.addEventListener('toggle', handleNativeToggle);
     }
 
     return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
+      if (!supportsNativePopover) {
+        document.removeEventListener('pointerdown', handlePointerDown);
+      }
       document.removeEventListener('keydown', handleKeyDown, true);
       if (content) {
         content.removeEventListener('toggle', handleNativeToggle);
       }
     };
-  }, [open, setOpen, isControlled, triggerRef, contentRef, updatePosition]);
+  }, [open, setOpen, isControlled, triggerRef, contentRef, updatePosition, supportsNativePopover]);
 
   // Assign combined surface ref
   const setCombinedSurfaceRef = useCallback(
@@ -684,10 +765,6 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(fu
     },
     [surfaceRef],
   );
-
-  const supportsNativePopover =
-    typeof HTMLElement !== 'undefined' &&
-    typeof HTMLElement.prototype.showPopover === 'function';
 
   return (
     <div

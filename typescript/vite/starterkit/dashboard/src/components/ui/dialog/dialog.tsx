@@ -25,7 +25,7 @@ export interface DialogOpenChangeDetails {
   reason: DialogCloseReason;
 }
 
-export interface DialogProps extends Omit<ComponentPropsWithRef<'dialog'>, 'open'> {
+export interface DialogBaseProps extends Omit<ComponentPropsWithRef<'dialog'>, 'open'> {
   /**
    * Controlled open state. Single source of truth.
    */
@@ -69,21 +69,49 @@ export interface DialogProps extends Omit<ComponentPropsWithRef<'dialog'>, 'open
   returnFocusRef?: RefObject<HTMLElement | null>;
 
   /**
-   * Whether to display an optional top-corner icon close button.
-   * @default false
-   */
-  showCloseButton?: boolean;
-
-  /**
-   * Accessible label for the optional top-corner close button.
-   * Required when showCloseButton is true.
-   */
-  closeLabel?: string;
-
-  /**
    * Dialog children (typically DialogHeader, DialogBody, DialogFooter).
    */
   children?: ReactNode;
+}
+
+export type DialogCloseButtonProps =
+  | {
+      /**
+       * Whether to display an optional top-corner icon close button.
+       * When true, `closeLabel` is strictly required to guarantee an accessible name.
+       */
+      showCloseButton: true;
+      /**
+       * Caller-supplied accessible label for the optional top-corner close button.
+       * Required when showCloseButton is true.
+       */
+      closeLabel: string;
+    }
+  | {
+      showCloseButton?: false;
+      closeLabel?: string;
+    };
+
+export type DialogProps = DialogBaseProps & DialogCloseButtonProps;
+
+/**
+ * Checks whether an interactive candidate is disabled natively or through a disabled <fieldset> ancestor.
+ * HTML standard specifies that form controls inside a disabled fieldset are disabled,
+ * unless they reside inside the first <legend> child of that fieldset.
+ */
+function isElementDisabled(el: HTMLElement): boolean {
+  if ('disabled' in el && (el as HTMLButtonElement).disabled) return true;
+  if (typeof el.matches === 'function' && el.matches(':disabled')) return true;
+
+  const fieldset = el.closest('fieldset[disabled]');
+  if (fieldset) {
+    const firstLegend = fieldset.querySelector(':scope > legend');
+    if (!firstLegend || !firstLegend.contains(el)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog(
@@ -234,7 +262,7 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
         ),
       ).filter((el) => {
         if (el.getAttribute('tabindex') === '-1') return false;
-        if ('disabled' in el && (el as HTMLButtonElement).disabled) return false;
+        if (isElementDisabled(el)) return false;
         if (el.getAttribute('aria-hidden') === 'true') return false;
 
         // Check layout visibility in real browsers, with computed style fallback in jsdom
@@ -271,6 +299,8 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
     }
   };
 
+  const hasAccessibleCloseButton = showCloseButton && Boolean(closeLabel && closeLabel.trim().length > 0);
+
   return (
     <dialog
       {...props}
@@ -282,7 +312,7 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
-      {showCloseButton && (
+      {hasAccessibleCloseButton && (
         <button
           type="button"
           className={styles.closeButton}

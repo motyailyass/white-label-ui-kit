@@ -741,6 +741,7 @@ export const common = {
     basicDialogDesc: 'اضبط التفضيلات الأساسية لمساحة العمل النشطة الخاصة بك.',
     basicDialogBody:
       'يتم تطبيق إعدادات مساحة العمل فوراً عبر جميع أعضاء الفريق في هذه المنظمة.',
+    basicWorkspaceNameLabel: 'اسم مساحة العمل',
     basicSavedNotification: 'تم حفظ تفضيلات سياسة مساحة العمل بنجاح.',
     basicPolicyStatusPrefix: 'الحالة الحالية للسياسة',
     closeButtonLabel: 'إغلاق مربع الحوار',

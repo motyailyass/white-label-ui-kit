@@ -400,4 +400,47 @@ describe('Dialog (Pure Primitive)', () => {
     const closeBtn = screen.getByTestId('dialog-close-button');
     expect(closeBtn.getAttribute('aria-label')).toBe('Fermer la boîte');
   });
+
+  it('cycles focus correctly, skipping controls inside disabled <fieldset>', () => {
+    render(
+      <Dialog open={true} onOpenChange={vi.fn()}>
+        <button data-testid="btn-1">Button 1</button>
+        <button data-testid="btn-2">Button 2</button>
+        <fieldset disabled>
+          <input data-testid="inp-disabled-fieldset" />
+          <button data-testid="btn-disabled-fieldset">Disabled In Fieldset</button>
+        </fieldset>
+      </Dialog>,
+    );
+
+    const btn1 = screen.getByTestId('btn-1');
+    const btn2 = screen.getByTestId('btn-2');
+
+    btn2.focus();
+    expect(document.activeElement).toBe(btn2);
+
+    const dialog = screen.getByRole('dialog');
+    fireEvent.keyDown(dialog, { key: 'Tab', shiftKey: false });
+
+    // Focus loops to btn1, skipping controls inside disabled fieldset
+    expect(document.activeElement).toBe(btn1);
+  });
+
+  it('does not render an unnamed close button when closeLabel is empty or omitted', () => {
+    const { rerender } = render(
+      // @ts-expect-error Testing runtime resilience when closeLabel is omitted
+      <Dialog open={true} onOpenChange={vi.fn()} showCloseButton={true}>
+        <p>Modal</p>
+      </Dialog>,
+    );
+
+    expect(screen.queryByTestId('dialog-close-button')).toBeNull();
+
+    rerender(
+      <Dialog open={true} onOpenChange={vi.fn()} showCloseButton={true} closeLabel="   ">
+        <p>Modal</p>
+      </Dialog>,
+    );
+    expect(screen.queryByTestId('dialog-close-button')).toBeNull();
+  });
 });

@@ -756,6 +756,7 @@ export const common = {
     basicDialogDesc: 'Ajustez les préférences de base pour votre espace de travail actif.',
     basicDialogBody:
       'Les paramètres s’appliquent immédiatement à tous les membres de l’équipe dans cette organisation.',
+    basicWorkspaceNameLabel: 'Nom de l’espace de travail',
     basicSavedNotification: 'Préférences de stratégie d’espace enregistrées avec succès.',
     basicPolicyStatusPrefix: 'Statut actuel de la stratégie',
     closeButtonLabel: 'Fermer le dialogue',

@@ -411,15 +411,18 @@ test.describe('Dashboard Dialog Primitive Real-Browser Verification', () => {
   }) => {
     const trigger = page.locator('[data-testid="basic-dialog-trigger"]');
     const dialog = page.locator('[data-testid="basic-dialog"]');
+    const input = page.locator('[data-testid="basic-workspace-input"]');
     const saveBtn = page.locator('[data-testid="basic-dialog-save-btn"]');
     const statusRow = page.locator('[data-testid="basic-status-row"]');
 
     await trigger.click();
     await expect(dialog).toBeVisible();
+    await input.fill('Alpha Staging Workspace');
     await saveBtn.click();
     await expect(dialog).not.toBeVisible();
 
     await expect(statusRow).toBeVisible();
     await expect(statusRow).toContainText('saved successfully');
+    await expect(statusRow).toContainText('Alpha Staging Workspace');
   });
 });

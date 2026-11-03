@@ -753,6 +753,7 @@ export const common = {
     basicDialogDesc: 'Adjust basic preferences for your active workspace.',
     basicDialogBody:
       'Workspace settings apply immediately across all team members in this organization.',
+    basicWorkspaceNameLabel: 'Workspace Name',
     basicSavedNotification: 'Workspace policy preferences saved successfully.',
     basicPolicyStatusPrefix: 'Current Policy Status',
     closeButtonLabel: 'Close dialog',

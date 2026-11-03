@@ -23,6 +23,7 @@ export function DialogGallery() {
 
   // 1. Basic Dialog
   const [basicOpen, setBasicOpen] = useState(false);
+  const [basicWorkspaceName, setBasicWorkspaceName] = useState('Core Production Workspace');
   const [basicSavedStatus, setBasicSavedStatus] = useState<string | null>(null);
   const basicTitleId = useId();
   const basicDescId = useId();
@@ -187,6 +188,17 @@ export function DialogGallery() {
           </DialogHeader>
           <DialogBody>
             <p>{t('common.dialogGallery.basicDialogBody')}</p>
+            <div className={styles.fieldRow}>
+              <label htmlFor="basic-workspace-input" className={styles.label}>
+                {t('common.dialogGallery.basicWorkspaceNameLabel')}
+              </label>
+              <Input
+                id="basic-workspace-input"
+                value={basicWorkspaceName}
+                onChange={(e) => setBasicWorkspaceName(e.target.value)}
+                data-testid="basic-workspace-input"
+              />
+            </div>
           </DialogBody>
           <DialogFooter>
             <Button
@@ -200,7 +212,9 @@ export function DialogGallery() {
               variant="primary"
               data-testid="basic-dialog-save-btn"
               onClick={() => {
-                setBasicSavedStatus(t('common.dialogGallery.basicSavedNotification'));
+                setBasicSavedStatus(
+                  `${t('common.dialogGallery.basicSavedNotification')} (${basicWorkspaceName})`,
+                );
                 setBasicOpen(false);
               }}
             >

@@ -12,7 +12,7 @@ const testOptions: ComboboxOption[] = [
   { value: 'fr', label: 'France' },
 ];
 
-describe('Combobox Primitive', () => {
+describe('Combobox Primitive — Single Select', () => {
   it('renders with role="combobox", aria-expanded="false", and aria-autocomplete="list"', () => {
     render(<Combobox options={testOptions} placeholder="Select country" />);
     const input = screen.getByRole('combobox');
@@ -139,5 +139,86 @@ describe('Combobox Primitive', () => {
     const ref = createRef<HTMLInputElement>();
     render(<Combobox options={testOptions} ref={ref} />);
     expect(ref.current).toBeInstanceOf(HTMLInputElement);
+  });
+});
+
+describe('Combobox Primitive — Multi-Select (Tags / Chips Mode)', () => {
+  it('renders interactive removable tag chips for selected items', () => {
+    render(
+      <Combobox
+        multiple
+        options={testOptions}
+        defaultValue={['us', 'ca']}
+      />,
+    );
+    expect(screen.getByText('United States')).toBeDefined();
+    expect(screen.getByText('Canada')).toBeDefined();
+    expect(screen.getByRole('button', { name: /remove united states/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /remove canada/i })).toBeDefined();
+  });
+
+  it('allows picking multiple options without closing popup immediately', async () => {
+    const user = userEvent.setup();
+    const handleValueChange = vi.fn();
+    render(
+      <Combobox
+        multiple
+        options={testOptions}
+        onValueChange={handleValueChange}
+      />,
+    );
+    const input = screen.getByRole('combobox');
+    await user.click(input);
+
+    // Pick United States
+    await user.click(screen.getByText('United States'));
+    expect(handleValueChange).toHaveBeenCalledWith(['us'], [expect.objectContaining({ value: 'us' })]);
+    expect(input.getAttribute('aria-expanded')).toBe('true'); // Stays open!
+
+    // Pick Germany
+    await user.click(screen.getByText('Germany'));
+    expect(handleValueChange).toHaveBeenCalledWith(
+      ['us', 'de'],
+      expect.arrayContaining([
+        expect.objectContaining({ value: 'us' }),
+        expect.objectContaining({ value: 'de' }),
+      ]),
+    );
+  });
+
+  it('removes a selected chip when its remove button is clicked', async () => {
+    const user = userEvent.setup();
+    const handleValueChange = vi.fn();
+    render(
+      <Combobox
+        multiple
+        options={testOptions}
+        defaultValue={['us', 'ca']}
+        onValueChange={handleValueChange}
+      />,
+    );
+    const removeBtn = screen.getByRole('button', { name: /remove united states/i });
+    await user.click(removeBtn);
+
+    expect(handleValueChange).toHaveBeenCalledWith(['ca'], [expect.objectContaining({ value: 'ca' })]);
+  });
+
+  it('removes the last selected chip on Backspace when the search input is empty', async () => {
+    const user = userEvent.setup();
+    const handleValueChange = vi.fn();
+    render(
+      <Combobox
+        multiple
+        options={testOptions}
+        defaultValue={['us', 'ca']}
+        onValueChange={handleValueChange}
+      />,
+    );
+    const input = screen.getByRole('combobox');
+    await user.click(input);
+    expect((input as HTMLInputElement).value).toBe('');
+
+    await user.keyboard('{Backspace}');
+    expect(handleValueChange).toHaveBeenCalledWith(['us'], [expect.objectContaining({ value: 'us' })]);
   });
 });

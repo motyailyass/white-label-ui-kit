@@ -45,20 +45,26 @@ function isGrouped(items: ComboboxItems): items is ComboboxOptionGroup[] {
   return items.length > 0 && 'options' in items[0];
 }
 
-export interface ComboboxProps
+export interface ComboboxBaseProps
   extends Omit<ComponentPropsWithRef<'input'>, 'size' | 'onChange' | 'value' | 'defaultValue'>,
     ControlSizingProps {
   /** List of flat options or grouped options */
   options: ComboboxItems;
 
-  /** Controlled selected value */
-  value?: string;
+  /** Multi-select mode with interactive removable tags */
+  multiple?: boolean;
+
+  /** Controlled selected value: string in single-select, string[] in multi-select */
+  value?: string | string[];
 
   /** Initial selected value for uncontrolled usage */
-  defaultValue?: string;
+  defaultValue?: string | string[];
 
   /** Callback fired when an option is selected or cleared */
-  onValueChange?: (value: string, selectedOption: ComboboxOption | null) => void;
+  onValueChange?: (
+    value: any,
+    selected: any,
+  ) => void;
 
   /** Callback fired as the user types in the search input */
   onSearchChange?: (query: string) => void;
@@ -84,6 +90,9 @@ export interface ComboboxProps
   /** Localized accessible name for the toggle popup button */
   toggleAriaLabel?: string;
 
+  /** Function generating accessible label for remove chip buttons */
+  removeChipAriaLabel?: (label: string) => string;
+
   /** Optional leading icon inside the input */
   startIcon?: ReactNode;
 
@@ -97,11 +106,28 @@ export interface ComboboxProps
   listboxClassName?: string;
 }
 
+export interface ComboboxSingleProps extends ComboboxBaseProps {
+  multiple?: false;
+  value?: string;
+  defaultValue?: string;
+  onValueChange?: (value: string, selectedOption: ComboboxOption | null) => void;
+}
+
+export interface ComboboxMultiProps extends ComboboxBaseProps {
+  multiple: true;
+  value?: string[];
+  defaultValue?: string[];
+  onValueChange?: (values: string[], selectedOptions: ComboboxOption[]) => void;
+}
+
+export type ComboboxProps = ComboboxSingleProps | ComboboxMultiProps;
+
 export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Combobox(
   {
     options,
+    multiple = false,
     value: controlledValue,
-    defaultValue = '',
+    defaultValue,
     onValueChange,
     onSearchChange,
     filterFn,
@@ -112,6 +138,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
     clearable = false,
     clearAriaLabel = 'Clear selection',
     toggleAriaLabel = 'Toggle options',
+    removeChipAriaLabel,
     startIcon,
     size,
     touchTarget = 'auto',
@@ -149,27 +176,52 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
 
   // Selected value state (controlled or uncontrolled)
   const isControlled = controlledValue !== undefined;
-  const [internalValue, setInternalValue] = useState<string>(defaultValue);
-  const selectedValue = isControlled ? controlledValue : internalValue;
+  const initialValue = defaultValue !== undefined ? defaultValue : multiple ? [] : '';
+  const [internalValue, setInternalValue] = useState<string | string[]>(initialValue);
 
-  const selectedOption = useMemo(
-    () => flatOptions.find((opt) => opt.value === selectedValue) ?? null,
-    [flatOptions, selectedValue],
-  );
+  const rawValue = isControlled ? controlledValue : internalValue;
+
+  // Normalized values:
+  // - in multi mode: string[]
+  // - in single mode: string
+  const selectedValues = useMemo<string[]>(() => {
+    if (multiple) {
+      if (Array.isArray(rawValue)) return rawValue;
+      if (typeof rawValue === 'string' && rawValue) return [rawValue];
+      return [];
+    }
+    return [];
+  }, [multiple, rawValue]);
+
+  const singleSelectedValue = typeof rawValue === 'string' ? rawValue : '';
+
+  const selectedOptionsMulti = useMemo(() => {
+    if (!multiple) return [];
+    return flatOptions.filter((opt) => selectedValues.includes(opt.value));
+  }, [multiple, flatOptions, selectedValues]);
+
+  const selectedOptionSingle = useMemo(() => {
+    if (multiple) return null;
+    return flatOptions.find((opt) => opt.value === singleSelectedValue) ?? null;
+  }, [multiple, flatOptions, singleSelectedValue]);
 
   // Search input text state
-  const [searchQuery, setSearchQuery] = useState<string>(selectedOption?.label ?? '');
+  const [searchQuery, setSearchQuery] = useState<string>(
+    multiple ? '' : (selectedOptionSingle?.label ?? ''),
+  );
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
 
-  // Synchronize searchQuery when selected option changes from outside
+  // Synchronize searchQuery when single selected option changes from outside
   useEffect(() => {
-    if (selectedOption) {
-      setSearchQuery(selectedOption.label);
-    } else if (!isControlled) {
-      setSearchQuery('');
+    if (!multiple) {
+      if (selectedOptionSingle) {
+        setSearchQuery(selectedOptionSingle.label);
+      } else if (!isControlled) {
+        setSearchQuery('');
+      }
     }
-  }, [selectedOption, isControlled]);
+  }, [multiple, selectedOptionSingle, isControlled]);
 
   // Default filter function: case-insensitive label substring
   const defaultFilter = useCallback((opt: ComboboxOption, query: string) => {
@@ -210,20 +262,19 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
         setActiveIndex(-1);
-        // Reset query text to selected option label
-        if (selectedOption) {
-          setSearchQuery(selectedOption.label);
-        } else {
+        if (multiple) {
           setSearchQuery('');
+        } else {
+          setSearchQuery(selectedOptionSingle?.label ?? '');
         }
       }
     }
 
     window.addEventListener('pointerdown', handlePointerDown);
     return () => window.removeEventListener('pointerdown', handlePointerDown);
-  }, [isOpen, selectedOption]);
+  }, [isOpen, multiple, selectedOptionSingle]);
 
-  // Scroll active option into view
+  // Scroll active option into view safely
   useEffect(() => {
     if (!isOpen || activeIndex < 0 || !listboxRef.current) return;
     const activeEl = listboxRef.current.querySelector<HTMLElement>(
@@ -237,31 +288,71 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
   const selectOption = useCallback(
     (option: ComboboxOption) => {
       if (option.disabled) return;
-      if (!isControlled) {
-        setInternalValue(option.value);
+
+      if (multiple) {
+        const isAlreadySelected = selectedValues.includes(option.value);
+        const newValues = isAlreadySelected
+          ? selectedValues.filter((v) => v !== option.value)
+          : [...selectedValues, option.value];
+
+        if (!isControlled) {
+          setInternalValue(newValues);
+        }
+
+        const newSelectedOptions = flatOptions.filter((opt) => newValues.includes(opt.value));
+        onValueChange?.(newValues as any, newSelectedOptions as any);
+        setSearchQuery('');
+        inputRef.current?.focus();
+        // Keep popup open for seamless multiple picks
+      } else {
+        if (!isControlled) {
+          setInternalValue(option.value);
+        }
+        setSearchQuery(option.label);
+        setIsOpen(false);
+        setActiveIndex(-1);
+        onValueChange?.(option.value as any, option as any);
+        inputRef.current?.focus();
       }
-      setSearchQuery(option.label);
-      setIsOpen(false);
-      setActiveIndex(-1);
-      onValueChange?.(option.value, option);
+    },
+    [multiple, isControlled, selectedValues, flatOptions, onValueChange],
+  );
+
+  const removeChip = useCallback(
+    (val: string) => {
+      if (!multiple) return;
+      const newValues = selectedValues.filter((v) => v !== val);
+      if (!isControlled) {
+        setInternalValue(newValues);
+      }
+      const newSelectedOptions = flatOptions.filter((opt) => newValues.includes(opt.value));
+      onValueChange?.(newValues as any, newSelectedOptions as any);
       inputRef.current?.focus();
     },
-    [isControlled, onValueChange],
+    [multiple, selectedValues, isControlled, flatOptions, onValueChange],
   );
 
   const clearSelection = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
-      if (!isControlled) {
-        setInternalValue('');
+      if (multiple) {
+        if (!isControlled) {
+          setInternalValue([]);
+        }
+        setSearchQuery('');
+        onValueChange?.([] as any, [] as any);
+      } else {
+        if (!isControlled) {
+          setInternalValue('');
+        }
+        setSearchQuery('');
+        onValueChange?.('' as any, null as any);
       }
-      setSearchQuery('');
       setIsOpen(false);
       setActiveIndex(-1);
-      onValueChange?.('', null);
       inputRef.current?.focus();
     },
-    [isControlled, onValueChange],
+    [multiple, isControlled, onValueChange],
   );
 
   // Keyboard navigation
@@ -269,15 +360,20 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
     onKeyDown?.(e);
     if (disabled) return;
 
+    if (e.key === 'Backspace' && multiple && searchQuery === '' && selectedValues.length > 0) {
+      e.preventDefault();
+      const lastVal = selectedValues[selectedValues.length - 1];
+      if (lastVal) removeChip(lastVal);
+      return;
+    }
+
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       if (!isOpen) {
         setIsOpen(true);
-        // Highlight first enabled option
         const firstEnabled = visibleOptions.findIndex((opt) => !opt.disabled);
         setActiveIndex(firstEnabled);
       } else {
-        // Move to next enabled option
         let next = activeIndex + 1;
         while (next < visibleOptions.length && visibleOptions[next]?.disabled) {
           next++;
@@ -320,8 +416,10 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
         e.stopPropagation(); // Avoid closing outer dialogs
         setIsOpen(false);
         setActiveIndex(-1);
-        if (selectedOption) {
-          setSearchQuery(selectedOption.label);
+        if (multiple) {
+          setSearchQuery('');
+        } else if (selectedOptionSingle) {
+          setSearchQuery(selectedOptionSingle.label);
         }
       }
       return;
@@ -331,8 +429,10 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
       if (isOpen) {
         setIsOpen(false);
         setActiveIndex(-1);
-        if (selectedOption) {
-          setSearchQuery(selectedOption.label);
+        if (multiple) {
+          setSearchQuery('');
+        } else if (selectedOptionSingle) {
+          setSearchQuery(selectedOptionSingle.label);
         }
       }
       return;
@@ -371,6 +471,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
       : undefined;
 
   let flatIndexCounter = 0;
+  const hasValue = multiple ? selectedValues.length > 0 : !!singleSelectedValue;
 
   return (
     <div
@@ -379,8 +480,15 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
       data-size={size}
       data-touch-target={touchTarget}
     >
-      {/* Hidden native input for standard form integration */}
-      {name && <input type="hidden" name={name} value={selectedValue} />}
+      {/* Hidden native inputs for standard form submission */}
+      {name &&
+        (multiple ? (
+          selectedValues.map((v) => (
+            <input key={v} type="hidden" name={name} value={v} />
+          ))
+        ) : (
+          <input type="hidden" name={name} value={singleSelectedValue} />
+        ))}
 
       <div
         className={cn(
@@ -389,8 +497,41 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
           disabled && styles.disabled,
           isOpen && styles.focused,
         )}
+        onClick={() => {
+          if (!disabled) inputRef.current?.focus();
+        }}
       >
         {startIcon && <span className={styles.startIcon}>{startIcon}</span>}
+
+        {/* Multi-Select Interactive Removable Chips */}
+        {multiple && selectedOptionsMulti.length > 0 && (
+          <div className={styles.chipsContainer}>
+            {selectedOptionsMulti.map((opt) => (
+              <span key={opt.value} className={styles.chip}>
+                {opt.icon && <span className={styles.chipIcon}>{opt.icon}</span>}
+                <span className={styles.chipText}>{opt.label}</span>
+                {!disabled && (
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    aria-label={
+                      removeChipAriaLabel
+                        ? removeChipAriaLabel(opt.label)
+                        : `Remove ${opt.label}`
+                    }
+                    className={styles.chipRemove}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeChip(opt.value);
+                    }}
+                  >
+                    <Icon name="cancel" />
+                  </button>
+                )}
+              </span>
+            ))}
+          </div>
+        )}
 
         <input
           {...props}
@@ -399,7 +540,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
           type="text"
           value={searchQuery}
           disabled={disabled}
-          placeholder={placeholder}
+          placeholder={hasValue && multiple ? '' : placeholder}
           role="combobox"
           aria-autocomplete="list"
           aria-expanded={isOpen}
@@ -426,7 +567,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
             </span>
           )}
 
-          {clearable && !!selectedValue && !disabled && (
+          {clearable && hasValue && !disabled && (
             <button
               type="button"
               tabIndex={-1}
@@ -444,7 +585,8 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
             disabled={disabled}
             aria-label={toggleAriaLabel}
             aria-expanded={isOpen}
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               if (disabled) return;
               inputRef.current?.focus();
               setIsOpen((prev) => !prev);
@@ -462,6 +604,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
           id={listboxId}
           role="listbox"
           tabIndex={-1}
+          aria-multiselectable={multiple || undefined}
           style={maxListHeight ? { maxBlockSize: maxListHeight } : undefined}
           className={cn(styles.listbox, listboxClassName)}
         >
@@ -480,7 +623,9 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                   <ul role="group" aria-labelledby={groupId} className={styles.groupList}>
                     {group.options.map((opt) => {
                       const currentIndex = flatIndexCounter++;
-                      const isSelected = opt.value === selectedValue;
+                      const isSelected = multiple
+                        ? selectedValues.includes(opt.value)
+                        : opt.value === singleSelectedValue;
                       const isActive = currentIndex === activeIndex;
                       const optionId = `${listboxId}-option-${currentIndex}`;
 
@@ -507,6 +652,17 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                           }}
                         >
                           <div className={styles.optionContent}>
+                            {multiple && (
+                              <span
+                                className={cn(
+                                  styles.optionCheckbox,
+                                  isSelected && styles.optionCheckboxSelected,
+                                )}
+                                aria-hidden="true"
+                              >
+                                {isSelected && <Icon name="check" />}
+                              </span>
+                            )}
                             {opt.icon && <span className={styles.optionIcon}>{opt.icon}</span>}
                             <div className={styles.optionTextGroup}>
                               <span className={styles.optionLabel}>{opt.label}</span>
@@ -515,7 +671,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                               )}
                             </div>
                           </div>
-                          {isSelected && (
+                          {!multiple && isSelected && (
                             <span className={styles.checkIcon} aria-hidden="true">
                               <Icon name="check" />
                             </span>
@@ -530,7 +686,9 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
           ) : (
             (filteredItems as ComboboxOption[]).map((opt) => {
               const currentIndex = flatIndexCounter++;
-              const isSelected = opt.value === selectedValue;
+              const isSelected = multiple
+                ? selectedValues.includes(opt.value)
+                : opt.value === singleSelectedValue;
               const isActive = currentIndex === activeIndex;
               const optionId = `${listboxId}-option-${currentIndex}`;
 
@@ -557,6 +715,17 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                   }}
                 >
                   <div className={styles.optionContent}>
+                    {multiple && (
+                      <span
+                        className={cn(
+                          styles.optionCheckbox,
+                          isSelected && styles.optionCheckboxSelected,
+                        )}
+                        aria-hidden="true"
+                      >
+                        {isSelected && <Icon name="check" />}
+                      </span>
+                    )}
                     {opt.icon && <span className={styles.optionIcon}>{opt.icon}</span>}
                     <div className={styles.optionTextGroup}>
                       <span className={styles.optionLabel}>{opt.label}</span>
@@ -565,7 +734,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                       )}
                     </div>
                   </div>
-                  {isSelected && (
+                  {!multiple && isSelected && (
                     <span className={styles.checkIcon} aria-hidden="true">
                       <Icon name="check" />
                     </span>

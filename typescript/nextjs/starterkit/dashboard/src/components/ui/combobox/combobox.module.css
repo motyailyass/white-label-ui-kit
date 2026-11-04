@@ -85,16 +85,20 @@
   position: relative;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  row-gap: var(--space-1);
+  column-gap: var(--space-1-5);
   inline-size: 100%;
   box-sizing: border-box;
   min-block-size: var(--_control-height);
   padding-inline-start: var(--_control-padding-inline);
   padding-inline-end: var(--space-1);
-  padding-block: var(--_control-padding-block);
+  padding-block: calc(var(--space-1) / 2);
   border-radius: var(--radius-control);
   background-color: var(--color-control-bg);
   border: 1px solid var(--color-border-control);
   color: var(--color-text-primary);
+  cursor: text;
   transition:
     border-color var(--transition-fast),
     background-color var(--transition-fast);
@@ -132,7 +136,6 @@
   inline-size: var(--_control-icon-size);
   block-size: var(--_control-icon-size);
   color: var(--color-text-secondary);
-  margin-inline-end: var(--_control-gap);
   flex-shrink: 0;
 }
 
@@ -141,10 +144,79 @@
   block-size: var(--_control-icon-size);
 }
 
+/* Multi-Select Chips */
+.chipsContainer {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding-inline-start: var(--space-2);
+  padding-inline-end: var(--space-1);
+  padding-block: 2px;
+  border-radius: calc(var(--radius-control) - 2px);
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xs);
+  line-height: 1.25rem;
+  font-weight: var(--font-weight-medium);
+  user-select: none;
+  max-inline-size: 14rem;
+}
+
+.chipIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 0.875rem;
+  block-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.chipText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chipRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-radius: 50%;
+  inline-size: 1rem;
+  block-size: 1rem;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.chipRemove:hover {
+  color: var(--color-danger);
+  background-color: var(--color-danger-subtle, rgba(239, 68, 68, 0.12));
+}
+
+.chipRemove svg {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+}
+
 /* Inner Text Input */
 .input {
   flex: 1;
-  min-inline-size: 0;
+  min-inline-size: 4rem;
   border: none;
   background: transparent;
   padding: 0;
@@ -173,6 +245,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-0-5);
+  margin-inline-start: auto;
   flex-shrink: 0;
 }
 
@@ -243,13 +316,15 @@
   list-style: none;
   background-color: var(--color-surface-raised);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-overlay, var(--radius-control));
-  max-block-size: 16rem;
+  border-radius: var(--radius-card, var(--radius-control));
+  max-block-size: 18rem;
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-subtle) transparent;
 }
 
-/* Option */
+/* Option Row */
 .option {
   position: relative;
   display: flex;
@@ -293,6 +368,33 @@
   gap: var(--_control-gap);
   flex: 1;
   min-inline-size: 0;
+}
+
+/* Option Checkbox Indicator in Multi-Select */
+.optionCheckbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1rem;
+  block-size: 1rem;
+  border-radius: calc(var(--radius-control) - 4px);
+  border: 1px solid var(--color-border-control);
+  background-color: var(--color-surface);
+  flex-shrink: 0;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.optionCheckboxSelected {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.optionCheckbox svg {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
 }
 
 .optionIcon {

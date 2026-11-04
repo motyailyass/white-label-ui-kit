@@ -11,10 +11,11 @@
 
 ## 1. Executive Summary & Architectural Role
 
-The `Combobox` primitive provides an accessible, searchable, and filterable single-line text input paired with a floating listbox.
+The `Combobox` primitive provides an accessible, searchable, and filterable single-line text input paired with a floating listbox, supporting both single-select and multi-select (tags/chips) modes.
 
 Within the White Label UI Kit, `Combobox` follows:
 - **Pure Core UI boundary:** Zero third-party dependencies (no Radix, no Downshift).
+- **Single & Multi-Select Modes:** Supports single selection or multi-select tag chips with keyboard backspace removal and listbox checkbox indicators.
 - **Two-tier control sizing:** Consumes the universal six-step token scale (`xs` to `2xl`).
 - **WAI-ARIA 1.2 Combobox pattern:** `role="combobox"`, `role="listbox"`, `role="option"`, `aria-activedescendant`.
 - **Zero-shadow dashboard guarantee:** Depth is achieved via surface contrast (`--color-surface-raised`), boundary borders (`--color-border-subtle`), and z-index (`--z-dropdown`).
@@ -26,9 +27,11 @@ Within the White Label UI Kit, `Combobox` follows:
 
 - Pure UI primitive in `src/components/ui/combobox/`.
 - Never imports from `@/providers`, `@/i18n`, `next/*`, or validation/form libraries.
-- All user-facing strings (`placeholder`, `emptyMessage`, `clearAriaLabel`, `toggleAriaLabel`) are provided as props by callers.
-- Controlled and uncontrolled operation supported via `value`, `defaultValue`, and `onValueChange`.
-- Native hidden input rendered when `name` prop is provided for standard HTML form compatibility.
+- All user-facing strings (`placeholder`, `emptyMessage`, `clearAriaLabel`, `toggleAriaLabel`, `removeChipAriaLabel`) are provided as props by callers.
+- Controlled and uncontrolled operation supported via `value`, `defaultValue`, and `onValueChange`:
+  - Single-select: `value?: string`, `defaultValue?: string`, `onValueChange?: (value: string) => void`.
+  - Multi-select: `multiple: true`, `value?: string[]`, `defaultValue?: string[]`, `onValueChange?: (values: string[]) => void`.
+- Native hidden input(s) rendered when `name` prop is provided for standard HTML form compatibility.
 
 ---
 
@@ -52,7 +55,10 @@ On coarse pointers or with `touchTarget="comfortable"`, the input and options en
 
 - `ArrowDown`: Opens popup and navigates to the next enabled option (skipping disabled).
 - `ArrowUp`: Navigates to previous enabled option.
-- `Enter`: Commits the active option, closes popup, and updates input text.
-- `Escape`: Closes popup without committing changes; restores input to active selection.
+- `Enter`: Commits the active option:
+  - In single-select mode, commits the value and closes the popup.
+  - In multi-select mode, toggles the option, appends or removes the chip, and keeps the popup open for further selections.
+- `Backspace`: When in multi-select mode and the text search query is empty, removes the last selected chip.
+- `Escape`: Closes popup without committing unselected changes; restores input to active selection.
 - `Home` / `End`: Navigates to first/last enabled option in list.
 - `Tab`: Closes popup and allows standard tab navigation to the next interactive element.

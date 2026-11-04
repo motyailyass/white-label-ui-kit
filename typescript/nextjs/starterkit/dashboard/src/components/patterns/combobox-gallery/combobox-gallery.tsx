@@ -31,6 +31,7 @@ import {
 import styles from './combobox-gallery.module.css';
 
 export type ComboboxSpecimenDirection = 'ltr' | 'rtl';
+export type ComboboxSelectionMode = 'single' | 'multiple';
 export type ComboboxInteractionState = 'resting' | 'invalid' | 'loading' | 'disabled';
 export type ComboboxStageView = 'single' | 'all-sizes';
 export type ComboboxTouchTarget = 'auto' | 'comfortable';
@@ -82,6 +83,7 @@ export function ComboboxGallery({ linkComponent }: ComboboxGalleryProps) {
 
   // Studio Interactive State
   const [specimenDir, setSpecimenDir] = useState<ComboboxSpecimenDirection>('ltr');
+  const [selectionMode, setSelectionMode] = useState<ComboboxSelectionMode>('single');
   const [size, setSize] = useState<ControlSize | 'default'>('default');
   const [stageView, setStageView] = useState<ComboboxStageView>('single');
   const [interactionState, setInteractionState] = useState<ComboboxInteractionState>('resting');
@@ -89,7 +91,8 @@ export function ComboboxGallery({ linkComponent }: ComboboxGalleryProps) {
   const [isGrouped, setIsGrouped] = useState(false);
   const [isClearable, setIsClearable] = useState(true);
   const [hasStartIcon, setHasStartIcon] = useState(true);
-  const [selectedValue, setSelectedValue] = useState<string>('us');
+  const [singleValue, setSingleValue] = useState<string>('us');
+  const [multiValues, setMultiValues] = useState<string[]>(['us', 'ca']);
 
   // Live specimen ref for computed specs measurement
   const specimenRef = useRef<HTMLInputElement | null>(null);
@@ -116,10 +119,11 @@ export function ComboboxGallery({ linkComponent }: ComboboxGalleryProps) {
         });
       }
     }
-  }, [size, touchTarget, interactionState, hasStartIcon, specimenDir, resolvedTheme]);
+  }, [selectionMode, size, touchTarget, interactionState, hasStartIcon, specimenDir, resolvedTheme]);
 
   const handleReset = useCallback(() => {
     setSpecimenDir('ltr');
+    setSelectionMode('single');
     setSize('default');
     setStageView('single');
     setInteractionState('resting');
@@ -127,7 +131,8 @@ export function ComboboxGallery({ linkComponent }: ComboboxGalleryProps) {
     setIsGrouped(false);
     setIsClearable(true);
     setHasStartIcon(true);
-    setSelectedValue('us');
+    setSingleValue('us');
+    setMultiValues(['us', 'ca']);
   }, []);
 
   const resolvedSize: ControlSize | undefined = size === 'default' ? undefined : size;
@@ -151,6 +156,11 @@ export function ComboboxGallery({ linkComponent }: ComboboxGalleryProps) {
     { value: 'rtl', label: t('common.studio.specimenDirRtl'), testId: 'opt-dir-rtl' },
   ];
 
+  const modeOptions: readonly StudioSegmentedOption<ComboboxSelectionMode>[] = [
+    { value: 'single', label: 'Single Select', testId: 'opt-mode-single' },
+    { value: 'multiple', label: 'Multi-Select (Tags)', testId: 'opt-mode-multiple' },
+  ];
+
   const sizeOptions: readonly StudioSegmentedOption<ControlSize | 'default'>[] = [
     { value: 'default', label: 'Def', testId: 'opt-size-default' },
     { value: 'xs', label: 'XS', testId: 'opt-size-xs' },
@@ -167,10 +177,10 @@ export function ComboboxGallery({ linkComponent }: ComboboxGalleryProps) {
   ];
 
   const stateOptions: readonly StudioSegmentedOption<ComboboxInteractionState>[] = [
-    { value: 'resting', label: t('common.studio.stateResting'), testId: 'opt-state-resting' },
-    { value: 'invalid', label: t('common.studio.stateInvalid'), testId: 'opt-state-invalid' },
+    { value: 'resting', label: t('common.studio.optStateResting'), testId: 'opt-state-resting' },
+    { value: 'invalid', label: t('common.studio.optStateInvalid'), testId: 'opt-state-invalid' },
     { value: 'loading', label: t('common.studio.stateLoading'), testId: 'opt-state-loading' },
-    { value: 'disabled', label: t('common.studio.stateDisabled'), testId: 'opt-state-disabled' },
+    { value: 'disabled', label: t('common.studio.optStateDisabled'), testId: 'opt-state-disabled' },
   ];
 
   const touchTargetOptions: readonly StudioSegmentedOption<ComboboxTouchTarget>[] = [
@@ -180,7 +190,9 @@ export function ComboboxGallery({ linkComponent }: ComboboxGalleryProps) {
 
   // Dynamic JSX Snippet
   const jsxSnippet = useMemo(() => {
+    const isMulti = selectionMode === 'multiple';
     const propsList: string[] = ['options={countryOptions}'];
+    if (isMulti) propsList.push('multiple');
     if (size !== 'default') propsList.push(`size="${size}"`);
     if (touchTarget !== 'auto') propsList.push(`touchTarget="${touchTarget}"`);
     if (isInvalid) propsList.push('invalid');
@@ -188,8 +200,8 @@ export function ComboboxGallery({ linkComponent }: ComboboxGalleryProps) {
     if (isDisabled) propsList.push('disabled');
     if (isClearable) propsList.push('clearable');
     if (hasStartIcon) propsList.push('startIcon={<Icon name="search" />}');
-    propsList.push(`value={country}`);
-    propsList.push('onValueChange={setCountry}');
+    propsList.push(isMulti ? 'value={selectedCountries}' : 'value={country}');
+    propsList.push(isMulti ? 'onValueChange={setSelectedCountries}' : 'onValueChange={setCountry}');
 
     const propsStr = `\n  ${propsList.join('\n  ')}\n`;
 
@@ -197,13 +209,13 @@ export function ComboboxGallery({ linkComponent }: ComboboxGalleryProps) {
 import { Combobox, type ComboboxOption } from '@/components/ui';
 ${hasStartIcon ? `import { Icon } from '@/components/icons';\n` : ''}
 export function CountrySelect() {
-  const [country, setCountry] = useState('us');
+  const [${isMulti ? "selectedCountries, setSelectedCountries] = useState<string[]>(['us', 'ca'])" : "country, setCountry] = useState('us')"};
 
   return (
     <Combobox${propsStr}/>
   );
 }`;
-  }, [size, touchTarget, isInvalid, isLoading, isDisabled, isClearable, hasStartIcon]);
+  }, [selectionMode, size, touchTarget, isInvalid, isLoading, isDisabled, isClearable, hasStartIcon]);
 
   const cssModuleSnippet = `/* Custom sizing & container integration */
 .comboboxContainer {
@@ -214,6 +226,7 @@ export function CountrySelect() {
 
   // AI Agent Prompt
   const aiAgentPrompt = useMemo(() => {
+    const isMulti = selectionMode === 'multiple';
     return `Implement a white-label filterable Combobox component using the kit's pure Combobox primitive:
 
 \`\`\`tsx
@@ -222,6 +235,7 @@ ${jsxSnippet}
 
 Requirements & Tokens:
 - Pure UI Boundary: Consume \`@/components/ui/combobox\` directly.
+- Selection Mode: ${isMulti ? 'Multi-Select (Tags / Chips Mode with backspace removal)' : 'Single-Select'}.
 - Sizing: ${size === 'default' ? 'Product default (md = 36px in dashboard, xl = 48px in website)' : `Explicit size="${size}"`}.
 - Touch Target Policy: ${touchTarget === 'auto' ? 'Auto (coarse pointer 48×48px expansion)' : 'Comfortable (48×48px enforced)'}.
 - State: ${interactionState}.
@@ -229,7 +243,7 @@ Requirements & Tokens:
 - WAI-ARIA: Combobox role with roving activedescendant focus, listbox popup, and escape dismiss.
 - Direction: Logical properties only; full RTL/LTR bi-directional support.
 `;
-  }, [jsxSnippet, size, touchTarget, interactionState, isClearable, hasStartIcon, isGrouped]);
+  }, [jsxSnippet, selectionMode, size, touchTarget, interactionState, isClearable, hasStartIcon, isGrouped]);
 
   // Measured Spec Groups
   const specGroups: readonly StudioSpecGroup[] = useMemo(() => {
@@ -237,6 +251,7 @@ Requirements & Tokens:
       {
         title: t('common.studio.specCategoryVariant'),
         items: [
+          { label: 'mode', value: selectionMode },
           { label: 'size', value: size },
           { label: 'touchTarget', value: touchTarget },
           { label: 'state', value: interactionState },
@@ -290,6 +305,7 @@ Requirements & Tokens:
       },
     ];
   }, [
+    selectionMode,
     size,
     touchTarget,
     interactionState,
@@ -306,13 +322,37 @@ Requirements & Tokens:
   const allSizesList: readonly ControlSize[] = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
 
   const renderActiveCombobox = (overrideSize?: ControlSize, customRef = false) => {
+    if (selectionMode === 'multiple') {
+      return (
+        <Combobox
+          ref={customRef ? specimenRef : undefined}
+          id={activeInputId}
+          multiple
+          options={currentOptions}
+          value={multiValues}
+          onValueChange={(vals) => setMultiValues(vals)}
+          size={overrideSize ?? resolvedSize}
+          touchTarget={touchTarget}
+          invalid={isInvalid}
+          loading={isLoading}
+          disabled={isDisabled}
+          clearable={isClearable}
+          startIcon={hasStartIcon ? <Icon name="search" /> : undefined}
+          placeholder={activePlaceholder}
+          emptyMessage={t('common.studio.comboboxEmpty')}
+          clearAriaLabel={t('common.studio.comboboxClearAria')}
+          toggleAriaLabel={t('common.studio.comboboxToggleAria')}
+        />
+      );
+    }
+
     return (
       <Combobox
         ref={customRef ? specimenRef : undefined}
         id={activeInputId}
         options={currentOptions}
-        value={selectedValue}
-        onValueChange={(val) => setSelectedValue(val)}
+        value={singleValue}
+        onValueChange={(val) => setSingleValue(val)}
         size={overrideSize ?? resolvedSize}
         touchTarget={touchTarget}
         invalid={isInvalid}
@@ -346,6 +386,13 @@ Requirements & Tokens:
             onChange={setSpecimenDir}
           />
 
+          <StudioSegmentedControl
+            label="Selection Mode"
+            value={selectionMode}
+            options={modeOptions}
+            onChange={setSelectionMode}
+          />
+
           <hr className={styles.controlDivider} />
 
           <StudioSegmentedControl
@@ -356,7 +403,7 @@ Requirements & Tokens:
           />
 
           <StudioSegmentedControl
-            label={t('common.studio.btnStageViewLabel')}
+            label={t('common.studio.btnCanvasViewLabel')}
             value={stageView}
             options={viewOptions}
             onChange={setStageView}
@@ -424,7 +471,9 @@ Requirements & Tokens:
               <span className={isInvalid ? styles.fieldError : styles.fieldHelper}>
                 {isInvalid
                   ? 'Please select a valid option from the list.'
-                  : 'Type to filter options or use arrow keys.'}
+                  : selectionMode === 'multiple'
+                    ? 'Search and pick multiple countries. Press backspace to remove tags.'
+                    : 'Type to filter options or use arrow keys.'}
               </span>
             </div>
           </div>

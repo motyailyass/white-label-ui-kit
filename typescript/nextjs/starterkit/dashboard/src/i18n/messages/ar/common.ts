@@ -926,4 +926,56 @@ export const common = {
     nestedPopoverInDialogText: 'ترتفع النافذة المنبثقة بنظافة أمام مربع الحوار في الطبقة العليا للمتصفح.',
     closeDialogButton: 'إغلاق مربع الحوار',
   },
+  dropdownGallery: {
+    title: 'معرض مكون القائمة المنسدلة (Dropdown)',
+    subtitle:
+      'تحقق مرئي تفاعلي ومواصفات الاستخدام لقائمة الإجراءات المنسدلة المثبتة وغير المشروطة.',
+    metaTitle: 'معرض مكون القائمة المنسدلة | حزمة واجهة المستخدم الحيادية',
+    metaDescription:
+      'قائمة إجراءات مع تنقل WAI-ARIA عبر لوحة المفاتيح، ودعم للطبقة العليا الأصلية، وروابط آمنة، وبدون ظلال.',
+    sectionBasicTitle: '1. قائمة الإجراءات الأساسية',
+    sectionBasicDesc:
+      'زر قائمة إجراءات قياسي مع تنقل عبر لوحة المفاتيح وتنفيذ الأوامر.',
+    triggerActions: 'الإجراءات',
+    itemEdit: 'تعديل المورد',
+    itemDuplicate: 'تكرار المورد',
+    itemArchive: 'أرشفة المورد',
+    itemDelete: 'حذف المورد',
+    actionExecuted: 'تم تنفيذ الأمر:',
+    sectionLinksTitle: '2. روابط التنقل والوجهات الخارجية',
+    sectionLinksDesc:
+      'عناصر قائمة تعرض وسوم روابط حقيقية مع عناوين URL مخصصة وسمات rel آمنة.',
+    triggerNavigation: 'التنقل',
+    linkDashboard: 'نظرة عامة على لوحة التحكم',
+    linkDocumentation: 'توثيق واجهة البرمجة (علامة تبويب جديدة)',
+    linkSettings: 'إعدادات الحساب',
+    sectionDisabledTitle: '3. العناصر المعطلة والاستكشاف',
+    sectionDisabledDesc:
+      'تظل العناصر المعطلة قابلة للتركيز عبر الأسهم للاستكشاف، ولكن يُمنع تفعيلها.',
+    triggerDisabledDemo: 'خيارات تتضمن عنصراً معطلاً',
+    itemAvailablePrimary: 'إجراء أساسي متاح',
+    itemDisabledAction: 'إجراء معطل ومغلق',
+    itemAvailableSecondary: 'إجراء ثانوي متاح',
+    sectionPlacementTitle: '4. الموضع والمحاذاة ثنائية الاتجاه',
+    sectionPlacementDesc:
+      'يدعم التموضع في الأعلى والأسفل، والمحاذاة الأفقية للبداية والنهاية ثنائية الاتجاه.',
+    placementBottomStart: 'أسفل البداية',
+    placementBottomEnd: 'أسفل النهاية',
+    placementTopStart: 'أعلى البداية',
+    placementTopEnd: 'أعلى النهاية',
+    sectionControlledTitle: '5. الحالة المضبوطة مقابل غير المضبوطة',
+    sectionControlledDesc:
+      'زر تبديل خارجي متزامن مع حالة القائمة المضبوطة.',
+    externalToggleBtn: 'تبديل القائمة خارجياً',
+    controlledMenuText: 'حالة القائمة المنسدلة المضبوطة',
+    rejectionTrigger: 'قائمة مغلقة ومقفلة (ترفض الفتح)',
+    sectionInsideDialogTitle: '6. قائمة منسدلة داخل مربع حوار مشروط',
+    sectionInsideDialogDesc:
+      'يتيح العرض في الطبقة العليا للقائمة المنسدلة الظهور بنظافة فوق مربع الحوار المشروط، مع إغلاق تسلسلي بمفتاح الهروب.',
+    openDialogWithDropdown: 'فتح مربع حوار مع قائمة منسدلة',
+    dialogTitle: 'نافذة إدارة الموارد',
+    dialogDesc: 'يحتوي مربع الحوار هذا على قائمة إجراءات للتحقق من الارتفاع في الطبقة العليا.',
+    dialogCloseBtn: 'إغلاق مربع الحوار',
+    outsideActionBtn: 'عدد الإجراءات الخارجية:',
+  },
 } satisfies CommonMessages;

@@ -1,0 +1,205 @@
+/**
+ * White Label UI Kit — Dropdown Stylesheet
+ * Native HTML Popover API with WAI-ARIA Menu Semantics & Coordinate Positioning.
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.dropdown {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+}
+
+/* Primary Top Layer & Fallback Layering */
+@supports selector(:popover-open) {
+  .dropdown:not(:popover-open):not([data-fallback="true"]) {
+    display: none !important;
+  }
+}
+
+@supports not selector(:popover-open) {
+  .dropdown[data-state="closed"] {
+    display: none !important;
+  }
+}
+
+.dropdown[data-fallback="true"][data-state="closed"] {
+  display: none !important;
+}
+
+.dropdown[data-fallback="true"][data-state="open"] {
+  display: block;
+}
+
+/* Floating Menu Surface Box */
+.surface {
+  position: fixed;
+  z-index: var(--z-dropdown); /* 200 */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5, 2px);
+  min-inline-size: min(100%, 160px);
+  max-inline-size: min(calc(100vw - var(--space-8)), var(--_dropdown-max-width, 280px));
+  max-block-size: min(calc(100vh - var(--space-8)), var(--_dropdown-max-height, 360px));
+  padding-inline: var(--space-1);
+  padding-block: var(--space-1);
+  border-radius: var(--radius-overlay);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  outline: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Menu Item */
+.item {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-2);
+  inline-size: 100%;
+  min-block-size: var(--control-height-sm, 2rem);
+  padding-inline: var(--space-3);
+  padding-block: var(--space-1-5, 0.375rem);
+  border-radius: var(--radius-control);
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular, 400);
+  line-height: var(--line-height-normal);
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  transition: background-color var(--motion-duration-fast, 120ms) var(--motion-ease-standard),
+    color var(--motion-duration-fast, 120ms) var(--motion-ease-standard);
+}
+
+/* Interactive States */
+.item:hover:not([aria-disabled="true"]),
+.item[data-focused="true"]:not([aria-disabled="true"]) {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.item:focus-visible {
+  outline: var(--focus-ring-width, 2px) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset, -1px);
+}
+
+/* Destructive / Danger Variant */
+.item[data-variant="danger"] {
+  color: var(--color-danger);
+}
+
+.item[data-variant="danger"]:hover:not([aria-disabled="true"]),
+.item[data-variant="danger"][data-focused="true"]:not([aria-disabled="true"]) {
+  background-color: var(--color-danger-subtle);
+  color: var(--color-danger);
+}
+
+/* Disabled State: focusable for discovery, blocked from activation */
+.item[aria-disabled="true"] {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.item[aria-disabled="true"]:focus-visible {
+  outline: var(--focus-ring-width, 2px) solid var(--color-border-disabled);
+  outline-offset: var(--focus-ring-offset, -1px);
+}
+
+/* Item slots */
+.itemLabel {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.startIcon,
+.endIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+.shortcut {
+  margin-inline-start: auto;
+  font-family: var(--font-family-mono, monospace);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  letter-spacing: var(--letter-spacing-wide, 0.05em);
+  padding-inline-start: var(--space-2);
+}
+
+/* Separator */
+.separator {
+  block-size: 1px;
+  inline-size: 100%;
+  background-color: var(--color-border-subtle);
+  margin-block: var(--space-1);
+  border: none;
+  flex-shrink: 0;
+}
+
+/* Group & Label */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5, 2px);
+  inline-size: 100%;
+}
+
+.label {
+  padding-inline: var(--space-3);
+  padding-block: var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary);
+  user-select: none;
+}
+
+/* High Contrast & Forced Colors */
+@media (forced-colors: active) {
+  .surface {
+    border: 1px solid ButtonBorder;
+  }
+
+  .item:hover:not([aria-disabled="true"]),
+  .item[data-focused="true"]:not([aria-disabled="true"]) {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+
+  .item[aria-disabled="true"] {
+    color: GrayText;
+  }
+
+  .separator {
+    background-color: ButtonBorder;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .surface,
+  .item {
+    transition: none !important;
+  }
+}

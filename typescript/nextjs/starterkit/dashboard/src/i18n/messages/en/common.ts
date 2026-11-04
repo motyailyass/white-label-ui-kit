@@ -938,6 +938,58 @@ export const common = {
     nestedPopoverInDialogText: 'Popover cleanly elevated in front of modal dialog in browser top layer.',
     closeDialogButton: 'Close Modal Dialog',
   },
+  dropdownGallery: {
+    title: 'Dropdown Component Gallery',
+    subtitle:
+      'Interactive visual verification and usage specifications for the non-modal anchored Dropdown action menu.',
+    metaTitle: 'Dropdown Component Gallery | White Label UI Kit',
+    metaDescription:
+      'Action menu with WAI-ARIA roving tabindex navigation, native top layer support, safe links, and zero shadows.',
+    sectionBasicTitle: '1. Basic Action Menu',
+    sectionBasicDesc:
+      'Standard action menu button with keyboard navigation and command dispatch.',
+    triggerActions: 'Actions',
+    itemEdit: 'Edit Resource',
+    itemDuplicate: 'Duplicate Resource',
+    itemArchive: 'Archive Resource',
+    itemDelete: 'Delete Resource',
+    actionExecuted: 'Executed command:',
+    sectionLinksTitle: '2. Navigation Links & External Destinations',
+    sectionLinksDesc:
+      'Menu items rendering real anchor tags with caller-provided URLs and safe rel attributes.',
+    triggerNavigation: 'Navigation',
+    linkDashboard: 'Dashboard Overview',
+    linkDocumentation: 'API Documentation (New Tab)',
+    linkSettings: 'Account Settings',
+    sectionDisabledTitle: '3. Disabled Items & Discovery',
+    sectionDisabledDesc:
+      'Disabled items remain focusable for discovery via arrow keys, but cannot be activated.',
+    triggerDisabledDemo: 'Options with Disabled',
+    itemAvailablePrimary: 'Available Primary Action',
+    itemDisabledAction: 'Unavailable Locked Action',
+    itemAvailableSecondary: 'Available Secondary Action',
+    sectionPlacementTitle: '4. Placement & Bidirectional Alignment',
+    sectionPlacementDesc:
+      'Supports top, bottom, and bidirectional start/end horizontal alignment.',
+    placementBottomStart: 'Bottom Start',
+    placementBottomEnd: 'Bottom End',
+    placementTopStart: 'Top Start',
+    placementTopEnd: 'Top End',
+    sectionControlledTitle: '5. Controlled vs Uncontrolled State',
+    sectionControlledDesc:
+      'External toggle button synchronized with controlled menu state.',
+    externalToggleBtn: 'Toggle Menu Externally',
+    controlledMenuText: 'Controlled dropdown state',
+    rejectionTrigger: 'Locked Closed Menu (Rejects Open)',
+    sectionInsideDialogTitle: '6. Dropdown Inside Modal Dialog',
+    sectionInsideDialogDesc:
+      'Top-layer rendering allows dropdown to stack cleanly above modal dialog, with sequential Escape dismissal.',
+    openDialogWithDropdown: 'Open Dialog with Dropdown',
+    dialogTitle: 'Resource Management Modal',
+    dialogDesc: 'This modal dialog contains a dropdown action menu to verify top-layer elevation.',
+    dialogCloseBtn: 'Close Modal Dialog',
+    outsideActionBtn: 'Outside Action Count:',
+  },
 } as const;
 
 export type CommonMessages = MessageShape<typeof common>;

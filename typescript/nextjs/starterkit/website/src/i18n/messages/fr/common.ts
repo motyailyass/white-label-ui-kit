@@ -941,4 +941,56 @@ export const common = {
     nestedPopoverInDialogText: 'Popover surélevé proprement devant le dialogue modal dans la couche supérieure du navigateur.',
     closeDialogButton: 'Fermer le dialogue modal',
   },
+  dropdownGallery: {
+    title: 'Galerie du composant Dropdown',
+    subtitle:
+      'Vérification visuelle interactive et spécifications d’utilisation pour le menu d’actions Dropdown ancré et non modal.',
+    metaTitle: 'Galerie du composant Dropdown | Kit d’interface en marque blanche',
+    metaDescription:
+      'Menu d’actions avec navigation au clavier WAI-ARIA, prise en charge native de la couche supérieure et zéro ombre.',
+    sectionBasicTitle: '1. Menu d’actions de base',
+    sectionBasicDesc:
+      'Bouton de menu standard avec navigation au clavier et exécution des commandes.',
+    triggerActions: 'Actions',
+    itemEdit: 'Modifier la ressource',
+    itemDuplicate: 'Dupliquer la ressource',
+    itemArchive: 'Archiver la ressource',
+    itemDelete: 'Supprimer la ressource',
+    actionExecuted: 'Commande exécutée :',
+    sectionLinksTitle: '2. Liens de navigation et destinations externes',
+    sectionLinksDesc:
+      'Éléments de menu rendant de véritables balises d’ancrage avec des URL fournies et des attributs rel sécurisés.',
+    triggerNavigation: 'Navigation',
+    linkDashboard: 'Vue d’ensemble du tableau de bord',
+    linkDocumentation: 'Documentation API (Nouvel onglet)',
+    linkSettings: 'Paramètres du compte',
+    sectionDisabledTitle: '3. Éléments désactivés et découverte',
+    sectionDisabledDesc:
+      'Les éléments désactivés restent sélectionnables au clavier pour découverte, mais ne peuvent être activés.',
+    triggerDisabledDemo: 'Options avec élément désactivé',
+    itemAvailablePrimary: 'Action principale disponible',
+    itemDisabledAction: 'Action verrouillée indisponible',
+    itemAvailableSecondary: 'Action secondaire disponible',
+    sectionPlacementTitle: '4. Positionnement et alignement bidirectionnel',
+    sectionPlacementDesc:
+      'Prend en charge le positionnement haut, bas et l’alignement horizontal bidirectionnel début/fin.',
+    placementBottomStart: 'Bas Début',
+    placementBottomEnd: 'Bas Fin',
+    placementTopStart: 'Haut Début',
+    placementTopEnd: 'Haut Fin',
+    sectionControlledTitle: '5. État contrôlé vs non contrôlé',
+    sectionControlledDesc:
+      'Bouton de bascule externe synchronisé avec l’état du menu contrôlé.',
+    externalToggleBtn: 'Basculer le menu de l’extérieur',
+    controlledMenuText: 'État du menu déroulant contrôlé',
+    rejectionTrigger: 'Menu verrouillé fermé (Rejette l’ouverture)',
+    sectionInsideDialogTitle: '6. Dropdown dans un dialogue modal',
+    sectionInsideDialogDesc:
+      'L’affichage dans la couche supérieure permet au menu de s’empiler proprement au-dessus du dialogue modal.',
+    openDialogWithDropdown: 'Ouvrir le dialogue avec menu déroulant',
+    dialogTitle: 'Modal de gestion des ressources',
+    dialogDesc: 'Ce dialogue modal contient un menu d’actions pour vérifier l’élévation dans la couche supérieure.',
+    dialogCloseBtn: 'Fermer le dialogue modal',
+    outsideActionBtn: 'Nombre d’actions extérieures :',
+  },
 } satisfies CommonMessages;

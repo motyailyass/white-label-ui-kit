@@ -2,6 +2,7 @@ export * from './button';
 export * from './checkbox';
 export * from './control-sizing';
 export * from './dialog';
+export * from './dropdown';
 export * from './input';
 export * from './popover';
 export * from './radio';

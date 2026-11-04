@@ -232,18 +232,6 @@
   outline: none;
   text-align: start;
 }
-  border: none;
-  background: transparent;
-  padding: 0;
-  margin: 0;
-  color: inherit;
-  font-family: inherit;
-  font-size: var(--_control-font-size);
-  line-height: var(--_control-line-height);
-  font-weight: var(--font-weight-regular);
-  outline: none;
-  text-align: start;
-}
 
 .input::placeholder {
   color: var(--color-text-placeholder);

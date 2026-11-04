@@ -989,6 +989,7 @@ export const common = {
     navAriaLabel: 'التنقل في استوديو المكونات',
     navOverview: 'مركز الاستوديو',
     navButton: 'الزر (Button)',
+    navCombobox: 'مربع التحرير والسرد (Combobox)',
     navDialog: 'مربع الحوار (Dialog)',
     badgeInteractiveStudio: 'استوديو مباشر',
     badgeReferencePage: 'معاينة أولية',
@@ -997,6 +998,7 @@ export const common = {
     otherPrimitivesDesc:
       'صفحات التحقق الحالية المتاحة ريثما يكتمل نقل بقية المكونات إلى الاستوديو التفاعلي الموحد.',
     compInput: 'حقل الإدخال',
+    compCombobox: 'مربع التحرير والسرد',
     compTextarea: 'منطقة النص',
     compSelect: 'القائمة المنتقاة',
     compCheckbox: 'مربع الاختيار',
@@ -1024,6 +1026,16 @@ export const common = {
       'اختبر النوافذ المنبثقة المثبتة، ونقاط التثبيت (أعلى، أسفل، بداية، نهاية)، والإغلاق التلقائي عند النقر الخارجي.',
     dropdownCardDesc:
       'عاين قوائم الإجراءات مع اختصارات لوحة المفاتيح، والعناصر الدلالية، والفواصل، والحالات المعطلة.',
+    comboboxTitle: 'استوديو مربع التحرير والسرد',
+    comboboxSubtitle:
+      'عاين مربع التحرير والسرد مع البحث القابل للتصفية، واختبر مقاييس الحجم، ومجموعات الخيارات، وإجراء المسح، والتنقل بأسهم لوحة المفاتيح، وانسخ الكود الدقيق.',
+    comboboxCardDesc:
+      'حقل بحث وتصفية، وقائمة منبثقة متوافقة مع WAI-ARIA 1.2، وتنقل بلوحة المفاتيح، ومجموعات خيارات، وإجراء مسح فوري.',
+    comboboxSamplePlaceholder: 'ابحث عن دولة...',
+    comboboxSampleLabel: 'الدولة المحددة',
+    comboboxEmpty: 'لم يتم العثور على خيارات مطابقة',
+    comboboxToggleAria: 'تبديل عرض الخيارات',
+    comboboxClearAria: 'مسح الاختيار',
     stageTitle: 'منصة المعاينة المباشرة',
     controlsTitle: 'إعدادات الأنماط والرموز',
     resetDefaults: 'إعادة الضبط',

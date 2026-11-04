@@ -1001,6 +1001,7 @@ export const common = {
     navAriaLabel: 'Component studio navigation',
     navOverview: 'Studio Hub',
     navButton: 'Button',
+    navCombobox: 'Combobox',
     navDialog: 'Dialog',
     badgeInteractiveStudio: 'Live Studio',
     badgeReferencePage: 'Primitive Preview',
@@ -1009,6 +1010,7 @@ export const common = {
     otherPrimitivesDesc:
       'Existing primitive verification routes available while migrating into the unified interactive studio.',
     compInput: 'Input',
+    compCombobox: 'Combobox',
     compTextarea: 'Textarea',
     compSelect: 'Select',
     compCheckbox: 'Checkbox',
@@ -1036,6 +1038,16 @@ export const common = {
       'Test light-dismiss popovers, placement anchors (top, bottom, inline-start, inline-end), and focus restoration.',
     dropdownCardDesc:
       'Test multi-action menu items, destructive options, keyboard loops, and top-layer elevation.',
+    comboboxTitle: 'Combobox Studio',
+    comboboxSubtitle:
+      'Inspect filterable single-select combobox, test density scale, option groups, clearable action, keyboard roving focus, and copy exact code.',
+    comboboxCardDesc:
+      'Filterable search input, WAI-ARIA 1.2 listbox popup, keyboard roving focus, option groups, and clearable actions.',
+    comboboxSamplePlaceholder: 'Search countries...',
+    comboboxSampleLabel: 'Assigned Country',
+    comboboxEmpty: 'No matching countries found',
+    comboboxToggleAria: 'Toggle options',
+    comboboxClearAria: 'Clear selection',
     stageTitle: 'Live Component Stage',
     controlsTitle: 'Variant & Token Controls',
     resetDefaults: 'Reset Defaults',

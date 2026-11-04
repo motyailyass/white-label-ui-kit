@@ -1,6 +1,7 @@
 export * from './app-toolbar';
 export * from './button-gallery';
 export * from './checkbox-gallery';
+export * from './combobox-gallery';
 export * from './dialog-gallery';
 export * from './dropdown-gallery';
 export * from './error-boundary';

@@ -1,5 +1,6 @@
 export * from './button';
 export * from './checkbox';
+export * from './combobox';
 export * from './control-sizing';
 export * from './dialog';
 export * from './dropdown';

@@ -23,6 +23,7 @@ export type StudioRouteId =
   | 'hub'
   | 'button'
   | 'input'
+  | 'combobox'
   | 'textarea'
   | 'select'
   | 'checkbox'
@@ -140,6 +141,16 @@ export function GalleryStudioLayout({
               >
                 <Icon name="search" />
                 <span>{t('common.studio.compInput')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/combobox"
+                className={styles.navLink}
+                aria-current={activeRoute === 'combobox' ? 'page' : undefined}
+              >
+                <Icon name="sliders" />
+                <span>{t('common.studio.compCombobox')}</span>
               </LinkSlot>
             </li>
             <li>
@@ -700,6 +711,13 @@ export function GalleryHub({ linkComponent: LinkSlot = DefaultStudioAnchor }: Ga
       desc: t('common.studio.inputCardDesc'),
       href: '/gallery/input',
       icon: 'search' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.comboboxTitle'),
+      desc: t('common.studio.comboboxCardDesc'),
+      href: '/gallery/combobox',
+      icon: 'sliders' as const,
       isStudio: true,
     },
     {

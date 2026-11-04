@@ -1004,6 +1004,7 @@ export const common = {
     navAriaLabel: 'Navigation du studio de composants',
     navOverview: 'Accueil Studio',
     navButton: 'Bouton',
+    navCombobox: 'Combobox',
     navDialog: 'Dialogue',
     badgeInteractiveStudio: 'Studio Live',
     badgeReferencePage: 'Aperçu Primitif',
@@ -1012,6 +1013,7 @@ export const common = {
     otherPrimitivesDesc:
       'Routes de vérification existantes disponibles pendant la migration vers le studio interactif unifié.',
     compInput: 'Champ texte',
+    compCombobox: 'Combobox',
     compTextarea: 'Zone de texte',
     compSelect: 'Sélecteur',
     compCheckbox: 'Case à cocher',
@@ -1039,6 +1041,16 @@ export const common = {
       'Testez les fenêtres contextuelles ancrées, les points d’ancrage (haut, bas, début, fin) et la fermeture au clic extérieur.',
     dropdownCardDesc:
       'Testez les menus d’actions multiples, les options destructives, la navigation au clavier et l’élévation.',
+    comboboxTitle: 'Studio Combobox',
+    comboboxSubtitle:
+      'Prévisualisez le combobox avec recherche filtrable, testez les tailles, les groupes, la navigation clavier et copiez le code exact.',
+    comboboxCardDesc:
+      'Recherche filtrable, popup de liste WAI-ARIA 1.2, navigation clavier et effacement en un clic.',
+    comboboxSamplePlaceholder: 'Rechercher un pays...',
+    comboboxSampleLabel: 'Pays assigné',
+    comboboxEmpty: 'Aucun résultat correspondant trouvé',
+    comboboxToggleAria: 'Afficher les options',
+    comboboxClearAria: 'Effacer la sélection',
     stageTitle: 'Scène interactive en direct',
     controlsTitle: 'Contrôles des variantes et jetons',
     resetDefaults: 'Réinitialiser',

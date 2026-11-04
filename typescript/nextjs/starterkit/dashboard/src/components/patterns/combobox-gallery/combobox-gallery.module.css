@@ -1,0 +1,84 @@
+/*
+ * White Label UI Kit — Combobox Gallery Studio Styles
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.stageActionArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-6);
+  inline-size: 100%;
+}
+
+.singleSpecimenRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-block-size: 20rem;
+  inline-size: 100%;
+  max-inline-size: 28rem;
+  margin-inline: auto;
+}
+
+.specimenFullWidth {
+  max-inline-size: 100%;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  inline-size: 100%;
+}
+
+.fieldLabel {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  text-align: start;
+}
+
+.fieldHelper {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-align: start;
+}
+
+.fieldError {
+  font-size: var(--font-size-xs);
+  color: var(--color-danger);
+  text-align: start;
+}
+
+.allSizesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.sizeCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-card, var(--radius-control));
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface);
+}
+
+.sizeCardLabel {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  line-height: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.controlDivider {
+  border: none;
+  border-block-start: 1px solid var(--color-border-subtle);
+  margin-block: var(--space-2);
+  inline-size: 100%;
+}

@@ -121,6 +121,7 @@ export function ButtonGallery({ linkComponent }: ButtonGalleryProps) {
     if (hasStartIcon) propsList.push('startIcon={<Icon name="check" />}');
     if (hasEndIcon) propsList.push('endIcon={<Icon name="arrow-right" />}');
     if (isIconOnly) {
+      propsList.push('iconOnly');
       propsList.push(`aria-label="${t('common.studio.btnIconOnlyAria')}"`);
     }
 
@@ -336,6 +337,7 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
       return (
         <Button
           {...commonProps}
+          iconOnly
           ref={isSingleMainSpecimen ? specimenRef : undefined}
           aria-label={t('common.studio.btnIconOnlyAria')}
         >

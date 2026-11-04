@@ -213,6 +213,16 @@ describe('Button Primitive', () => {
     expect(button.getAttribute('aria-controls')).toBe('disclosure-panel');
   });
 
+  it('renders data-icon-only="true" when iconOnly prop is set', () => {
+    render(
+      <Button iconOnly aria-label="Confirm">
+        <span data-testid="icon">✓</span>
+      </Button>,
+    );
+    const button = screen.getByRole('button', { name: /confirm/i });
+    expect(button.getAttribute('data-icon-only')).toBe('true');
+  });
+
   it('forwards ref to the native button element', () => {
     const ref = createRef<HTMLButtonElement>();
     render(<Button ref={ref}>Target</Button>);

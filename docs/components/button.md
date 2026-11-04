@@ -275,13 +275,18 @@ In accordance with Rule 10, the Dashboard is **100% shadow-free**:
 Directional icons (e.g., `chevron-right`, `arrow-right`) from `@/components/icons` are registered via `directional()` in `registry.ts`. They mirror automatically in RTL by emitting `data-mirror-rtl="true"`. Component CSS modules never author custom `scaleX(-1)` overrides.
 
 ### 8.3 Icon-Only Actions
-When rendering a button with an icon and no visible text, callers must provide a localized accessible name:
+When rendering a button with an icon and no visible text, callers must set `iconOnly={true}` and provide a localized accessible name:
 ```tsx
-<Button aria-label={t('dashboard.refresh')} onClick={handleRefresh}>
+<Button iconOnly aria-label={t('dashboard.refresh')} onClick={handleRefresh}>
   <Icon name="refresh" />
 </Button>
 ```
-*(Note: A dedicated equilateral square geometry for icon buttons is an optional evaluation item for future consideration; standard Button with localized aria-label remains accessible).*
+
+#### Equilateral Square Geometry Contract:
+- **Aspect Ratio:** `aspect-ratio: 1 / 1` and `inline-size: var(--_control-height)` guarantee an exact equilateral square matching the control height across all 6 sizing tokens (28×28px, 32×32px, 36×36px, 40×40px, 48×48px, 56×56px).
+- **Padding:** Padding is zeroed (`padding-inline: 0; padding-block: 0;`), perfectly centering the child icon without oblong text-padding distortion.
+- **Touch Target:** Under `touchTarget="comfortable"` (or on coarse touch pointers), inline and block dimensions expand symmetrically to `max(var(--_control-height), var(--control-touch-target-min))` (48×48px minimum).
+- **Accessibility:** Callers are strictly required to provide an accessible name via `aria-label` or `aria-labelledby`.
 
 ---
 
@@ -332,6 +337,14 @@ export interface ButtonProps extends ComponentPropsWithoutRef<'button'>, Control
    * Logical trailing icon slot (inline-end).
    */
   endIcon?: ReactNode;
+
+  /**
+   * Enforces an equilateral square (1:1 aspect ratio) geometry for icon-only buttons.
+   * When true, width matches control height, padding is zeroed, and callers must
+   * provide an aria-label or aria-labelledby.
+   * @default false
+   */
+  iconOnly?: boolean;
 
   /**
    * Native HTML button type.

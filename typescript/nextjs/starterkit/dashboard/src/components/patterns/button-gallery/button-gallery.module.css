@@ -94,3 +94,10 @@
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;
 }
+
+.controlDivider {
+  border: none;
+  border-block-start: 1px solid var(--color-border-subtle);
+  margin-block: var(--space-2);
+  inline-size: 100%;
+}

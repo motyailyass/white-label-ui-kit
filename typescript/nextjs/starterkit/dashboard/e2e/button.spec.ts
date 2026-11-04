@@ -210,8 +210,16 @@ test.describe('Button Primitive Real-Browser Verification', () => {
     expect(xlMetrics.svgCssInline).toBeCloseTo(20, 1);
     expect(xlMetrics.svgCssBlock).toBeCloseTo(20, 1);
 
-    // 3. Select icon-only mode and verify child SVG directly matches 20px token
+    // 3. Select icon-only mode and verify child SVG directly matches 20px token and button is an equilateral 48x48 square
     await page.locator('[data-testid="opt-icon-only"]').click();
+    await expect(xlIconBtn).toHaveAttribute('data-icon-only', 'true');
+    const buttonDimensions = await xlIconBtn.evaluate((btn) => {
+      const r = btn.getBoundingClientRect();
+      return { width: r.width, height: r.height };
+    });
+    expect(buttonDimensions.width).toBeCloseTo(48, 1);
+    expect(buttonDimensions.height).toBeCloseTo(48, 1);
+
     const iconOnlySvg = xlIconBtn.locator('svg');
     await expect(iconOnlySvg).toBeVisible();
 

@@ -107,6 +107,34 @@
   }
 }
 
+/* Icon-only equilateral square geometry contract (1:1 aspect ratio) */
+.button[data-icon-only="true"] {
+  inline-size: var(--_control-height);
+  block-size: var(--_control-height);
+  min-inline-size: 0;
+  min-block-size: var(--_control-height);
+  padding-inline: 0;
+  padding-block: 0;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+}
+
+.button[data-icon-only="true"][data-touch-target="comfortable"] {
+  inline-size: max(var(--_control-height), var(--control-touch-target-min));
+  block-size: max(var(--_control-height), var(--control-touch-target-min));
+  min-inline-size: max(var(--_control-height), var(--control-touch-target-min));
+  min-block-size: max(var(--_control-height), var(--control-touch-target-min));
+}
+
+@media (any-pointer: coarse), (pointer: coarse) {
+  .button[data-icon-only="true"][data-touch-target="auto"] {
+    inline-size: max(var(--_control-height), var(--control-touch-target-min));
+    block-size: max(var(--_control-height), var(--control-touch-target-min));
+    min-inline-size: max(var(--_control-height), var(--control-touch-target-min));
+    min-block-size: max(var(--_control-height), var(--control-touch-target-min));
+  }
+}
+
 /* Variants */
 .button[data-variant="primary"] {
   background-color: var(--color-primary);

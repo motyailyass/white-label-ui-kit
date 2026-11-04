@@ -11,6 +11,13 @@ export interface ButtonProps extends ComponentPropsWithoutRef<'button'>, Control
   loading?: boolean;
   startIcon?: ReactNode;
   endIcon?: ReactNode;
+  /**
+   * Enforces an equilateral square (1:1 aspect ratio) geometry for icon-only buttons.
+   * When true, width is clamped to match control height, padding is equalized to 0,
+   * and callers MUST provide an `aria-label` or `aria-labelledby` for accessibility.
+   * @default false
+   */
+  iconOnly?: boolean;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -22,6 +29,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     disabled = false,
     startIcon,
     endIcon,
+    iconOnly = false,
     type = 'button',
     className,
     children,
@@ -44,6 +52,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       data-size={size}
       data-touch-target={touchTarget}
       data-variant={variant}
+      data-icon-only={iconOnly ? 'true' : undefined}
       data-loading={loading ? 'true' : undefined}
       className={cn(styles.button, className)}
     >

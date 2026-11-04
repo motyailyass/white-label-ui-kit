@@ -125,17 +125,17 @@
 }
 
 .button[data-variant="secondary"] {
-  background-color: var(--color-surface);
+  background-color: var(--color-secondary-bg);
   color: var(--color-text-primary);
-  border-color: var(--color-border-control);
+  border-color: var(--color-secondary-border);
 }
 
 .button[data-variant="secondary"]:hover:not(:disabled) {
-  background-color: var(--color-surface-hover);
+  background-color: var(--color-secondary-hover);
 }
 
 .button[data-variant="secondary"]:active:not(:disabled) {
-  background-color: var(--color-surface-active);
+  background-color: var(--color-secondary-active);
 }
 
 .button[data-variant="subtle"] {
@@ -145,11 +145,13 @@
 }
 
 .button[data-variant="subtle"]:hover:not(:disabled) {
-  background-color: var(--color-surface-hover);
+  background-color: var(--color-primary-subtle-hover);
+  border-color: var(--color-primary-subtle-hover);
 }
 
 .button[data-variant="subtle"]:active:not(:disabled) {
-  background-color: var(--color-surface-active);
+  background-color: var(--color-primary-subtle-active);
+  border-color: var(--color-primary-subtle-active);
 }
 
 .button[data-variant="ghost"] {
@@ -159,21 +161,27 @@
 }
 
 .button[data-variant="ghost"]:hover:not(:disabled) {
-  background-color: var(--color-surface-hover);
+  background-color: var(--color-ghost-hover);
 }
 
 .button[data-variant="ghost"]:active:not(:disabled) {
-  background-color: var(--color-surface-active);
+  background-color: var(--color-ghost-active);
 }
 
 .button[data-variant="danger"] {
-  background-color: var(--color-danger);
-  color: var(--color-danger-foreground);
-  border-color: var(--color-danger);
+  background-color: var(--color-danger-solid);
+  color: var(--color-danger-solid-foreground);
+  border-color: var(--color-danger-solid);
 }
 
 .button[data-variant="danger"]:hover:not(:disabled) {
-  opacity: 0.9;
+  background-color: var(--color-danger-solid-hover);
+  border-color: var(--color-danger-solid-hover);
+}
+
+.button[data-variant="danger"]:active:not(:disabled) {
+  background-color: var(--color-danger-solid-active);
+  border-color: var(--color-danger-solid-active);
 }
 
 /* Accessibility Focus Outline */

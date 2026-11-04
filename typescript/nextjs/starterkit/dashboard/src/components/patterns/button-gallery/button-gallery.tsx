@@ -1,325 +1,424 @@
 'use client';
 
-import React, { useCallback, useId, useState } from 'react';
-import { Icon } from '@/components/icons';
-import { LanguageSwitcher, ThemeSwitcher } from '@/components/patterns';
-import { Button } from '@/components/ui/button';
-import type { TranslationKey } from '@/i18n';
-import { useI18n } from '@/providers';
+import { useCallback, useMemo, useState } from 'react';
+import { Icon, type IconName } from '@/components/icons';
+import {
+  Button,
+  type ButtonProps,
+  type ButtonVariant,
+  type ControlSize,
+} from '@/components/ui';
+import { cn } from '@/lib/cn';
+import { useI18n, useTheme } from '@/providers';
+import {
+  GalleryCodeInspector,
+  GalleryStudioLayout,
+  type StudioLinkComponent,
+  StudioSegmentedControl,
+  type StudioSegmentedOption,
+  type StudioSpecGroup,
+  StudioToggleRow,
+} from '../gallery-studio';
 import styles from './button-gallery.module.css';
 
-type FormActionId = 'none' | 'submit' | 'nonSubmit';
+export type ButtonIconMode = 'none' | 'start' | 'end' | 'both' | 'icon-only';
+export type ButtonInteractionState = 'resting' | 'loading' | 'disabled';
+export type ButtonStageView = 'single' | 'all-sizes';
+export type ButtonTouchTarget = 'auto' | 'comfortable';
+export type ButtonSpecimenDirection = 'ltr' | 'rtl';
 
-const FORM_ACTION_KEY: Record<FormActionId, TranslationKey> = {
-  none: 'common.gallery.eventNone',
-  submit: 'common.gallery.eventSubmit',
-  nonSubmit: 'common.gallery.eventNonSubmit',
-};
+export interface ButtonGalleryProps {
+  linkComponent?: StudioLinkComponent;
+}
 
-type SimulatedAsyncState = 'idle' | 'pending' | 'success' | 'retry';
+export function ButtonGallery({ linkComponent }: ButtonGalleryProps) {
+  const { t, locale, direction } = useI18n();
+  const { resolvedTheme } = useTheme();
 
-const ASYNC_NOTICE_KEY: Record<SimulatedAsyncState, TranslationKey | null> = {
-  idle: null,
-  pending: 'common.simulatedPending',
-  success: 'common.simulatedSuccess',
-  retry: 'common.retry',
-};
+  // Component-Specific Preview Controls
+  const [specimenDir, setSpecimenDir] = useState<ButtonSpecimenDirection>('ltr');
+  const [variant, setVariant] = useState<ButtonVariant>('primary');
+  const [size, setSize] = useState<ControlSize | 'default'>('default');
+  const [stageView, setStageView] = useState<ButtonStageView>('single');
+  const [iconMode, setIconMode] = useState<ButtonIconMode>('none');
+  const [fullWidth, setFullWidth] = useState(false);
+  const [interactionState, setInteractionState] = useState<ButtonInteractionState>('resting');
+  const [touchTarget, setTouchTarget] = useState<ButtonTouchTarget>('auto');
+  const [buttonType, setButtonType] = useState<'button' | 'submit'>('button');
 
-export function ButtonGallery() {
-  const { t } = useI18n();
+  const handleReset = useCallback(() => {
+    setSpecimenDir('ltr');
+    setVariant('primary');
+    setSize('default');
+    setStageView('single');
+    setIconMode('none');
+    setFullWidth(false);
+    setInteractionState('resting');
+    setTouchTarget('auto');
+    setButtonType('button');
+  }, []);
 
-  // 7. Loading Interaction State (identifier stored in state; translated during render)
-  const [asyncState, setAsyncState] = useState<SimulatedAsyncState>('idle');
+  const isLoading = interactionState === 'loading';
+  const isDisabled = interactionState === 'disabled';
 
-  const handleSimulatedAsync = useCallback(async () => {
-    if (asyncState === 'pending') return;
-    setAsyncState('pending');
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setAsyncState('success');
-    } catch {
-      setAsyncState('retry');
+  const resolvedSize: ControlSize | undefined = size === 'default' ? undefined : size;
+
+  // Icon Slots
+  const renderIcon = (name: IconName) => <Icon name={name} />;
+  const hasStartIcon = iconMode === 'start' || iconMode === 'both';
+  const hasEndIcon = iconMode === 'end' || iconMode === 'both';
+  const isIconOnly = iconMode === 'icon-only';
+
+  const startIconSlot = hasStartIcon ? renderIcon('check') : undefined;
+  const endIconSlot = hasEndIcon ? renderIcon('arrow-right') : undefined;
+
+  // Active specimen label text based on specimen direction
+  const sampleLabelText = specimenDir === 'rtl' ? 'حفظ التغييرات' : t('common.studio.btnSampleLabel');
+
+  // Generate dynamic JSX Snippet
+  const jsxSnippet = useMemo(() => {
+    const propsList: string[] = [];
+    if (variant !== 'secondary') propsList.push(`variant="${variant}"`);
+    if (size !== 'default') propsList.push(`size="${size}"`);
+    if (touchTarget !== 'auto') propsList.push(`touchTarget="${touchTarget}"`);
+    if (buttonType !== 'button') propsList.push(`type="${buttonType}"`);
+    if (isLoading) propsList.push('loading');
+    if (isDisabled) propsList.push('disabled');
+    if (hasStartIcon) propsList.push('startIcon={<Icon name="check" />}');
+    if (hasEndIcon) propsList.push('endIcon={<Icon name="arrow-right" />}');
+    if (isIconOnly) {
+      propsList.push(`aria-label="${t('common.studio.btnIconOnlyAria')}"`);
     }
-  }, [asyncState]);
 
-  // 8. Form Behavior State (identifier stored in state; translated during render)
-  const [formSubmitCount, setFormSubmitCount] = useState(0);
-  const [lastActionId, setLastActionId] = useState<FormActionId>('none');
+    const propsStr = propsList.length > 0 ? ` ${propsList.join(' ')}` : '';
+    const childrenStr = isIconOnly ? '\n  <Icon name="check" />\n' : `\n  ${sampleLabelText}\n`;
 
-  const handleFormSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    setFormSubmitCount((prev) => prev + 1);
-    setLastActionId('submit');
-  }, []);
+    const buttonJsx = `<Button${propsStr}>${childrenStr}</Button>`;
 
-  const handleNonSubmitClick = useCallback(() => {
-    setLastActionId('nonSubmit');
-  }, []);
+    if (fullWidth) {
+      return `/* To expand to full width of parent container: */\n<Button${propsStr} className={styles.fullWidth}>\n  ${childrenStr.trim()}\n</Button>`;
+    }
 
-  const overviewId = useId();
-  const variantsId = useId();
-  const sizesId = useId();
-  const defaultsId = useId();
-  const statesId = useId();
-  const iconsId = useId();
-  const loadingId = useId();
-  const formId = useId();
-  const localizationId = useId();
-  const themeId = useId();
-  const responsiveId = useId();
-  const usageId = useId();
-  const defaultButtonId = useId();
-  const loadingButtonId = useId();
+    return buttonJsx;
+  }, [
+    variant,
+    size,
+    touchTarget,
+    buttonType,
+    isLoading,
+    isDisabled,
+    hasStartIcon,
+    hasEndIcon,
+    isIconOnly,
+    sampleLabelText,
+    fullWidth,
+    t,
+  ]);
 
-  const activeNoticeKey = ASYNC_NOTICE_KEY[asyncState];
+  // Generate dynamic CSS Module override if fullWidth is enabled
+  const cssModuleSnippet = useMemo(() => {
+    if (!fullWidth) return null;
+    return `.fullWidth {\n  inline-size: 100%;\n}`;
+  }, [fullWidth]);
+
+  // Generate complete AI Agent Prompt
+  const aiAgentPrompt = useMemo(() => {
+    return `You are implementing a Button using the project's white-label UI Kit. Follow these exact instructions:
+
+1. Import pure primitives and icons from their root barrels:
+   import { Button } from '@/components/ui';
+   import { Icon } from '@/components/icons';
+
+2. Render the Button component with the following configuration:
+   ${jsxSnippet}
+
+3. Styling & Token Rules:
+   - Zero physical CSS properties (no width, height, margin-left, padding-right).
+   - Use CSS Logical Properties only (inline-size, block-size, padding-inline, padding-block).
+   - 100% shadow-free in dashboard routes.
+   - Sizing: ${size === 'default' ? 'Product default (md = 36px in dashboard, xl = 48px in website)' : `Explicit size="${size}"`}.
+   - Corner Radius: Consumes system token var(--radius-control) (6px in dashboard, 8px in website).
+   - Variant: variant="${variant}" (${variant === 'secondary' ? 'Bordered neutral outline' : variant === 'subtle' ? 'Tinted brand accent' : variant}).
+   - RTL Support: Direction mirrors automatically via logical properties; directional icons mirror automatically under dir="rtl".
+   - Accessible Name: ${isIconOnly ? 'aria-label is strictly required for icon-only actions.' : 'Accessible text provided via children.'}
+${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
+  }, [jsxSnippet, size, variant, isIconOnly, cssModuleSnippet]);
+
+  // Computed Specifications table
+  const specGroups: readonly StudioSpecGroup[] = useMemo(() => {
+    return [
+      {
+        title: t('common.studio.specCategoryVariant'),
+        items: [
+          { label: 'variant', value: variant },
+          { label: 'size', value: size },
+          { label: 'touchTarget', value: touchTarget },
+          { label: 'type', value: buttonType },
+          { label: 'loading', value: isLoading ? 'true' : 'false' },
+          { label: 'disabled', value: isDisabled ? 'true' : 'false' },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryTokens'),
+        items: [
+          {
+            label: '--radius-control',
+            value: 'var(--radius-control) (Product Preset: 6px / 8px)',
+          },
+          { label: 'Width Mode', value: fullWidth ? '100% (Full Width)' : 'Auto (Intrinsic)' },
+          { label: 'Icon Layout', value: iconMode },
+          { label: 'Specimen Direction', value: specimenDir.toUpperCase() },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryEnv'),
+        items: [
+          { label: t('common.studio.specLocale'), value: locale },
+          { label: t('common.studio.specDirection'), value: direction.toUpperCase() },
+          { label: t('common.studio.specTheme'), value: resolvedTheme },
+        ],
+      },
+    ];
+  }, [
+    variant,
+    size,
+    touchTarget,
+    buttonType,
+    isLoading,
+    isDisabled,
+    fullWidth,
+    iconMode,
+    specimenDir,
+    locale,
+    direction,
+    resolvedTheme,
+    t,
+  ]);
+
+  // Control Options
+  const specimenDirOptions: readonly StudioSegmentedOption<ButtonSpecimenDirection>[] = [
+    { value: 'ltr', label: t('common.studio.specimenDirLtr') },
+    { value: 'rtl', label: t('common.studio.specimenDirRtl') },
+  ];
+
+  const variantOptions: readonly StudioSegmentedOption<ButtonVariant>[] = [
+    { value: 'primary', label: t('common.studio.optVariantPrimary'), testId: 'opt-variant-primary' },
+    { value: 'secondary', label: t('common.studio.optVariantSecondary'), testId: 'opt-variant-secondary' },
+    { value: 'subtle', label: t('common.studio.optVariantSubtle'), testId: 'opt-variant-subtle' },
+    { value: 'ghost', label: t('common.studio.optVariantGhost'), testId: 'opt-variant-ghost' },
+    { value: 'danger', label: t('common.studio.optVariantDanger'), testId: 'opt-variant-danger' },
+  ];
+
+  const sizeOptions: readonly StudioSegmentedOption<ControlSize | 'default'>[] = [
+    { value: 'default', label: 'Def', testId: 'opt-size-default' },
+    { value: 'xs', label: 'XS', testId: 'opt-size-xs' },
+    { value: 'sm', label: 'SM', testId: 'opt-size-sm' },
+    { value: 'md', label: 'MD', testId: 'opt-size-md' },
+    { value: 'lg', label: 'LG', testId: 'opt-size-lg' },
+    { value: 'xl', label: 'XL', testId: 'opt-size-xl' },
+    { value: '2xl', label: '2XL', testId: 'opt-size-2xl' },
+  ];
+
+  const viewOptions: readonly StudioSegmentedOption<ButtonStageView>[] = [
+    { value: 'single', label: t('common.studio.viewSingle') },
+    { value: 'all-sizes', label: t('common.studio.viewAllSizes') },
+  ];
+
+  const iconOptions: readonly StudioSegmentedOption<ButtonIconMode>[] = [
+    { value: 'none', label: t('common.studio.iconNone') },
+    { value: 'start', label: t('common.studio.iconStart') },
+    { value: 'end', label: t('common.studio.iconEnd') },
+    { value: 'both', label: t('common.studio.iconBoth') },
+    { value: 'icon-only', label: t('common.studio.iconOnly') },
+  ];
+
+  const stateOptions: readonly StudioSegmentedOption<ButtonInteractionState>[] = [
+    { value: 'resting', label: t('common.studio.stateResting') },
+    { value: 'loading', label: t('common.studio.stateLoading') },
+    { value: 'disabled', label: t('common.studio.stateDisabled') },
+  ];
+
+  const touchTargetOptions: readonly StudioSegmentedOption<ButtonTouchTarget>[] = [
+    { value: 'auto', label: t('common.studio.touchAuto') },
+    { value: 'comfortable', label: t('common.studio.touchComfortable') },
+  ];
+
+  const buttonTypeOptions: readonly StudioSegmentedOption<'button' | 'submit'>[] = [
+    { value: 'button', label: t('common.studio.typeButton') },
+    { value: 'submit', label: t('common.studio.typeSubmit') },
+  ];
+
+  const renderActiveButton = (overrideSize?: ControlSize, customTestId = 'studio-active-button') => {
+    const finalSize = overrideSize ?? resolvedSize;
+
+    const commonProps: ButtonProps & { 'data-testid'?: string } = {
+      variant,
+      size: finalSize,
+      touchTarget,
+      type: buttonType,
+      loading: isLoading,
+      disabled: isDisabled,
+      startIcon: startIconSlot,
+      endIcon: endIconSlot,
+      'data-testid': customTestId,
+    };
+
+    if (isIconOnly) {
+      return (
+        <Button {...commonProps} aria-label={t('common.studio.btnIconOnlyAria')}>
+          <Icon name="check" />
+        </Button>
+      );
+    }
+
+    return (
+      <Button {...commonProps}>
+        {sampleLabelText}
+      </Button>
+    );
+  };
+
+  const allSizesList: readonly ControlSize[] = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
 
   return (
-    <main className={styles.galleryContainer} data-testid="button-gallery">
-      {/* Gallery Header */}
-      <header className={styles.galleryHeader}>
-        <div className={styles.headerTop}>
-          <h1 className={styles.title}>{t('common.gallery.title')}</h1>
-          <div className={styles.controlsRow}>
-            <LanguageSwitcher />
-            <ThemeSwitcher />
+    <GalleryStudioLayout
+      activeRoute="button"
+      title={t('common.studio.btnTitle')}
+      subtitle={t('common.studio.btnSubtitle')}
+      testId="button-gallery"
+      previewDir={specimenDir}
+      onReset={handleReset}
+      linkComponent={linkComponent}
+      controls={
+        <>
+          <StudioSegmentedControl
+            label={t('common.studio.specimenDirectionLabel')}
+            value={specimenDir}
+            options={specimenDirOptions}
+            onChange={setSpecimenDir}
+          />
+
+          <hr className={styles.controlDivider} />
+
+          <StudioSegmentedControl
+            label={t('common.studio.btnVariantLabel')}
+            value={variant}
+            options={variantOptions}
+            onChange={setVariant}
+          />
+
+          <StudioSegmentedControl
+            label={t('common.studio.btnSizeLabel')}
+            value={size}
+            options={sizeOptions}
+            onChange={setSize}
+          />
+
+          <StudioSegmentedControl
+            label={t('common.studio.btnCanvasViewLabel')}
+            value={stageView}
+            options={viewOptions}
+            onChange={setStageView}
+          />
+
+          <hr className={styles.controlDivider} />
+
+          <StudioSegmentedControl
+            label={t('common.studio.btnIconModeLabel')}
+            value={iconMode}
+            options={iconOptions}
+            onChange={setIconMode}
+          />
+
+          <StudioToggleRow
+            label={t('common.studio.btnFullWidthLabel')}
+            checked={fullWidth}
+            onCheckedChange={setFullWidth}
+            testId="toggle-button-full-width"
+          />
+
+          <hr className={styles.controlDivider} />
+
+          <StudioSegmentedControl
+            label={t('common.studio.btnStateLabel')}
+            value={interactionState}
+            options={stateOptions}
+            onChange={setInteractionState}
+          />
+
+          <StudioSegmentedControl
+            label={t('common.studio.btnTouchTargetLabel')}
+            value={touchTarget}
+            options={touchTargetOptions}
+            onChange={setTouchTarget}
+          />
+
+          <StudioSegmentedControl
+            label={t('common.studio.btnTypeLabel')}
+            value={buttonType}
+            options={buttonTypeOptions}
+            onChange={setButtonType}
+          />
+        </>
+      }
+      inspector={
+        <GalleryCodeInspector
+          aiPrompt={aiAgentPrompt}
+          jsxCode={jsxSnippet}
+          cssCode={cssModuleSnippet}
+          jsxFileName="my-button-action.tsx"
+          cssFileName="my-button-action.module.css"
+          specGroups={specGroups}
+        />
+      }
+    >
+      <div className={cn(styles.stageActionArea, fullWidth && styles.wrapperFullWidth)}>
+        {stageView === 'single' ? (
+          <div className={styles.singleSpecimenRow}>
+            {renderActiveButton()}
           </div>
-        </div>
-        <p className={styles.subtitle}>{t('common.gallery.subtitle')}</p>
-      </header>
-
-      {/* 1. Overview */}
-      <section className={styles.section} aria-labelledby={overviewId}>
-        <h2 id={overviewId} className={styles.sectionTitle}>
-          {t('common.gallery.overviewTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.gallery.overviewDesc')}</p>
-        <div className={styles.buttonRow}>
-          <Button variant="primary">{t('common.save')}</Button>
-          <Button variant="secondary">{t('common.cancel')}</Button>
-        </div>
-      </section>
-
-      {/* 2. Semantic Variants */}
-      <section className={styles.section} aria-labelledby={variantsId}>
-        <h2 id={variantsId} className={styles.sectionTitle}>
-          {t('common.gallery.variantsTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.gallery.variantsDesc')}</p>
-        <div className={styles.buttonRow}>
-          <Button variant="primary">{t('common.gallery.variantPrimary')}</Button>
-          <Button variant="secondary">{t('common.gallery.variantSecondary')}</Button>
-          <Button variant="subtle">{t('common.gallery.variantSubtle')}</Button>
-          <Button variant="ghost">{t('common.gallery.variantGhost')}</Button>
-          <Button variant="danger">{t('common.delete')}</Button>
-        </div>
-      </section>
-
-      {/* 3. Six-Step Sizing Scale */}
-      <section className={styles.section} aria-labelledby={sizesId}>
-        <h2 id={sizesId} className={styles.sectionTitle}>
-          {t('common.gallery.sizesTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.gallery.sizesDesc')}</p>
-        <div className={styles.buttonRow}>
-          <Button size="xs">XS (28px)</Button>
-          <Button size="sm">SM (32px)</Button>
-          <Button size="md">MD (36px)</Button>
-          <Button size="lg">LG (40px)</Button>
-          <Button size="xl">XL (48px)</Button>
-          <Button size="2xl">2XL (56px)</Button>
-        </div>
-      </section>
-
-      {/* 4. Product-Owned Defaults */}
-      <section className={styles.section} aria-labelledby={defaultsId}>
-        <h2 id={defaultsId} className={styles.sectionTitle}>
-          {t('common.gallery.defaultsTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.gallery.defaultsDesc')}</p>
-        <div className={styles.buttonRow}>
-          <Button id={defaultButtonId} data-testid="specimen-btn-default" variant="primary">
-            {t('common.gallery.defaultOmitted')}
-          </Button>
-          <Button variant="secondary">{t('common.gallery.secondaryDefault')}</Button>
-        </div>
-      </section>
-
-      {/* 5. Interaction States */}
-      <section className={styles.section} aria-labelledby={statesId}>
-        <h2 id={statesId} className={styles.sectionTitle}>
-          {t('common.gallery.statesTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.gallery.statesDesc')}</p>
-        <div className={styles.columnGrid}>
-          <div className={styles.cardItem}>
-            <span className={styles.itemLabel}>{t('common.gallery.restingLabel')}</span>
-            <Button variant="secondary">{t('common.gallery.restingState')}</Button>
-          </div>
-          <div className={styles.cardItem}>
-            <span className={styles.itemLabel}>{t('common.gallery.disabledLabel')}</span>
-            <Button variant="secondary" disabled>
-              {t('common.gallery.disabledState')}
-            </Button>
-          </div>
-          <div className={styles.cardItem}>
-            <span className={styles.itemLabel}>{t('common.gallery.staticLoadingLabel')}</span>
-            <Button variant="secondary" loading>
-              {t('common.gallery.loadingState')}
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Icon Slots & Icon-Only Actions */}
-      <section className={styles.section} aria-labelledby={iconsId}>
-        <h2 id={iconsId} className={styles.sectionTitle}>
-          {t('common.gallery.iconsTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.gallery.iconsDesc')}</p>
-        <div className={styles.buttonRow}>
-          <Button startIcon={<Icon name="add" />} variant="primary">
-            {t('common.gallery.leadingIcon')}
-          </Button>
-          <Button endIcon={<Icon name="arrow-right" />} variant="secondary">
-            {t('common.gallery.trailingDirectionalIcon')}
-          </Button>
-          <Button
-            startIcon={<Icon name="check" />}
-            endIcon={<Icon name="arrow-right" />}
-            variant="subtle"
-          >
-            {t('common.gallery.bothIcons')}
-          </Button>
-          <Button
-            size="xl"
-            startIcon={<Icon name="add" />}
-            variant="secondary"
-            data-testid="specimen-btn-xl-icon"
-          >
-            {t('common.gallery.explicitSizeIcon')}
-          </Button>
-          <Button variant="ghost" aria-label={t('common.search')} title={t('common.search')}>
-            <Icon name="search" />
-          </Button>
-        </div>
-      </section>
-
-      {/* 7. Loading Interaction & Zero Layout Shift */}
-      <section className={styles.section} aria-labelledby={loadingId}>
-        <h2 id={loadingId} className={styles.sectionTitle}>
-          {t('common.gallery.loadingTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.gallery.loadingDesc')}</p>
-        <div className={styles.buttonRow}>
-          <Button
-            id={loadingButtonId}
-            data-testid="specimen-interactive-loading"
-            variant="primary"
-            loading={asyncState === 'pending'}
-            onClick={handleSimulatedAsync}
-            startIcon={<Icon name="check" />}
-          >
-            {t('common.save')}
-          </Button>
-        </div>
-        {activeNoticeKey && (
-          <div role="status" aria-live="polite" className={styles.statusMessage}>
-            {t(activeNoticeKey)}
+        ) : (
+          <div className={styles.allSizesGrid}>
+            {allSizesList.map((sz) => (
+              <div key={sz} className={styles.sizeCard}>
+                <span className={styles.sizeCardLabel}>size=&quot;{sz}&quot;</span>
+                {renderActiveButton(sz, `studio-size-button-${sz}`)}
+              </div>
+            ))}
           </div>
         )}
-      </section>
 
-      {/* 8. Form Behavior & Submission Safety */}
-      <section className={styles.section} aria-labelledby={formId}>
-        <h2 id={formId} className={styles.sectionTitle}>
-          {t('common.gallery.formTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.gallery.formDesc')}</p>
-        <form onSubmit={handleFormSubmit} className={styles.formBox}>
-          <div className={styles.buttonRow}>
-            <Button type="button" variant="secondary" onClick={handleNonSubmitClick}>
-              {t('common.cancel')} (type=&quot;button&quot;)
-            </Button>
-            <Button type="submit" variant="primary">
-              {t('common.submit')} (type=&quot;submit&quot;)
-            </Button>
+        {/* Clean, centered semantic variants presentation directly under live preview */}
+        <div className={styles.variantsCenterSection}>
+          <span className={styles.variantsCenterLabel}>
+            {t('common.studio.btnCoreVariantsTitle')}
+          </span>
+          <div className={styles.variantsCenterRow}>
+            {(['primary', 'secondary', 'subtle', 'ghost', 'danger'] as const).map((v) => (
+              <div
+                key={v}
+                className={cn(styles.variantItemWrapper, variant === v && styles.variantItemActive)}
+              >
+                <Button
+                  variant={v}
+                  size={resolvedSize}
+                  touchTarget={touchTarget}
+                  startIcon={hasStartIcon ? renderIcon('check') : undefined}
+                  endIcon={hasEndIcon ? renderIcon('arrow-right') : undefined}
+                  onClick={() => setVariant(v)}
+                  data-testid={`variant-quick-select-${v}`}
+                >
+                  {v === 'secondary'
+                    ? 'Secondary (Outline)'
+                    : v === 'subtle'
+                      ? 'Subtle (Tinted)'
+                      : v.charAt(0).toUpperCase() + v.slice(1)}
+                </Button>
+              </div>
+            ))}
           </div>
-          <div className={styles.itemLabel}>
-            {t('common.gallery.submissions')}: {formSubmitCount} | {t('common.gallery.lastEvent')}:{' '}
-            {t(FORM_ACTION_KEY[lastActionId])}
-          </div>
-        </form>
-      </section>
-
-      {/* 9. Localization & Long Labels */}
-      <section className={styles.section} aria-labelledby={localizationId}>
-        <h2 id={localizationId} className={styles.sectionTitle}>
-          {t('common.gallery.localizationTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.gallery.localizationDesc')}</p>
-        <div className={styles.buttonRow}>
-          <Button variant="primary">{t('common.gallery.exportReportLong')}</Button>
-          <Button variant="secondary" endIcon={<Icon name="arrow-right" />}>
-            {t('common.gallery.proceedNextStep')}
-          </Button>
         </div>
-      </section>
-
-      {/* 10. Theme & Brand Adaptation */}
-      <section className={styles.section} aria-labelledby={themeId}>
-        <h2 id={themeId} className={styles.sectionTitle}>
-          {t('common.gallery.themeTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.gallery.themeDesc')}</p>
-        <div className={styles.buttonRow}>
-          <Button variant="primary">{t('common.gallery.primaryBrandSurface')}</Button>
-          <Button variant="subtle">{t('common.gallery.subtleAccent')}</Button>
-          <Button variant="secondary">{t('common.gallery.neutralSurfaceStep')}</Button>
-        </div>
-      </section>
-
-      {/* 11. Responsive Behavior & Touch Targets */}
-      <section className={styles.section} aria-labelledby={responsiveId}>
-        <h2 id={responsiveId} className={styles.sectionTitle}>
-          {t('common.gallery.responsiveTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.gallery.responsiveDesc')}</p>
-        <div className={styles.buttonRow}>
-          <Button size="xs" touchTarget="auto">
-            {t('common.gallery.xsAuto')}
-          </Button>
-          <Button size="xs" touchTarget="comfortable">
-            {t('common.gallery.xsComfortable')}
-          </Button>
-        </div>
-      </section>
-
-      {/* 12. Code Usage Examples */}
-      <section className={styles.section} aria-labelledby={usageId}>
-        <h2 id={usageId} className={styles.sectionTitle}>
-          {t('common.gallery.usageTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.gallery.usageDesc')}</p>
-        <pre className={styles.codeBox}>
-          <code>{`import { Button } from '@/components/ui';
-import { Icon } from '@/components/icons';
-
-// 1. Standard action with leading icon
-<Button variant="primary" startIcon={<Icon name="check" />}>
-  Save Changes
-</Button>
-
-// 2. Async action with layout-stable loading
-<Button variant="primary" loading={isPending} onClick={handleSave}>
-  Save
-</Button>
-
-// 3. Form submit trigger
-<Button type="submit" variant="primary">
-  Submit
-</Button>`}</code>
-        </pre>
-      </section>
-    </main>
+      </div>
+    </GalleryStudioLayout>
   );
 }

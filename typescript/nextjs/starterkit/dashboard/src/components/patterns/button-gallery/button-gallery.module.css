@@ -1,140 +1,95 @@
-.galleryContainer {
+/*
+ * White Label UI Kit — Button Gallery Studio Styles
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.wrapperFullWidth {
+  inline-size: 100%;
+}
+
+.wrapperFullWidth :global(button) {
+  inline-size: 100%;
+}
+
+.stageActionArea {
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
-  padding-block: var(--space-6);
-  padding-inline: var(--space-6);
-  max-inline-size: 1100px;
-  margin-inline: auto;
-  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  inline-size: 100%;
 }
 
-.galleryHeader {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding-block-end: var(--space-6);
-  border-block-end: 1px solid var(--color-border-subtle);
-}
-
-.headerTop {
+.singleSpecimenRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--space-4);
+  justify-content: center;
+  min-block-size: 7rem;
+  inline-size: 100%;
 }
 
-.title {
-  font-size: var(--typography-page-title-size);
-  line-height: var(--typography-page-title-line-height);
-  font-weight: var(--typography-page-title-weight);
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-.subtitle {
-  font-size: var(--typography-body-size);
-  line-height: var(--typography-body-line-height);
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.controlsRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-}
-
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding-block: var(--space-6);
-  padding-inline: var(--space-6);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-card);
-}
-
-.sectionTitle {
-  font-size: var(--typography-section-title-size);
-  line-height: var(--typography-section-title-line-height);
-  font-weight: var(--typography-section-title-weight);
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-.sectionDesc {
-  font-size: var(--typography-body-size);
-  line-height: var(--typography-body-line-height);
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.buttonRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-}
-
-.columnGrid {
+.allSizesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   gap: var(--space-4);
+  inline-size: 100%;
 }
 
-.cardItem {
+.sizeCard {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding-block: var(--space-4);
-  padding-inline: var(--space-4);
-  background-color: var(--color-bg-base);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-control);
-}
-
-.itemLabel {
-  font-size: var(--typography-supporting-size);
-  line-height: var(--typography-supporting-line-height);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-}
-
-.statusMessage {
-  padding-block: var(--space-2);
-  padding-inline: var(--space-3);
-  border-radius: var(--radius-control);
-  background-color: var(--color-primary-subtle);
-  border: 1px solid var(--color-primary-border);
-  color: var(--color-primary-subtle-foreground);
-  font-size: var(--typography-body-size);
-  line-height: var(--typography-body-line-height);
-  display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  padding-inline: var(--space-3);
+  padding-block: var(--space-3);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface);
 }
 
-.codeBox {
-  margin: 0;
-  padding-block: var(--space-4);
-  padding-inline: var(--space-4);
-  background-color: var(--color-bg-base);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-control);
+.sizeCardLabel {
   font-family: var(--font-family-mono);
   font-size: var(--font-size-xs);
   line-height: 1rem;
-  color: var(--color-text-primary);
-  overflow-inline: auto;
+  color: var(--color-text-secondary);
 }
 
-.formBox {
+/* Centered Semantic Variants Presentation under Live Preview */
+.variantsCenterSection {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: var(--space-3);
-  max-inline-size: 400px;
+  inline-size: 100%;
+  padding-block-start: var(--space-4);
+  border-block-start: 1px dashed var(--color-border-subtle);
+}
+
+.variantsCenterLabel {
+  font-size: var(--font-size-xs);
+  line-height: 1rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.variantsCenterRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.variantItemWrapper {
+  display: inline-flex;
+  position: relative;
+  border-radius: calc(var(--radius-control) + 2px);
+  padding: 1px;
+}
+
+.variantItemActive {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
 }

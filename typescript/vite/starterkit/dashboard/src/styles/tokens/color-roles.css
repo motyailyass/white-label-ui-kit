@@ -30,8 +30,19 @@
   --color-primary-active: var(--color-neutral-8);
   --color-primary-foreground: var(--color-neutral-0);
   --color-primary-subtle: var(--color-neutral-2);
+  --color-primary-subtle-hover: var(--color-neutral-3);
+  --color-primary-subtle-active: var(--color-neutral-4);
   --color-primary-subtle-foreground: var(--color-neutral-7);
   --color-primary-border: var(--color-neutral-3);
+
+  /* Secondary & Ghost Interactive Controls */
+  --color-secondary-bg: var(--color-neutral-0);
+  --color-secondary-hover: var(--color-neutral-1);
+  --color-secondary-active: var(--color-neutral-2);
+  --color-secondary-border: var(--color-border-control);
+
+  --color-ghost-hover: rgb(0 0 0 / 6%);
+  --color-ghost-active: rgb(0 0 0 / 10%);
 
   /* Controls and Selection */
   --color-control-bg: var(--color-neutral-0);
@@ -67,8 +78,19 @@
   --color-primary-active: var(--color-neutral-0);
   --color-primary-foreground: var(--color-neutral-7);
   --color-primary-subtle: var(--color-neutral-6);
+  --color-primary-subtle-hover: var(--color-neutral-5);
+  --color-primary-subtle-active: var(--color-neutral-4);
   --color-primary-subtle-foreground: var(--color-neutral-1);
   --color-primary-border: var(--color-neutral-5);
+
+  /* Secondary & Ghost Interactive Controls */
+  --color-secondary-bg: var(--color-neutral-7);
+  --color-secondary-hover: var(--color-neutral-6);
+  --color-secondary-active: var(--color-neutral-5);
+  --color-secondary-border: var(--color-border-control);
+
+  --color-ghost-hover: rgb(255 255 255 / 8%);
+  --color-ghost-active: rgb(255 255 255 / 12%);
 
   /* Controls and Selection */
   --color-control-bg: var(--color-neutral-7);

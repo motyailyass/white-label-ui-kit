@@ -140,14 +140,10 @@ The kit provides 5 semantic variants:
 | Variant | Semantic Meaning | Implemented Background | Implemented Text | Implemented Border | Implemented Hover State | Implemented Active State |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **`primary`** | Main action within a local task | `--color-primary` | `--color-primary-foreground` | `--color-primary` | `--color-primary-hover` | `--color-primary-active` |
-| **`secondary`** | Standard supporting action (default) | `--color-surface` | `--color-text-primary` | `--color-border-control` | `--color-surface-hover` (border remains stable) | `--color-surface-active` |
-| **`subtle`** | Low-emphasis branded action | `--color-primary-subtle` | `--color-primary-subtle-foreground` | `--color-primary-border` | `--color-surface-hover` | No dedicated :active override; existing applicable styles remain. |
-| **`ghost`** | Minimal visual intrusion | `transparent` | `--color-text-primary` | `transparent` | `--color-surface-hover` | No dedicated :active override; existing applicable styles remain. |
-| **`danger`** | Destructive action (delete, revoke) | `--color-danger` | `--color-danger-foreground` | `--color-danger` | `opacity: 0.9` *(see discrepancy note)* | No dedicated :active override; existing applicable styles remain. |
-
-> [!NOTE]
-> **Source Discrepancy Note on `danger` States:**  
-> The existing stylesheet (`button.module.css`) uses `opacity: 0.9` for `danger:hover` because status color tokens (`status-colors.css`) currently provide only `--color-danger`, `--color-danger-subtle`, and `--color-danger-foreground`. Proposed dedicated tokens (`--color-danger-hover`, `--color-danger-active`) are subject to separate token contract review and are **not yet implemented**.
+| **`secondary`** | Standard supporting action (default) | `--color-secondary-bg` | `--color-text-primary` | `--color-secondary-border` | `--color-secondary-hover` (border remains stable) | `--color-secondary-active` |
+| **`subtle`** | Low-emphasis branded action | `--color-primary-subtle` | `--color-primary-subtle-foreground` | `--color-primary-border` | `--color-primary-subtle-hover` | `--color-primary-subtle-active` |
+| **`ghost`** | Minimal visual intrusion | `transparent` | `--color-text-primary` | `transparent` | `--color-ghost-hover` | `--color-ghost-active` |
+| **`danger`** | Destructive action (delete, revoke) | `--color-danger-solid` | `--color-danger-solid-foreground` | `--color-danger-solid` | `--color-danger-solid-hover` | `--color-danger-solid-active` |
 
 ### 5.1 Corner Geometry (Radius Contract)
 Buttons consume the product-owned semantic corner radius role:

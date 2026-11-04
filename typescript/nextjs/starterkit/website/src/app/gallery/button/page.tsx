@@ -6,11 +6,11 @@ import { getServerI18nState } from '../../i18n-server';
 export async function generateMetadata(): Promise<Metadata> {
   const { locale } = await getServerI18nState('en');
   return {
-    title: translate(defaultMessages, locale, 'common.gallery.metaTitle'),
-    description: translate(defaultMessages, locale, 'common.gallery.metaDescription'),
+    title: translate(defaultMessages, locale, 'common.studio.btnTitle'),
+    description: translate(defaultMessages, locale, 'common.studio.btnSubtitle'),
   };
 }
 
-export default function ButtonGalleryPage() {
+export default function WebsiteButtonGalleryPage() {
   return <ButtonGallery />;
 }

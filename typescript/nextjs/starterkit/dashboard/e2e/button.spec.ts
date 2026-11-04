@@ -20,7 +20,7 @@ test.describe('Button Primitive Real-Browser Verification', () => {
       elBorder.remove();
 
       const elHoverBg = document.createElement('div');
-      elHoverBg.style.color = 'var(--color-surface-hover)';
+      elHoverBg.style.color = 'var(--color-secondary-hover)';
       document.body.appendChild(elHoverBg);
       const hoverBgRgb = window.getComputedStyle(elHoverBg).color;
       elHoverBg.remove();
@@ -42,7 +42,7 @@ test.describe('Button Primitive Real-Browser Verification', () => {
     expect(restingStyle.border).toBe(colors.borderRgb);
     expect(restingStyle.borderWidth).toBe('1px');
 
-    // 2. Hover state: background changes to var(--color-surface-hover), but border remains STABLE at var(--color-border-control)
+    // 2. Hover state: background changes to var(--color-secondary-hover), but border remains STABLE at var(--color-border-control)
     await secondaryBtn.hover();
     await expect
       .poll(async () => {

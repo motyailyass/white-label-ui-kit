@@ -11,6 +11,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function DialogGalleryPage() {
+export default function WebsiteDialogGalleryPage() {
   return <DialogGallery />;
 }

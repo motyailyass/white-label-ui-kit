@@ -85,15 +85,13 @@
   position: relative;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  row-gap: var(--space-1);
-  column-gap: var(--space-1-5);
+  gap: var(--space-2);
   inline-size: 100%;
   box-sizing: border-box;
   min-block-size: var(--_control-height);
   padding-inline-start: var(--_control-padding-inline);
-  padding-inline-end: var(--space-1);
-  padding-block: calc(var(--space-1) / 2);
+  padding-inline-end: var(--space-1-5);
+  padding-block: var(--space-1);
   border-radius: var(--radius-control);
   background-color: var(--color-control-bg);
   border: 1px solid var(--color-border-control);
@@ -144,12 +142,14 @@
   block-size: var(--_control-icon-size);
 }
 
-/* Multi-Select Chips */
-.chipsContainer {
-  display: inline-flex;
+/* Fluid Chips + Search Input Group */
+.content {
+  display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--space-1);
+  gap: var(--space-1-5);
+  flex: 1;
+  min-inline-size: 0;
 }
 
 .chip {
@@ -159,7 +159,9 @@
   padding-inline-start: var(--space-2);
   padding-inline-end: var(--space-1);
   padding-block: 2px;
-  border-radius: calc(var(--radius-control) - 2px);
+  min-block-size: 1.5rem;
+  box-sizing: border-box;
+  border-radius: var(--radius-sm);
   background-color: var(--color-surface-subtle);
   border: 1px solid var(--color-border-subtle);
   color: var(--color-text-primary);
@@ -215,8 +217,21 @@
 
 /* Inner Text Input */
 .input {
-  flex: 1;
+  flex: 1 1 4rem;
   min-inline-size: 4rem;
+  min-block-size: 1.5rem;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--_control-font-size);
+  line-height: var(--_control-line-height);
+  font-weight: var(--font-weight-regular);
+  outline: none;
+  text-align: start;
+}
   border: none;
   background: transparent;
   padding: 0;
@@ -308,12 +323,15 @@
   position: absolute;
   inset-inline-start: 0;
   inset-inline-end: 0;
-  inset-block-start: calc(100% + var(--space-1));
+  inset-block-start: calc(100% + var(--space-1-5));
   z-index: var(--z-dropdown);
   box-sizing: border-box;
   margin: 0;
-  padding: var(--space-1);
+  padding: var(--space-1-5);
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
   background-color: var(--color-surface-raised);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-card, var(--radius-control));
@@ -330,10 +348,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--_control-gap);
-  padding-inline: var(--_control-padding-inline);
-  padding-block: var(--_control-padding-block);
-  min-block-size: var(--_control-height);
+  gap: var(--space-2-5);
+  padding-inline: var(--space-3);
+  padding-block: var(--space-2);
+  min-block-size: 2.25rem;
   box-sizing: border-box;
   border-radius: calc(var(--radius-control) - 2px);
   cursor: pointer;
@@ -344,17 +362,24 @@
   line-height: var(--_control-line-height);
   transition:
     background-color var(--transition-fast),
+    border-color var(--transition-fast),
     color var(--transition-fast);
 }
 
+.option:hover:not(.optionDisabled),
 .optionActive {
   background-color: var(--color-secondary-hover);
 }
 
 .optionSelected {
-  background-color: var(--color-primary-subtle);
-  color: var(--color-primary-subtle-foreground);
+  background-color: var(--color-surface-subtle);
+  color: var(--color-text-primary);
   font-weight: var(--font-weight-medium);
+}
+
+.optionSelected:hover:not(.optionDisabled),
+.optionSelected.optionActive {
+  background-color: var(--color-secondary-hover);
 }
 
 .optionDisabled {
@@ -365,7 +390,7 @@
 .optionContent {
   display: flex;
   align-items: center;
-  gap: var(--_control-gap);
+  gap: var(--space-2-5);
   flex: 1;
   min-inline-size: 0;
 }
@@ -452,6 +477,9 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
 .groupLabel {

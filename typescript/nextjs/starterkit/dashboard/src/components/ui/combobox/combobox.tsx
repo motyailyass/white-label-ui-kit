@@ -503,10 +503,10 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
       >
         {startIcon && <span className={styles.startIcon}>{startIcon}</span>}
 
-        {/* Multi-Select Interactive Removable Chips */}
-        {multiple && selectedOptionsMulti.length > 0 && (
-          <div className={styles.chipsContainer}>
-            {selectedOptionsMulti.map((opt) => (
+        <div className={styles.content}>
+          {/* Multi-Select Interactive Removable Chips */}
+          {multiple &&
+            selectedOptionsMulti.map((opt) => (
               <span key={opt.value} className={styles.chip}>
                 {opt.icon && <span className={styles.chipIcon}>{opt.icon}</span>}
                 <span className={styles.chipText}>{opt.label}</span>
@@ -530,35 +530,34 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                 )}
               </span>
             ))}
-          </div>
-        )}
 
-        <input
-          {...props}
-          ref={inputRef}
-          id={inputId}
-          type="text"
-          value={searchQuery}
-          disabled={disabled}
-          placeholder={hasValue && multiple ? '' : placeholder}
-          role="combobox"
-          aria-autocomplete="list"
-          aria-expanded={isOpen}
-          aria-controls={isOpen ? listboxId : undefined}
-          aria-activedescendant={activeOptionId}
-          aria-invalid={invalid || undefined}
-          aria-busy={loading || undefined}
-          data-size={size}
-          data-touch-target={touchTarget}
-          onChange={(e) => handleInputChange(e.target.value)}
-          onFocus={(e) => {
-            onFocus?.(e);
-            if (!disabled) setIsOpen(true);
-          }}
-          onBlur={onBlur}
-          onKeyDown={handleKeyDown}
-          className={cn(styles.input, className)}
-        />
+          <input
+            {...props}
+            ref={inputRef}
+            id={inputId}
+            type="text"
+            value={searchQuery}
+            disabled={disabled}
+            placeholder={hasValue && multiple ? '' : placeholder}
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={isOpen}
+            aria-controls={isOpen ? listboxId : undefined}
+            aria-activedescendant={activeOptionId}
+            aria-invalid={invalid || undefined}
+            aria-busy={loading || undefined}
+            data-size={size}
+            data-touch-target={touchTarget}
+            onChange={(e) => handleInputChange(e.target.value)}
+            onFocus={(e) => {
+              onFocus?.(e);
+              if (!disabled) setIsOpen(true);
+            }}
+            onBlur={onBlur}
+            onKeyDown={handleKeyDown}
+            className={cn(styles.input, className)}
+          />
+        </div>
 
         <div className={styles.endActions}>
           {loading && (

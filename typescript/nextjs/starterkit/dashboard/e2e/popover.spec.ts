@@ -164,7 +164,7 @@ test.describe('Dashboard Popover Primitive Real-Browser Verification', () => {
     await expect(persistedContent).not.toBeVisible();
   });
 
-  test('7. Competing controlled popovers: opening one closes the other without infinite loops', async ({
+  test('7. Competing controlled popovers: opening one closes the other, and yielded popover can reopen on trigger click', async ({
     page,
   }) => {
     const triggerA = page.locator('[data-testid="open-popover-alpha-btn"]');
@@ -175,13 +175,22 @@ test.describe('Dashboard Popover Primitive Real-Browser Verification', () => {
     await triggerA.click();
     await expect(contentA).toBeVisible();
     await expect(contentB).not.toBeVisible();
+    await expect(triggerA).toHaveAttribute('aria-expanded', 'true');
+    await expect(triggerB).toHaveAttribute('aria-expanded', 'false');
 
-    // Open B -> A should close
+    // Open B -> A should close and yield
     await triggerB.click();
     await expect(contentB).toBeVisible();
     await expect(contentA).not.toBeVisible();
     await expect(triggerA).toHaveAttribute('aria-expanded', 'false');
     await expect(triggerB).toHaveAttribute('aria-expanded', 'true');
+
+    // Click Trigger A afterward -> A reopens, B closes and yields
+    await triggerA.click();
+    await expect(contentA).toBeVisible();
+    await expect(contentB).not.toBeVisible();
+    await expect(triggerA).toHaveAttribute('aria-expanded', 'true');
+    await expect(triggerB).toHaveAttribute('aria-expanded', 'false');
   });
 
   test('8. True lateral inline placement: inline-start is left in LTR, inline-end is right in LTR', async ({

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React, { createRef, useRef, useState } from 'react';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import {
@@ -579,6 +579,68 @@ describe('Popover (Pure Primitive)', () => {
     // Third Escape attempt
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(handleOpenChange).toHaveBeenCalledTimes(3);
+  });
+
+  it('allows yielded controlled popover to reopen when its trigger is clicked afterward', async () => {
+    const handleOpenChangeA = vi.fn();
+    const handleOpenChangeB = vi.fn();
+
+    function CompetingControlledHarness() {
+      // Parent A insists on open=true
+      const [openA] = useState(true);
+      const [openB, setOpenB] = useState(false);
+
+      return (
+        <div>
+          <Popover open={openA} onOpenChange={handleOpenChangeA}>
+            <PopoverTrigger data-testid="trigger-a">Trigger A</PopoverTrigger>
+            <PopoverContent data-testid="surface-a">
+              <p>Content A</p>
+            </PopoverContent>
+          </Popover>
+
+          <Popover open={openB} onOpenChange={(val) => { setOpenB(val); handleOpenChangeB(val); }}>
+            <PopoverTrigger data-testid="trigger-b">Trigger B</PopoverTrigger>
+            <PopoverContent data-testid="surface-b">
+              <p>Content B</p>
+            </PopoverContent>
+          </Popover>
+        </div>
+      );
+    }
+
+    render(<CompetingControlledHarness />);
+
+    const triggerA = screen.getByTestId('trigger-a');
+    const triggerB = screen.getByTestId('trigger-b');
+    const surfaceA = screen.getByTestId('surface-a');
+
+    expect(triggerA.getAttribute('aria-expanded')).toBe('true');
+    expect(surfaceA.getAttribute('data-state')).toBe('open');
+
+    // Open B
+    fireEvent.click(triggerB);
+    expect(handleOpenChangeB).toHaveBeenCalledWith(true);
+
+    // Simulate browser engine light-dismissing A due to B's top-layer presence
+    const contentA = surfaceA.parentElement!;
+    const toggleEventClosed = new Event('toggle') as unknown as { newState: string };
+    toggleEventClosed.newState = 'closed';
+    act(() => {
+      contentA.dispatchEvent(toggleEventClosed as unknown as Event);
+    });
+
+    // A yielded: A's trigger must report false, not true
+    expect(triggerA.getAttribute('aria-expanded')).toBe('false');
+
+    // Now click Trigger A to reopen A afterward
+    act(() => {
+      fireEvent.click(triggerA);
+    });
+
+    // Reopening A fires onOpenChange(true) and re-asserts expanded state
+    expect(handleOpenChangeA).toHaveBeenCalledWith(true);
+    expect(triggerA.getAttribute('aria-expanded')).toBe('true');
   });
 
   it('renders compound subcomponents with semantic classes and attributes', () => {

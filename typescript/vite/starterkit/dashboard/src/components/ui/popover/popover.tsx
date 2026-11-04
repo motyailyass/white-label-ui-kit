@@ -175,7 +175,13 @@ function usePopoverContext(): PopoverContextValue {
 
 export interface PopoverProps {
   /**
-   * Controlled open state. Single source of truth when supplied.
+   * Controlled open state.
+   *
+   * Note on competing popovers: Under native HTML Popover semantics (`popover="auto"`),
+   * only a single auto popover may occupy the top layer simultaneously. When another popover
+   * takes the top layer, an existing popover yields in the DOM and updates its trigger to `aria-expanded="false"`.
+   * Triggering the yielded popover fires `onOpenChange(true)` and re-asserts top-layer presence.
+   * In multi-popover layouts, parents should coordinate a single active popover identifier.
    */
   open?: boolean;
 
@@ -250,17 +256,6 @@ export function Popover({
 
   const generatedId = useId();
   const popoverId = `popover-${generatedId.replace(/:/g, '')}`;
-
-  const setOpen = useCallback(
-    (nextOpen: boolean) => {
-      if (!isControlled) {
-        setUncontrolledOpen(nextOpen);
-        setIsDomOpen(nextOpen);
-      }
-      onOpenChange?.(nextOpen);
-    },
-    [isControlled, onOpenChange],
-  );
 
   const updatePosition = useCallback(() => {
     const trigger = triggerRef.current;
@@ -374,6 +369,36 @@ export function Popover({
     surface.style.left = `${Math.round(left)}px`;
   }, [placement, offset, autoFlip]);
 
+  const setOpen = useCallback(
+    (nextOpen: boolean) => {
+      if (!isControlled) {
+        setUncontrolledOpen(nextOpen);
+        setIsDomOpen(nextOpen);
+      } else {
+        if (nextOpen && !isDomOpen) {
+          // Re-assert open state in the top layer when reopening a yielded controlled popover
+          const content = contentRef.current;
+          if (content) {
+            const hasNative = typeof content.showPopover === 'function';
+            if (hasNative) {
+              try {
+                if (!content.matches(':popover-open')) {
+                  content.showPopover();
+                }
+              } catch {
+                // Native popover throw guard
+              }
+            }
+          }
+          setIsDomOpen(true);
+          updatePosition();
+        }
+      }
+      onOpenChange?.(nextOpen);
+    },
+    [isControlled, isDomOpen, updatePosition, onOpenChange],
+  );
+
   const contextValue = useMemo(
     () => ({
       open,
@@ -436,10 +461,12 @@ export const PopoverTrigger = forwardRef<HTMLElement, PopoverTriggerProps>(funct
     [triggerRef],
   );
 
+  const isExpanded = Boolean(open && isDomOpen);
+
   const handleClick = (e: MouseEvent<HTMLElement>) => {
     onClick?.(e as MouseEvent<HTMLButtonElement>);
     if (e.defaultPrevented) return;
-    setOpen(!open);
+    setOpen(!isExpanded);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
@@ -448,11 +475,9 @@ export const PopoverTrigger = forwardRef<HTMLElement, PopoverTriggerProps>(funct
 
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault();
-      setOpen(!open);
+      setOpen(!isExpanded);
     }
   };
-
-  const isExpanded = Boolean(open && isDomOpen);
 
   const triggerAttributes = {
     'aria-expanded': isExpanded,

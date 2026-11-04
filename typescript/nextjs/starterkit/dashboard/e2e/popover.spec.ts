@@ -311,4 +311,21 @@ test.describe('Dashboard Popover Primitive Real-Browser Verification', () => {
     await expect(persistedContent).not.toBeVisible();
     await expect(persistedTrigger).toHaveAttribute('aria-expanded', 'false');
   });
+
+  test('13. Controlled popover with open={false} stays closed when trigger is clicked', async ({
+    page,
+  }) => {
+    const trigger = page.locator('[data-testid="rejected-open-controlled-trigger-btn"]');
+    const content = page.locator('[data-testid="rejected-open-controlled-content"]');
+
+    await expect(content).not.toBeVisible();
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+    // Click trigger attempting to open
+    await trigger.click();
+
+    // Must remain closed in top layer and trigger maintains aria-expanded="false"
+    await expect(content).not.toBeVisible();
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  });
 });

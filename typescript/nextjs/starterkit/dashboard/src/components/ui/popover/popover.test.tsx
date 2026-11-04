@@ -643,6 +643,35 @@ describe('Popover (Pure Primitive)', () => {
     expect(triggerA.getAttribute('aria-expanded')).toBe('true');
   });
 
+  it('keeps popover closed when parent supplies open={false} and rejects open requests on trigger click', () => {
+    const handleOpenChange = vi.fn();
+
+    render(
+      <Popover open={false} onOpenChange={handleOpenChange}>
+        <PopoverTrigger data-testid="trigger">Trigger</PopoverTrigger>
+        <PopoverContent data-testid="surface">
+          <p>Content</p>
+        </PopoverContent>
+      </Popover>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    const surface = screen.getByTestId('surface');
+
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(surface.getAttribute('data-state')).toBe('closed');
+
+    // Click trigger to attempt open
+    fireEvent.click(trigger);
+
+    // onOpenChange fired with true
+    expect(handleOpenChange).toHaveBeenCalledWith(true);
+
+    // Because parent keeps open={false}, popover must remain closed
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(surface.getAttribute('data-state')).toBe('closed');
+  });
+
   it('renders compound subcomponents with semantic classes and attributes', () => {
     render(
       <Popover defaultOpen={true}>

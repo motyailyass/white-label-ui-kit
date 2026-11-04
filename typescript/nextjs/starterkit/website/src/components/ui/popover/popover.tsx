@@ -375,7 +375,7 @@ export function Popover({
         setUncontrolledOpen(nextOpen);
         setIsDomOpen(nextOpen);
       } else {
-        if (nextOpen && !isDomOpen) {
+        if (controlledOpen === true && nextOpen && !isDomOpen) {
           // Re-assert open state in the top layer when reopening a yielded controlled popover
           const content = contentRef.current;
           if (content) {
@@ -396,7 +396,7 @@ export function Popover({
       }
       onOpenChange?.(nextOpen);
     },
-    [isControlled, isDomOpen, updatePosition, onOpenChange],
+    [isControlled, controlledOpen, isDomOpen, updatePosition, onOpenChange],
   );
 
   const contextValue = useMemo(

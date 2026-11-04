@@ -399,6 +399,26 @@ export function PopoverGallery() {
               </PopoverBody>
             </PopoverContent>
           </Popover>
+
+          <Popover
+            open={false}
+            onOpenChange={() => {
+              // Rejects open requests: caller keeps state false
+            }}
+          >
+            <PopoverTrigger asChild>
+              <Button variant="secondary" data-testid="rejected-open-controlled-trigger-btn">
+                {t('common.popoverGallery.openBasicPopover')}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent data-testid="rejected-open-controlled-content">
+              <PopoverBody>
+                <p className={styles.surfaceText}>
+                  {t('common.popoverGallery.controlledPopoverText')}
+                </p>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
         </div>
       </section>
 

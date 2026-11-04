@@ -163,3 +163,7 @@
   justify-content: flex-start;
   align-items: center;
 }
+
+.hiddenAction {
+  visibility: hidden;
+}

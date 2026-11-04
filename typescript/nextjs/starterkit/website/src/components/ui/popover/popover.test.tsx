@@ -539,6 +539,48 @@ describe('Popover (Pure Primitive)', () => {
     expect(handleOpenChange).toHaveBeenCalledWith(false);
   });
 
+  it('moves initial focus into dialog, skipping elements with visibility: hidden to first visible interactive control', () => {
+    render(
+      <Popover defaultOpen={true}>
+        <PopoverTrigger data-testid="trigger">Open</PopoverTrigger>
+        <PopoverContent role="dialog" aria-label="Visibility Test Dialog" data-testid="surface">
+          <button style={{ visibility: 'hidden' }} data-testid="hidden-first-btn">
+            Hidden Button
+          </button>
+          <button data-testid="visible-second-btn">Visible Button</button>
+        </PopoverContent>
+      </Popover>,
+    );
+
+    const visibleBtn = screen.getByTestId('visible-second-btn');
+    expect(document.activeElement).toBe(visibleBtn);
+  });
+
+  it('sends repeated close requests on repeated Escape presses when parent rejects dismissal', () => {
+    const handleOpenChange = vi.fn();
+
+    render(
+      <Popover open={true} onOpenChange={handleOpenChange}>
+        <PopoverTrigger data-testid="trigger">Open</PopoverTrigger>
+        <PopoverContent data-testid="surface">
+          <p>Persistent Content</p>
+        </PopoverContent>
+      </Popover>,
+    );
+
+    // First Escape attempt
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(handleOpenChange).toHaveBeenCalledTimes(1);
+
+    // Second Escape attempt must not be lost
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(handleOpenChange).toHaveBeenCalledTimes(2);
+
+    // Third Escape attempt
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(handleOpenChange).toHaveBeenCalledTimes(3);
+  });
+
   it('renders compound subcomponents with semantic classes and attributes', () => {
     render(
       <Popover defaultOpen={true}>

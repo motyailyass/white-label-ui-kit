@@ -180,6 +180,8 @@ test.describe('Website Popover Primitive Real-Browser Verification', () => {
     await triggerB.click();
     await expect(contentB).toBeVisible();
     await expect(contentA).not.toBeVisible();
+    await expect(triggerA).toHaveAttribute('aria-expanded', 'false');
+    await expect(triggerB).toHaveAttribute('aria-expanded', 'true');
   });
 
   test('8. True lateral inline placement: inline-start is left in LTR, inline-end is right in LTR', async ({
@@ -258,17 +260,46 @@ test.describe('Website Popover Primitive Real-Browser Verification', () => {
     }
   });
 
-  test('11. Initial dialog focus skips disabled controls to first enabled interactive control', async ({
+  test('11. Initial dialog focus skips hidden and disabled controls to first visible enabled control', async ({
     page,
   }) => {
     const trigger = page.locator('[data-testid="open-disabled-first-popover-btn"]');
     const content = page.locator('[data-testid="disabled-first-popover-content"]');
+    const hiddenBtn = page.locator('[data-testid="popover-hidden-first-btn"]');
     const disabledBtn = page.locator('[data-testid="popover-disabled-first-btn"]');
     const enabledBtn = page.locator('[data-testid="popover-enabled-second-btn"]');
 
     await trigger.click();
     await expect(content).toBeVisible();
+    await expect(hiddenBtn).toBeHidden();
     await expect(disabledBtn).toBeDisabled();
     await expect(enabledBtn).toBeFocused();
+  });
+
+  test('12. Repeated Escape key presses send repeated close requests when parent rejects dismissal', async ({
+    page,
+  }) => {
+    const persistedTrigger = page.locator('[data-testid="open-persisted-popover-btn"]');
+    const persistedContent = page.locator('[data-testid="persisted-popover-content"]');
+
+    await persistedTrigger.click();
+    await expect(persistedContent).toBeVisible();
+    await expect(persistedTrigger).toHaveAttribute('aria-expanded', 'true');
+
+    // First Escape attempt
+    await page.keyboard.press('Escape');
+    await expect(persistedContent).toBeVisible();
+    await expect(persistedTrigger).toHaveAttribute('aria-expanded', 'true');
+
+    // Second Escape attempt must still be handled
+    await page.keyboard.press('Escape');
+    await expect(persistedContent).toBeVisible();
+    await expect(persistedTrigger).toHaveAttribute('aria-expanded', 'true');
+
+    // Explicit close button dismisses it
+    const explicitDismiss = page.locator('[data-testid="explicit-close-persisted-popover-btn"]');
+    await explicitDismiss.click();
+    await expect(persistedContent).not.toBeVisible();
+    await expect(persistedTrigger).toHaveAttribute('aria-expanded', 'false');
   });
 });

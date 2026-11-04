@@ -190,6 +190,13 @@ export function PopoverGallery() {
             >
               <PopoverBody>
                 <div className={styles.dialogBodyContent}>
+                  <Button
+                    variant="secondary"
+                    className={styles.hiddenAction}
+                    data-testid="popover-hidden-first-btn"
+                  >
+                    {t('common.popoverGallery.disabledFirstAction')}
+                  </Button>
                   <Button disabled variant="secondary" data-testid="popover-disabled-first-btn">
                     {t('common.popoverGallery.disabledFirstAction')}
                   </Button>

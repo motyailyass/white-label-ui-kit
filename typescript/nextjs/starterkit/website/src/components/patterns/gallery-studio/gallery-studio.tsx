@@ -410,6 +410,7 @@ export function GalleryCodeInspector({
   const { t, direction } = useI18n();
   const [activeTab, setActiveTab] = useState<InspectorTabId>('prompt');
   const [copiedTarget, setCopiedTarget] = useState<'prompt' | 'jsx' | 'css' | null>(null);
+  const [copyErrorTarget, setCopyErrorTarget] = useState<'prompt' | 'jsx' | 'css' | null>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tabRefs = useRef<Record<InspectorTabId, HTMLButtonElement | null>>({
     prompt: null,
@@ -429,20 +430,30 @@ export function GalleryCodeInspector({
   }, []);
 
   const handleCopy = useCallback(async (text: string, target: 'prompt' | 'jsx' | 'css') => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-      try {
-        await navigator.clipboard.writeText(text);
-      } catch {
-        // Clipboard permission unavailable in restricted environments; still announce selection state
-      }
-    }
-    setCopiedTarget(target);
     if (copyTimerRef.current) {
       clearTimeout(copyTimerRef.current);
     }
+    setCopyErrorTarget(null);
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        setCopiedTarget(target);
+        copyTimerRef.current = setTimeout(() => {
+          setCopiedTarget(null);
+        }, 2000);
+        return;
+      } catch {
+        // Clipboard write was rejected or permission denied
+      }
+    }
+
+    // Fallback: clipboard write failed or API unavailable
+    setCopiedTarget(null);
+    setCopyErrorTarget(target);
     copyTimerRef.current = setTimeout(() => {
-      setCopiedTarget(null);
-    }, 2000);
+      setCopyErrorTarget(null);
+    }, 3500);
   }, []);
 
   const handleTabKeyDown = useCallback(
@@ -497,6 +508,15 @@ export function GalleryCodeInspector({
         {copiedTarget && (
           <div role="status" aria-live="polite" className={styles.copyFeedback}>
             {t('common.studio.copied')}
+          </div>
+        )}
+        {copyErrorTarget && (
+          <div
+            role="alert"
+            aria-live="polite"
+            className={cn(styles.copyFeedback, styles.copyFeedbackError)}
+          >
+            {t('common.studio.copyFailed')}
           </div>
         )}
       </div>
@@ -673,60 +693,70 @@ export function GalleryHub({ linkComponent: LinkSlot = DefaultStudioAnchor }: Ga
       desc: t('common.studio.buttonCardDesc'),
       href: '/gallery/button',
       icon: 'sliders' as const,
+      isStudio: true,
     },
     {
       title: t('common.studio.inputTitle'),
       desc: t('common.studio.inputCardDesc'),
       href: '/gallery/input',
       icon: 'search' as const,
-    },
-    {
-      title: t('common.studio.textareaTitle'),
-      desc: t('common.studio.textareaCardDesc'),
-      href: '/gallery/textarea',
-      icon: 'align-left' as const,
-    },
-    {
-      title: t('common.studio.selectTitle'),
-      desc: t('common.studio.selectCardDesc'),
-      href: '/gallery/select',
-      icon: 'chevron-down' as const,
-    },
-    {
-      title: t('common.studio.checkboxTitle'),
-      desc: t('common.studio.checkboxCardDesc'),
-      href: '/gallery/checkbox',
-      icon: 'check' as const,
-    },
-    {
-      title: t('common.studio.radioTitle'),
-      desc: t('common.studio.radioCardDesc'),
-      href: '/gallery/radio',
-      icon: 'bookmark' as const,
-    },
-    {
-      title: t('common.studio.switchTitle'),
-      desc: t('common.studio.switchCardDesc'),
-      href: '/gallery/switch',
-      icon: 'sliders' as const,
+      isStudio: true,
     },
     {
       title: t('common.studio.dlgTitle'),
       desc: t('common.studio.dialogCardDesc'),
       href: '/gallery/dialog',
       icon: 'feature' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.textareaTitle'),
+      desc: t('common.studio.textareaCardDesc'),
+      href: '/gallery/textarea',
+      icon: 'align-left' as const,
+      isStudio: false,
+    },
+    {
+      title: t('common.studio.selectTitle'),
+      desc: t('common.studio.selectCardDesc'),
+      href: '/gallery/select',
+      icon: 'chevron-down' as const,
+      isStudio: false,
+    },
+    {
+      title: t('common.studio.checkboxTitle'),
+      desc: t('common.studio.checkboxCardDesc'),
+      href: '/gallery/checkbox',
+      icon: 'check' as const,
+      isStudio: false,
+    },
+    {
+      title: t('common.studio.radioTitle'),
+      desc: t('common.studio.radioCardDesc'),
+      href: '/gallery/radio',
+      icon: 'bookmark' as const,
+      isStudio: false,
+    },
+    {
+      title: t('common.studio.switchTitle'),
+      desc: t('common.studio.switchCardDesc'),
+      href: '/gallery/switch',
+      icon: 'sliders' as const,
+      isStudio: false,
     },
     {
       title: t('common.studio.popoverTitle'),
       desc: t('common.studio.popoverCardDesc'),
       href: '/gallery/popover',
       icon: 'inbox' as const,
+      isStudio: false,
     },
     {
       title: t('common.studio.dropdownTitle'),
       desc: t('common.studio.dropdownCardDesc'),
       href: '/gallery/dropdown',
       icon: 'menu' as const,
+      isStudio: false,
     },
   ];
 
@@ -758,12 +788,25 @@ export function GalleryHub({ linkComponent: LinkSlot = DefaultStudioAnchor }: Ga
             <div className={styles.hubCardTop}>
               <div className={styles.hubCardTitleRow}>
                 <h3 className={styles.hubCardTitle}>{card.title}</h3>
-                <span className={styles.studioPill}>{t('common.studio.badgeInteractiveStudio')}</span>
+                <span
+                  className={cn(
+                    styles.studioPill,
+                    !card.isStudio && styles.galleryPill,
+                  )}
+                >
+                  {card.isStudio
+                    ? t('common.studio.badgeInteractiveStudio')
+                    : t('common.studio.badgePrimitiveGallery')}
+                </span>
               </div>
               <p className={styles.hubCardDesc}>{card.desc}</p>
             </div>
             <LinkSlot href={card.href} className={styles.hubLinkBtn}>
-              <span>{t('common.studio.openStudio')}</span>
+              <span>
+                {card.isStudio
+                  ? t('common.studio.openStudio')
+                  : t('common.studio.openGallery')}
+              </span>
               <Icon name="arrow-right" />
             </LinkSlot>
           </div>

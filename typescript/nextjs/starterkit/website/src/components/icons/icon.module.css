@@ -4,6 +4,23 @@
   vertical-align: -0.125em;
 }
 
+/* Nearest-ancestor direction isolation for icon mirroring */
 [dir="rtl"] .mirror {
   transform: scaleX(-1);
+}
+
+[dir="rtl"] [dir="ltr"] .mirror {
+  transform: none;
+}
+
+[dir="rtl"] [dir="ltr"] [dir="rtl"] .mirror {
+  transform: scaleX(-1);
+}
+
+[dir="ltr"] [dir="rtl"] .mirror {
+  transform: scaleX(-1);
+}
+
+[dir="ltr"] [dir="rtl"] [dir="ltr"] .mirror {
+  transform: none;
 }

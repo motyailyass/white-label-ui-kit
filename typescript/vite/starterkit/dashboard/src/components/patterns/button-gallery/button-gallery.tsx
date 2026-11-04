@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Icon, type IconName } from '@/components/icons';
 import {
   Button,
@@ -35,20 +35,54 @@ export function ButtonGallery({ linkComponent }: ButtonGalleryProps) {
   const { t, locale, direction } = useI18n();
   const { resolvedTheme } = useTheme();
 
-  // Component-Specific Preview Controls
+  // Component-Specific Preview Controls (Default starts at primitive secondary)
   const [specimenDir, setSpecimenDir] = useState<ButtonSpecimenDirection>('ltr');
-  const [variant, setVariant] = useState<ButtonVariant>('primary');
+  const [variant, setVariant] = useState<ButtonVariant>('secondary');
   const [size, setSize] = useState<ControlSize | 'default'>('default');
   const [stageView, setStageView] = useState<ButtonStageView>('single');
   const [iconMode, setIconMode] = useState<ButtonIconMode>('none');
   const [fullWidth, setFullWidth] = useState(false);
   const [interactionState, setInteractionState] = useState<ButtonInteractionState>('resting');
   const [touchTarget, setTouchTarget] = useState<ButtonTouchTarget>('auto');
-  const [buttonType, setButtonType] = useState<'button' | 'submit'>('button');
+  const [buttonType, setButtonType] = useState<'button' | 'submit' | 'reset'>('button');
+
+  // Live specimen ref for computed specs measurement
+  const specimenRef = useRef<HTMLButtonElement | null>(null);
+  const [measuredSpecs, setMeasuredSpecs] = useState<{
+    height: string;
+    width: string;
+    bg: string;
+    border: string;
+    radius: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (specimenRef.current) {
+      const s = window.getComputedStyle(specimenRef.current);
+      const rect = specimenRef.current.getBoundingClientRect();
+      setMeasuredSpecs({
+        height: `${Math.round(rect.height)}px`,
+        width: `${Math.round(rect.width)}px`,
+        bg: s.backgroundColor,
+        border: `${s.borderWidth} ${s.borderStyle} ${s.borderColor}`,
+        radius: s.borderRadius,
+      });
+    }
+  }, [
+    variant,
+    size,
+    touchTarget,
+    buttonType,
+    interactionState,
+    iconMode,
+    fullWidth,
+    specimenDir,
+    resolvedTheme,
+  ]);
 
   const handleReset = useCallback(() => {
     setSpecimenDir('ltr');
-    setVariant('primary');
+    setVariant('secondary');
     setSize('default');
     setStageView('single');
     setIconMode('none');
@@ -75,7 +109,7 @@ export function ButtonGallery({ linkComponent }: ButtonGalleryProps) {
   // Active specimen label text based on specimen direction
   const sampleLabelText = specimenDir === 'rtl' ? 'حفظ التغييرات' : t('common.studio.btnSampleLabel');
 
-  // Generate dynamic JSX Snippet
+  // Generate dynamic standalone JSX Snippet
   const jsxSnippet = useMemo(() => {
     const propsList: string[] = [];
     if (variant !== 'secondary') propsList.push(`variant="${variant}"`);
@@ -90,16 +124,23 @@ export function ButtonGallery({ linkComponent }: ButtonGalleryProps) {
       propsList.push(`aria-label="${t('common.studio.btnIconOnlyAria')}"`);
     }
 
+    const needsIconImport = hasStartIcon || hasEndIcon || isIconOnly;
+    const imports = [
+      `import { Button } from '@/components/ui';`,
+      needsIconImport ? `import { Icon } from '@/components/icons';` : null,
+      fullWidth ? `import styles from './my-action.module.css';` : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
     const propsStr = propsList.length > 0 ? ` ${propsList.join(' ')}` : '';
     const childrenStr = isIconOnly ? '\n  <Icon name="check" />\n' : `\n  ${sampleLabelText}\n`;
 
-    const buttonJsx = `<Button${propsStr}>${childrenStr}</Button>`;
-
     if (fullWidth) {
-      return `/* To expand to full width of parent container: */\n<Button${propsStr} className={styles.fullWidth}>\n  ${childrenStr.trim()}\n</Button>`;
+      return `${imports}\n\n/* Full-width container pattern via CSS Module: */\n<Button${propsStr} className={styles.fullWidth}>\n  ${childrenStr.trim()}\n</Button>`;
     }
 
-    return buttonJsx;
+    return `${imports}\n\n<Button${propsStr}>${childrenStr}</Button>`;
   }, [
     variant,
     size,
@@ -144,7 +185,7 @@ export function ButtonGallery({ linkComponent }: ButtonGalleryProps) {
 ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
   }, [jsxSnippet, size, variant, isIconOnly, cssModuleSnippet]);
 
-  // Computed Specifications table
+  // Selected Settings & Measured Specifications table
   const specGroups: readonly StudioSpecGroup[] = useMemo(() => {
     return [
       {
@@ -165,9 +206,34 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
             label: '--radius-control',
             value: 'var(--radius-control) (Product Preset: 6px / 8px)',
           },
-          { label: 'Width Mode', value: fullWidth ? '100% (Full Width)' : 'Auto (Intrinsic)' },
+          { label: 'Width Mode', value: fullWidth ? '100% (CSS Layout Override)' : 'Auto (Intrinsic)' },
           { label: 'Icon Layout', value: iconMode },
           { label: 'Specimen Direction', value: specimenDir.toUpperCase() },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryMeasured'),
+        items: [
+          {
+            label: t('common.studio.specMinBlockSize'),
+            value: measuredSpecs ? measuredSpecs.height : 'Measuring...',
+          },
+          {
+            label: 'Rendered Inline Size (Width)',
+            value: measuredSpecs ? measuredSpecs.width : 'Measuring...',
+          },
+          {
+            label: 'Computed Background',
+            value: measuredSpecs ? measuredSpecs.bg : 'Measuring...',
+          },
+          {
+            label: 'Computed Border',
+            value: measuredSpecs ? measuredSpecs.border : 'Measuring...',
+          },
+          {
+            label: t('common.studio.specRadius'),
+            value: measuredSpecs ? measuredSpecs.radius : 'Measuring...',
+          },
         ],
       },
       {
@@ -189,6 +255,7 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
     fullWidth,
     iconMode,
     specimenDir,
+    measuredSpecs,
     locale,
     direction,
     resolvedTheme,
@@ -220,36 +287,38 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
   ];
 
   const viewOptions: readonly StudioSegmentedOption<ButtonStageView>[] = [
-    { value: 'single', label: t('common.studio.viewSingle') },
-    { value: 'all-sizes', label: t('common.studio.viewAllSizes') },
+    { value: 'single', label: t('common.studio.viewSingle'), testId: 'opt-view-single' },
+    { value: 'all-sizes', label: t('common.studio.viewAllSizes'), testId: 'opt-view-all-sizes' },
   ];
 
   const iconOptions: readonly StudioSegmentedOption<ButtonIconMode>[] = [
-    { value: 'none', label: t('common.studio.iconNone') },
-    { value: 'start', label: t('common.studio.iconStart') },
-    { value: 'end', label: t('common.studio.iconEnd') },
-    { value: 'both', label: t('common.studio.iconBoth') },
-    { value: 'icon-only', label: t('common.studio.iconOnly') },
+    { value: 'none', label: t('common.studio.iconNone'), testId: 'opt-icon-none' },
+    { value: 'start', label: t('common.studio.iconStart'), testId: 'opt-icon-start' },
+    { value: 'end', label: t('common.studio.iconEnd'), testId: 'opt-icon-end' },
+    { value: 'both', label: t('common.studio.iconBoth'), testId: 'opt-icon-both' },
+    { value: 'icon-only', label: t('common.studio.iconOnly'), testId: 'opt-icon-only' },
   ];
 
   const stateOptions: readonly StudioSegmentedOption<ButtonInteractionState>[] = [
-    { value: 'resting', label: t('common.studio.stateResting') },
-    { value: 'loading', label: t('common.studio.stateLoading') },
-    { value: 'disabled', label: t('common.studio.stateDisabled') },
+    { value: 'resting', label: t('common.studio.stateResting'), testId: 'opt-state-resting' },
+    { value: 'loading', label: t('common.studio.stateLoading'), testId: 'opt-state-loading' },
+    { value: 'disabled', label: t('common.studio.stateDisabled'), testId: 'opt-state-disabled' },
   ];
 
   const touchTargetOptions: readonly StudioSegmentedOption<ButtonTouchTarget>[] = [
-    { value: 'auto', label: t('common.studio.touchAuto') },
-    { value: 'comfortable', label: t('common.studio.touchComfortable') },
+    { value: 'auto', label: t('common.studio.touchAuto'), testId: 'opt-touch-auto' },
+    { value: 'comfortable', label: t('common.studio.touchComfortable'), testId: 'opt-touch-comfortable' },
   ];
 
-  const buttonTypeOptions: readonly StudioSegmentedOption<'button' | 'submit'>[] = [
-    { value: 'button', label: t('common.studio.typeButton') },
-    { value: 'submit', label: t('common.studio.typeSubmit') },
+  const buttonTypeOptions: readonly StudioSegmentedOption<'button' | 'submit' | 'reset'>[] = [
+    { value: 'button', label: t('common.studio.typeButton'), testId: 'opt-type-button' },
+    { value: 'submit', label: t('common.studio.typeSubmit'), testId: 'opt-type-submit' },
+    { value: 'reset', label: t('common.studio.typeReset'), testId: 'opt-type-reset' },
   ];
 
   const renderActiveButton = (overrideSize?: ControlSize, customTestId = 'studio-active-button') => {
     const finalSize = overrideSize ?? resolvedSize;
+    const isSingleMainSpecimen = customTestId === 'studio-active-button';
 
     const commonProps: ButtonProps & { 'data-testid'?: string } = {
       variant,
@@ -265,14 +334,21 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
 
     if (isIconOnly) {
       return (
-        <Button {...commonProps} aria-label={t('common.studio.btnIconOnlyAria')}>
+        <Button
+          {...commonProps}
+          ref={isSingleMainSpecimen ? specimenRef : undefined}
+          aria-label={t('common.studio.btnIconOnlyAria')}
+        >
           <Icon name="check" />
         </Button>
       );
     }
 
     return (
-      <Button {...commonProps}>
+      <Button
+        {...commonProps}
+        ref={isSingleMainSpecimen ? specimenRef : undefined}
+      >
         {sampleLabelText}
       </Button>
     );
@@ -372,9 +448,9 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
         />
       }
     >
-      <div className={cn(styles.stageActionArea, fullWidth && styles.wrapperFullWidth)}>
+      <div className={styles.stageActionArea}>
         {stageView === 'single' ? (
-          <div className={styles.singleSpecimenRow}>
+          <div className={cn(styles.singleSpecimenRow, fullWidth && styles.specimenFullWidth)}>
             {renderActiveButton()}
           </div>
         ) : (
@@ -409,9 +485,9 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
                   data-testid={`variant-quick-select-${v}`}
                 >
                   {v === 'secondary'
-                    ? 'Secondary (Outline)'
+                    ? t('common.studio.optVariantSecondary')
                     : v === 'subtle'
-                      ? 'Subtle (Tinted)'
+                      ? t('common.studio.optVariantSubtle')
                       : v.charAt(0).toUpperCase() + v.slice(1)}
                 </Button>
               </div>

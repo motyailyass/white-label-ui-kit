@@ -138,8 +138,11 @@ test.describe('Button Primitive Real-Browser Verification', () => {
   test('verifies button icon SVG dimensions match control icon size tokens and slot dimensions', async ({
     page,
   }) => {
-    // 1. Product default icon button (Dashboard default md -> 16px icon)
-    const defaultIconBtn = page.locator('button:has(span svg)').first();
+    // 1. Configure Start Icon via studio segmented control
+    await page.locator('[data-testid="opt-icon-start"]').click();
+
+    // Measure Product default icon button (Dashboard default md -> 16px icon)
+    const defaultIconBtn = page.locator('[data-testid="studio-active-button"]');
     await expect(defaultIconBtn).toBeVisible();
 
     const defaultMetrics = await defaultIconBtn.evaluate((btn) => {
@@ -150,7 +153,7 @@ test.describe('Button Primitive Real-Browser Verification', () => {
       const svgStyle = window.getComputedStyle(svg);
 
       return {
-        tokenPx: parseFloat(btnStyle.getPropertyValue('--_control-icon-size')),
+        tokenRem: parseFloat(btnStyle.getPropertyValue('--_control-icon-size')),
         slotWidth: slot.getBoundingClientRect().width,
         slotHeight: slot.getBoundingClientRect().height,
         slotCssInline: parseFloat(slotStyle.inlineSize),
@@ -162,7 +165,7 @@ test.describe('Button Primitive Real-Browser Verification', () => {
       };
     });
 
-    expect(defaultMetrics.tokenPx).toBe(16);
+    expect(defaultMetrics.tokenRem).toBe(1);
     expect(defaultMetrics.slotWidth).toBeCloseTo(16, 1);
     expect(defaultMetrics.slotHeight).toBeCloseTo(16, 1);
     expect(defaultMetrics.slotCssInline).toBeCloseTo(16, 1);
@@ -172,8 +175,9 @@ test.describe('Button Primitive Real-Browser Verification', () => {
     expect(defaultMetrics.svgCssInline).toBeCloseTo(16, 1);
     expect(defaultMetrics.svgCssBlock).toBeCloseTo(16, 1);
 
-    // 2. Explicit size icon button (XL -> 20px icon)
-    const xlIconBtn = page.locator('[data-testid="specimen-btn-xl-icon"]');
+    // 2. Select explicit XL size via studio control (XL -> 20px icon)
+    await page.locator('[data-testid="opt-size-xl"]').click();
+    const xlIconBtn = page.locator('[data-testid="studio-active-button"]');
     await expect(xlIconBtn).toBeVisible();
 
     const xlMetrics = await xlIconBtn.evaluate((btn) => {
@@ -184,7 +188,7 @@ test.describe('Button Primitive Real-Browser Verification', () => {
       const svgStyle = window.getComputedStyle(svg);
 
       return {
-        tokenPx: parseFloat(btnStyle.getPropertyValue('--_control-icon-size')),
+        tokenRem: parseFloat(btnStyle.getPropertyValue('--_control-icon-size')),
         slotWidth: slot.getBoundingClientRect().width,
         slotHeight: slot.getBoundingClientRect().height,
         slotCssInline: parseFloat(slotStyle.inlineSize),
@@ -196,7 +200,7 @@ test.describe('Button Primitive Real-Browser Verification', () => {
       };
     });
 
-    expect(xlMetrics.tokenPx).toBe(20);
+    expect(xlMetrics.tokenRem).toBe(1.25);
     expect(xlMetrics.slotWidth).toBeCloseTo(20, 1);
     expect(xlMetrics.slotHeight).toBeCloseTo(20, 1);
     expect(xlMetrics.slotCssInline).toBeCloseTo(20, 1);
@@ -205,5 +209,17 @@ test.describe('Button Primitive Real-Browser Verification', () => {
     expect(xlMetrics.svgHeight).toBeCloseTo(20, 1);
     expect(xlMetrics.svgCssInline).toBeCloseTo(20, 1);
     expect(xlMetrics.svgCssBlock).toBeCloseTo(20, 1);
+
+    // 3. Select icon-only mode and verify child SVG directly matches 20px token
+    await page.locator('[data-testid="opt-icon-only"]').click();
+    const iconOnlySvg = xlIconBtn.locator('svg');
+    await expect(iconOnlySvg).toBeVisible();
+
+    const iconOnlyDimensions = await iconOnlySvg.evaluate((svg) => {
+      const r = svg.getBoundingClientRect();
+      return { width: r.width, height: r.height };
+    });
+    expect(iconOnlyDimensions.width).toBeCloseTo(20, 1);
+    expect(iconOnlyDimensions.height).toBeCloseTo(20, 1);
   });
 });

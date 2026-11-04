@@ -452,6 +452,10 @@
   color: var(--color-primary);
 }
 
+.copyFeedbackError {
+  color: var(--color-danger);
+}
+
 .tabPanel {
   padding-inline: var(--space-5);
   padding-block: var(--space-5);
@@ -615,6 +619,12 @@
   font-size: var(--font-size-xs);
   line-height: 1rem;
   font-weight: var(--font-weight-medium);
+}
+
+.galleryPill {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-secondary);
 }
 
 .hubCardDesc {

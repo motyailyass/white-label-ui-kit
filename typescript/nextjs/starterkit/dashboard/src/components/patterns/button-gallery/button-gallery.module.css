@@ -3,11 +3,11 @@
  * 100% CSS Logical Properties, Zero Dashboard Shadows.
  */
 
-.wrapperFullWidth {
+.specimenFullWidth {
   inline-size: 100%;
 }
 
-.wrapperFullWidth :global(button) {
+.specimenFullWidth > button {
   inline-size: 100%;
 }
 
@@ -25,7 +25,8 @@
   align-items: center;
   justify-content: center;
   min-block-size: 7rem;
-  inline-size: 100%;
+  inline-size: auto;
+  max-inline-size: 100%;
 }
 
 .allSizesGrid {

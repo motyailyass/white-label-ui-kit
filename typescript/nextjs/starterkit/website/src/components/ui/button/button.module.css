@@ -227,9 +227,12 @@
   flex: none;
 }
 
-.icon svg {
+.icon svg,
+.content > svg,
+.content > span > svg {
   inline-size: var(--_control-icon-size);
   block-size: var(--_control-icon-size);
+  flex-shrink: 0;
 }
 
 .spinnerWrapper {

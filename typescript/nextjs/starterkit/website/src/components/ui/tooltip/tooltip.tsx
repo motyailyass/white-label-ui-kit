@@ -106,7 +106,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
     arrow = true,
     delayDuration = 250,
     skipDelayDuration = 200,
-    sideOffset = 6,
+    sideOffset = 8,
     variant = 'contrast',
     shortcut,
     open: controlledOpen,
@@ -149,7 +149,9 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
     if (!trigger || !tooltip) return;
 
     const triggerRect = trigger.getBoundingClientRect();
-    const tooltipRect = tooltip.getBoundingClientRect();
+    // Use unscaled layout dimensions (offsetWidth/offsetHeight) to prevent CSS transform distortion
+    const tooltipWidth = tooltip.offsetWidth || tooltip.getBoundingClientRect().width;
+    const tooltipHeight = tooltip.offsetHeight || tooltip.getBoundingClientRect().height;
 
     const isRtl =
       typeof window !== 'undefined'
@@ -174,31 +176,31 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
     // Viewport boundary collision check & flip
     if (effectivePlacement === 'top') {
       if (
-        triggerRect.top - tooltipRect.height - offset < gutter &&
-        viewportHeight - triggerRect.bottom - tooltipRect.height - offset >= gutter
+        triggerRect.top - tooltipHeight - offset < gutter &&
+        viewportHeight - triggerRect.bottom - tooltipHeight - offset >= gutter
       ) {
         effectivePlacement = 'bottom';
       }
     } else if (effectivePlacement === 'bottom') {
       if (
-        viewportHeight - triggerRect.bottom - tooltipRect.height - offset < gutter &&
-        triggerRect.top - tooltipRect.height - offset >= gutter
+        viewportHeight - triggerRect.bottom - tooltipHeight - offset < gutter &&
+        triggerRect.top - tooltipHeight - offset >= gutter
       ) {
         effectivePlacement = 'top';
       }
     } else if (effectivePlacement === 'left') {
       const spaceLeft = triggerRect.left;
       if (
-        spaceLeft - tooltipRect.width - offset < gutter &&
-        viewportWidth - triggerRect.right - tooltipRect.width - offset >= gutter
+        spaceLeft - tooltipWidth - offset < gutter &&
+        viewportWidth - triggerRect.right - tooltipWidth - offset >= gutter
       ) {
         effectivePlacement = 'right';
       }
     } else if (effectivePlacement === 'right') {
       const spaceRight = viewportWidth - triggerRect.right;
       if (
-        spaceRight - tooltipRect.width - offset < gutter &&
-        triggerRect.left - tooltipRect.width - offset >= gutter
+        spaceRight - tooltipWidth - offset < gutter &&
+        triggerRect.left - tooltipWidth - offset >= gutter
       ) {
         effectivePlacement = 'left';
       }
@@ -208,22 +210,30 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
     let left = 0;
 
     if (effectivePlacement === 'top') {
-      top = triggerRect.top - tooltipRect.height - offset;
-      left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
+      top = triggerRect.top - tooltipHeight - offset;
+      left = triggerRect.left + (triggerRect.width - tooltipWidth) / 2;
+      // Clamping: ensure horizontal stays in viewport, vertical never crosses below trigger top
+      left = Math.max(gutter, Math.min(left, viewportWidth - tooltipWidth - gutter));
+      top = Math.min(top, triggerRect.top - tooltipHeight - offset);
     } else if (effectivePlacement === 'bottom') {
       top = triggerRect.bottom + offset;
-      left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
+      left = triggerRect.left + (triggerRect.width - tooltipWidth) / 2;
+      // Clamping: ensure horizontal stays in viewport, vertical never crosses above trigger bottom
+      left = Math.max(gutter, Math.min(left, viewportWidth - tooltipWidth - gutter));
+      top = Math.max(top, triggerRect.bottom + offset);
     } else if (effectivePlacement === 'left') {
-      top = triggerRect.top + (triggerRect.height - tooltipRect.height) / 2;
-      left = triggerRect.left - tooltipRect.width - offset;
+      top = triggerRect.top + (triggerRect.height - tooltipHeight) / 2;
+      left = triggerRect.left - tooltipWidth - offset;
+      // Clamping: ensure vertical stays in viewport, horizontal NEVER exceeds trigger left (no penetration)
+      top = Math.max(gutter, Math.min(top, viewportHeight - tooltipHeight - gutter));
+      left = Math.min(left, triggerRect.left - tooltipWidth - offset);
     } else if (effectivePlacement === 'right') {
-      top = triggerRect.top + (triggerRect.height - tooltipRect.height) / 2;
+      top = triggerRect.top + (triggerRect.height - tooltipHeight) / 2;
       left = triggerRect.right + offset;
+      // Clamping: ensure vertical stays in viewport, horizontal NEVER drops below trigger right (no penetration)
+      top = Math.max(gutter, Math.min(top, viewportHeight - tooltipHeight - gutter));
+      left = Math.max(left, triggerRect.right + offset);
     }
-
-    // Gutter clamping within viewport
-    left = Math.max(gutter, Math.min(left, viewportWidth - tooltipRect.width - gutter));
-    top = Math.max(gutter, Math.min(top, viewportHeight - tooltipRect.height - gutter));
 
     setResolvedPlacement(effectivePlacement);
     tooltip.style.top = `${Math.round(top)}px`;

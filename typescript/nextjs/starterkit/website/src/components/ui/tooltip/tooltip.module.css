@@ -92,30 +92,32 @@
 
 .tooltip[data-placement="top"] .arrow {
   inset-block-end: -4px;
-  inset-inline-start: calc(50% - 3px);
-  border-inline-start: none;
-  border-block-start: none;
+  left: calc(50% - 3px);
+  border-top: none;
+  border-left: none;
 }
 
 .tooltip[data-placement="bottom"] .arrow {
   inset-block-start: -4px;
-  inset-inline-start: calc(50% - 3px);
-  border-inline-end: none;
-  border-block-end: none;
+  left: calc(50% - 3px);
+  border-right: none;
+  border-bottom: none;
 }
 
 .tooltip[data-placement="left"] .arrow {
-  inset-inline-end: -4px;
+  right: -4px;
+  left: auto;
   inset-block-start: calc(50% - 3px);
-  border-inline-start: none;
-  border-block-end: none;
+  border-left: none;
+  border-bottom: none;
 }
 
 .tooltip[data-placement="right"] .arrow {
-  inset-inline-start: -4px;
+  left: -4px;
+  right: auto;
   inset-block-start: calc(50% - 3px);
-  border-inline-end: none;
-  border-block-start: none;
+  border-right: none;
+  border-top: none;
 }
 
 @keyframes tooltipEnter {

@@ -18,7 +18,7 @@ import React, {
 import { cn } from '@/lib/cn';
 import styles from './tooltip.module.css';
 
-export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
+export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right' | 'start' | 'end';
 export type TooltipVariant = 'contrast' | 'subtle';
 
 export interface TooltipProps {
@@ -156,7 +156,16 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
         ? window.getComputedStyle(trigger).direction === 'rtl'
         : false;
 
-    let effectivePlacement: TooltipPlacement = placement;
+    // Resolve logical start/end to physical left/right based on active direction
+    let effectivePlacement: 'top' | 'bottom' | 'left' | 'right';
+    if (placement === 'start') {
+      effectivePlacement = isRtl ? 'right' : 'left';
+    } else if (placement === 'end') {
+      effectivePlacement = isRtl ? 'left' : 'right';
+    } else {
+      effectivePlacement = placement;
+    }
+
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     const gutter = 8;
@@ -178,13 +187,19 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
         effectivePlacement = 'top';
       }
     } else if (effectivePlacement === 'left') {
-      const spaceLeft = isRtl ? viewportWidth - triggerRect.right : triggerRect.left;
-      if (spaceLeft - tooltipRect.width - offset < gutter) {
+      const spaceLeft = triggerRect.left;
+      if (
+        spaceLeft - tooltipRect.width - offset < gutter &&
+        viewportWidth - triggerRect.right - tooltipRect.width - offset >= gutter
+      ) {
         effectivePlacement = 'right';
       }
     } else if (effectivePlacement === 'right') {
-      const spaceRight = isRtl ? triggerRect.left : viewportWidth - triggerRect.right;
-      if (spaceRight - tooltipRect.width - offset < gutter) {
+      const spaceRight = viewportWidth - triggerRect.right;
+      if (
+        spaceRight - tooltipRect.width - offset < gutter &&
+        triggerRect.left - tooltipRect.width - offset >= gutter
+      ) {
         effectivePlacement = 'left';
       }
     }
@@ -200,14 +215,10 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
       left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
     } else if (effectivePlacement === 'left') {
       top = triggerRect.top + (triggerRect.height - tooltipRect.height) / 2;
-      left = isRtl
-        ? triggerRect.right + offset
-        : triggerRect.left - tooltipRect.width - offset;
+      left = triggerRect.left - tooltipRect.width - offset;
     } else if (effectivePlacement === 'right') {
       top = triggerRect.top + (triggerRect.height - tooltipRect.height) / 2;
-      left = isRtl
-        ? triggerRect.left - tooltipRect.width - offset
-        : triggerRect.right + offset;
+      left = triggerRect.right + offset;
     }
 
     // Gutter clamping within viewport

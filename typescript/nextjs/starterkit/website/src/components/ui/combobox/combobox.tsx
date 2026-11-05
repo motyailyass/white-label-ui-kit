@@ -685,7 +685,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                           className={cn(
                             styles.option,
                             isActive && styles.optionActive,
-                            isSelected && styles.optionSelected,
+                            isSelected && (multiple ? styles.optionMultiSelected : styles.optionSelected),
                             opt.disabled && styles.optionDisabled,
                             Boolean(opt.description) && styles.optionWithDescription,
                           )}
@@ -751,7 +751,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                   className={cn(
                     styles.option,
                     isActive && styles.optionActive,
-                    isSelected && styles.optionSelected,
+                    isSelected && (multiple ? styles.optionMultiSelected : styles.optionSelected),
                     opt.disabled && styles.optionDisabled,
                     Boolean(opt.description) && styles.optionWithDescription,
                   )}

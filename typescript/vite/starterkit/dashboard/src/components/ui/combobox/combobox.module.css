@@ -319,10 +319,10 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-0-5);
   background-color: var(--color-surface-raised);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-card, var(--radius-control));
+  border-radius: var(--radius-control);
   max-block-size: 20rem;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -358,24 +358,24 @@
 /* Two-Line Option (Label + Description) */
 .optionWithDescription {
   min-block-size: 3rem;
-  padding-block: var(--space-2);
+  padding-block: var(--space-1);
 }
 
 .optionWithDescription .optionContent {
-  align-items: flex-start;
+  align-items: center;
 }
 
 .optionWithDescription .optionCheckbox {
-  margin-block-start: 2px;
+  margin-block-start: 0;
 }
 
 .optionWithDescription .optionIcon {
-  margin-block-start: 2px;
+  margin-block-start: 0;
 }
 
 .optionWithDescription .checkIcon {
-  align-self: flex-start;
-  margin-block-start: 2px;
+  align-self: center;
+  margin-block-start: 0;
 }
 
 .option:hover:not(.optionDisabled),
@@ -389,8 +389,15 @@
   font-weight: var(--font-weight-medium);
 }
 
+.optionMultiSelected {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
 .optionSelected:hover:not(.optionDisabled),
-.optionSelected.optionActive {
+.optionSelected.optionActive,
+.optionMultiSelected:hover:not(.optionDisabled),
+.optionMultiSelected.optionActive {
   background-color: var(--color-secondary-hover);
 }
 
@@ -451,6 +458,7 @@
 .optionTextGroup {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: var(--space-0-5);
   min-inline-size: 0;
 }

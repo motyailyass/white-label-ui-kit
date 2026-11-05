@@ -1027,6 +1027,8 @@ export const common = {
       'Inspectez les info-bulles au survol et au focus, testez les 4 placements anti-collision, les raccourcis et copiez le code exact.',
     tooltipCardDesc:
       'Descriptions contextuelles non modales, conformité WCAG 1.4.13 et 4 orientations automatiques.',
+    skipDelayTitle: 'Test de délai ignoré',
+    skipDelayDesc: 'Déplacez le curseur sur les boutons adjacents pour tester la transition instantanée',
     buttonCardDesc:
       'Validez les variantes sémantiques, les 6 tailles de contrôle, les rayons d’angle, l’espacement en ligne, les icônes et le miroir RTL avec export IA en un clic.',
     inputCardDesc:

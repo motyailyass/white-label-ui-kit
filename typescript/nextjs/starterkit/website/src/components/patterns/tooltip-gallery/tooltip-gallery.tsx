@@ -345,8 +345,8 @@ Requirements & Tokens:
             Hover with cursor or navigate via <strong>Tab</strong> to reveal tooltip. Press <strong>Escape</strong> to dismiss.
           </div>
 
-          <div className={styles.triggerRow}>
-            {/* Primary Interactive Specimen */}
+          <div className={styles.specimenStage}>
+            {/* Primary Interactive Specimen — Isolated with 360° Clearance */}
             <Tooltip
               content={activeContentText}
               placement={placement}
@@ -358,25 +358,52 @@ Requirements & Tokens:
             >
               {renderActiveTrigger()}
             </Tooltip>
-
-            {/* Adjacent Specimen for Skip-Delay Testing */}
-            <Tooltip
-              content={adjacentContentText}
-              placement={placement}
-              variant={variant}
-              arrow={hasArrow}
-              shortcut="⌘,"
-              delayDuration={delayDuration}
-              disabled={isDisabled}
-            >
-              <Button variant="secondary" size="md" aria-label="Settings">
-                <Icon name="settings" />
-              </Button>
-            </Tooltip>
           </div>
 
-          <div className={styles.skipDelayHint}>
-            💡 <strong>Skip-Delay Test:</strong> Move your cursor directly from the first button to the second to verify instant opening without repeating the 250ms warm-up delay.
+          <div className={styles.skipDelaySection}>
+            <div className={styles.skipDelayHeader}>
+              <span>💡 <strong>{t('common.studio.skipDelayTitle') || 'Skip-Delay Test'}:</strong> {t('common.studio.skipDelayDesc') || 'Move cursor across adjacent buttons to test 0ms transition'}</span>
+            </div>
+            <div className={styles.skipDelayToolbar} role="toolbar" aria-label="Skip delay toolbar">
+              <Tooltip
+                content={specimenDir === 'rtl' ? 'البحث في المستندات' : 'Search documents'}
+                placement="top"
+                variant={variant}
+                arrow={hasArrow}
+                shortcut="⌘K"
+                delayDuration={delayDuration}
+              >
+                <Button variant="secondary" size="sm" aria-label="Search">
+                  <Icon name="search" />
+                </Button>
+              </Tooltip>
+
+              <Tooltip
+                content={specimenDir === 'rtl' ? 'تخصيص الخيارات' : 'Custom preferences'}
+                placement="top"
+                variant={variant}
+                arrow={hasArrow}
+                shortcut="⌘,"
+                delayDuration={delayDuration}
+              >
+                <Button variant="secondary" size="sm" aria-label="Preferences">
+                  <Icon name="sliders" />
+                </Button>
+              </Tooltip>
+
+              <Tooltip
+                content={specimenDir === 'rtl' ? 'الإعدادات العامة' : 'General settings'}
+                placement="top"
+                variant={variant}
+                arrow={hasArrow}
+                shortcut="⌘S"
+                delayDuration={delayDuration}
+              >
+                <Button variant="secondary" size="sm" aria-label="Settings">
+                  <Icon name="settings" />
+                </Button>
+              </Tooltip>
+            </div>
           </div>
         </div>
       </div>

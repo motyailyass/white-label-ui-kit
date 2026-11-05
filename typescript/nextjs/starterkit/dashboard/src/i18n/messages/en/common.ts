@@ -1024,6 +1024,8 @@ export const common = {
       'Inspect accessible hover and focus tooltips, test 4-way collision placements, warm-up and skip delays, keyboard shortcuts, and copy exact code.',
     tooltipCardDesc:
       'Non-modal contextual descriptions, WCAG 1.4.13 dismissible/hoverable/persistent compliance, and 4-way placements.',
+    skipDelayTitle: 'Skip-Delay Test',
+    skipDelayDesc: 'Move cursor across adjacent buttons to test 0ms transition',
     buttonCardDesc:
       'Validate semantic variants, 6-step control sizing, white-label corner radii, inline spacing, icon slots, and RTL mirroring with 1-click AI code export.',
     inputCardDesc:

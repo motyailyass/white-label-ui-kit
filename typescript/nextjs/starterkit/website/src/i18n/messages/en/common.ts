@@ -1018,6 +1018,12 @@ export const common = {
     compSwitch: 'Switch',
     compPopover: 'Popover',
     compDropdown: 'Dropdown',
+    compTooltip: 'Tooltip',
+    tooltipTitle: 'Tooltip Studio',
+    tooltipSubtitle:
+      'Inspect accessible hover and focus tooltips, test 4-way collision placements, warm-up and skip delays, keyboard shortcuts, and copy exact code.',
+    tooltipCardDesc:
+      'Non-modal contextual descriptions, WCAG 1.4.13 dismissible/hoverable/persistent compliance, and 4-way placements.',
     buttonCardDesc:
       'Validate semantic variants, 6-step control sizing, white-label corner radii, inline spacing, icon slots, and RTL mirroring with 1-click AI code export.',
     inputCardDesc:

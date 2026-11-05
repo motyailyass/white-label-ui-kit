@@ -1021,6 +1021,12 @@ export const common = {
     compSwitch: 'Interrupteur',
     compPopover: 'Popover',
     compDropdown: 'Menu déroulant',
+    compTooltip: 'Info-bulle',
+    tooltipTitle: "Studio d'info-bulle",
+    tooltipSubtitle:
+      'Inspectez les info-bulles au survol et au focus, testez les 4 placements anti-collision, les raccourcis et copiez le code exact.',
+    tooltipCardDesc:
+      'Descriptions contextuelles non modales, conformité WCAG 1.4.13 et 4 orientations automatiques.',
     buttonCardDesc:
       'Validez les variantes sémantiques, les 6 tailles de contrôle, les rayons d’angle, l’espacement en ligne, les icônes et le miroir RTL avec export IA en un clic.',
     inputCardDesc:

@@ -16,3 +16,4 @@ export * from './select-gallery';
 export * from './switch-gallery';
 export * from './textarea-gallery';
 export * from './theme-switcher';
+export * from './tooltip-gallery';

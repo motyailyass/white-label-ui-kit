@@ -1,0 +1,99 @@
+/**
+ * White Label UI Kit — Tooltip Gallery Studio Styles
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.controlsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.controlDivider {
+  border: none;
+  border-block-start: 1px solid var(--color-border-subtle);
+  margin-block: var(--space-2);
+  inline-size: 100%;
+}
+
+.canvasArea {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 22rem;
+  inline-size: 100%;
+  padding: var(--space-6);
+  box-sizing: border-box;
+}
+
+.canvasRtl {
+  direction: rtl;
+}
+
+.stageCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  max-inline-size: 32rem;
+  inline-size: 100%;
+  padding: var(--space-8);
+  border-radius: var(--radius-card);
+  border: 1px dashed var(--color-border-subtle);
+  background-color: var(--color-surface-subtle);
+}
+
+.stageHelpText {
+  font-size: var(--font-size-xs);
+  line-height: 1.25rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.triggerRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+}
+
+.skipDelayHint {
+  font-size: var(--font-size-xs);
+  line-height: 1.25rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-control);
+  padding-inline: var(--space-3);
+  padding-block: var(--space-2);
+}
+
+.actionPill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding-inline: var(--space-3);
+  padding-block: var(--space-1);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-control);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.actionPill:hover {
+  background-color: var(--color-secondary-hover);
+}
+
+.actionPill:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+}

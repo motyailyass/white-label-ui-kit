@@ -1,0 +1,130 @@
+/**
+ * White Label UI Kit — Tooltip Primitive Stylesheet
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.tooltip {
+  position: fixed;
+  z-index: var(--z-tooltip); /* 600 */
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-inline: var(--space-2);
+  padding-block: var(--space-1);
+  border-radius: var(--radius-control);
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  line-height: 1rem;
+  font-weight: var(--font-weight-medium);
+  pointer-events: auto;
+  user-select: none;
+  white-space: nowrap;
+  max-inline-size: 20rem;
+  box-sizing: border-box;
+  animation: tooltipEnter var(--motion-duration-fast) var(--motion-ease-enter);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tooltip {
+    animation: none;
+  }
+}
+
+/* Content Text */
+.content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Visual Variants */
+.variantContrast {
+  background-color: var(--color-tooltip-bg, #18181b);
+  color: var(--color-tooltip-text, #ffffff);
+  border: 1px solid var(--color-tooltip-border, rgba(255, 255, 255, 0.15));
+}
+
+:global([data-theme="dark"]) .variantContrast {
+  background-color: var(--color-tooltip-bg, #27272a);
+  color: var(--color-tooltip-text, #fafafa);
+  border-color: var(--color-tooltip-border, rgba(255, 255, 255, 0.2));
+}
+
+.variantSubtle {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* Keyboard Shortcut Tag */
+.shortcut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--space-1);
+  padding-block: 1px;
+  font-family: var(--font-family-mono, monospace);
+  font-size: 0.6875rem;
+  line-height: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  border-radius: calc(var(--radius-control) - 4px);
+  background-color: rgba(255, 255, 255, 0.16);
+  color: inherit;
+  letter-spacing: 0.05em;
+}
+
+.variantSubtle .shortcut {
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+}
+
+/* Directional Arrow Notch */
+.arrow {
+  position: absolute;
+  inline-size: 6px;
+  block-size: 6px;
+  background-color: inherit;
+  border: inherit;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.tooltip[data-placement="top"] .arrow {
+  inset-block-end: -4px;
+  inset-inline-start: calc(50% - 3px);
+  border-inline-start: none;
+  border-block-start: none;
+}
+
+.tooltip[data-placement="bottom"] .arrow {
+  inset-block-start: -4px;
+  inset-inline-start: calc(50% - 3px);
+  border-inline-end: none;
+  border-block-end: none;
+}
+
+.tooltip[data-placement="left"] .arrow {
+  inset-inline-end: -4px;
+  inset-block-start: calc(50% - 3px);
+  border-inline-start: none;
+  border-block-end: none;
+}
+
+.tooltip[data-placement="right"] .arrow {
+  inset-inline-start: -4px;
+  inset-block-start: calc(50% - 3px);
+  border-inline-end: none;
+  border-block-start: none;
+}
+
+@keyframes tooltipEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

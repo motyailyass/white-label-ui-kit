@@ -31,7 +31,8 @@ export type StudioRouteId =
   | 'switch'
   | 'dialog'
   | 'popover'
-  | 'dropdown';
+  | 'dropdown'
+  | 'tooltip';
 
 export interface StudioNavLinkProps {
   href: string;
@@ -231,6 +232,16 @@ export function GalleryStudioLayout({
               >
                 <Icon name="menu" />
                 <span>{t('common.studio.compDropdown')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/tooltip"
+                className={styles.navLink}
+                aria-current={activeRoute === 'tooltip' ? 'page' : undefined}
+              >
+                <Icon name="bookmark" />
+                <span>{t('common.studio.compTooltip')}</span>
               </LinkSlot>
             </li>
           </ul>
@@ -775,6 +786,13 @@ export function GalleryHub({ linkComponent: LinkSlot = DefaultStudioAnchor }: Ga
       href: '/gallery/dropdown',
       icon: 'menu' as const,
       isStudio: false,
+    },
+    {
+      title: t('common.studio.tooltipTitle'),
+      desc: t('common.studio.tooltipCardDesc'),
+      href: '/gallery/tooltip',
+      icon: 'bookmark' as const,
+      isStudio: true,
     },
   ];
 

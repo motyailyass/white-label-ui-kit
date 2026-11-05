@@ -46,6 +46,18 @@ Within the White Label UI Kit, `Combobox` follows:
 | **`xl`** | `3.00rem` (48px) | `1.25rem` (20px) | `1.00rem` (16px) | `1.25rem` (20px) | **Website Product Default** |
 | **`2xl`** | `3.50rem` (56px) | `1.50rem` (24px) | `1.00rem` (16px) | `1.50rem` (24px) | Marketing hero search |
 
+### Real-World Production Sizing & Decoupled Menu Density:
+
+- **Recommended Form Sizing:** In real-world enterprise applications, Combobox triggers should strictly use `sm` (32px), `md` (36px, Dashboard default), `lg` (40px), or `xl` (48px, Website default).
+- **`xs` (28px) Scope:** Not recommended for multi-select chip mode due to physical chip min-height constraints (chips require 24px vertical clearance).
+- **`2xl` (56px) Hero Search Scope:** Dedicated to prominent landing-page search bars. Per UI/UX standards, floating listbox menu items **never balloon to 56px**: menu density remains strictly decoupled to preserve scanability:
+  - **Single-line options:** `36px` (`2.25rem`) height with `14px / 20px` typography.
+  - **Two-line options (with descriptions):** `48px` (`3rem`) height with top-aligned icons/checkboxes and clear 2px title-to-description rhythm.
+
+### Search Highlighting & Selection Focus:
+- **Query Substring Highlighting:** As the user types, matching characters in option labels are automatically wrapped with accent styling (`.highlight`) for immediate recognition.
+- **Selection Pre-scroll:** When reopening a combobox that has a committed value, the popup automatically pre-scrolls and assigns roving focus (`aria-activedescendant`) to the currently selected option.
+
 ### Touch Target Policy:
 On coarse pointers or with `touchTarget="comfortable"`, the input and options enforce a minimum interaction area of **48×48px** (`--control-touch-target-min: 3rem`), satisfying WCAG 2.5.5 / 2.5.8.
 

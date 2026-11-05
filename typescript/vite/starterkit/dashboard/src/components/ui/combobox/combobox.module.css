@@ -517,9 +517,24 @@
   margin: 0;
 }
 
-/* Empty Message */
+/* Matching Substring Highlight */
+.highlight {
+  background: transparent;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+}
+
+/* Status / Empty / Loading Messages in Popup */
+.statusMessage,
 .emptyMessage {
-  padding-inline: var(--_control-padding-inline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding-inline: var(--space-3);
   padding-block: var(--space-4);
   text-align: center;
   font-size: var(--font-size-sm);

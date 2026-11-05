@@ -43,8 +43,8 @@ describe('Combobox Primitive — Single Select', () => {
 
     const options = screen.getAllByRole('option');
     expect(options).toHaveLength(2); // United States & United Kingdom
-    expect(screen.getByText('United States')).toBeDefined();
-    expect(screen.getByText('United Kingdom')).toBeDefined();
+    expect(screen.getByRole('option', { name: /uni.*ted states/i })).toBeDefined();
+    expect(screen.getByRole('option', { name: /uni.*ted kingdom/i })).toBeDefined();
   });
 
   it('selects an option on mouse click and commits value', async () => {
@@ -139,6 +139,29 @@ describe('Combobox Primitive — Single Select', () => {
     const ref = createRef<HTMLInputElement>();
     render(<Combobox options={testOptions} ref={ref} />);
     expect(ref.current).toBeInstanceOf(HTMLInputElement);
+  });
+
+  it('highlights matching search query substring in option labels', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Combobox options={testOptions} />);
+    const input = screen.getByRole('combobox');
+
+    await user.click(input);
+    await user.type(input, 'can');
+
+    const marks = container.querySelectorAll('mark');
+    expect(marks.length).toBeGreaterThanOrEqual(1);
+    expect(marks[0]?.textContent?.toLowerCase()).toBe('can');
+  });
+
+  it('pre-focuses and assigns roving activedescendant to selected option on open', async () => {
+    const user = userEvent.setup();
+    render(<Combobox options={testOptions} defaultValue="ca" />);
+    const input = screen.getByRole('combobox');
+
+    await user.click(input);
+    expect(screen.getByRole('option', { name: /canada/i })).toBeDefined();
+    expect(input.getAttribute('aria-activedescendant')).toContain('-option-0');
   });
 });
 

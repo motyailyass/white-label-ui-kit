@@ -45,6 +45,27 @@ function isGrouped(items: ComboboxItems): items is ComboboxOptionGroup[] {
   return items.length > 0 && 'options' in items[0];
 }
 
+function renderHighlightedText(text: string, query: string): ReactNode {
+  const trimmed = query.trim();
+  if (!trimmed) return text;
+
+  const escaped = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escaped})`, 'gi');
+  const parts = text.split(regex);
+
+  if (parts.length === 1) return text;
+
+  return parts.map((part, index) =>
+    regex.test(part) ? (
+      <mark key={index} className={styles.highlight}>
+        {part}
+      </mark>
+    ) : (
+      part
+    ),
+  );
+}
+
 export interface ComboboxBaseProps
   extends Omit<ComponentPropsWithRef<'input'>, 'size' | 'onChange' | 'value' | 'defaultValue'>,
     ControlSizingProps {
@@ -371,8 +392,11 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
       e.preventDefault();
       if (!isOpen) {
         setIsOpen(true);
+        const selectedIdx = !multiple && singleSelectedValue
+          ? visibleOptions.findIndex((opt) => opt.value === singleSelectedValue && !opt.disabled)
+          : -1;
         const firstEnabled = visibleOptions.findIndex((opt) => !opt.disabled);
-        setActiveIndex(firstEnabled);
+        setActiveIndex(selectedIdx >= 0 ? selectedIdx : firstEnabled);
       } else {
         let next = activeIndex + 1;
         while (next < visibleOptions.length && visibleOptions[next]?.disabled) {
@@ -551,7 +575,13 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
             onChange={(e) => handleInputChange(e.target.value)}
             onFocus={(e) => {
               onFocus?.(e);
-              if (!disabled) setIsOpen(true);
+              if (!disabled) {
+                setIsOpen(true);
+                const selectedIdx = !multiple && singleSelectedValue
+                  ? visibleOptions.findIndex((opt) => opt.value === singleSelectedValue && !opt.disabled)
+                  : -1;
+                if (selectedIdx >= 0) setActiveIndex(selectedIdx);
+              }
             }}
             onBlur={onBlur}
             onKeyDown={handleKeyDown}
@@ -588,7 +618,16 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
               e.stopPropagation();
               if (disabled) return;
               inputRef.current?.focus();
-              setIsOpen((prev) => !prev);
+              setIsOpen((prev) => {
+                const nextOpen = !prev;
+                if (nextOpen) {
+                  const selectedIdx = !multiple && singleSelectedValue
+                    ? visibleOptions.findIndex((opt) => opt.value === singleSelectedValue && !opt.disabled)
+                    : -1;
+                  if (selectedIdx >= 0) setActiveIndex(selectedIdx);
+                }
+                return nextOpen;
+              });
             }}
             className={cn(styles.actionButton, styles.chevronButton, isOpen && styles.chevronOpen)}
           >
@@ -607,7 +646,14 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
           style={maxListHeight ? { maxBlockSize: maxListHeight } : undefined}
           className={cn(styles.listbox, listboxClassName)}
         >
-          {visibleOptions.length === 0 ? (
+          {loading && visibleOptions.length === 0 ? (
+            <li role="presentation" className={styles.statusMessage}>
+              <span className={styles.spinner} aria-hidden="true">
+                <Icon name="loader" />
+              </span>
+              <span>Searching...</span>
+            </li>
+          ) : visibleOptions.length === 0 ? (
             <li role="presentation" className={styles.emptyMessage}>
               {emptyMessage ?? 'No options found'}
             </li>
@@ -665,7 +711,9 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                             )}
                             {opt.icon && <span className={styles.optionIcon}>{opt.icon}</span>}
                             <div className={styles.optionTextGroup}>
-                              <span className={styles.optionLabel}>{opt.label}</span>
+                              <span className={styles.optionLabel}>
+                                {renderHighlightedText(opt.label, searchQuery)}
+                              </span>
                               {opt.description && (
                                 <span className={styles.optionDescription}>{opt.description}</span>
                               )}
@@ -729,7 +777,9 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                     )}
                     {opt.icon && <span className={styles.optionIcon}>{opt.icon}</span>}
                     <div className={styles.optionTextGroup}>
-                      <span className={styles.optionLabel}>{opt.label}</span>
+                      <span className={styles.optionLabel}>
+                        {renderHighlightedText(opt.label, searchQuery)}
+                      </span>
                       {opt.description && (
                         <span className={styles.optionDescription}>{opt.description}</span>
                       )}

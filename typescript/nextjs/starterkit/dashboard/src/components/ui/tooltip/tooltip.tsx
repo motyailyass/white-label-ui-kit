@@ -40,7 +40,7 @@ export interface TooltipProps {
   /** Grace period in milliseconds for instant opening of adjacent tooltips. Defaults to 200ms */
   skipDelayDuration?: number;
 
-  /** Distance in pixels between trigger and tooltip bubble. Defaults to 6px */
+  /** Distance in pixels between trigger and tooltip bubble. Defaults to 8px */
   sideOffset?: number;
 
   /** Visual variant: 'contrast' (inverted dark bubble) or 'subtle' (raised surface with border). Defaults to 'contrast' */

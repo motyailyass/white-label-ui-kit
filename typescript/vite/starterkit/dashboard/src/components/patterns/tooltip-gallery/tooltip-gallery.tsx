@@ -224,8 +224,6 @@ Requirements & Tokens:
 
   const activeContentText =
     specimenDir === 'rtl' ? 'البحث السريع في المستندات' : 'Quick search across documents';
-  const adjacentContentText =
-    specimenDir === 'rtl' ? 'الإعدادات العامة والتفضيلات' : 'Settings and preferences';
 
   const renderActiveTrigger = () => {
     if (triggerType === 'text-button') {

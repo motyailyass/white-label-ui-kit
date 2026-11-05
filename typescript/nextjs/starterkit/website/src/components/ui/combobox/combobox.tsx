@@ -641,6 +641,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                             isActive && styles.optionActive,
                             isSelected && styles.optionSelected,
                             opt.disabled && styles.optionDisabled,
+                            Boolean(opt.description) && styles.optionWithDescription,
                           )}
                           onMouseDown={(e) => {
                             e.preventDefault(); // Prevent input blur
@@ -704,6 +705,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                     isActive && styles.optionActive,
                     isSelected && styles.optionSelected,
                     opt.disabled && styles.optionDisabled,
+                    Boolean(opt.description) && styles.optionWithDescription,
                   )}
                   onMouseDown={(e) => {
                     e.preventDefault(); // Prevent input blur

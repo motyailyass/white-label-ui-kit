@@ -1,0 +1,222 @@
+/**
+ * White Label UI Kit — Badge Primitive Stylesheet
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  box-sizing: border-box;
+  font-family: inherit;
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+  line-height: 1rem;
+  white-space: nowrap;
+  user-select: none;
+  vertical-align: middle;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+/* Shape Geometry */
+.shapePill {
+  border-radius: var(--radius-full);
+}
+
+.shapeRounded {
+  border-radius: var(--radius-control);
+}
+
+/* Three-Step Density Sizing */
+.sizeSm {
+  min-block-size: 1.25rem;
+  padding-inline: var(--space-2);
+  padding-block: 2px;
+  font-size: var(--font-size-xs);
+  gap: var(--space-1);
+}
+
+.sizeMd {
+  min-block-size: 1.5rem;
+  padding-inline: var(--space-2);
+  padding-block: 2px;
+  font-size: var(--font-size-xs);
+  gap: var(--space-1);
+}
+
+.sizeLg {
+  min-block-size: 1.75rem;
+  padding-inline: var(--space-3);
+  padding-block: var(--space-0-5);
+  font-size: var(--font-size-sm);
+  line-height: 1.25rem;
+  gap: var(--space-1-5, var(--space-2));
+}
+
+/* Semantic Status Variants */
+.variantDefault {
+  background-color: var(--color-surface-subtle);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.variantPrimary {
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary-subtle-foreground, var(--color-primary));
+  border: 1px solid var(--color-primary-border, color-mix(in srgb, currentColor 24%, transparent));
+}
+
+.variantSuccess {
+  background-color: var(--color-success-subtle);
+  color: var(--color-success);
+  border: 1px solid color-mix(in srgb, currentColor 24%, transparent);
+}
+
+.variantWarning {
+  background-color: var(--color-warning-subtle);
+  color: var(--color-warning);
+  border: 1px solid color-mix(in srgb, currentColor 24%, transparent);
+}
+
+.variantDanger {
+  background-color: var(--color-danger-subtle);
+  color: var(--color-danger);
+  border: 1px solid color-mix(in srgb, currentColor 24%, transparent);
+}
+
+.variantInfo {
+  background-color: var(--color-info-subtle);
+  color: var(--color-info);
+  border: 1px solid color-mix(in srgb, currentColor 24%, transparent);
+}
+
+.variantOutline {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-control);
+}
+
+/* Start Icon Slot */
+.startIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sizeSm .startIcon svg {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+}
+
+.sizeMd .startIcon svg {
+  inline-size: 0.875rem;
+  block-size: 0.875rem;
+}
+
+.sizeLg .startIcon svg {
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+/* Status Dot Indicator */
+.dot {
+  display: inline-block;
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex-shrink: 0;
+}
+
+.sizeLg .dot {
+  inline-size: 8px;
+  block-size: 8px;
+}
+
+.dotPulse {
+  animation: badgeDotPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes badgeDotPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dotPulse {
+    animation: none;
+  }
+}
+
+/* Removable Dismiss Button */
+.removeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  border-radius: 50%;
+  flex-shrink: 0;
+  outline: none;
+  transition:
+    opacity var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.sizeSm .removeButton {
+  inline-size: 0.875rem;
+  block-size: 0.875rem;
+}
+
+.sizeSm .removeButton svg {
+  inline-size: 0.6875rem;
+  block-size: 0.6875rem;
+}
+
+.sizeMd .removeButton {
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+.sizeMd .removeButton svg {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+}
+
+.sizeLg .removeButton {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+}
+
+.sizeLg .removeButton svg {
+  inline-size: 0.875rem;
+  block-size: 0.875rem;
+}
+
+.removeButton:hover {
+  opacity: 1;
+  background-color: color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.removeButton:focus-visible {
+  opacity: 1;
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: 1px;
+}

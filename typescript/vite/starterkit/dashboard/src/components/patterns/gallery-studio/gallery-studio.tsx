@@ -32,7 +32,8 @@ export type StudioRouteId =
   | 'dialog'
   | 'popover'
   | 'dropdown'
-  | 'tooltip';
+  | 'tooltip'
+  | 'badge';
 
 export interface StudioNavLinkProps {
   href: string;
@@ -242,6 +243,16 @@ export function GalleryStudioLayout({
               >
                 <Icon name="bookmark" />
                 <span>{t('common.studio.compTooltip')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/badge"
+                className={styles.navLink}
+                aria-current={activeRoute === 'badge' ? 'page' : undefined}
+              >
+                <Icon name="feature" />
+                <span>{t('common.studio.compBadge')}</span>
               </LinkSlot>
             </li>
           </ul>
@@ -792,6 +803,13 @@ export function GalleryHub({ linkComponent: LinkSlot = DefaultStudioAnchor }: Ga
       desc: t('common.studio.tooltipCardDesc'),
       href: '/gallery/tooltip',
       icon: 'bookmark' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.badgeTitle'),
+      desc: t('common.studio.badgeCardDesc'),
+      href: '/gallery/badge',
+      icon: 'feature' as const,
       isStudio: true,
     },
   ];

@@ -1,4 +1,5 @@
 export * from './app-toolbar';
+export * from './badge-gallery';
 export * from './button-gallery';
 export * from './checkbox-gallery';
 export * from './combobox-gallery';

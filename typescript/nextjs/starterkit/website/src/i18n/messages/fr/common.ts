@@ -1022,6 +1022,12 @@ export const common = {
     compPopover: 'Popover',
     compDropdown: 'Menu déroulant',
     compTooltip: 'Info-bulle',
+    compBadge: 'Badge',
+    badgeTitle: 'Studio de badge',
+    badgeSubtitle:
+      'Inspectez les variantes sémantiques, les 3 tailles de densité, les points de statut pulsants, les compteurs tabulaires et les balises supprimables.',
+    badgeCardDesc:
+      'Indicateurs compacts de métadonnées, 7 variantes de statut sémantiques, compteurs tabulaires et balises supprimables.',
     tooltipTitle: "Studio d'info-bulle",
     tooltipSubtitle:
       'Inspectez les info-bulles au survol et au focus, testez les 4 placements anti-collision, les raccourcis et copiez le code exact.',

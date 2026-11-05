@@ -1019,6 +1019,12 @@ export const common = {
     compPopover: 'Popover',
     compDropdown: 'Dropdown',
     compTooltip: 'Tooltip',
+    compBadge: 'Badge',
+    badgeTitle: 'Badge Studio',
+    badgeSubtitle:
+      'Inspect semantic status variants, 3-step density sizing, status dots with pulse animations, tabular counters, and dismissible tags.',
+    badgeCardDesc:
+      'Compact metadata indicators, 7 semantic status variants, tabular count badges, and dismissible action tags.',
     tooltipTitle: 'Tooltip Studio',
     tooltipSubtitle:
       'Inspect accessible hover and focus tooltips, test 4-way collision placements, warm-up and skip delays, keyboard shortcuts, and copy exact code.',

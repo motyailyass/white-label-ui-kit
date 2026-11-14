@@ -2,8 +2,20 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import React, { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { acquireBodyScrollLock } from '@/lib/scroll-lock';
+import { AppProviders } from '@/providers';
 import { LayoutProvider, useLayout } from '../layout-context';
-import { Sidebar, SidebarItem, SidebarTrigger } from './sidebar';
+import {
+  Sidebar,
+  SidebarAvatar,
+  SidebarAvatarPopover,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarItem,
+  SidebarSupportMenu,
+  SidebarTrigger,
+  SidebarWorkspacesMenu,
+  SidebarWorkspaceSwitcher,
+} from './index';
 
 const CustomLink = ({ href, children, ...rest }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
   <a href={href} data-custom-link="true" {...rest}>
@@ -260,6 +272,300 @@ describe('Sidebar Components', () => {
       // Simulate Shift+Tab from first element wraps to last
       fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
       expect(document.activeElement).toBe(screen.getByTestId('drawer-link-2'));
+    });
+  });
+
+  describe('Collapsible SidebarGroup & Section Menus', () => {
+    it('renders non-collapsible SidebarGroup as a simple label', () => {
+      render(
+        <SidebarGroup label="STATIC GROUP">
+          <div data-testid="static-item">Item</div>
+        </SidebarGroup>,
+      );
+      expect(screen.getByText('STATIC GROUP')).toBeTruthy();
+      expect(screen.queryByRole('button')).toBeNull();
+      expect(screen.getByTestId('static-item')).toBeTruthy();
+    });
+
+    it('toggles collapsible SidebarGroup between expanded and collapsed states', () => {
+      render(
+        <SidebarGroup label="COLLAPSIBLE" collapsible defaultOpen={true}>
+          <div data-testid="collapsible-item">Hidden or Visible</div>
+        </SidebarGroup>,
+      );
+
+      const trigger = screen.getByRole('button', { name: /collapsible/i });
+      expect(trigger.getAttribute('aria-expanded')).toBe('true');
+      const content = screen.getByTestId('collapsible-item').parentElement;
+      expect(content?.hasAttribute('hidden')).toBe(false);
+
+      // Click to collapse
+      fireEvent.click(trigger);
+      expect(trigger.getAttribute('aria-expanded')).toBe('false');
+      expect(content?.hasAttribute('hidden')).toBe(true);
+
+      // Click to expand again
+      fireEvent.click(trigger);
+      expect(trigger.getAttribute('aria-expanded')).toBe('true');
+      expect(content?.hasAttribute('hidden')).toBe(false);
+    });
+
+    it('renders SidebarWorkspacesMenu as collapsible by default and toggles correctly', () => {
+      render(
+        <SidebarWorkspacesMenu
+          label="WORKSPACES"
+          items={[
+            { label: 'Sales', href: '/sales' },
+            { label: 'Design', href: '/design' },
+          ]}
+        />,
+      );
+
+      const trigger = screen.getByRole('button', { name: /workspaces/i });
+      expect(trigger.getAttribute('aria-expanded')).toBe('true');
+      expect(screen.getByText('Sales')).toBeTruthy();
+
+      fireEvent.click(trigger);
+      expect(trigger.getAttribute('aria-expanded')).toBe('false');
+      const salesItem = screen.getByText('Sales').closest('a');
+      expect(salesItem?.parentElement?.hasAttribute('hidden')).toBe(true);
+    });
+
+    it('renders SidebarSupportMenu as collapsible by default and calls onOpenChange in controlled mode', () => {
+      const handleOpenChange = vi.fn();
+      render(
+        <SidebarSupportMenu
+          label="SUPPORT"
+          isOpen={true}
+          onOpenChange={handleOpenChange}
+          items={[{ label: 'Feedback', href: '/feedback' }]}
+        />,
+      );
+
+      const trigger = screen.getByRole('button', { name: /support/i });
+      expect(trigger.getAttribute('aria-expanded')).toBe('true');
+
+      fireEvent.click(trigger);
+      expect(handleOpenChange).toHaveBeenCalledWith(false);
+    });
+  });
+
+  describe('SidebarAvatar (Footer User Card)', () => {
+    it('integrates with pure Avatar primitive to render user initials and subtitle', () => {
+      render(
+        <SidebarAvatar
+          name="Aiden Hudson"
+          email="ahudson@example.com"
+          role="Workspace Owner"
+          initials="AH"
+        />,
+      );
+
+      expect(screen.getByText('Aiden Hudson')).toBeTruthy();
+      expect(screen.getByText('ahudson@example.com')).toBeTruthy();
+      // Check that Avatar primitive rendered initials
+      expect(screen.getByText('AH')).toBeTruthy();
+    });
+
+    it('renders role when email is not provided', () => {
+      render(<SidebarAvatar name="Aiden Hudson" role="Workspace Owner" />);
+      expect(screen.getByText('Workspace Owner')).toBeTruthy();
+    });
+
+    it('renders trailing slot when provided', () => {
+      render(
+        <SidebarAvatar
+          name="Aiden Hudson"
+          trailing={<span data-testid="avatar-trailing">...</span>}
+        />,
+      );
+      expect(screen.getByTestId('avatar-trailing')).toBeTruthy();
+    });
+  });
+
+  describe('SidebarFooter', () => {
+    it('renders an honest semantic footer element hosting children', () => {
+      render(
+        <SidebarFooter data-testid="sidebar-footer">
+          <div>Footer Content</div>
+        </SidebarFooter>,
+      );
+
+      const footer = screen.getByTestId('sidebar-footer');
+      expect(footer.tagName.toLowerCase()).toBe('footer');
+      expect(screen.getByText('Footer Content')).toBeTruthy();
+    });
+  });
+
+  describe('Sidebar Compound Hierarchy', () => {
+    it('attaches all role-based subcomponents directly to Sidebar', () => {
+      expect(Sidebar.Logo).toBeDefined();
+      expect(Sidebar.WorkspaceSwitcher).toBeDefined();
+      expect(Sidebar.Search).toBeDefined();
+      expect(Sidebar.Nav).toBeDefined();
+      expect(Sidebar.Group).toBeDefined();
+      expect(Sidebar.Item).toBeDefined();
+      expect(Sidebar.WorkspacesMenu).toBeDefined();
+      expect(Sidebar.SupportMenu).toBeDefined();
+      expect(Sidebar.Footer).toBeDefined();
+      expect(Sidebar.Avatar).toBeDefined();
+      expect(Sidebar.AvatarPopover).toBeDefined();
+      expect(Sidebar.Trigger).toBeDefined();
+    });
+  });
+
+  describe('SidebarAvatarPopover', () => {
+    const mockUser = {
+      name: 'Aiden Hudson',
+      email: 'ahudson@example.com',
+      role: 'Workspace Owner',
+      initials: 'AH',
+      status: 'online' as const,
+    };
+
+    const renderWithProviders = (ui: React.ReactElement) =>
+      render(<AppProviders initialLocale="en">{ui}</AppProviders>);
+
+    it('opens popover dialog on click and displays user info and navigation links', () => {
+      renderWithProviders(<SidebarAvatarPopover user={mockUser} />);
+
+      const trigger = screen.getByRole('button', { name: /aiden hudson/i });
+      expect(trigger.getAttribute('aria-expanded')).toBe('false');
+
+      // Click trigger to open
+      fireEvent.click(trigger);
+      expect(trigger.getAttribute('aria-expanded')).toBe('true');
+
+      // Dialog content rendered
+      expect(screen.getByRole('dialog')).toBeTruthy();
+      expect(screen.getAllByText('ahudson@example.com').length).toBeGreaterThanOrEqual(1);
+      expect(screen.queryByText(/workspace owner/i)).toBeNull();
+
+      // Demo links rendered
+      expect(screen.getByRole('link', { name: /my profile/i })).toBeTruthy();
+      expect(screen.getByRole('link', { name: /preferences/i })).toBeTruthy();
+      expect(screen.getByRole('link', { name: /organization/i })).toBeTruthy();
+      expect(screen.getByRole('link', { name: /developer api/i })).toBeTruthy();
+
+      // Switchers (Segmented controls) rendered
+      expect(screen.getByRole('button', { name: 'EN' })).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'FR' })).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'AR' })).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'Auto' })).toBeTruthy();
+    });
+
+    it('invokes onLogout when logout button is clicked', () => {
+      const handleLogout = vi.fn();
+      renderWithProviders(<SidebarAvatarPopover user={mockUser} onLogout={handleLogout} />);
+
+      const trigger = screen.getByRole('button', { name: /aiden hudson/i });
+      fireEvent.click(trigger);
+
+      const logoutBtn = screen.getByRole('button', { name: /log out/i });
+      fireEvent.click(logoutBtn);
+
+      expect(handleLogout).toHaveBeenCalledTimes(1);
+      // Dialog should close after logout
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+
+    it('closes on Escape key press and returns focus to trigger', () => {
+      renderWithProviders(<SidebarAvatarPopover user={mockUser} />);
+
+      const trigger = screen.getByRole('button', { name: /aiden hudson/i });
+      fireEvent.click(trigger);
+      expect(screen.getByRole('dialog')).toBeTruthy();
+
+      fireEvent.keyDown(window, { key: 'Escape' });
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    });
+  });
+
+  describe('SidebarWorkspaceSwitcher', () => {
+    const mockWorkspaces = [
+      { id: 'ws-1', name: 'Acme Alpha', plan: 'Enterprise' },
+      { id: 'ws-2', name: 'Beta Labs', plan: 'Free Plan' },
+    ];
+
+    it('renders active workspace and opens popover on click', () => {
+      const handleSelect = vi.fn();
+      render(
+        <AppProviders initialLocale="en">
+          <SidebarWorkspaceSwitcher workspaces={mockWorkspaces} onSelectWorkspace={handleSelect} />
+        </AppProviders>,
+      );
+
+      const trigger = screen.getByRole('button', { name: /acme alpha/i });
+      expect(trigger.getAttribute('aria-expanded')).toBe('false');
+
+      fireEvent.click(trigger);
+      expect(trigger.getAttribute('aria-expanded')).toBe('true');
+      expect(screen.getByRole('dialog', { name: /workspaces/i })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /beta labs/i })).toBeTruthy();
+
+      // Click second workspace
+      fireEvent.click(screen.getByRole('button', { name: /beta labs/i }));
+      expect(handleSelect).toHaveBeenCalledWith(mockWorkspaces[1]);
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+
+    it('closes on Escape key press and restores focus to trigger', () => {
+      render(
+        <AppProviders initialLocale="en">
+          <SidebarWorkspaceSwitcher workspaces={mockWorkspaces} />
+        </AppProviders>,
+      );
+
+      const trigger = screen.getByRole('button', { name: /acme alpha/i });
+      fireEvent.click(trigger);
+      expect(screen.getByRole('dialog')).toBeTruthy();
+
+      fireEvent.keyDown(window, { key: 'Escape' });
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('invokes onCreateWorkspace and onManageWorkspace callbacks', () => {
+      const handleCreate = vi.fn();
+      const handleManage = vi.fn();
+      render(
+        <AppProviders initialLocale="en">
+          <SidebarWorkspaceSwitcher
+            workspaces={mockWorkspaces}
+            onCreateWorkspace={handleCreate}
+            onManageWorkspace={handleManage}
+          />
+        </AppProviders>,
+      );
+
+      const trigger = screen.getByRole('button', { name: /acme alpha/i });
+      fireEvent.click(trigger);
+
+      const createBtn = screen.getByRole('button', { name: /create workspace/i });
+      fireEvent.click(createBtn);
+      expect(handleCreate).toHaveBeenCalledTimes(1);
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+
+    it('supports density scaling (comfortable by default, compact when specified)', () => {
+      const { rerender } = render(
+        <AppProviders initialLocale="en">
+          <SidebarWorkspaceSwitcher workspaces={mockWorkspaces} />
+        </AppProviders>,
+      );
+
+      const triggerDefault = screen.getByRole('button', { name: /acme alpha/i });
+      expect(triggerDefault.getAttribute('data-density')).toBe('comfortable');
+
+      rerender(
+        <AppProviders initialLocale="en">
+          <SidebarWorkspaceSwitcher workspaces={mockWorkspaces} density="compact" />
+        </AppProviders>,
+      );
+
+      const triggerCompact = screen.getByRole('button', { name: /acme alpha/i });
+      expect(triggerCompact.getAttribute('data-density')).toBe('compact');
     });
   });
 });

@@ -1,0 +1,32 @@
+.specimenCanvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  inline-size: 100%;
+  box-sizing: border-box;
+}
+
+.specimenCanvas:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.actionNotice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface-raised);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+}
+
+.actionNotice:lang(ar) {
+  line-height: var(--line-height-arabic-tight);
+}

@@ -1,6 +1,6 @@
-# Tooltip — Component Specification and Implementation Plan
+# Tooltip — Component Specification and Implementation Reference
 
-> **Status:** Specification Baseline & Architectural Reference  
+> **Status:** Implemented Reference (`components/ui/tooltip` + interactive Tooltip Studio)  
 > **Component:** `components/ui/tooltip`  
 > **Starters:** Next.js Dashboard, Next.js Website, Vite reference  
 > **Canonical source:** `typescript/nextjs/starterkit/dashboard/src/components/ui/tooltip/`  
@@ -36,8 +36,8 @@ The `Tooltip` primitive resides in `src/components/ui/tooltip/`. It strictly fol
 - **Zero Third-Party UI Libraries:** No Radix, no Floating UI, no Popper. All positioning, collision detection, and hover intent state are owned natively.
 - **Pure Dependency Flow:** Never imports from `@/providers`, `@/i18n`, `next/*`, or external state managers.
 - **Ref Forwarding & Trigger Cloning:** Uses React element cloning to cleanly attach accessibility attributes (`aria-describedby`, event handlers) directly to the child trigger element without injecting extra wrapper `<div>` nodes into the DOM layout.
-- **Bidirectional Support:** 100% CSS logical properties. Placements `left` and `right` automatically mirror to physical inline-start / inline-end when `dir="rtl"`.
-- **Zero Dashboard Shadows:** High-contrast visual boundary achieved through semantic surfaces (`--color-surface-raised` or inverted dark contrast) and border (`--color-border-subtle`). Website consumes local opt-in shadow `--website-shadow-menu`.
+- **Bidirectional Support:** Logical placements (`start` / `end`) resolve dynamically via `dir`, ancestor `[dir]`, or computed direction, and `<kbd>` shortcut glyphs isolate an inner `<span dir="ltr">` so combinations such as `⌘K` never invert in RTL.
+- **Zero Dashboard Shadows:** Visual separation uses semantic surfaces (`--color-primary` / `--color-primary-foreground` for `contrast`, `--color-surface-raised` / `--color-border-subtle` for `subtle`) without box shadows.
 
 ```
 Application Layer / Connected Pattern
@@ -75,14 +75,14 @@ Application Layer / Connected Pattern
 ### 4.1 Placements
 - `top` (Default): Centered horizontally above the trigger.
 - `bottom`: Centered horizontally below the trigger.
-- `left`: Centered vertically to the inline-start of the trigger (mirrors in RTL).
-- `right`: Centered vertically to the inline-end of the trigger (mirrors in RTL).
+- `start` / `end`: Logical horizontal placements resolving physically to `left`/`right` in LTR and reversing in RTL.
+- `left` / `right`: Explicit physical horizontal placements centered vertically beside the trigger.
 
 ### 4.2 Viewport Boundary Collision Detection
-Before rendering, the calculated target rect is checked against viewport boundaries (`window.innerWidth`, `window.innerHeight` with `8px` safety gutter):
+Before rendering, the calculated target rect is checked against viewport boundaries (`window.innerWidth`, `window.innerHeight` with `8px` safety gutter and `sideOffset` default `8px`):
 - If `placement="top"` collides with the top viewport edge, it automatically flips to `bottom`.
 - If `placement="bottom"` collides with the bottom viewport edge, it automatically flips to `top`.
-- If `placement="left"` collides with the inline edge, it flips to `right` (and vice-versa).
+- If physical/resolved `left` or `right` collides with the viewport horizontal edge, it flips to the opposite side when sufficient space exists.
 
 ### 4.3 Stacking Context
 Consumes `--z-tooltip: 600`, which is the highest tier in our universal 10-step semantic scale:
@@ -94,28 +94,29 @@ Consumes `--z-tooltip: 600`, which is the highest tier in our universal 10-step 
 
 | Property | Dashboard Standard | Website Standard | Token / Variable |
 | :--- | :--- | :--- | :--- |
-| **Surface (Inverted)** | `#18181b` (Light mode) / `#27272a` (Dark mode) | High-contrast inverted dark surface | High-contrast surface |
-| **Foreground Text** | `#ffffff` / `#fafafa` (WCAG AAA contrast > 7:1) | High-contrast white | High-contrast text |
-| **Typography** | `12px / 16px`, weight `500` (Medium) | `13px / 18px`, weight `500` (Medium) | `--font-size-xs` |
+| **Contrast Variant (`variant="contrast"`)** | High-contrast monochrome fill & foreground (`#141414` light / `#fafafa` dark) | Same shared monochrome contrast role tokens | `--color-primary`, `--color-primary-foreground` |
+| **Subtle Variant (`variant="subtle"`)** | Raised surface with `1px` subtle border | Raised surface with `1px` subtle border | `--color-surface-raised`, `--color-text-primary`, `--color-border-subtle` |
+| **Typography** | `12px` (`0.75rem`), weight `500`, snug / Arabic-cleared line-height | `12px` (`0.75rem`), weight `500`, snug / Arabic-cleared line-height | `--font-size-xs`, `--font-weight-medium`, `--line-height-snug`, `--line-height-arabic-snug` |
 | **Radius** | `6px` (`--radius-md`) | `8px` (`--radius-lg`) | `--radius-control` |
-| **Padding** | `4px 8px` (`--space-1` / `--space-2`) | `6px 10px` (`--space-1` / `--space-2-5`) | Logical `padding-block` & `padding-inline` |
-| **Shortcut Tag** | Muted `<kbd>` badge with border | Muted `<kbd>` badge with border | Tabular numbers, uppercase mono font |
-| **Shadow Policy** | **100% Shadow-Free** (1px subtle border) | Restrained shadow `--website-shadow-menu` | Shadow gate script verified |
-| **Motion** | Enter `120ms` (`--motion-duration-fast`), exit `80ms` | Fast enter/exit transitions | Collapses to `0ms` under reduced motion |
+| **Padding** | `4px` (`--space-1`) block / `8px` (`--space-2`) inline | `4px` (`--space-1`) block / `8px` (`--space-2`) inline | `padding-block`, `padding-inline` |
+| **Shortcut Tag (`<kbd>`)** | `--radius-xs` (`2px`), `--font-family-mono`, normal tracking, isolated `<span dir="ltr">` | `--radius-xs` (`2px`), `--font-family-mono`, normal tracking, isolated `<span dir="ltr">` | `color-mix(in srgb, currentColor 16%, transparent)` / `--color-surface-subtle` |
+| **Shadow Policy** | **100% Shadow-Free** (`1px` border) | **100% Shadow-Free** (`1px` border) | `scripts/check-dashboard-shadows.mjs` |
+| **Motion** | Enter animation `120ms` (`--motion-duration-fast` + `--motion-ease-enter`) | Enter animation `120ms` (`--motion-duration-fast` + `--motion-ease-enter`) | Disables `@media (prefers-reduced-motion: reduce)` |
+| **Stacking Layer** | Highest layer (`600`) | Highest layer (`600`) | `--z-tooltip` |
 
 ---
 
 ## 6. Component TypeScript Interface
 
 ```tsx
-export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
+export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right' | 'start' | 'end';
 export type TooltipVariant = 'contrast' | 'subtle';
 
 export interface TooltipProps {
   /** The content displayed inside the floating tooltip bubble */
   content: ReactNode;
 
-  /** The single interactive trigger element (Button, Link, Icon) */
+  /** The single interactive trigger element (Button, Link, Icon, etc.) */
   children: ReactElement;
 
   /** Preferred placement relative to the trigger. Defaults to 'top' */
@@ -130,7 +131,10 @@ export interface TooltipProps {
   /** Grace period in milliseconds for instant opening of adjacent tooltips. Defaults to 200ms */
   skipDelayDuration?: number;
 
-  /** Visual variant: 'contrast' (inverted dark bubble) or 'subtle' (raised surface with border). Defaults to 'contrast' */
+  /** Distance in pixels between trigger and tooltip bubble. Defaults to 8px */
+  sideOffset?: number;
+
+  /** Visual variant: 'contrast' or 'subtle'. Defaults to 'contrast' */
   variant?: TooltipVariant;
 
   /** Optional keyboard shortcut string rendered as an accessible <kbd> tag (e.g. '⌘K', 'Esc') */
@@ -148,6 +152,9 @@ export interface TooltipProps {
   /** Disables the tooltip from showing */
   disabled?: boolean;
 
+  /** Explicit direction override ('ltr' | 'rtl') */
+  dir?: 'ltr' | 'rtl';
+
   /** Optional className for the tooltip floating bubble */
   className?: string;
 }
@@ -155,38 +162,28 @@ export interface TooltipProps {
 
 ---
 
-## 7. Interactive Studio & Pattern Gallery Plan (`/gallery/tooltip`)
+## 7. Interactive Tooltip Studio (`/gallery/tooltip`)
 
-The interactive studio will allow testing and inspecting:
-1. **Live Trigger Specimen:**
-   - Single-button trigger, icon-only button trigger, and text link trigger.
-   - Live hovering, focus states, and keyboard `Escape` dismissal.
-2. **Interactive Controls:**
-   - **Placements:** `Top`, `Bottom`, `Left`, `Right`.
-   - **Variants:** `Contrast (Inverted Dark)` vs `Subtle (Surface Raised)`.
-   - **Arrow Toggle:** With arrow notch vs borderless pill.
-   - **Shortcut Selector:** None, `⌘K`, `Shift+?`, `Esc`, `⌘S`.
-   - **Hover Delay Slider:** Instant (`0ms`), Default (`250ms`), Slow (`600ms`).
-   - **Specimen Direction:** LTR (Latin) vs RTL (Arabic) with directional mirroring.
-3. **Inspector Panel:**
-   - **Selected Settings & Computed Specs:** Measured bounding box, computed placement, active delay, z-index (`600`).
-   - **Code Export:** Copyable JSX snippet and CSS Module code.
-   - **AI Agent Prompt:** Instant generation prompt for implementing tooltips.
+The Studio page (`components/patterns/tooltip-gallery`) provides live configuration controls and code/spec inspection:
+1. **Specimen Direction & Script:** Toggle between `LTR` and Arabic `RTL` (`dir` + `lang="ar"` subtree translation) cleanly synced with global locale direction.
+2. **Placements & Variants:** Test all 6 placements (`top`, `bottom`, `start`, `end`, `left`, `right`) and both variants (`contrast`, `subtle`), plus the directional arrow notch toggle.
+3. **Trigger Types, Shortcuts & Delay:** Switch between `Icon Button`, `Text Button`, and `Action Pill` (`<button type="button">`), shortcut badges (`None`, `⌘K`, `Shift+?`, `Esc`), hover warm-up delays (`0ms`, `250ms`, `500ms`), and `disabled` state, plus an interactive skip-delay toolbar for testing adjacent `0ms` transitions.
+4. **Code & Token Inspector:** Copy live JSX, conditional CSS Module snippet (for `Action Pill` only), AI Agent prompts, and localized accessibility/token specs.
 
 ---
 
-## 8. Verification Strategy
+## 8. Verification Matrix
 
 1. **Vitest Unit Tests (`tooltip.test.tsx`):**
-   - Renders trigger with `aria-describedby` matching tooltip `id`.
-   - Opens on pointer hover after delay duration.
-   - Opens immediately on keyboard focus.
-   - Closes immediately on `Escape` keydown.
-   - Keeps tooltip visible when pointer crosses into tooltip bubble (WCAG 1.4.13).
-   - Renders optional arrow notch and keyboard shortcut `<kbd>` badge.
-   - Honors `disabled={true}` prop.
-2. **Quality Gates:**
-   - `node scripts/sync-shared.mjs --check` (Zero code drift).
-   - `node scripts/check-dashboard-shadows.mjs` (Zero dashboard shadows).
-   - `tsc --noEmit` on Dashboard & Website.
-   - `pnpm test` on Dashboard & Website.
+   - [x] Renders trigger with dynamic `aria-describedby` matching tooltip `id`.
+   - [x] Opens on pointer hover after `delayDuration` and immediately on keyboard focus.
+   - [x] Closes immediately on `Escape` and `blur`; remains open when pointer enters bubble (WCAG 1.4.13 Hoverable).
+   - [x] Opens adjacent tooltip immediately within `skipDelayDuration` grace period.
+   - [x] Renders optional arrow notch, `contrast` & `subtle` variants, controlled `open`, `disabled`, and forwarded `ref`.
+   - [x] Isolates `<kbd>` shortcut text inside `<span dir="ltr">`, resolves logical `start`/`end` in RTL vs LTR, and auto-flips on viewport collision.
+2. **Playwright E2E (`e2e/tooltip.spec.ts`):**
+   - [x] Real-browser keyboard focus, `Escape` dismissal, variant switching, RTL shortcut isolation, `start` logical flip, and zero dashboard shadows.
+3. **Quality Gates:**
+   - `node scripts/sync-shared.mjs --check`
+   - `node scripts/check-dashboard-shadows.mjs`
+   - `tsc --noEmit` & `oxlint` & `vitest run` on Next.js Dashboard, Next.js Website, and Vite Dashboard.

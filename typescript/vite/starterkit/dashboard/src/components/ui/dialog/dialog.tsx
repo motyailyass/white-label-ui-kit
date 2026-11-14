@@ -1,15 +1,25 @@
+'use client';
+
 import {
   type ComponentPropsWithRef,
+  createContext,
   forwardRef,
   type ReactNode,
   type RefObject,
+  useCallback,
+  useContext,
   useEffect,
+  useId,
   useImperativeHandle,
   useLayoutEffect,
+  useMemo,
   useRef,
+  useState,
 } from 'react';
 import { Icon } from '@/components/icons';
 import { cn } from '@/lib/cn';
+import { trapTabKey } from '@/lib/focus-trap';
+import { acquireBodyScrollLock } from '@/lib/scroll-lock';
 import styles from './dialog.module.css';
 
 export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
@@ -94,24 +104,23 @@ export type DialogCloseButtonProps =
 
 export type DialogProps = DialogBaseProps & DialogCloseButtonProps;
 
-/**
- * Checks whether an interactive candidate is disabled natively or through a disabled <fieldset> ancestor.
- * HTML standard specifies that form controls inside a disabled fieldset are disabled,
- * unless they reside inside the first <legend> child of that fieldset.
- */
-function isElementDisabled(el: HTMLElement): boolean {
-  if ('disabled' in el && (el as HTMLButtonElement).disabled) return true;
-  if (typeof el.matches === 'function' && el.matches(':disabled')) return true;
+/* =============================================================================
+   Context (title / description auto-wiring for the accessible name)
+   ============================================================================= */
 
-  const fieldset = el.closest('fieldset[disabled]');
-  if (fieldset) {
-    const firstLegend = fieldset.querySelector(':scope > legend');
-    if (!firstLegend || !firstLegend.contains(el)) {
-      return true;
-    }
-  }
+interface DialogContextValue {
+  defaultTitleId: string;
+  defaultDescriptionId: string;
+  registerTitle: (id: string) => () => void;
+  registerDescription: (id: string) => () => void;
+}
 
-  return false;
+const DialogContext = createContext<DialogContextValue | null>(null);
+
+function removeFirst(list: string[], id: string): string[] {
+  const index = list.indexOf(id);
+  if (index === -1) return list;
+  return [...list.slice(0, index), ...list.slice(index + 1)];
 }
 
 export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog(
@@ -127,6 +136,9 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
     closeLabel,
     className,
     children,
+    'aria-label': ariaLabel,
+    'aria-labelledby': ariaLabelledByProp,
+    'aria-describedby': ariaDescribedByProp,
     onClick,
     onKeyDown,
     onCancel,
@@ -140,6 +152,32 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
 
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
   const openRef = useRef(open);
+
+  const baseId = useId();
+  const defaultTitleId = `dialog-title-${baseId}`;
+  const defaultDescriptionId = `dialog-desc-${baseId}`;
+
+  const [registeredTitles, setRegisteredTitles] = useState<string[]>([]);
+  const [registeredDescriptions, setRegisteredDescriptions] = useState<string[]>([]);
+
+  const registerTitle = useCallback((id: string) => {
+    setRegisteredTitles((prev) => [...prev, id]);
+    return () => setRegisteredTitles((prev) => removeFirst(prev, id));
+  }, []);
+
+  const registerDescription = useCallback((id: string) => {
+    setRegisteredDescriptions((prev) => [...prev, id]);
+    return () => setRegisteredDescriptions((prev) => removeFirst(prev, id));
+  }, []);
+
+  const contextValue = useMemo<DialogContextValue>(
+    () => ({ defaultTitleId, defaultDescriptionId, registerTitle, registerDescription }),
+    [defaultTitleId, defaultDescriptionId, registerTitle, registerDescription],
+  );
+
+  // An explicit aria-label wins over the auto-wired title; an explicit aria-labelledby wins over both.
+  const computedLabelledBy = ariaLabelledByProp ?? (ariaLabel ? undefined : registeredTitles[0]);
+  const computedDescribedBy = ariaDescribedByProp ?? registeredDescriptions[0];
 
   useLayoutEffect(() => {
     openRef.current = open;
@@ -191,6 +229,15 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
       }
     };
   }, []);
+
+  // Lock background body scroll while dialog is open
+  useEffect(() => {
+    if (!open) return;
+    const releaseScrollLock = acquireBodyScrollLock();
+    return () => {
+      releaseScrollLock();
+    };
+  }, [open]);
 
   const handleCancel = (e: React.SyntheticEvent<HTMLDialogElement>) => {
     // Always prevent default native cancel to ensure React controlled `open` prop
@@ -254,57 +301,20 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
     // WAI-ARIA modal Tab loop guarantee across all browser engines
     if (e.key === 'Tab') {
       const dialog = internalRef.current;
-      if (!dialog) return;
-
-      const focusable = Array.from(
-        dialog.querySelectorAll<HTMLElement>(
-          'a[href], button, textarea, input, select, [tabindex]',
-        ),
-      ).filter((el) => {
-        if (el.getAttribute('tabindex') === '-1') return false;
-        if (isElementDisabled(el)) return false;
-        if (el.getAttribute('aria-hidden') === 'true') return false;
-
-        // Check layout visibility in real browsers, with computed style fallback in jsdom
-        const isVisible =
-          el.offsetParent !== null ||
-          el.offsetWidth > 0 ||
-          el.offsetHeight > 0 ||
-          (typeof window !== 'undefined' &&
-            window.getComputedStyle(el).display !== 'none' &&
-            window.getComputedStyle(el).visibility !== 'hidden');
-
-        return isVisible;
-      });
-
-      if (focusable.length === 0) {
-        e.preventDefault();
-        return;
-      }
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-
-      if (e.shiftKey) {
-        if (document.activeElement === first || document.activeElement === dialog) {
-          e.preventDefault();
-          last.focus();
-        }
-      } else {
-        if (document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
+      if (dialog) trapTabKey(e, dialog);
     }
   };
 
-  const hasAccessibleCloseButton = showCloseButton && Boolean(closeLabel && closeLabel.trim().length > 0);
+  const hasAccessibleCloseButton =
+    showCloseButton && Boolean(closeLabel && closeLabel.trim().length > 0);
 
   return (
     <dialog
       {...props}
       ref={internalRef}
+      aria-label={ariaLabel}
+      aria-labelledby={computedLabelledBy}
+      aria-describedby={computedDescribedBy}
       data-size={size}
       className={cn(styles.dialog, className)}
       onCancel={handleCancel}
@@ -323,7 +333,7 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
           <Icon name="close" />
         </button>
       )}
-      {children}
+      <DialogContext.Provider value={contextValue}>{children}</DialogContext.Provider>
     </dialog>
   );
 });
@@ -350,11 +360,18 @@ export interface DialogTitleProps extends ComponentPropsWithRef<'h2'> {
 }
 
 export const DialogTitle = forwardRef<HTMLHeadingElement, DialogTitleProps>(function DialogTitle(
-  { as: Component = 'h2', className, children, ...props },
+  { as: Component = 'h2', id: explicitId, className, children, ...props },
   ref,
 ) {
+  const context = useContext(DialogContext);
+  const fallbackId = useId();
+  const id = explicitId ?? context?.defaultTitleId ?? `dialog-title-${fallbackId}`;
+  const registerTitle = context?.registerTitle;
+
+  useLayoutEffect(() => registerTitle?.(id), [registerTitle, id]);
+
   return (
-    <Component ref={ref} className={cn(styles.title, className)} {...props}>
+    <Component ref={ref} id={id} className={cn(styles.title, className)} {...props}>
       {children}
     </Component>
   );
@@ -365,9 +382,16 @@ DialogTitle.displayName = 'DialogTitle';
 export interface DialogDescriptionProps extends ComponentPropsWithRef<'p'> {}
 
 export const DialogDescription = forwardRef<HTMLParagraphElement, DialogDescriptionProps>(
-  function DialogDescription({ className, children, ...props }, ref) {
+  function DialogDescription({ id: explicitId, className, children, ...props }, ref) {
+    const context = useContext(DialogContext);
+    const fallbackId = useId();
+    const id = explicitId ?? context?.defaultDescriptionId ?? `dialog-desc-${fallbackId}`;
+    const registerDescription = context?.registerDescription;
+
+    useLayoutEffect(() => registerDescription?.(id), [registerDescription, id]);
+
     return (
-      <p ref={ref} className={cn(styles.description, className)} {...props}>
+      <p ref={ref} id={id} className={cn(styles.description, className)} {...props}>
         {children}
       </p>
     );
@@ -376,14 +400,25 @@ export const DialogDescription = forwardRef<HTMLParagraphElement, DialogDescript
 
 DialogDescription.displayName = 'DialogDescription';
 
-export interface DialogBodyProps extends ComponentPropsWithRef<'div'> {}
+export interface DialogBodyProps extends ComponentPropsWithRef<'div'> {
+  /**
+   * Whether the body content acts as an internal scroll container when content exceeds height.
+   * Set to false for short forms with dropdowns or popovers to prevent scroll-clipping.
+   * @default true
+   */
+  scrollable?: boolean;
+}
 
 export const DialogBody = forwardRef<HTMLDivElement, DialogBodyProps>(function DialogBody(
-  { className, children, ...props },
+  { scrollable = true, className, children, ...props },
   ref,
 ) {
   return (
-    <div ref={ref} className={cn(styles.body, className)} {...props}>
+    <div
+      ref={ref}
+      className={cn(styles.body, !scrollable && styles.bodyUncontained, className)}
+      {...props}
+    >
       {children}
     </div>
   );
@@ -391,14 +426,32 @@ export const DialogBody = forwardRef<HTMLDivElement, DialogBodyProps>(function D
 
 DialogBody.displayName = 'DialogBody';
 
-export interface DialogFooterProps extends ComponentPropsWithRef<'div'> {}
+export type DialogFooterBackground = 'seamless' | 'docked';
+
+export interface DialogFooterProps extends ComponentPropsWithRef<'div'> {
+  /**
+   * Footer background treatment.
+   * 'seamless': inherits dialog surface (default).
+   * 'docked': distinct surface step for pinned trays in long forms.
+   * @default 'seamless'
+   */
+  background?: DialogFooterBackground;
+}
 
 export const DialogFooter = forwardRef<HTMLDivElement, DialogFooterProps>(function DialogFooter(
-  { className, children, ...props },
+  { background = 'seamless', className, children, ...props },
   ref,
 ) {
   return (
-    <div ref={ref} className={cn(styles.footer, className)} {...props}>
+    <div
+      ref={ref}
+      className={cn(
+        styles.footer,
+        background === 'docked' ? styles.footerDocked : styles.footerSeamless,
+        className,
+      )}
+      {...props}
+    >
       {children}
     </div>
   );

@@ -19,9 +19,7 @@ describe('Radio Primitive', () => {
   it('renders explicit size across all six scale steps', () => {
     const sizes = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const;
     for (const size of sizes) {
-      const { unmount } = render(
-        <Radio size={size} aria-label={`Size ${size}`} value={size} />,
-      );
+      const { unmount } = render(<Radio size={size} aria-label={`Size ${size}`} value={size} />);
       const input = screen.getByRole('radio', { name: `Size ${size}` });
       const root = input.closest('span');
       expect(root?.getAttribute('data-size')).toBe(size);
@@ -125,9 +123,7 @@ describe('Radio Primitive', () => {
   it('suppresses events and clicks when disabled', async () => {
     const user = userEvent.setup();
     const handleChange = vi.fn();
-    render(
-      <Radio disabled onChange={handleChange} aria-label="Disabled" value="disabled" />,
-    );
+    render(<Radio disabled onChange={handleChange} aria-label="Disabled" value="disabled" />);
     const input = screen.getByRole('radio', { name: /disabled/i }) as HTMLInputElement;
 
     expect(input.disabled).toBe(true);
@@ -140,12 +136,7 @@ describe('Radio Primitive', () => {
     const user = userEvent.setup();
     const handleChange = vi.fn();
     render(
-      <Radio
-        name="key-group"
-        value="keyboard-opt"
-        onChange={handleChange}
-        aria-label="Keyboard"
-      />,
+      <Radio name="key-group" value="keyboard-opt" onChange={handleChange} aria-label="Keyboard" />,
     );
     const input = screen.getByRole('radio', { name: /keyboard/i }) as HTMLInputElement;
 
@@ -199,9 +190,7 @@ describe('Radio Primitive', () => {
 
     const input = screen.getByRole('radio', { name: /express shipping/i });
     expect(input.getAttribute('aria-invalid')).toBe('true');
-    expect(input.getAttribute('aria-describedby')).toBe(
-      'shipping-help shipping-error',
-    );
+    expect(input.getAttribute('aria-describedby')).toBe('shipping-help shipping-error');
   });
 
   it('participates correctly in native form submit and form reset lifecycles', async () => {

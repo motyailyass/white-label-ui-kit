@@ -369,6 +369,7 @@ Props are spread in exact sequence:
   data-size={size}
   data-touch-target={touchTarget}
   data-variant={variant}
+  data-icon-only={iconOnly ? 'true' : undefined}
   data-loading={loading ? 'true' : undefined}
   className={cn(styles.button, className)}
 />
@@ -917,17 +918,17 @@ The core `Button` primitive release milestone is complete when:
 
 ---
 
-## 14. Follow-Up Work & Source Discrepancies
+## 14. Verification Status & Completed Enhancements
 
-The following items are identified as **separate, bounded evaluation items** and are intentionally not mixed into this documentation-only release:
+The architectural reference and implementation are fully synchronized and verified:
 
-1. **Danger Variant Token Alignment (Evaluation Item):**  
-   Evaluate introducing dedicated semantic tokens (`--color-danger-hover`, `--color-danger-active`) into `src/styles/tokens/status-colors.css` to replace the existing `opacity: 0.9` hover rule in `button.module.css`, subject to token contract review.
-2. **Subtle & Ghost Active Feedback (Evaluation Item):**  
-   Evaluate whether dedicated active press feedback is desirable for `subtle` and `ghost` variants; existing approved surface-active roles may suffice without adding new tokens.
-3. **Icon-Only Geometry (Evaluation Item):**  
-   Square geometry is not required for an accessible Button. Evaluate whether a dedicated square shape or geometry variant (such as an optional prop or layout utility) is warranted for standalone icon buttons in toolbars.
-4. **Link Component Strategy (Evaluation Item):**  
-   A dedicated styled link primitive remains a separate product decision. Navigation continues to be handled with semantic links at the host application boundary.
-5. **Unit Test Migration to `userEvent` (Maintenance Item):**  
-   Plan migration of `button.test.tsx` from `fireEvent` to `@testing-library/user-event` for more realistic pointer and keyboard interaction testing.
+1. **Danger Variant Token Alignment (Completed):**  
+   Consumes semantic tokens `--color-danger-solid-hover` and `--color-danger-solid-active` in `button.module.css`, providing consistent brand and error states across light and dark themes.
+2. **Subtle & Ghost Active Feedback (Completed):**  
+   Implements dedicated active press feedback (`--color-primary-subtle-active` and `--color-ghost-active`) for tactile response under pointer and touch interactions.
+3. **Icon-Only Geometry (Completed):**  
+   Implements `iconOnly` prop enforcing equilateral 1:1 square geometry (`data-icon-only="true"`), clamping inline-size to block-size, zeroing internal padding, and maintaining 48×48px minimum touch targets when coarse pointers or comfortable touch policies are active.
+4. **Link Component Strategy (Architectural Rule):**  
+   The Button primitive represents native `<button>` actions only. Semantic hyperlinks remain handled at the host application boundary or via polymorphic slots.
+5. **Unit Test userEvent Coverage (Completed):**  
+   `button.test.tsx` utilizes `@testing-library/user-event` for realistic keyboard activation (`Enter`, `Space`), form submission gating, and focus states.

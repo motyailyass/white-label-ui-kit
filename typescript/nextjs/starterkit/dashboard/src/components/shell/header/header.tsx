@@ -14,7 +14,7 @@ export interface HeaderProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
 }
 
-export function Header({
+function HeaderRoot({
   sticky = true,
   density = 'comfortable',
   className,
@@ -120,7 +120,7 @@ export function HeaderBreadcrumbs({
 /* -------------------------------------------------------------------------- */
 
 export interface HeaderToolbarProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export function HeaderToolbar({ className, children, ...props }: HeaderToolbarProps) {
@@ -130,3 +130,20 @@ export function HeaderToolbar({ className, children, ...props }: HeaderToolbarPr
     </div>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/*                            Compound Header Export                          */
+/* -------------------------------------------------------------------------- */
+
+export interface HeaderComponent {
+  (props: HeaderProps): React.JSX.Element;
+  Heading: typeof HeaderHeading;
+  Breadcrumbs: typeof HeaderBreadcrumbs;
+  Toolbar: typeof HeaderToolbar;
+}
+
+export const Header: HeaderComponent = Object.assign(HeaderRoot, {
+  Heading: HeaderHeading,
+  Breadcrumbs: HeaderBreadcrumbs,
+  Toolbar: HeaderToolbar,
+});

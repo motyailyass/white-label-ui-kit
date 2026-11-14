@@ -1,0 +1,227 @@
+/**
+ * Avatar Primitive Styles
+ *
+ * White-label pure primitive styles.
+ * 100% CSS logical properties, semantic tokens, zero dashboard shadows.
+ */
+
+/* =============================================================================
+   Sizing Scale Tokens
+   ============================================================================= */
+
+.sizeXs {
+  --_avatar-size: 1.5rem; /* 24px */
+  --_avatar-font-size: var(--font-size-xs); /* 12px */
+  --_avatar-line-height: var(--line-height-none);
+  --_avatar-icon-size: 0.75rem; /* 12px */
+  --_avatar-status-size: 0.5rem; /* 8px */
+  --_avatar-overlap: -0.5rem; /* -8px */
+}
+
+.sizeSm {
+  --_avatar-size: 2rem; /* 32px */
+  --_avatar-font-size: var(--font-size-xs); /* 12px */
+  --_avatar-line-height: var(--line-height-tight);
+  --_avatar-icon-size: 1rem; /* 16px */
+  --_avatar-status-size: 0.5625rem; /* 9px */
+  --_avatar-overlap: -0.625rem; /* -10px */
+}
+
+.sizeMd {
+  --_avatar-size: 2.5rem; /* 40px */
+  --_avatar-font-size: var(--font-size-sm); /* 14px */
+  --_avatar-line-height: var(--line-height-tight);
+  --_avatar-icon-size: 1.25rem; /* 20px */
+  --_avatar-status-size: 0.6875rem; /* 11px */
+  --_avatar-overlap: -0.75rem; /* -12px */
+}
+
+.sizeLg {
+  --_avatar-size: 3rem; /* 48px */
+  --_avatar-font-size: var(--font-size-lg); /* 18px */
+  --_avatar-line-height: var(--line-height-tight);
+  --_avatar-icon-size: 1.5rem; /* 24px */
+  --_avatar-status-size: 0.8125rem; /* 13px */
+  --_avatar-overlap: -0.875rem; /* -14px */
+}
+
+.sizeXl {
+  --_avatar-size: 3.5rem; /* 56px */
+  --_avatar-font-size: var(--font-size-xl); /* 20px */
+  --_avatar-line-height: var(--line-height-tight);
+  --_avatar-icon-size: 1.75rem; /* 28px */
+  --_avatar-status-size: 0.9375rem; /* 15px */
+  --_avatar-overlap: -1rem; /* -16px */
+}
+
+.size2xl {
+  --_avatar-size: 4rem; /* 64px */
+  --_avatar-font-size: var(--font-size-2xl); /* 24px */
+  --_avatar-line-height: var(--line-height-tight);
+  --_avatar-icon-size: 2rem; /* 32px */
+  --_avatar-status-size: 1.0625rem; /* 17px */
+  --_avatar-overlap: -1.125rem; /* -18px */
+}
+
+/* =============================================================================
+   Avatar Root & Shape Geometry
+   ============================================================================= */
+
+.avatar {
+  /* Local stacking contract: private layer, isolated from the document scale. */
+  isolation: isolate;
+  --_z-layer-raised: 1;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  inline-size: var(--_avatar-size);
+  block-size: var(--_avatar-size);
+  box-sizing: border-box;
+  overflow: visible;
+  line-height: var(--line-height-none);
+}
+
+.shapeCircle {
+  border-radius: var(--radius-full);
+}
+
+.shapeRounded {
+  border-radius: var(--radius-control);
+}
+
+.surface {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  block-size: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  box-sizing: border-box;
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary-subtle-foreground);
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* =============================================================================
+   Content Elements
+   ============================================================================= */
+
+.image {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: inherit;
+}
+
+.initials {
+  font-family: var(--font-family-sans);
+  font-size: var(--_avatar-font-size);
+  line-height: var(--_avatar-line-height);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: normal;
+  text-transform: uppercase;
+  color: inherit;
+  user-select: none;
+}
+
+.initials:lang(ar),
+:global([dir="rtl"]) .initials {
+  font-family: var(--font-family-arabic), var(--font-family-sans);
+  line-height: var(--line-height-arabic-snug);
+  text-transform: none;
+}
+
+.fallbackIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.fallbackIcon svg {
+  inline-size: var(--_avatar-icon-size);
+  block-size: var(--_avatar-icon-size);
+}
+
+/* =============================================================================
+   Presence Status Indicator
+   ============================================================================= */
+
+.status {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  inline-size: var(--_avatar-status-size);
+  block-size: var(--_avatar-status-size);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-surface);
+  box-sizing: border-box;
+  z-index: var(--_z-layer-raised);
+}
+
+.shapeCircle .status {
+  inset-block-end: 2%;
+  inset-inline-end: 2%;
+}
+
+.shapeRounded .status {
+  inset-block-end: -1px;
+  inset-inline-end: -1px;
+}
+
+.statusOnline {
+  background-color: var(--color-success);
+}
+
+.statusOffline {
+  background-color: var(--color-text-muted);
+}
+
+.statusAway {
+  background-color: var(--color-warning);
+}
+
+.statusBusy {
+  background-color: var(--color-danger);
+}
+
+/* =============================================================================
+   Avatar Group
+   ============================================================================= */
+
+.group {
+  display: inline-flex;
+  align-items: center;
+}
+
+.groupItem {
+  position: relative;
+  display: inline-flex;
+}
+
+.groupItem + .groupItem {
+  margin-inline-start: var(--_avatar-overlap);
+}
+
+.groupedAvatar .surface {
+  border: 2px solid var(--color-surface);
+}
+
+.overflowCounter .surface {
+  border: 2px solid var(--color-surface);
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary-subtle-foreground);
+}
+
+.overflowCounter .initials {
+  font-family: var(--font-family-sans);
+  font-variant-numeric: tabular-nums;
+}

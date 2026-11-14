@@ -609,4 +609,81 @@ describe('Dropdown (Pure Primitive)', () => {
     expect(screen.getByTestId('separator').getAttribute('role')).toBe('separator');
     expect(screen.getByTestId('group-2').getAttribute('role')).toBe('group');
   });
+
+  it('forwards minWidth as --_dropdown-min-width custom property on the menu surface', () => {
+    render(
+      <Dropdown defaultOpen={true}>
+        <DropdownTrigger>Options</DropdownTrigger>
+        <DropdownContent data-testid="surface" minWidth={240}>
+          <DropdownItem>Item</DropdownItem>
+        </DropdownContent>
+      </Dropdown>,
+    );
+
+    const surface = screen.getByTestId('surface');
+    expect(surface.style.getPropertyValue('--_dropdown-min-width')).toBe('240px');
+  });
+
+  it('resolves RTL horizontal alignment from nearest ancestor [dir="rtl"] when dir prop is omitted', () => {
+    render(
+      <div dir="rtl">
+        <Dropdown defaultOpen={true} placement="bottom-start">
+          <DropdownTrigger data-testid="trigger-ancestor-rtl">Trigger</DropdownTrigger>
+          <DropdownContent data-testid="surface-ancestor-rtl">
+            <DropdownItem>Item</DropdownItem>
+          </DropdownContent>
+        </Dropdown>
+      </div>,
+    );
+
+    const trigger = screen.getByTestId('trigger-ancestor-rtl');
+    const surface = screen.getByTestId('surface-ancestor-rtl');
+
+    vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({
+      top: 100,
+      bottom: 140,
+      left: 200,
+      right: 320,
+      width: 120,
+      height: 40,
+      x: 200,
+      y: 100,
+      toJSON: () => {},
+    });
+
+    vi.spyOn(surface, 'getBoundingClientRect').mockReturnValue({
+      top: 0,
+      bottom: 100,
+      left: 0,
+      right: 180,
+      width: 180,
+      height: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    });
+
+    fireEvent(window, new Event('resize'));
+    // In RTL bottom-start, right edge aligns with trigger.right: 320 - 180 = 140px
+    expect(surface.style.left).toBe('140px');
+  });
+
+  it('renders item keyboard shortcuts with RTL-mirrorable kbd slot and isolated LTR text', () => {
+    render(
+      <div dir="rtl">
+        <Dropdown defaultOpen={true}>
+          <DropdownTrigger>Options</DropdownTrigger>
+          <DropdownContent>
+            <DropdownItem shortcut="⌘E">Edit</DropdownItem>
+          </DropdownContent>
+        </Dropdown>
+      </div>,
+    );
+
+    const textSpan = screen.getByText('⌘E');
+    const kbd = textSpan.closest('kbd');
+    expect(kbd).not.toBeNull();
+    expect(kbd?.getAttribute('dir')).toBeNull();
+    expect(textSpan.getAttribute('dir')).toBe('ltr');
+  });
 });

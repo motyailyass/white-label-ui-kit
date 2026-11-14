@@ -1,6 +1,7 @@
 export type {
   BreadcrumbItem,
   HeaderBreadcrumbsProps,
+  HeaderComponent,
   HeaderHeadingProps,
   HeaderProps,
   HeaderToolbarProps,

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   type ComponentPropsWithoutRef,
   forwardRef,
@@ -12,10 +14,7 @@ import type { ControlSizingProps } from '../control-sizing';
 import styles from './checkbox.module.css';
 
 export interface CheckboxProps
-  extends Omit<
-      ComponentPropsWithoutRef<'input'>,
-      'type' | 'size' | 'children' | 'readOnly'
-    >,
+  extends Omit<ComponentPropsWithoutRef<'input'>, 'type' | 'size' | 'children' | 'readOnly'>,
     ControlSizingProps {
   /**
    * Displays the native mixed/indeterminate state.

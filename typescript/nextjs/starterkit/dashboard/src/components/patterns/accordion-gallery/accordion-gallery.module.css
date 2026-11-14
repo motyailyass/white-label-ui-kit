@@ -1,0 +1,156 @@
+/**
+ * White Label UI Kit — Accordion Gallery Studio Stylesheet
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.controlsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.canvasArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  inline-size: 100%;
+  box-sizing: border-box;
+}
+
+.canvasRtl {
+  direction: rtl;
+}
+
+/* Primary Dynamic Specimen Box */
+.specimenCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  inline-size: 100%;
+  min-block-size: 16rem;
+  padding: var(--space-8);
+  box-sizing: border-box;
+  background-color: var(--color-bg-base);
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+
+.specimenStage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  max-inline-size: 42rem;
+}
+
+.sampleProse {
+  font-size: var(--typography-body-size);
+  line-height: var(--typography-body-line-height);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.settingBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.triggerTitleGroup {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.invoiceTable {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--typography-body-size);
+}
+
+.invoiceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  padding-block: var(--space-1);
+  border-block-end: 1px dashed var(--color-border-subtle);
+  color: var(--color-text-secondary);
+}
+
+.invoiceRow:last-child {
+  border-block-end: none;
+}
+
+.invoiceVal {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Matrix Showcase */
+.matrixContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  inline-size: 100%;
+}
+
+.matrixGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.matrixGroupTitle {
+  margin: 0;
+  font-size: var(--typography-supporting-size);
+  line-height: var(--typography-supporting-line-height);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.matrixGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.matrixCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  box-sizing: border-box;
+  background-color: var(--color-bg-base);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+
+.matrixCardLabel {
+  margin: 0;
+  font-family: var(--font-family-mono);
+  font-size: var(--typography-supporting-size);
+  color: var(--color-text-secondary);
+}
+
+/* Helpers */
+.fullWidth {
+  inline-size: 100%;
+}

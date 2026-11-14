@@ -12,7 +12,7 @@
   font-family: inherit;
   font-weight: var(--font-weight-medium);
   font-variant-numeric: tabular-nums;
-  line-height: 1rem;
+  line-height: var(--line-height-none);
   white-space: nowrap;
   user-select: none;
   vertical-align: middle;
@@ -20,6 +20,11 @@
     background-color var(--transition-fast),
     border-color var(--transition-fast),
     color var(--transition-fast);
+}
+
+.badge:lang(ar) {
+  line-height: var(--line-height-arabic-snug);
+  letter-spacing: normal;
 }
 
 /* Shape Geometry */
@@ -35,7 +40,7 @@
 .sizeSm {
   min-block-size: 1.25rem;
   padding-inline: var(--space-2);
-  padding-block: 2px;
+  padding-block: var(--space-0-5);
   font-size: var(--font-size-xs);
   gap: var(--space-1);
 }
@@ -43,7 +48,7 @@
 .sizeMd {
   min-block-size: 1.5rem;
   padding-inline: var(--space-2);
-  padding-block: 2px;
+  padding-block: var(--space-0-5);
   font-size: var(--font-size-xs);
   gap: var(--space-1);
 }
@@ -53,8 +58,8 @@
   padding-inline: var(--space-3);
   padding-block: var(--space-0-5);
   font-size: var(--font-size-sm);
-  line-height: 1.25rem;
-  gap: var(--space-1-5, var(--space-2));
+  line-height: var(--line-height-tight);
+  gap: var(--space-2);
 }
 
 /* Semantic Status Variants */
@@ -66,8 +71,8 @@
 
 .variantPrimary {
   background-color: var(--color-primary-subtle);
-  color: var(--color-primary-subtle-foreground, var(--color-primary));
-  border: 1px solid var(--color-primary-border, color-mix(in srgb, currentColor 24%, transparent));
+  color: var(--color-primary-subtle-foreground);
+  border: 1px solid var(--color-primary-border);
 }
 
 .variantSuccess {
@@ -126,16 +131,16 @@
 /* Status Dot Indicator */
 .dot {
   display: inline-block;
-  inline-size: 6px;
-  block-size: 6px;
+  inline-size: 0.375rem;
+  block-size: 0.375rem;
   border-radius: 50%;
   background-color: currentColor;
   flex-shrink: 0;
 }
 
 .sizeLg .dot {
-  inline-size: 8px;
-  block-size: 8px;
+  inline-size: var(--space-2);
+  block-size: var(--space-2);
 }
 
 .dotPulse {
@@ -170,7 +175,7 @@
   border: none;
   background: transparent;
   color: inherit;
-  opacity: 0.7;
+  opacity: 0.8;
   cursor: pointer;
   border-radius: 50%;
   flex-shrink: 0;
@@ -218,5 +223,5 @@
 .removeButton:focus-visible {
   opacity: 1;
   outline: var(--focus-ring-width) solid var(--color-border-focus);
-  outline-offset: 1px;
+  outline-offset: var(--focus-ring-offset);
 }

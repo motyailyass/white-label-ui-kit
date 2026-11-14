@@ -1,721 +1,618 @@
 'use client';
 
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { BidiText, type TranslationKey } from '@/i18n';
-import { useI18n } from '@/providers';
-import { LanguageSwitcher } from '../language-switcher';
-import { ThemeSwitcher } from '../theme-switcher';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { Icon } from '@/components/icons';
+import { Button, type ControlSize, Switch } from '@/components/ui';
+import { cn } from '@/lib/cn';
+import { useI18n, useTheme } from '@/providers';
+import {
+  GalleryCodeInspector,
+  GalleryStudioLayout,
+  type StudioLinkComponent,
+  StudioSegmentedControl,
+  type StudioSegmentedOption,
+  type StudioSpecGroup,
+  StudioToggleRow,
+} from '../gallery-studio';
 import styles from './switch-gallery.module.css';
 
-type FormStatusId = 'none' | 'pending' | 'success' | 'reset' | 'error';
+export type SwitchSpecimenDirection = 'ltr' | 'rtl';
+export type SwitchInteractionState = 'resting' | 'invalid' | 'disabled';
+export type SwitchStageView = 'single' | 'all-sizes';
+export type SwitchTouchTarget = 'auto' | 'comfortable';
 
-const FORM_STATUS_MAP: Record<FormStatusId, TranslationKey> = {
-  none: 'common.switchGallery.formEventNone',
-  pending: 'common.switchGallery.formEventPending',
-  success: 'common.switchGallery.formEventSuccess',
-  reset: 'common.switchGallery.formEventReset',
-  error: 'common.switchGallery.formEventError',
-};
+export interface SwitchGalleryProps {
+  linkComponent?: StudioLinkComponent;
+}
 
-const SIZE_LABELS: Record<string, TranslationKey> = {
-  xs: 'common.switchGallery.sizeXsLabel',
-  sm: 'common.switchGallery.sizeSmLabel',
-  md: 'common.switchGallery.sizeMdLabel',
-  lg: 'common.switchGallery.sizeLgLabel',
-  xl: 'common.switchGallery.sizeXlLabel',
-  '2xl': 'common.switchGallery.size2xlLabel',
-};
+interface SwitchPresetDef {
+  id: string;
+  labelKey:
+    | 'common.studio.switchPresetNotifications'
+    | 'common.studio.switchPresetTwoFactor'
+    | 'common.studio.switchPresetAnalytics'
+    | 'common.studio.switchPresetAutosave'
+    | 'common.studio.switchPresetMaintenance';
+  defaultChecked: boolean;
+  labels: Record<'en' | 'fr' | 'ar', string>;
+  helpers: Record<'en' | 'fr' | 'ar', string>;
+  errors: Record<'en' | 'fr' | 'ar', string>;
+}
 
-export function SwitchGallery() {
-  const { t } = useI18n();
-
-  // Controlled mode state
-  const [controlledActive, setControlledActive] = useState(true);
-
-  // Required section validation state (starts without premature error)
-  const [requiredChecked, setRequiredChecked] = useState(false);
-  const [requiredError, setRequiredError] = useState(false);
-
-  // Form demonstration state
-  const [formTelemetry, setFormTelemetry] = useState(false);
-  const [formDiagnostics, setFormDiagnostics] = useState(false);
-  const [formStatusId, setFormStatusId] = useState<FormStatusId>('none');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
-
-  const handleFormSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (isSubmitting) return;
-
-      setIsSubmitting(true);
-      setFormStatusId('pending');
-
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        setFormStatusId('success');
-        setIsSubmitting(false);
-        timerRef.current = null;
-      }, 800);
+const SWITCH_PRESETS: readonly SwitchPresetDef[] = [
+  {
+    id: 'notifications',
+    labelKey: 'common.studio.switchPresetNotifications',
+    defaultChecked: true,
+    labels: {
+      en: 'Real-time push notifications',
+      fr: 'Notifications push en temps réel',
+      ar: 'تفعيل الإشعارات الفورية المباشرة',
     },
-    [isSubmitting],
+    helpers: {
+      en: 'Receive instant alerts for critical incidents and deployments.',
+      fr: 'Recevez des alertes instantanées pour les incidents critiques.',
+      ar: 'استلام تنبيهات فورية للحوادث الحرجة وعمليات النشر.',
+    },
+    errors: {
+      en: 'Cannot enable: Browser notification permission is currently blocked in site settings.',
+      fr: 'Activation impossible : L’autorisation de notification du navigateur est bloquée.',
+      ar: 'تعذر التفعيل: تم حظر إذن إشعارات المتصفح في إعدادات الموقع.',
+    },
+  },
+  {
+    id: 'twofactor',
+    labelKey: 'common.studio.switchPresetTwoFactor',
+    defaultChecked: true,
+    labels: {
+      en: 'Enforce hardware security key (FIDO2) authentication',
+      fr: 'Exiger une clé de sécurité matérielle (FIDO2)',
+      ar: 'فرض مفتاح أمان مادي (FIDO2)',
+    },
+    helpers: {
+      en: 'Protects administrator accounts against credential harvesting.',
+      fr: 'Protège les comptes d’administrateurs contre le vol d’identifiants.',
+      ar: 'حماية حسابات المسؤولين من هجمات التصيد وسرقة بيانات الاعتماد.',
+    },
+    errors: {
+      en: 'Cannot enforce: A backup hardware security key (FIDO2) must be enrolled before enforcing.',
+      fr: 'Application impossible : Une clé matérielle de secours (FIDO2) doit être enregistrée au préalable.',
+      ar: 'تعذر الفرض: يجب تسجيل مفتاح أمان مادي احتياطي (FIDO2) قبل الفرض.',
+    },
+  },
+  {
+    id: 'analytics',
+    labelKey: 'common.studio.switchPresetAnalytics',
+    defaultChecked: false,
+    labels: {
+      en: 'Anonymous usage telemetry and crash diagnostics',
+      fr: 'Télémétrie anonyme et diagnostics de panne',
+      ar: 'قياسات الاستخدام وتقارير الأعطال مجهولة المصدر',
+    },
+    helpers: {
+      en: 'Help engineering identify performance regressions and memory leaks.',
+      fr: 'Aide à identifier les régressions de performance et fuites de mémoire.',
+      ar: 'مساعدة المهندسين في تحديد تراجعات الأداء وتسريبات الذاكرة.',
+    },
+    errors: {
+      en: 'Cannot enable: Telemetry stream is blocked by active workspace governance policy.',
+      fr: 'Activation impossible : Le flux de télémétrie est bloqué par la politique de gouvernance.',
+      ar: 'تعذر التفعيل: تدفق القياس عن بُعد محظور بموجب سياسة حوكمة مساحة العمل.',
+    },
+  },
+  {
+    id: 'autosave',
+    labelKey: 'common.studio.switchPresetAutosave',
+    defaultChecked: true,
+    labels: {
+      en: 'Continuous cloud document autosave',
+      fr: 'Sauvegarde automatique continue dans le cloud',
+      ar: 'الحفظ التلقائي المستمر للمستندات في السحابة',
+    },
+    helpers: {
+      en: 'Automatically synchronizes drafting buffers every 3 seconds.',
+      fr: 'Synchronise automatiquement les brouillons toutes les 3 secondes.',
+      ar: 'مزامنة مسودات العمل تلقائياً كل 3 ثوانٍ.',
+    },
+    errors: {
+      en: 'Cannot sync: Connection to remote document storage buffer failed.',
+      fr: 'Synchronisation impossible : Échec de connexion au tampon de stockage distant.',
+      ar: 'تعذر المزامنة: فشل الاتصال بمخزن المستندات المؤقت البعيد.',
+    },
+  },
+  {
+    id: 'maintenance',
+    labelKey: 'common.studio.switchPresetMaintenance',
+    defaultChecked: false,
+    labels: {
+      en: 'Cluster maintenance mode (Drain traffic)',
+      fr: 'Mode maintenance du cluster (Détourner le trafic)',
+      ar: 'وضع صيانة التجمع (تحويل مسار البيانات)',
+    },
+    helpers: {
+      en: 'Diverts incoming traffic to fallback failover regions.',
+      fr: 'Détourne le trafic entrant vers les régions de secours.',
+      ar: 'تحويل حركة المرور الواردة إلى مناطق الاستجابة للطوارئ.',
+    },
+    errors: {
+      en: 'Cannot drain traffic: At least 2 active standby replica nodes are required before enabling maintenance mode.',
+      fr: 'Drainage impossible : Au moins 2 nœuds réplicas de secours actifs sont requis avant le mode maintenance.',
+      ar: 'تعذر تصريف البيانات: يلزم وجود عقدتين احتياطيتين نشطتين على الأقل قبل تفعيل وضع الصيانة.',
+    },
+  },
+];
+
+const allSizesList: readonly ControlSize[] = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
+
+export function SwitchGallery({ linkComponent }: SwitchGalleryProps) {
+  const { t, locale, direction } = useI18n();
+  const { resolvedTheme } = useTheme();
+
+  const activeLang = useMemo(() => {
+    return (locale === 'fr' || locale === 'ar' ? locale : 'en') as 'en' | 'fr' | 'ar';
+  }, [locale]);
+
+  // Studio Interactive State
+  const [specimenDir, setSpecimenDir] = useState<SwitchSpecimenDirection>('ltr');
+  const [size, setSize] = useState<ControlSize | 'default'>('default');
+  const [stageView, setStageView] = useState<SwitchStageView>('single');
+  const [interactionState, setInteractionState] = useState<SwitchInteractionState>('resting');
+  const [touchTarget, setTouchTarget] = useState<SwitchTouchTarget>('auto');
+  const [checked, setChecked] = useState(true);
+
+  // Field & Content State
+  const [activePresetId, setActivePresetId] = useState<string>('notifications');
+  const [activeLabel, setActiveLabel] = useState(SWITCH_PRESETS[0].labels.en);
+  const [activeHelper, setActiveHelper] = useState(SWITCH_PRESETS[0].helpers.en);
+  const [activeError, setActiveError] = useState(SWITCH_PRESETS[0].errors.en);
+  const [showLabel, setShowLabel] = useState(true);
+  const [showHelper, setShowHelper] = useState(true);
+
+  // Live specimen ref for computed specs measurement
+  const specimenRef = useRef<HTMLInputElement | null>(null);
+  const [measuredSpecs, setMeasuredSpecs] = useState<{
+    targetHeight: string;
+    targetWidth: string;
+    trackWidth: string;
+    trackHeight: string;
+    thumbSize: string;
+    bg: string;
+    border: string;
+    radius: string;
+  } | null>(null);
+
+  const resolveText = useCallback(
+    (map: Record<'en' | 'fr' | 'ar', string>) => {
+      if (specimenDir === 'rtl') return map.ar;
+      return map[activeLang] ?? map.en;
+    },
+    [activeLang, specimenDir],
   );
 
-  const handleFormReset = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
+  const applyPreset = useCallback(
+    (preset: SwitchPresetDef) => {
+      setActivePresetId(preset.id);
+      setChecked(preset.defaultChecked);
+      setActiveLabel(resolveText(preset.labels));
+      setActiveHelper(resolveText(preset.helpers));
+      setActiveError(resolveText(preset.errors));
+      setInteractionState('resting');
+    },
+    [resolveText],
+  );
+
+  const handleStateChange = useCallback((nextState: SwitchInteractionState) => {
+    setInteractionState(nextState);
+    if (nextState === 'invalid') {
+      setChecked(false); // Simulates action blocked in off position
     }
-    setFormTelemetry(false);
-    setFormDiagnostics(false);
-    setIsSubmitting(false);
-    setFormStatusId('reset');
   }, []);
 
-  // Section IDs
-  const baseId = useId();
-  const overviewId = `${baseId}-sec-overview`;
-  const sizesId = `${baseId}-sec-sizes`;
-  const controlledId = `${baseId}-sec-controlled`;
-  const uncontrolledId = `${baseId}-sec-uncontrolled`;
-  const statesId = `${baseId}-sec-states`;
-  const helpErrorId = `${baseId}-sec-help-error`;
-  const independentId = `${baseId}-sec-independent`;
-  const localizationId = `${baseId}-sec-localization`;
-  const themeId = `${baseId}-sec-theme`;
-  const formDemoId = `${baseId}-sec-form-demo`;
-  const usageId = `${baseId}-sec-usage`;
+  const handleCheckedChange = useCallback(
+    (newChecked: boolean) => {
+      setChecked(newChecked);
+      // Turning switch on resolves prerequisite error in demo
+      if (newChecked && interactionState === 'invalid') {
+        setInteractionState('resting');
+      }
+    },
+    [interactionState],
+  );
 
-  // Field IDs
-  const defAirplaneId = `${baseId}-def-airplane`;
-  const defDndId = `${baseId}-def-dnd`;
-  const ctrlId = `${baseId}-ctrl-telemetry`;
-  const unctrlAutosaveId = `${baseId}-unctrl-autosave`;
-  const unctrlDiagnosticsId = `${baseId}-unctrl-diagnostics`;
-  const reqFirewallId = `${baseId}-req-firewall`;
-  const reqHelpId = `${baseId}-req-help`;
-  const reqErrorId = `${baseId}-req-error`;
-  const indepSyncId = `${baseId}-indep-sync`;
-  const fieldsetAdminId = `${baseId}-fieldset-admin`;
-  const arabicId = `${baseId}-arabic-opt`;
-  const arabicHelpId = `${arabicId}-help`;
-  const nestedLtrId = `${baseId}-nested-ltr-opt`;
-  const mixedId = `${baseId}-mixed-opt`;
-  const longLabelId = `${baseId}-long-label-opt`;
-  const formTelemetryId = `${baseId}-form-telemetry`;
-  const formDiagnosticsId = `${baseId}-form-diagnostics`;
+  const handleDirectionChange = useCallback(
+    (dir: SwitchSpecimenDirection) => {
+      setSpecimenDir(dir);
+      const activePreset = SWITCH_PRESETS.find((p) => p.id === activePresetId) ?? SWITCH_PRESETS[0];
+      const targetLang = dir === 'rtl' ? 'ar' : activeLang;
+      setActiveLabel(activePreset.labels[targetLang]);
+      setActiveHelper(activePreset.helpers[targetLang]);
+      setActiveError(activePreset.errors[targetLang]);
+    },
+    [activeLang, activePresetId],
+  );
+
+  const handleReset = useCallback(() => {
+    setSpecimenDir('ltr');
+    setSize('default');
+    setStageView('single');
+    setInteractionState('resting');
+    setTouchTarget('auto');
+    applyPreset(SWITCH_PRESETS[0]);
+  }, [applyPreset]);
+
+  const resolvedSize: ControlSize | undefined = size === 'default' ? undefined : size;
+  const isInvalid = interactionState === 'invalid';
+  const isDisabled = interactionState === 'disabled';
+
+  const baseId = useId();
+  const activeSwitchId = `${baseId}-active-switch`;
+  const activeHelpId = `${baseId}-active-help`;
+  const activeErrorId = `${baseId}-active-error`;
+
+  const describedBy = useMemo(() => {
+    const ids: string[] = [];
+    if (showHelper && !isInvalid && activeHelper) ids.push(activeHelpId);
+    if (isInvalid && activeError) ids.push(activeErrorId);
+    return ids.length > 0 ? ids.join(' ') : undefined;
+  }, [showHelper, isInvalid, activeHelper, activeHelpId, activeError, activeErrorId]);
+
+  useEffect(() => {
+    if (specimenRef.current) {
+      const input = specimenRef.current;
+      const root = input.closest('span');
+      const track = input.nextElementSibling as HTMLElement | null;
+      const thumb = track?.firstElementChild as HTMLElement | null;
+
+      if (root && track) {
+        const rootRect = root.getBoundingClientRect();
+        const trackRect = track.getBoundingClientRect();
+        const thumbRect = thumb?.getBoundingClientRect() ?? { width: 0 };
+        const s = window.getComputedStyle(track);
+
+        setMeasuredSpecs({
+          targetHeight: `${Math.round(rootRect.height)}px`,
+          targetWidth: `${Math.round(rootRect.width)}px`,
+          trackWidth: `${Math.round(trackRect.width)}px`,
+          trackHeight: `${Math.round(trackRect.height)}px`,
+          thumbSize: `${Math.round(thumbRect.width)}px`,
+          bg: s.backgroundColor,
+          border: `${s.borderWidth} ${s.borderStyle} ${s.borderColor}`,
+          radius: s.borderRadius,
+        });
+      }
+    }
+  }, [size, touchTarget, interactionState, checked, specimenDir, resolvedTheme]);
+
+  // Dynamic Standalone Code Snippet
+  const jsxSnippet = useMemo(() => {
+    const propsList: string[] = [];
+    if (size !== 'default') propsList.push(`size="${size}"`);
+    if (touchTarget !== 'auto') propsList.push(`touchTarget="${touchTarget}"`);
+    if (isDisabled) propsList.push('disabled');
+    if (isInvalid) propsList.push('aria-invalid="true"');
+    if (describedBy) propsList.push(`aria-describedby="${describedBy}"`);
+    propsList.push(`checked={checked}`);
+    propsList.push(`onChange={(e) => setChecked(e.target.checked)}`);
+
+    const propsStr = propsList.length > 0 ? `\n    ${propsList.join('\n    ')}\n  ` : ' ';
+
+    return `import { Switch } from '@/components/ui';
+
+<div className="fieldRow">
+  <Switch
+    id="feature-toggle"${propsStr}/>
+  <label htmlFor="feature-toggle">${activeLabel}</label>
+</div>`;
+  }, [size, touchTarget, isDisabled, isInvalid, describedBy, activeLabel]);
+
+  const cssModuleSnippet = `.fieldRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.label {
+  font-size: var(--typography-label-size);
+  color: var(--color-text-primary);
+  font-weight: var(--typography-label-weight);
+  cursor: pointer;
+  user-select: none;
+}`;
+
+  const aiAgentPrompt = useMemo(() => {
+    return `You are implementing an accessible Switch binary toggle control using the project's white-label UI Kit. Follow these exact rules:
+
+1. Import pure primitive:
+   import { Switch } from '@/components/ui';
+
+2. Usage:
+   ${jsxSnippet}
+
+3. Architectural Invariants:
+   - 100% pure native <input type="checkbox" role="switch"> driving DOM state.
+   - Interaction target (${touchTarget === 'comfortable' ? '48x48px min' : '36px md / 48px xl'}) is decoupled from the visible pill track (${size === 'default' ? '32x16px md / 40x20px xl' : `explicit size="${size}"`}).
+   - Immediate position toggle via logical flexbox (flex-start -> flex-end), naturally inverting for RTL without physical coordinates.
+   - Stable neutral hover border: resting border does not jump on hover.
+   - 100% CSS logical properties (inline-size, block-size, padding-inline).
+   - Zero dashboard shadows.
+   - Size: ${size === 'default' ? 'Product default (md = 36px in dashboard, xl = 48px in website)' : `Explicit size="${size}"`}.`;
+  }, [jsxSnippet, size, touchTarget]);
+
+  const specGroups: readonly StudioSpecGroup[] = useMemo(() => {
+    return [
+      {
+        title: t('common.studio.specCategoryVariant'),
+        items: [
+          { label: 'size', value: size },
+          { label: 'state', value: interactionState },
+          { label: 'checked', value: checked ? 'true' : 'false' },
+          { label: 'touchTarget', value: touchTarget },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryMeasured'),
+        items: [
+          { label: t('common.studio.specMinBlockSize'), value: measuredSpecs?.targetHeight ?? '—' },
+          { label: t('common.studio.specInlineSize'), value: measuredSpecs?.targetWidth ?? '—' },
+          {
+            label: t('common.studio.specTrackSize'),
+            value: measuredSpecs
+              ? `${measuredSpecs.trackWidth} × ${measuredSpecs.trackHeight}`
+              : '—',
+          },
+          { label: t('common.studio.specThumbSize'), value: measuredSpecs?.thumbSize ?? '—' },
+          { label: t('common.studio.specBackgroundColor'), value: measuredSpecs?.bg ?? '—' },
+          { label: t('common.studio.specBorder'), value: measuredSpecs?.border ?? '—' },
+          { label: t('common.studio.specRadius'), value: measuredSpecs?.radius ?? '—' },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryTokens'),
+        items: [
+          { label: '--radius-full', value: 'var(--radius-full) (9999px)' },
+          { label: '--color-border-control', value: 'var(--color-border-control)' },
+          { label: '--color-primary', value: 'var(--color-primary)' },
+          { label: t('common.studio.specimenDirectionLabel'), value: specimenDir.toUpperCase() },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryEnv'),
+        items: [
+          { label: t('common.studio.specLocale'), value: locale },
+          { label: t('common.studio.specDirection'), value: direction.toUpperCase() },
+          { label: t('common.studio.specTheme'), value: resolvedTheme },
+        ],
+      },
+    ];
+  }, [
+    size,
+    interactionState,
+    checked,
+    touchTarget,
+    measuredSpecs,
+    specimenDir,
+    locale,
+    direction,
+    resolvedTheme,
+    t,
+  ]);
+
+  // Sidebar Controls Options
+  const specimenDirOptions: readonly StudioSegmentedOption<SwitchSpecimenDirection>[] = [
+    { value: 'ltr', label: t('common.studio.specimenDirLtr'), testId: 'opt-dir-ltr' },
+    { value: 'rtl', label: t('common.studio.specimenDirRtl'), testId: 'opt-dir-rtl' },
+  ];
+
+  const sizeOptions: readonly StudioSegmentedOption<ControlSize | 'default'>[] = [
+    { value: 'default', label: 'Def', testId: 'opt-size-default' },
+    { value: 'xs', label: 'XS', testId: 'opt-size-xs' },
+    { value: 'sm', label: 'SM', testId: 'opt-size-sm' },
+    { value: 'md', label: 'MD', testId: 'opt-size-md' },
+    { value: 'lg', label: 'LG', testId: 'opt-size-lg' },
+    { value: 'xl', label: 'XL', testId: 'opt-size-xl' },
+    { value: '2xl', label: '2XL', testId: 'opt-size-2xl' },
+  ];
+
+  const stateOptions: readonly StudioSegmentedOption<SwitchInteractionState>[] = [
+    { value: 'resting', label: t('common.studio.optStateResting'), testId: 'opt-state-resting' },
+    { value: 'invalid', label: t('common.studio.optStateInvalid'), testId: 'opt-state-invalid' },
+    { value: 'disabled', label: t('common.studio.optStateDisabled'), testId: 'opt-state-disabled' },
+  ];
+
+  const viewOptions: readonly StudioSegmentedOption<SwitchStageView>[] = [
+    { value: 'single', label: t('common.studio.viewSingle'), testId: 'opt-view-single' },
+    { value: 'all-sizes', label: t('common.studio.viewAllSizes'), testId: 'opt-view-all-sizes' },
+  ];
+
+  const touchTargetOptions: readonly StudioSegmentedOption<SwitchTouchTarget>[] = [
+    { value: 'auto', label: t('common.studio.touchAuto'), testId: 'opt-touch-auto' },
+    {
+      value: 'comfortable',
+      label: t('common.studio.touchComfortable'),
+      testId: 'opt-touch-comfortable',
+    },
+  ];
 
   return (
-    <main className={styles.galleryContainer} data-testid="switch-gallery">
-      {/* Header */}
-      <header className={styles.galleryHeader}>
-        <div className={styles.headerTop}>
-          <h1 className={styles.title}>{t('common.switchGallery.title')}</h1>
-          <div className={styles.controlsRow}>
-            <LanguageSwitcher />
-            <ThemeSwitcher />
-          </div>
-        </div>
-        <p className={styles.subtitle}>{t('common.switchGallery.subtitle')}</p>
-      </header>
+    <GalleryStudioLayout
+      activeRoute="switch"
+      title={t('common.switchGallery.title')}
+      subtitle={t('common.switchGallery.subtitle')}
+      testId="switch-gallery"
+      previewDir={specimenDir}
+      onReset={handleReset}
+      linkComponent={linkComponent}
+      controls={
+        <>
+          <StudioSegmentedControl
+            label={t('common.studio.specimenDirectionLabel')}
+            value={specimenDir}
+            options={specimenDirOptions}
+            onChange={handleDirectionChange}
+          />
 
-      {/* 1. Overview & Product Defaults */}
-      <section className={styles.section} aria-labelledby={overviewId}>
-        <h2 id={overviewId} className={styles.sectionTitle}>
-          {t('common.switchGallery.overviewTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>
-          {t('common.switchGallery.overviewDesc')}
-        </p>
-        <div className={styles.fieldset}>
-          <div className={styles.fieldRow}>
-            <Switch
-              id={defAirplaneId}
-              name="airplane-mode"
-              defaultChecked
-              data-testid="specimen-default"
-            />
-            <label htmlFor={defAirplaneId} className={styles.label}>
-              {t('common.switchGallery.defaultOptionAirplane')}
-            </label>
-          </div>
-          <div className={styles.fieldRow}>
-            <Switch
-              id={defDndId}
-              name="do-not-disturb"
-              data-testid="specimen-default-alt"
-            />
-            <label htmlFor={defDndId} className={styles.label}>
-              {t('common.switchGallery.defaultOptionDnd')}
-            </label>
-          </div>
-        </div>
-      </section>
+          <hr className={styles.controlDivider} />
 
-      {/* 2. Six-Step Sizing Scale */}
-      <section className={styles.section} aria-labelledby={sizesId}>
-        <h2 id={sizesId} className={styles.sectionTitle}>
-          {t('common.switchGallery.sizesTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.switchGallery.sizesDesc')}</p>
-        <div className={styles.scaleGrid}>
-          {(['xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const).map((sz) => {
-            const sizeFieldId = `${baseId}-size-${sz}`;
-            return (
-              <div key={sz} className={styles.fieldRow}>
+          <StudioSegmentedControl
+            label={t('common.studio.btnSizeLabel')}
+            value={size}
+            options={sizeOptions}
+            onChange={setSize}
+          />
+
+          <StudioSegmentedControl
+            label={t('common.studio.btnCanvasViewLabel')}
+            value={stageView}
+            options={viewOptions}
+            onChange={setStageView}
+          />
+
+          <hr className={styles.controlDivider} />
+
+          <StudioSegmentedControl
+            label={t('common.studio.inputStateLabel')}
+            value={interactionState}
+            options={stateOptions}
+            onChange={handleStateChange}
+          />
+
+          <StudioToggleRow
+            label={t('common.studio.switchCheckedToggle')}
+            checked={checked}
+            onCheckedChange={handleCheckedChange}
+            testId="toggle-switch-checked"
+          />
+
+          <StudioSegmentedControl
+            label={t('common.studio.btnTouchTargetLabel')}
+            value={touchTarget}
+            options={touchTargetOptions}
+            onChange={setTouchTarget}
+          />
+
+          <hr className={styles.controlDivider} />
+
+          <StudioToggleRow
+            label={t('common.studio.inputShowLabelToggle')}
+            checked={showLabel}
+            onCheckedChange={setShowLabel}
+          />
+
+          <StudioToggleRow
+            label={t('common.studio.inputShowHelperToggle')}
+            checked={showHelper}
+            onCheckedChange={setShowHelper}
+          />
+        </>
+      }
+      inspector={
+        <GalleryCodeInspector
+          aiPrompt={aiAgentPrompt}
+          jsxCode={jsxSnippet}
+          cssCode={cssModuleSnippet}
+          jsxFileName="my-switch.tsx"
+          cssFileName="my-switch.module.css"
+          specGroups={specGroups}
+        />
+      }
+    >
+      <div className={styles.stageActionArea}>
+        {stageView === 'single' ? (
+          <div className={styles.singleSpecimenRow}>
+            <div
+              className={styles.fieldGroup}
+              data-size={size === 'default' ? undefined : size}
+              data-touch-target={touchTarget}
+            >
+              <div className={styles.fieldRow}>
                 <Switch
-                  id={sizeFieldId}
-                  name={`scale-${sz}`}
-                  size={sz}
-                  defaultChecked={sz === 'md' || sz === 'xl'}
-                  data-testid={`specimen-size-${sz}`}
+                  ref={specimenRef}
+                  id={activeSwitchId}
+                  size={resolvedSize}
+                  touchTarget={touchTarget}
+                  checked={checked}
+                  disabled={isDisabled}
+                  aria-invalid={isInvalid || undefined}
+                  aria-describedby={describedBy}
+                  onChange={(e) => handleCheckedChange(e.target.checked)}
+                  data-testid="studio-active-switch"
                 />
-                <label htmlFor={sizeFieldId} className={styles.label}>
-                  {t(SIZE_LABELS[sz])}
-                </label>
+                {showLabel && (
+                  <label
+                    htmlFor={activeSwitchId}
+                    className={cn(styles.label, isDisabled && styles.labelDisabled)}
+                  >
+                    {activeLabel}
+                  </label>
+                )}
               </div>
-            );
-          })}
-        </div>
-      </section>
+              {showHelper && !isInvalid && activeHelper && (
+                <p id={activeHelpId} className={styles.helpText}>
+                  {activeHelper}
+                </p>
+              )}
+              {isInvalid && activeError && (
+                <p id={activeErrorId} className={styles.errorText} role="alert">
+                  <Icon name="error" className={styles.errorIcon} aria-hidden="true" />
+                  <span>{activeError}</span>
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className={styles.allSizesGrid}>
+            {allSizesList.map((sz) => (
+              <div key={sz} className={styles.sizeCard}>
+                <span className={styles.sizeCardLabel}>size=&quot;{sz}&quot;</span>
+                <div className={styles.fieldRow}>
+                  <Switch
+                    id={`${baseId}-grid-${sz}`}
+                    size={sz}
+                    touchTarget={touchTarget}
+                    checked={checked}
+                    disabled={isDisabled}
+                    aria-invalid={isInvalid || undefined}
+                    onChange={(e) => handleCheckedChange(e.target.checked)}
+                    data-testid={`studio-size-switch-${sz}`}
+                  />
+                  {showLabel && (
+                    <label
+                      htmlFor={`${baseId}-grid-${sz}`}
+                      className={cn(styles.label, isDisabled && styles.labelDisabled)}
+                    >
+                      {sz.toUpperCase()}
+                    </label>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
-      {/* 3. Controlled Mode */}
-      <section className={styles.section} aria-labelledby={controlledId}>
-        <h2 id={controlledId} className={styles.sectionTitle}>
-          {t('common.switchGallery.controlledTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>
-          {t('common.switchGallery.controlledDesc')}
-        </p>
-        <div className={styles.fieldset}>
-          <div className={styles.fieldRow}>
-            <Switch
-              id={ctrlId}
-              name="telemetry-stream"
-              checked={controlledActive}
-              onChange={(e) => setControlledActive(e.target.checked)}
-              data-testid="specimen-controlled"
-            />
-            <label htmlFor={ctrlId} className={styles.label}>
-              {t('common.switchGallery.controlledLabel')}
-            </label>
-          </div>
-          <div className={styles.statusCard}>
-            <span>{t('common.switchGallery.controlledStatusPrefix')}:</span>
-            <span className={styles.statusValue}>
-              {controlledActive
-                ? t('common.switchGallery.controlledStatusActive')
-                : t('common.switchGallery.controlledStatusInactive')}
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Uncontrolled Mode & Form Reset */}
-      <section className={styles.section} aria-labelledby={uncontrolledId}>
-        <h2 id={uncontrolledId} className={styles.sectionTitle}>
-          {t('common.switchGallery.uncontrolledTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>
-          {t('common.switchGallery.uncontrolledDesc')}
-        </p>
-        <form
-          onReset={() => {
-            // Native form reset behavior restores defaultChecked
-          }}
-          className={styles.fieldset}
-        >
-          <div className={styles.fieldRow}>
-            <Switch
-              id={unctrlAutosaveId}
-              name="autosave"
-              defaultChecked
-              data-testid="specimen-uncontrolled-autosave"
-            />
-            <label htmlFor={unctrlAutosaveId} className={styles.label}>
-              {t('common.switchGallery.uncontrolledOptAutosave')}
-            </label>
-          </div>
-          <div className={styles.fieldRow}>
-            <Switch
-              id={unctrlDiagnosticsId}
-              name="diagnostics"
-              data-testid="specimen-uncontrolled-diagnostics"
-            />
-            <label htmlFor={unctrlDiagnosticsId} className={styles.label}>
-              {t('common.switchGallery.uncontrolledOptDiagnostics')}
-            </label>
-          </div>
-          <div>
-            <Button
-              type="reset"
-              variant="secondary"
-              size="sm"
-              data-testid="specimen-uncontrolled-reset-btn"
-            >
-              {t('common.switchGallery.uncontrolledResetButton')}
-            </Button>
-          </div>
-        </form>
-      </section>
-
-      {/* 5. Operational States & Combined Precedence */}
-      <section className={styles.section} aria-labelledby={statesId}>
-        <h2 id={statesId} className={styles.sectionTitle}>
-          {t('common.switchGallery.statesTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.switchGallery.statesDesc')}</p>
-        <div className={styles.gridTwo}>
-          <div className={styles.fieldRow}>
-            <Switch
-              id={`${baseId}-state-unchecked`}
-              name="state-demo-1"
-              data-testid="specimen-unchecked"
-            />
-            <label htmlFor={`${baseId}-state-unchecked`} className={styles.label}>
-              {t('common.switchGallery.stateUncheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Switch
-              id={`${baseId}-state-checked`}
-              name="state-demo-2"
-              defaultChecked
-              data-testid="specimen-checked"
-            />
-            <label htmlFor={`${baseId}-state-checked`} className={styles.label}>
-              {t('common.switchGallery.stateCheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Switch
-              id={`${baseId}-state-disabled-unchecked`}
-              name="state-demo-3"
-              disabled
-              data-testid="specimen-disabled-unchecked"
-            />
-            <label
-              htmlFor={`${baseId}-state-disabled-unchecked`}
-              className={styles.label}
-            >
-              {t('common.switchGallery.stateDisabledUncheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Switch
-              id={`${baseId}-state-disabled-checked`}
-              name="state-demo-4"
-              disabled
-              defaultChecked
-              data-testid="specimen-disabled-checked"
-            />
-            <label
-              htmlFor={`${baseId}-state-disabled-checked`}
-              className={styles.label}
-            >
-              {t('common.switchGallery.stateDisabledCheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Switch
-              id={`${baseId}-state-invalid-unchecked`}
-              name="state-demo-5"
-              aria-invalid="true"
-              data-testid="specimen-invalid-unchecked"
-            />
-            <label
-              htmlFor={`${baseId}-state-invalid-unchecked`}
-              className={styles.label}
-            >
-              {t('common.switchGallery.stateInvalidUncheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Switch
-              id={`${baseId}-state-invalid-checked`}
-              name="state-demo-6"
-              aria-invalid="true"
-              defaultChecked
-              data-testid="specimen-invalid-checked"
-            />
-            <label
-              htmlFor={`${baseId}-state-invalid-checked`}
-              className={styles.label}
-            >
-              {t('common.switchGallery.stateInvalidCheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Switch
-              id={`${baseId}-state-invalid-disabled-unchecked`}
-              name="state-demo-7"
-              aria-invalid="true"
-              disabled
-              data-testid="specimen-invalid-disabled-unchecked"
-            />
-            <label
-              htmlFor={`${baseId}-state-invalid-disabled-unchecked`}
-              className={styles.label}
-            >
-              {t('common.switchGallery.stateInvalidDisabledUncheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Switch
-              id={`${baseId}-state-invalid-disabled-checked`}
-              name="state-demo-8"
-              aria-invalid="true"
-              disabled
-              defaultChecked
-              data-testid="specimen-invalid-disabled-checked"
-            />
-            <label
-              htmlFor={`${baseId}-state-invalid-disabled-checked`}
-              className={styles.label}
-            >
-              {t('common.switchGallery.stateInvalidDisabledCheckedLabel')}
-            </label>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Required Validation & Accessible Relationships */}
-      <section className={styles.section} aria-labelledby={helpErrorId}>
-        <h2 id={helpErrorId} className={styles.sectionTitle}>
-          {t('common.switchGallery.helpErrorTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>
-          {t('common.switchGallery.helpErrorDesc')}
-        </p>
-        <div className={styles.fieldset}>
-          <div className={styles.fieldRow}>
-            <Switch
-              id={reqFirewallId}
-              name="firewall"
-              required
-              checked={requiredChecked}
-              aria-invalid={requiredError ? 'true' : 'false'}
-              aria-describedby={requiredError ? `${reqHelpId} ${reqErrorId}` : reqHelpId}
-              onChange={(e) => {
-                setRequiredChecked(e.target.checked);
-                setRequiredError(false);
-              }}
-              data-testid="specimen-required"
-            />
-            <label htmlFor={reqFirewallId} className={styles.label}>
-              {t('common.switchGallery.requiredLabel')}
-            </label>
-          </div>
-          <span id={reqHelpId} className={styles.helpText}>
-            {t('common.switchGallery.requiredHelpText')}
+        {/* Clean, centered Quick Configuration Presets */}
+        <div className={styles.variantsCenterSection}>
+          <span className={styles.variantsCenterLabel}>
+            {t('common.studio.switchQuickPresetsTitle')}
           </span>
-          {requiredError && (
-            <span id={reqErrorId} className={styles.errorText} role="alert">
-              {t('common.switchGallery.requiredErrorText')}
-            </span>
-          )}
-          <div className={styles.formActions}>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                if (!requiredChecked) {
-                  setRequiredError(true);
-                } else {
-                  setRequiredError(false);
-                }
-              }}
-              data-testid="specimen-required-validate-btn"
-            >
-              {t('common.switchGallery.requiredValidateButton')}
-            </Button>
+          <div className={styles.variantsCenterRow}>
+            {SWITCH_PRESETS.map((preset) => {
+              const isActive = activePresetId === preset.id;
+              return (
+                <Button
+                  key={preset.id}
+                  variant={isActive ? 'primary' : 'secondary'}
+                  size="sm"
+                  data-testid={`preset-quick-switch-${preset.id}`}
+                  onClick={() => applyPreset(preset)}
+                >
+                  {t(preset.labelKey)}
+                </Button>
+              );
+            })}
           </div>
         </div>
-      </section>
-
-      {/* 7. Independent Switches & Disabled Fieldset */}
-      <section className={styles.section} aria-labelledby={independentId}>
-        <h2 id={independentId} className={styles.sectionTitle}>
-          {t('common.switchGallery.independentTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>
-          {t('common.switchGallery.independentDesc')}
-        </p>
-        <div className={styles.gridTwo}>
-          <div className={styles.fieldset}>
-            <div className={styles.fieldRow}>
-              <Switch
-                id={indepSyncId}
-                name="independent-sync"
-                defaultChecked
-                data-testid="specimen-independent-1"
-              />
-              <label htmlFor={indepSyncId} className={styles.label}>
-                {t('common.switchGallery.independentActiveLabel')}
-              </label>
-            </div>
-          </div>
-
-          <fieldset disabled className={styles.fieldset}>
-            <legend className={styles.legend}>
-              {t('common.switchGallery.fieldsetDisabledLegend')}
-            </legend>
-            <div className={styles.fieldRow}>
-              <Switch
-                id={fieldsetAdminId}
-                name="admin-override"
-                data-testid="specimen-fieldset-disabled"
-              />
-              <label htmlFor={fieldsetAdminId} className={styles.label}>
-                {t('common.switchGallery.fieldsetDisabledOption')}
-              </label>
-            </div>
-          </fieldset>
-        </div>
-      </section>
-
-      {/* 8. Localization, RTL & Long Labels */}
-      <section className={styles.section} aria-labelledby={localizationId}>
-        <h2 id={localizationId} className={styles.sectionTitle}>
-          {t('common.switchGallery.localizationTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>
-          {t('common.switchGallery.localizationDesc')}
-        </p>
-        <div className={styles.fieldset}>
-          {/* Explicit Arabic script container */}
-          <div dir="rtl" className={styles.fieldset}>
-            <div className={styles.fieldRow}>
-              <Switch
-                id={arabicId}
-                name="arabic-setting"
-                defaultChecked
-                data-testid="specimen-arabic"
-              />
-              <label htmlFor={arabicId} className={styles.label}>
-                {t('common.switchGallery.arabicSpecimenLabel')}
-              </label>
-            </div>
-            <span id={arabicHelpId} className={styles.helpText}>
-              {t('common.switchGallery.arabicSpecimenHelp')}
-            </span>
-
-            {/* Nested LTR direction region inside RTL */}
-            <div dir="ltr" className={styles.fieldRowSpaced}>
-              <Switch
-                id={nestedLtrId}
-                name="nested-ltr-setting"
-                defaultChecked
-                data-testid="specimen-nested-ltr"
-              />
-              <label htmlFor={nestedLtrId} className={styles.label}>
-                {t('common.switchGallery.nestedLtrLabel')}
-              </label>
-            </div>
-          </div>
-
-          {/* Mixed LTR technical code */}
-          <div className={styles.fieldRowSpaced}>
-            <Switch
-              id={mixedId}
-              name="mixed-sensor-setting"
-              defaultChecked
-              data-testid="specimen-mixed-code"
-            />
-            <label htmlFor={mixedId} className={styles.label}>
-              {t('common.switchGallery.mixedTechPrefix')}{' '}
-              <BidiText dir="ltr">SENS-84920-X</BidiText>
-            </label>
-          </div>
-
-          {/* Multi-line wrapping label */}
-          <div className={styles.fieldRowSpaced}>
-            <Switch
-              id={longLabelId}
-              name="long-feature-setting"
-              defaultChecked
-              data-testid="specimen-long-label"
-            />
-            <label htmlFor={longLabelId} className={styles.label}>
-              {t('common.switchGallery.longLabelSpecimen')}
-            </label>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. Touch Targets & Theme Parity */}
-      <section className={styles.section} aria-labelledby={themeId}>
-        <h2 id={themeId} className={styles.sectionTitle}>
-          {t('common.switchGallery.themeTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.switchGallery.themeDesc')}</p>
-        <div className={styles.fieldset}>
-          <div className={styles.fieldRow}>
-            <Switch
-              id={`${baseId}-touch-auto`}
-              name="touch-auto-switch"
-              touchTarget="auto"
-              defaultChecked
-              data-testid="specimen-touch-auto"
-            />
-            <label htmlFor={`${baseId}-touch-auto`} className={styles.label}>
-              {t('common.switchGallery.touchAutoSpecimen')}
-            </label>
-          </div>
-          <div className={styles.fieldRow}>
-            <Switch
-              id={`${baseId}-touch-comfortable`}
-              name="touch-comfortable-switch"
-              touchTarget="comfortable"
-              data-testid="specimen-touch-comfortable"
-            />
-            <label
-              htmlFor={`${baseId}-touch-comfortable`}
-              className={styles.label}
-            >
-              {t('common.switchGallery.touchComfortableSpecimen')}
-            </label>
-          </div>
-        </div>
-
-        <div className={styles.gridTwo}>
-          <div className={styles.fieldRow}>
-            <Switch
-              id={`${baseId}-theme-checked`}
-              name="theme-checked-switch"
-              defaultChecked
-              data-testid="specimen-theme-checked"
-            />
-            <label htmlFor={`${baseId}-theme-checked`} className={styles.label}>
-              {t('common.switchGallery.themeCheckedLabel')}
-            </label>
-          </div>
-          <div className={styles.fieldRow}>
-            <Switch
-              id={`${baseId}-theme-unchecked`}
-              name="theme-unchecked-switch"
-              data-testid="specimen-theme-unchecked"
-            />
-            <label htmlFor={`${baseId}-theme-unchecked`} className={styles.label}>
-              {t('common.switchGallery.themeUncheckedLabel')}
-            </label>
-          </div>
-        </div>
-      </section>
-
-      {/* 10. Local Form Demonstration */}
-      <section className={styles.section} aria-labelledby={formDemoId}>
-        <h2 id={formDemoId} className={styles.sectionTitle}>
-          {t('common.switchGallery.formDemoTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>
-          {t('common.switchGallery.formDemoDesc')}
-        </p>
-        <form
-          onSubmit={handleFormSubmit}
-          onReset={handleFormReset}
-          className={styles.formGrid}
-          data-testid="gallery-form"
-        >
-          <div className={styles.fieldset}>
-            <div className={styles.fieldRow}>
-              <Switch
-                id={formTelemetryId}
-                name="telemetry-stream"
-                checked={formTelemetry}
-                onChange={(e) => setFormTelemetry(e.target.checked)}
-                data-testid="specimen-form-telemetry"
-              />
-              <label htmlFor={formTelemetryId} className={styles.label}>
-                {t('common.switchGallery.formTelemetryLabel')}
-              </label>
-            </div>
-            <div className={styles.fieldRow}>
-              <Switch
-                id={formDiagnosticsId}
-                name="crash-diagnostics"
-                checked={formDiagnostics}
-                onChange={(e) => setFormDiagnostics(e.target.checked)}
-                data-testid="specimen-form-diagnostics"
-              />
-              <label htmlFor={formDiagnosticsId} className={styles.label}>
-                {t('common.switchGallery.formDiagnosticsLabel')}
-              </label>
-            </div>
-          </div>
-
-          <div className={styles.formActions}>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              data-testid="specimen-form-submit-btn"
-            >
-              {t('common.switchGallery.formSubmitButton')}
-            </Button>
-            <Button
-              type="reset"
-              variant="secondary"
-              data-testid="specimen-form-reset-btn"
-            >
-              {t('common.switchGallery.formResetButton')}
-            </Button>
-          </div>
-
-          <div className={styles.statusCard} data-testid="form-status-display">
-            <span>{t('common.switchGallery.formStatusPrefix')}:</span>
-            <span className={styles.statusValue}>
-              {t(FORM_STATUS_MAP[formStatusId])}
-            </span>
-          </div>
-          <span className={styles.helpText}>
-            {t('common.switchGallery.formDisclaimer')}
-          </span>
-        </form>
-      </section>
-
-      {/* 11. Code Usage Examples */}
-      <section className={styles.section} aria-labelledby={usageId}>
-        <h2 id={usageId} className={styles.sectionTitle}>
-          {t('common.switchGallery.usageTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.switchGallery.usageDesc')}</p>
-        <pre className={styles.codeBlock}>
-          {`// Standard Uncontrolled Setting
-<div>
-  <Switch id="airplane-mode" name="airplane" defaultChecked />
-  <label htmlFor="airplane-mode">Airplane Mode</label>
-</div>
-
-// Controlled Setting
-const [active, setActive] = useState(false);
-
-<div>
-  <Switch
-    id="telemetry"
-    name="telemetry"
-    checked={active}
-    onChange={(e) => setActive(e.target.checked)}
-  />
-  <label htmlFor="telemetry">Live Telemetry</label>
-</div>`}
-        </pre>
-      </section>
-    </main>
+      </div>
+    </GalleryStudioLayout>
   );
 }

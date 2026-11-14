@@ -1,0 +1,164 @@
+.stageWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.stageWrapper:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.tableCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  inline-size: 100%;
+}
+
+.tableToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  padding-inline: var(--space-4);
+  background-color: var(--color-surface);
+  border-block-end: 1px solid var(--color-border-subtle);
+  border-start-start-radius: var(--radius-card);
+  border-start-end-radius: var(--radius-card);
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.searchInputWrapper {
+  inline-size: 16rem;
+  max-inline-size: 100%;
+}
+
+.selectionCount {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.selectionBold {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.toolbarActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.exportNotice {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-4);
+  background-color: var(--color-surface-subtle);
+  border-block-end: 1px solid var(--color-border-subtle);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.checkboxCol {
+  inline-size: 3rem;
+}
+
+.customerStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.customerName {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.customerEmail {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.monoCell {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-medium);
+}
+
+.dateCell {
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* Integrated Table Pagination Bar */
+.paginationFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+  padding-inline: var(--space-4);
+  background-color: var(--color-surface);
+  border-block-start: 1px solid var(--color-border-subtle);
+  border-end-start-radius: var(--radius-card);
+  border-end-end-radius: var(--radius-card);
+}
+
+.paginationMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.pageSizeControl {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pageSizeLabel {
+  white-space: nowrap;
+}
+
+.pageSizeButton {
+  font-variant-numeric: tabular-nums;
+}
+
+.pageSizeOption {
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+}
+
+.footerPagination {
+  inline-size: auto;
+}
+
+.tableEmptyState {
+  padding-block: var(--space-4);
+}
+
+.srOnly {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+}

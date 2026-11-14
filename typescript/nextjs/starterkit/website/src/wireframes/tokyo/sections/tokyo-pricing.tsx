@@ -3,6 +3,8 @@
 import type React from 'react';
 import { useState } from 'react';
 import { Icon } from '@/components/icons';
+import { Badge } from '@/components/ui/badge';
+import { Toggle } from '@/components/ui/toggle';
 import { BidiText } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { useI18n } from '@/providers';
@@ -113,30 +115,36 @@ export function TokyoPricing({
             role="group"
             aria-label={t('website.pricing.billingGroupLabel')}
           >
-            <button
-              type="button"
+            <Toggle
+              size="sm"
               className={styles.toggleOption}
+              pressed={billingCycle === 'monthly'}
+              onPressedChange={() => setBillingCycle('monthly')}
               data-active={billingCycle === 'monthly'}
               data-touch-target="auto"
-              aria-pressed={billingCycle === 'monthly'}
-              onClick={() => setBillingCycle('monthly')}
             >
               {t('website.pricing.monthly')}
-            </button>
-            <button
-              type="button"
+            </Toggle>
+            <Toggle
+              size="sm"
               className={styles.toggleOption}
+              pressed={billingCycle === 'annual'}
+              onPressedChange={() => setBillingCycle('annual')}
               data-active={billingCycle === 'annual'}
               data-touch-target="auto"
-              aria-pressed={billingCycle === 'annual'}
-              onClick={() => setBillingCycle('annual')}
             >
               {t('website.pricing.annual')}
-            </button>
+            </Toggle>
           </div>
-          <span className={styles.saveBadge} data-role="badge">
+          <Badge
+            variant="success"
+            size="sm"
+            shape="pill"
+            className={styles.saveBadge}
+            data-role="badge"
+          >
             {t('website.pricing.saveBadge')}
-          </span>
+          </Badge>
         </div>
       </div>
 
@@ -151,9 +159,15 @@ export function TokyoPricing({
           return (
             <div key={tier.id} className={styles.card} data-popular={tier.isPopular}>
               {tier.isPopular && (
-                <span className={styles.popularBadge} data-role="badge">
+                <Badge
+                  variant="primary"
+                  size="sm"
+                  shape="pill"
+                  className={styles.popularBadge}
+                  data-role="badge"
+                >
                   {t('website.pricing.popularBadge')}
-                </span>
+                </Badge>
               )}
 
               <div>

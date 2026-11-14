@@ -8,6 +8,7 @@ import React, {
   useEffect,
   useId,
   useImperativeHandle,
+  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent,
@@ -61,6 +62,9 @@ export interface TooltipProps {
   /** Disables the tooltip from showing */
   disabled?: boolean;
 
+  /** Explicit direction override ('ltr' | 'rtl') */
+  dir?: 'ltr' | 'rtl';
+
   /** Optional className for the tooltip floating bubble */
   className?: string;
 }
@@ -98,6 +102,17 @@ function composeRefs<T>(...refs: Array<Ref<T> | undefined | null>) {
   };
 }
 
+/**
+ * Safely extracts ref from a React element across React 18 and 19.
+ */
+function getElementRef<T>(element: ReactElement): Ref<T> | undefined {
+  const props = element.props as Record<string, unknown> | undefined;
+  if (props && 'ref' in props) {
+    return props.ref as Ref<T>;
+  }
+  return (element as unknown as { ref?: Ref<T> }).ref;
+}
+
 export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip(
   {
     content,
@@ -113,6 +128,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
     defaultOpen = false,
     onOpenChange,
     disabled = false,
+    dir,
     className,
   },
   forwardedRef,
@@ -124,7 +140,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
   const [resolvedPlacement, setResolvedPlacement] = useState<TooltipPlacement>(placement);
 
   const generatedId = useId();
-  const tooltipId = `tooltip-${generatedId}`;
+  const tooltipId = `tooltip-${generatedId.replace(/:/g, '')}`;
 
   const triggerRef = useRef<HTMLElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
@@ -153,10 +169,12 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
     const tooltipWidth = tooltip.offsetWidth || tooltip.getBoundingClientRect().width;
     const tooltipHeight = tooltip.offsetHeight || tooltip.getBoundingClientRect().height;
 
-    const isRtl =
-      typeof window !== 'undefined'
-        ? window.getComputedStyle(trigger).direction === 'rtl'
-        : false;
+    const resolvedDir =
+      dir ||
+      (trigger.closest?.('[dir]') as HTMLElement | null)?.getAttribute('dir') ||
+      trigger.ownerDocument?.documentElement?.getAttribute('dir') ||
+      (typeof window !== 'undefined' ? window.getComputedStyle(trigger).direction : 'ltr');
+    const isRtl = resolvedDir === 'rtl';
 
     // Resolve logical start/end to physical left/right based on active direction
     let effectivePlacement: 'top' | 'bottom' | 'left' | 'right';
@@ -238,10 +256,10 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
     setResolvedPlacement(effectivePlacement);
     tooltip.style.top = `${Math.round(top)}px`;
     tooltip.style.left = `${Math.round(left)}px`;
-  }, [placement, sideOffset]);
+  }, [placement, sideOffset, dir]);
 
-  // Recalculate on scroll, resize, or open
-  useEffect(() => {
+  // Synchronously position before paint, and recalculate on scroll/resize
+  useLayoutEffect(() => {
     if (!isOpen) return;
 
     updatePosition();
@@ -339,42 +357,49 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
   }
 
   // Clone trigger element and inject accessibility attributes and event listeners
-  const childProps = (children.props ?? {}) as Record<string, any>;
-  const existingAriaDescribedBy = childProps['aria-describedby'];
+  const childProps = (children.props ?? {}) as Record<string, unknown>;
+  const existingAriaDescribedBy =
+    typeof childProps['aria-describedby'] === 'string'
+      ? (childProps['aria-describedby'] as string)
+      : undefined;
   const mergedAriaDescribedBy = isOpen
     ? existingAriaDescribedBy
       ? `${existingAriaDescribedBy} ${tooltipId}`
       : tooltipId
     : existingAriaDescribedBy;
 
-  const childRef = (children as any).ref;
-  const triggerElement = cloneElement(children as ReactElement<any>, {
+  const childRef = getElementRef<HTMLElement>(children);
+  const triggerElement = cloneElement(children, {
     ref: composeRefs(triggerRef, childRef),
     'aria-describedby': mergedAriaDescribedBy,
-    onPointerEnter: (e: any) => {
-      childProps.onPointerEnter?.(e);
+    onPointerEnter: (e: React.PointerEvent<HTMLElement>) => {
+      (childProps.onPointerEnter as ((e: React.PointerEvent<HTMLElement>) => void) | undefined)?.(
+        e,
+      );
       handlePointerEnter();
     },
-    onPointerLeave: (e: any) => {
-      childProps.onPointerLeave?.(e);
+    onPointerLeave: (e: React.PointerEvent<HTMLElement>) => {
+      (childProps.onPointerLeave as ((e: React.PointerEvent<HTMLElement>) => void) | undefined)?.(
+        e,
+      );
       handlePointerLeave();
     },
-    onFocus: (e: any) => {
-      childProps.onFocus?.(e);
+    onFocus: (e: React.FocusEvent<HTMLElement>) => {
+      (childProps.onFocus as ((e: React.FocusEvent<HTMLElement>) => void) | undefined)?.(e);
       handleFocus();
     },
-    onBlur: (e: any) => {
-      childProps.onBlur?.(e);
+    onBlur: (e: React.FocusEvent<HTMLElement>) => {
+      (childProps.onBlur as ((e: React.FocusEvent<HTMLElement>) => void) | undefined)?.(e);
       handleBlur();
     },
-    onKeyDown: (e: KeyboardEvent<any>) => {
-      childProps.onKeyDown?.(e);
+    onKeyDown: (e: KeyboardEvent<HTMLElement>) => {
+      (childProps.onKeyDown as ((e: KeyboardEvent<HTMLElement>) => void) | undefined)?.(e);
       if (e.key === 'Escape' && isOpen) {
         e.stopPropagation();
         setOpen(false);
       }
     },
-  });
+  } as Record<string, unknown>);
 
   return (
     <>
@@ -400,7 +425,11 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
           onPointerLeave={handlePointerLeave}
         >
           <span className={styles.content}>{content}</span>
-          {shortcut && <kbd className={styles.shortcut}>{shortcut}</kbd>}
+          {shortcut && (
+            <kbd className={styles.shortcut}>
+              <span dir="ltr">{shortcut}</span>
+            </kbd>
+          )}
           {arrow && <span className={styles.arrow} aria-hidden="true" />}
         </div>
       )}

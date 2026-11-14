@@ -4,11 +4,11 @@
  */
 
 .specimenFullWidth {
-  inline-size: 100%;
+  inline-size: 100% !important;
 }
 
-.specimenFullWidth > button {
-  inline-size: 100%;
+.buttonFullWidth {
+  inline-size: 100% !important;
 }
 
 .stageActionArea {
@@ -81,18 +81,6 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: var(--space-2);
-}
-
-.variantItemWrapper {
-  display: inline-flex;
-  position: relative;
-  border-radius: calc(var(--radius-control) + 2px);
-  padding: 1px;
-}
-
-.variantItemActive {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
 }
 
 .controlDivider {

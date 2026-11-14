@@ -1,0 +1,47 @@
+.root {
+  /* Local stacking contract: hover < selected < focus, isolated from the document scale. */
+  isolation: isolate;
+  --_z-layer-raised: 1;
+  --_z-layer-overlay: 2;
+  --_z-layer-top: 3;
+
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  border-radius: var(--radius-control, 6px);
+  gap: 1px;
+}
+
+.joined {
+  gap: 0;
+}
+
+.joined > button {
+  border-radius: 0;
+}
+
+.joined > button:first-child {
+  border-start-start-radius: var(--radius-control, 6px);
+  border-end-start-radius: var(--radius-control, 6px);
+}
+
+.joined > button:last-child {
+  border-start-end-radius: var(--radius-control, 6px);
+  border-end-end-radius: var(--radius-control, 6px);
+}
+
+.joined > button:not(:first-child) {
+  margin-inline-start: -1px;
+}
+
+.joined > button:hover {
+  z-index: var(--_z-layer-raised);
+}
+
+.joined > button[data-state="on"] {
+  z-index: var(--_z-layer-overlay);
+}
+
+.joined > button:focus-visible {
+  z-index: var(--_z-layer-top);
+}

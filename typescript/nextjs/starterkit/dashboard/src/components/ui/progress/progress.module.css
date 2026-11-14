@@ -1,0 +1,153 @@
+/* =============================================================================
+   Progress Primitive Styles
+   Strict white-label tokens, zero dashboard shadows, 100% logical CSS & GPU transform motion
+   ============================================================================= */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  inline-size: 100%;
+  box-sizing: border-box;
+}
+
+.headerRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
+}
+
+.headerRow:lang(ar) {
+  line-height: var(--line-height-arabic-tight);
+}
+
+.label {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.label:lang(ar),
+.valueText:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-arabic-tight);
+}
+
+.label :lang(en),
+.label :lang(fr),
+.valueText :lang(en),
+.valueText :lang(fr) {
+  font-family: var(--font-family-sans);
+}
+
+.valueText {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.track {
+  position: relative;
+  inline-size: 100%;
+  background-color: var(--color-border-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Track sizes */
+.size_sm {
+  block-size: var(--space-1); /* 4px */
+}
+
+.size_md {
+  block-size: var(--space-2); /* 8px */
+}
+
+.size_lg {
+  block-size: var(--space-3); /* 12px */
+}
+
+/* Determinate Indicator: pure compositor transform without capsule corner distortion */
+.indicator {
+  inline-size: 100%;
+  block-size: 100%;
+  border-radius: inherit;
+  transform: translateX(calc((var(--_progress-scale, 0) - 1) * 100%));
+  transition: transform var(--transition-normal);
+  will-change: transform;
+}
+
+:dir(rtl) .indicator {
+  transform: translateX(calc((1 - var(--_progress-scale, 0)) * 100%));
+}
+
+/* Semantic Variants */
+.variant_default {
+  background-color: var(--color-primary);
+}
+
+.variant_success {
+  background-color: var(--color-success);
+}
+
+.variant_warning {
+  background-color: var(--color-warning);
+}
+
+.variant_danger {
+  background-color: var(--color-danger);
+}
+
+/* Indeterminate Mode: GPU transform sweep mirrored safely for RTL */
+.indicator_indeterminate {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: 40%;
+  transform: translateX(-100%);
+  transition: none;
+  animation: indeterminateSlide calc(var(--motion-duration-slow) * 5) var(--motion-ease-standard)
+    infinite;
+}
+
+:dir(rtl) .indicator_indeterminate {
+  transform: translateX(100%);
+  animation-name: indeterminateSlideRtl;
+}
+
+@keyframes indeterminateSlide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+@keyframes indeterminateSlideRtl {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicator {
+    transition: none;
+  }
+
+  .indicator_indeterminate {
+    animation: none;
+    transform: translateX(75%);
+  }
+
+  :dir(rtl) .indicator_indeterminate {
+    transform: translateX(-75%);
+  }
+}

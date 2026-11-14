@@ -12,7 +12,7 @@ export interface ContentProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
 }
 
-export function Content({ className, children, ...props }: ContentProps) {
+function ContentRoot({ className, children, ...props }: ContentProps) {
   return (
     <div className={cn(styles.content, className)} {...props}>
       {children}
@@ -36,3 +36,16 @@ export function ContentBody({ layout = 'full', className, children, ...props }: 
     </div>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/*                           Compound Content Export                          */
+/* -------------------------------------------------------------------------- */
+
+export interface ContentComponent {
+  (props: ContentProps): React.JSX.Element;
+  Body: typeof ContentBody;
+}
+
+export const Content: ContentComponent = Object.assign(ContentRoot, {
+  Body: ContentBody,
+});

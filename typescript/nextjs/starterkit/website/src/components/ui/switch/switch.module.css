@@ -6,11 +6,15 @@
  */
 
 .root {
+  /* Local stacking contract: private layer, isolated from the document scale. */
+  isolation: isolate;
+  --_z-layer-raised: 1;
+
   /* Default density aliases (Dashboard defaults to md) */
   --_switch-target: var(--control-height-default, 2.25rem);
   --_switch-track-height: var(--control-icon-size-default, 1rem);
   --_switch-track-width: calc(var(--_switch-track-height) * 2);
-  --_switch-thumb-size: calc(var(--_switch-track-height) - 4px);
+  --_switch-thumb-size: calc(var(--_switch-track-height) - var(--space-1));
 
   position: relative;
   display: inline-flex;
@@ -101,7 +105,7 @@
   padding: 0;
   opacity: 0;
   cursor: pointer;
-  z-index: 1;
+  z-index: var(--_z-layer-raised);
   box-sizing: border-box;
 }
 

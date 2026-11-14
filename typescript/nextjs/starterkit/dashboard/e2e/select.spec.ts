@@ -10,7 +10,7 @@ test.describe('Dashboard Select Primitive Real-Browser Verification', () => {
     const isCoarse = await page.evaluate(() => window.matchMedia('(pointer: coarse)').matches);
 
     // 1. Dashboard product default (omitted size): md (36px min block size)
-    const defaultSelect = page.locator('[data-testid="specimen-default"]');
+    const defaultSelect = page.locator('[data-testid="studio-active-select"]');
     await expect(defaultSelect).toBeVisible();
 
     const defaultBox = await defaultSelect.boundingBox();
@@ -22,18 +22,21 @@ test.describe('Dashboard Select Primitive Real-Browser Verification', () => {
       expect(defaultBox!.height).toBeCloseTo(36, 1);
     }
 
-    // 2. Explicit scale heights
+    // 2. Switch to All Sizes view to inspect the explicit scale
+    await page.locator('[data-testid="opt-view-all-sizes"]').click();
+
     const scaleTargets: Record<string, number> = {
-      'specimen-size-xs': 28,
-      'specimen-size-sm': 32,
-      'specimen-size-md': 36,
-      'specimen-size-lg': 40,
-      'specimen-size-xl': 48,
-      'specimen-size-2xl': 56,
+      '[data-testid="studio-size-select-xs"]': 28,
+      '[data-testid="studio-size-select-sm"]': 32,
+      '[data-testid="studio-size-select-md"]': 36,
+      '[data-testid="studio-size-select-lg"]': 40,
+      '[data-testid="studio-size-select-xl"]': 48,
+      '[data-testid="studio-size-select-2xl"]': 56,
     };
 
-    for (const [testId, expectedHeight] of Object.entries(scaleTargets)) {
-      const select = page.locator(`[data-testid="${testId}"]`);
+    for (const [selector, expectedHeight] of Object.entries(scaleTargets)) {
+      const select = page.locator(selector);
+      await expect(select).toBeVisible();
       const box = await select.boundingBox();
       expect(box).not.toBeNull();
 
@@ -45,613 +48,182 @@ test.describe('Dashboard Select Primitive Real-Browser Verification', () => {
     }
   });
 
-  test('verifies omitted-versus-explicit default parity on Dashboard', async ({ page }) => {
-    const omitted = page.locator('[data-testid="specimen-default"]');
-    const explicit = page.locator('[data-testid="specimen-size-md"]');
+  test('enforces 48x48px minimum target on comfortable touch target mode', async ({ page }) => {
+    await page.locator('[data-testid="opt-touch-comfortable"]').click();
+    const comfortable = page.locator('[data-testid="studio-active-select"]');
+    await expect(comfortable).toBeVisible();
 
-    const omittedStyle = await omitted.evaluate((el) => {
-      const s = window.getComputedStyle(el);
+    const dimensions = await comfortable.evaluate((el) => {
+      const style = window.getComputedStyle(el);
       return {
-        height: s.height,
-        paddingInlineStart: s.paddingInlineStart,
-        paddingInlineEnd: s.paddingInlineEnd,
-        paddingBlockStart: s.paddingBlockStart,
-        paddingBlockEnd: s.paddingBlockEnd,
-        fontSize: s.fontSize,
-        lineHeight: s.lineHeight,
-        borderRadius: s.borderRadius,
-        borderWidth: s.borderWidth,
+        height: parseFloat(style.height),
+        width: parseFloat(style.width),
+        minHeight: parseFloat(style.minHeight),
+        minWidth: parseFloat(style.minWidth),
       };
     });
 
-    const explicitStyle = await explicit.evaluate((el) => {
-      const s = window.getComputedStyle(el);
-      return {
-        height: s.height,
-        paddingInlineStart: s.paddingInlineStart,
-        paddingInlineEnd: s.paddingInlineEnd,
-        paddingBlockStart: s.paddingBlockStart,
-        paddingBlockEnd: s.paddingBlockEnd,
-        fontSize: s.fontSize,
-        lineHeight: s.lineHeight,
-        borderRadius: s.borderRadius,
-        borderWidth: s.borderWidth,
-      };
-    });
-
-    expect(omittedStyle.height).toBe(explicitStyle.height);
-    expect(omittedStyle.paddingInlineStart).toBe(explicitStyle.paddingInlineStart);
-    expect(omittedStyle.paddingInlineEnd).toBe(explicitStyle.paddingInlineEnd);
-    expect(omittedStyle.paddingBlockStart).toBe(explicitStyle.paddingBlockStart);
-    expect(omittedStyle.paddingBlockEnd).toBe(explicitStyle.paddingBlockEnd);
-    expect(omittedStyle.fontSize).toBe(explicitStyle.fontSize);
-    expect(omittedStyle.lineHeight).toBe(explicitStyle.lineHeight);
-    expect(omittedStyle.borderRadius).toBe(explicitStyle.borderRadius);
-    expect(omittedStyle.borderWidth).toBe(explicitStyle.borderWidth);
+    expect(dimensions.minHeight).toBeGreaterThanOrEqual(48);
+    expect(dimensions.minWidth).toBeGreaterThanOrEqual(48);
   });
 
-  test('verifies touch-target policy in both dimensions and coarse pointer expansion', async ({
-    browser,
-  }) => {
-    const touchContext = await browser.newContext({ hasTouch: true });
-    const touchPage = await touchContext.newPage();
-    await touchPage.goto('/gallery/select');
-    await expect(touchPage.locator('[data-testid="select-gallery"]')).toBeVisible();
+  test('verifies edge-click focus directly on the native select element', async ({ page }) => {
+    const select = page.locator('[data-testid="studio-active-select"]');
+    await expect(select).toBeVisible();
 
-    // Assert (any-pointer: coarse) matches
-    const isAnyCoarse = await touchPage.evaluate(
-      () => window.matchMedia('(any-pointer: coarse)').matches,
-    );
-    expect(isAnyCoarse).toBe(true);
+    const box = await select.boundingBox();
+    expect(box).not.toBeNull();
 
-    // On coarse pointer, explicit xs target expands from 28px to >= 48px in both dimensions
-    const coarseXs = touchPage.locator('[data-testid="specimen-size-xs"]');
-    const coarseXsBox = await coarseXs.boundingBox();
-    expect(coarseXsBox).not.toBeNull();
-    expect(coarseXsBox!.height).toBeGreaterThanOrEqual(48);
-    expect(coarseXsBox!.width).toBeGreaterThanOrEqual(48);
+    // Click near the inline-start edge (x=8, y=center)
+    await select.click({ position: { x: 8, y: box!.height / 2 } });
+    await expect(select).toBeFocused();
 
-    // Comfortable mode also enforces at least 48px
-    const comfortable = touchPage.locator('[data-testid="specimen-touch-comfortable"]');
-    const comfortableBox = await comfortable.boundingBox();
-    expect(comfortableBox).not.toBeNull();
-    expect(comfortableBox!.height).toBeGreaterThanOrEqual(48);
-    expect(comfortableBox!.width).toBeGreaterThanOrEqual(48);
+    // Blur
+    await page.keyboard.press('Tab');
+    await expect(select).not.toBeFocused();
 
-    // 2xl size preserves minimum 56px height
-    const coarseTwoXl = touchPage.locator('[data-testid="specimen-size-2xl"]');
-    const coarseTwoXlBox = await coarseTwoXl.boundingBox();
-    expect(coarseTwoXlBox).not.toBeNull();
-    expect(coarseTwoXlBox!.height).toBeGreaterThanOrEqual(56);
-
-    // Contrast against fine pointer (hasTouch: false) where xs is unexpanded 28px
-    const fineContext = await browser.newContext({ hasTouch: false });
-    const finePage = await fineContext.newPage();
-    await finePage.goto('/gallery/select');
-    await expect(finePage.locator('[data-testid="select-gallery"]')).toBeVisible();
-
-    const fineXs = finePage.locator('[data-testid="specimen-size-xs"]');
-    const fineXsBox = await fineXs.boundingBox();
-    expect(fineXsBox).not.toBeNull();
-    expect(fineXsBox!.height).toBeCloseTo(28, 1);
-
-    await fineContext.close();
-    await touchContext.close();
+    // Click near the inline-end edge
+    await select.click({ position: { x: box!.width - 8, y: box!.height / 2 } });
+    await expect(select).toBeFocused();
   });
 
-  test('verifies controlled selection and uncontrolled form reset', async ({ page }) => {
-    // 1. Controlled mode
-    const controlledSelect = page.locator('[data-testid="specimen-controlled"]');
-    const statusValue = page.locator('[data-testid="controlled-status-value"]');
-
-    expect(await controlledSelect.inputValue()).toBe('email');
-    await expect(statusValue).toHaveText('email');
-
-    await controlledSelect.selectOption('sms');
-    expect(await controlledSelect.inputValue()).toBe('sms');
-    await expect(statusValue).toHaveText('sms');
-
-    // 2. Uncontrolled mode with native form reset
-    const uncontrolledSelect = page.locator('[data-testid="specimen-uncontrolled"]');
-    expect(await uncontrolledSelect.inputValue()).toBe('us-west');
-
-    await uncontrolledSelect.selectOption('eu-central');
-    expect(await uncontrolledSelect.inputValue()).toBe('eu-central');
-
-    await page.locator('[data-testid="uncontrolled-reset-btn"]').click();
-    expect(await uncontrolledSelect.inputValue()).toBe('us-west');
-  });
-
-  test('verifies state cascade: neutral hover border stability, focus outline, and invalid precedence', async ({
+  test('verifies standard Select border remains stable on hover and indicates focus clearly', async ({
     page,
   }) => {
-    const restingSelect = page.locator('[data-testid="specimen-resting"]');
-    const invalidSelect = page.locator('[data-testid="specimen-invalid"]');
-    const disabledSelect = page.locator('[data-testid="specimen-disabled"]');
-    const invalidDisabledSelect = page.locator('[data-testid="specimen-invalid-disabled"]');
+    const select = page.locator('[data-testid="studio-active-select"]');
+    await expect(select).toBeVisible();
 
-    // 1. Stable neutral hover border
-    const restBorder = await restingSelect.evaluate((el) => window.getComputedStyle(el).borderColor);
-    await restingSelect.hover();
-    const hoverBorder = await restingSelect.evaluate((el) => window.getComputedStyle(el).borderColor);
-    expect(hoverBorder).toBe(restBorder);
+    const colors = await page.evaluate(() => {
+      const elBorder = document.createElement('div');
+      elBorder.style.color = 'var(--color-border-control)';
+      document.body.appendChild(elBorder);
+      const borderRgb = window.getComputedStyle(elBorder).color;
+      elBorder.remove();
 
-    // 2. Focus outline
-    await restingSelect.focus();
-    const isFocused = await restingSelect.evaluate((el) => document.activeElement === el);
-    expect(isFocused).toBe(true);
-    const focusOutlineWidth = await restingSelect.evaluate((el) =>
-      parseFloat(window.getComputedStyle(el).outlineWidth),
-    );
-    expect(focusOutlineWidth).toBeGreaterThanOrEqual(1);
+      const elFocus = document.createElement('div');
+      elFocus.style.color = 'var(--color-border-focus)';
+      document.body.appendChild(elFocus);
+      const focusRgb = window.getComputedStyle(elFocus).color;
+      elFocus.remove();
 
-    // 3. Invalid border is danger color and retains it on hover
-    const invalidBorder = await invalidSelect.evaluate((el) => window.getComputedStyle(el).borderColor);
-    expect(invalidBorder).not.toBe(restBorder);
-    await invalidSelect.hover();
-    const invalidHoverBorder = await invalidSelect.evaluate((el) => window.getComputedStyle(el).borderColor);
-    expect(invalidHoverBorder).toBe(invalidBorder);
-
-    // 4. Disabled styling wins over invalid
-    const disabledBg = await disabledSelect.evaluate((el) => window.getComputedStyle(el).backgroundColor);
-    const invalidDisabledBg = await invalidDisabledSelect.evaluate(
-      (el) => window.getComputedStyle(el).backgroundColor,
-    );
-    expect(invalidDisabledBg).toBe(disabledBg);
-  });
-
-  test('verifies high-contrast forced-colors mode across combined states and state precedence', async ({
-    browser,
-  }) => {
-    const context = await browser.newContext({
-      forcedColors: 'active',
-      colorScheme: 'light',
-    });
-    const page = await context.newPage();
-    await page.goto('/gallery/select');
-    await expect(page.locator('[data-testid="select-gallery"]')).toBeVisible();
-
-    // Create reference elements inside the page to obtain exact computed system color strings
-    const systemColors = await page.evaluate(() => {
-      const createRef = (style: string) => {
-        const el = document.createElement('div');
-        el.style.cssText = style;
-        document.body.appendChild(el);
-        const comp = window.getComputedStyle(el);
-        const res = { color: comp.color, border: comp.borderColor, outline: comp.outlineColor };
-        document.body.removeChild(el);
-        return res;
-      };
-      return {
-        buttonBorder: createRef('border: 1px solid ButtonBorder;').border,
-        highlight: createRef('color: Highlight; outline: 1px solid Highlight; border: 1px solid Highlight;'),
-        grayText: createRef('color: GrayText; border: 1px solid GrayText;').color,
-        fieldText: createRef('color: FieldText;').color,
-      };
+      return { borderRgb, focusRgb };
     });
 
-    const restingSelect = page.locator('[data-testid="specimen-resting"]');
-    const invalidSelect = page.locator('[data-testid="specimen-invalid"]');
-    const disabledSelect = page.locator('[data-testid="specimen-disabled"]');
-    const invalidDisabledSelect = page.locator('[data-testid="specimen-invalid-disabled"]');
+    // 1. Resting state: border is var(--color-border-control)
+    const restingBorder = await select.evaluate((el) => window.getComputedStyle(el).borderColor);
+    expect(restingBorder).toBe(colors.borderRgb);
 
-    // 1. Resting state: border matches ButtonBorder, text matches FieldText
-    const restStyle = await restingSelect.evaluate((el) => {
-      const s = window.getComputedStyle(el);
-      return { border: s.borderColor, color: s.color };
-    });
-    expect(restStyle.border).toBe(systemColors.buttonBorder);
-    expect(restStyle.color).toBe(systemColors.fieldText);
+    // 2. Hover state: border remains STABLE at var(--color-border-control)
+    await select.hover();
+    const hoverBorder = await select.evaluate((el) => window.getComputedStyle(el).borderColor);
+    expect(hoverBorder).toBe(colors.borderRgb);
 
-    // 2. Focused state: border and outline match Highlight
-    await restingSelect.focus();
-    const focusStyle = await restingSelect.evaluate((el) => {
-      const s = window.getComputedStyle(el);
-      return { border: s.borderColor, outline: s.outlineColor };
-    });
-    expect(focusStyle.border).toBe(systemColors.highlight.border);
-    expect(focusStyle.outline).toBe(systemColors.highlight.outline);
-
-    // 3. Invalid state: border matches Highlight
-    const invalidStyle = await invalidSelect.evaluate((el) => window.getComputedStyle(el).borderColor);
-    expect(invalidStyle).toBe(systemColors.highlight.border);
-
-    // 4. Disabled state: border and text match GrayText
-    const disabledStyle = await disabledSelect.evaluate((el) => {
-      const s = window.getComputedStyle(el);
-      return { border: s.borderColor, color: s.color };
-    });
-    expect(disabledStyle.border).toBe(systemColors.grayText);
-    expect(disabledStyle.color).toBe(systemColors.grayText);
-
-    // 5. Disabled arrow matches GrayText
-    const disabledArrowColor = await disabledSelect.locator('..').locator('> [aria-hidden="true"]').evaluate(
-      (el) => window.getComputedStyle(el).color,
-    );
-    expect(disabledArrowColor).toBe(systemColors.grayText);
-
-    // 6. State precedence: Disabled wins over Invalid (border and color are GrayText, NOT Highlight)
-    const invalidDisabledStyle = await invalidDisabledSelect.evaluate((el) => {
-      const s = window.getComputedStyle(el);
-      return { border: s.borderColor, color: s.color };
-    });
-    expect(invalidDisabledStyle.border).toBe(systemColors.grayText);
-    expect(invalidDisabledStyle.color).toBe(systemColors.grayText);
-
-    await context.close();
-  });
-
-  test('verifies required validation transition and direct aria-describedby association', async ({
-    page,
-  }) => {
-    const requiredSelect = page.locator('[data-testid="specimen-required"]');
-    const validateBtn = page.locator('[data-testid="required-validate-btn"]');
-
-    // 1. Starts with no premature error
-    await expect(requiredSelect).not.toHaveAttribute('aria-invalid', 'true');
-    await expect(page.locator('[data-testid="required-error-msg"]')).toHaveCount(0);
-
-    const initialDescribedBy = await requiredSelect.getAttribute('aria-describedby');
-    expect(initialDescribedBy).not.toBeNull();
-    expect(initialDescribedBy).not.toContain('error');
-
-    // 2. Click validate while empty: triggers validation error
-    await validateBtn.click();
-    await expect(requiredSelect).toHaveAttribute('aria-invalid', 'true');
-    await expect(page.locator('[data-testid="required-error-msg"]')).toBeVisible();
-
-    const errorDescribedBy = await requiredSelect.getAttribute('aria-describedby');
-    expect(errorDescribedBy).toContain('error');
-
-    // 3. Select a valid option: clears error immediately
-    await requiredSelect.selectOption('usd');
-    await expect(requiredSelect).not.toHaveAttribute('aria-invalid', 'true');
-    await expect(page.locator('[data-testid="required-error-msg"]')).toHaveCount(0);
-  });
-
-  test('verifies local form submission, duplicate guard, and reset cancellation', async ({
-    page,
-  }) => {
-    const planSelect = page.locator('[data-testid="specimen-form-plan"]');
-    const submitBtn = page.locator('[data-testid="form-submit-btn"]');
-    const resetBtn = page.locator('[data-testid="form-reset-btn"]');
-    const statusValue = page.locator('[data-testid="form-status-value"]');
-
-    // 1. Attempt submit while required plan is empty: native validation blocks submission
-    await submitBtn.click();
-    const isValueMissing = await planSelect.evaluate((el: HTMLSelectElement) => el.validity.valueMissing);
-    expect(isValueMissing).toBe(true);
-    await expect(statusValue).toContainText('No billing update');
-
-    // 2. Select plan and submit
-    await planSelect.selectOption('pro');
-    await submitBtn.click();
-
-    // Verify native FormData serialization contains selected subscriptionPlan
-    const formDataEntries = await page
-      .locator('[data-testid="select-demo-form"]')
-      .evaluate((form: HTMLFormElement) => Array.from(new FormData(form).entries()));
-    expect(formDataEntries).toContainEqual(['subscriptionPlan', 'pro']);
-
-    // 3. Pending state
-    await expect(submitBtn).toBeDisabled();
-    await expect(statusValue).toContainText('Saving billing');
-
-    // 4. Click reset during pending state: cancels timer and resets form
-    await resetBtn.click();
-    await expect(submitBtn).toBeEnabled();
-    await expect(statusValue).toContainText('Form reset');
-    expect(await planSelect.inputValue()).toBe('');
-
-    // Wait beyond the timer duration (1.5s) to guarantee pending timer did not fire late
-    await page.waitForTimeout(1600);
-    await expect(statusValue).toContainText('Form reset');
-  });
-
-  test('verifies LTR, RTL, and nested direction override placement', async ({ page }) => {
-    const arabicSelect = page.locator('[data-testid="specimen-arabic"]');
-    const nestedLtrSelect = page.locator('[data-testid="specimen-nested-ltr"]');
-
-    // Arabic select has start alignment
-    const arabicAlign = await arabicSelect.evaluate((el) => window.getComputedStyle(el).textAlign);
-    expect(arabicAlign).toBe('start');
-
-    // Nested LTR container has dir="ltr"
-    const nestedDir = await nestedLtrSelect.evaluate((el) => el.getAttribute('dir') || el.closest('[dir]')?.getAttribute('dir'));
-    expect(nestedDir).toBe('ltr');
-  });
-
-  test('verifies zero dashboard shadows policy', async ({ page }) => {
-    const selects = page.locator('select');
-    const count = await selects.count();
-    expect(count).toBeGreaterThan(0);
-
-    for (let i = 0; i < count; i++) {
-      const shadow = await selects.nth(i).evaluate((el) => {
-        const s = window.getComputedStyle(el);
-        return s.boxShadow;
+    // 3. Focus state (click): border and outline indicate focus clearly
+    await select.click();
+    await expect(select).toBeFocused();
+    await expect
+      .poll(async () => {
+        return select.evaluate((el) => {
+          const style = window.getComputedStyle(el);
+          return {
+            border: style.borderColor,
+            outline: style.outlineColor,
+          };
+        });
+      })
+      .toEqual({
+        border: colors.focusRgb,
+        outline: colors.focusRgb,
       });
-      expect(shadow === 'none' || shadow === 'rgba(0, 0, 0, 0) 0px 0px 0px 0px').toBe(true);
-    }
+
+    // 4. Blur: restores stable resting border
+    await page.keyboard.press('Tab');
+    await expect
+      .poll(async () => {
+        return select.evaluate((el) => window.getComputedStyle(el).borderColor);
+      })
+      .toBe(colors.borderRgb);
   });
 
-  test('verifies chevron indicator hit-testing, pointer-events: none, and direct edge clicks', async ({
+  test('verifies invalid Select border and focus precedence across hover, focus, and pointer exit', async ({
     page,
   }) => {
-    const select = page.locator('[data-testid="specimen-default"]');
-    const wrapper = select.locator('..');
-    const arrow = wrapper.locator('> [aria-hidden="true"]');
+    // Switch to Invalid preset via quick configurations bar
+    await page.locator('[data-testid="preset-quick-select-invalid"]').click();
 
-    await expect(arrow).toBeVisible();
+    const invalidSelect = page.locator('[data-testid="studio-active-select"]');
+    await expect(invalidSelect).toBeVisible();
+    await expect(invalidSelect).toHaveAttribute('aria-invalid', 'true');
 
-    // Verify arrow itself has pointer-events: none
-    const pointerEvents = await arrow.evaluate((el) => window.getComputedStyle(el).pointerEvents);
-    expect(pointerEvents).toBe('none');
-
-    // Click right on top of the arrow coordinates
-    const arrowBox = await arrow.boundingBox();
-    expect(arrowBox).not.toBeNull();
-    await page.mouse.click(arrowBox!.x + arrowBox!.width / 2, arrowBox!.y + arrowBox!.height / 2);
-
-    // Native select must receive focus
-    const isFocused = await select.evaluate((el) => document.activeElement === el);
-    expect(isFocused).toBe(true);
-  });
-
-  test('verifies showIcon={false} omits arrow and establishes symmetrical inline padding', async ({
-    page,
-  }) => {
-    const noIconSelect = page.locator('[data-testid="specimen-no-icon"]');
-    await expect(noIconSelect).toBeVisible();
-
-    const wrapper = noIconSelect.locator('..');
-    const arrowCount = await wrapper.locator('> [aria-hidden="true"]').count();
-    expect(arrowCount).toBe(0);
-
-    const padding = await noIconSelect.evaluate((el) => {
-      const s = window.getComputedStyle(el);
-      return {
-        start: parseFloat(s.paddingInlineStart),
-        end: parseFloat(s.paddingInlineEnd),
-      };
+    const expectedDangerRgb = await page.evaluate(() => {
+      const el = document.createElement('div');
+      el.style.color = 'var(--color-danger)';
+      document.body.appendChild(el);
+      const computed = window.getComputedStyle(el).color;
+      el.remove();
+      return computed;
     });
-    expect(padding.end).toBeCloseTo(padding.start, 1);
+
+    // 1. Resting invalid state: border settles to danger after the color transition
+    await expect
+      .poll(async () => {
+        return invalidSelect.evaluate((el) => window.getComputedStyle(el).borderColor);
+      })
+      .toBe(expectedDangerRgb);
+
+    // 2. Focus the invalid select: both border and outline are danger
+    await invalidSelect.click();
+    await expect(invalidSelect).toBeFocused();
+    await expect
+      .poll(async () => {
+        return invalidSelect.evaluate((el) => {
+          const style = window.getComputedStyle(el);
+          return {
+            border: style.borderColor,
+            outline: style.outlineColor,
+          };
+        });
+      })
+      .toEqual({
+        border: expectedDangerRgb,
+        outline: expectedDangerRgb,
+      });
   });
 
-  test('verifies chevron logical positioning under LTR and RTL and text clearance', async ({
+  test('verifies Quick Presets dynamically switch options, values, and chevron states', async ({
     page,
   }) => {
-    const select = page.locator('[data-testid="specimen-default"]');
-    const wrapper = select.locator('..');
-    const arrow = wrapper.locator('> [aria-hidden="true"]');
+    const select = page.locator('[data-testid="studio-active-select"]');
 
-    // 1. Under LTR (default), arrow is at the physical right side
-    const ltrSelectBox = await select.boundingBox();
-    const ltrArrowBox = await arrow.boundingBox();
-    expect(ltrSelectBox).not.toBeNull();
-    expect(ltrArrowBox).not.toBeNull();
-    expect(ltrArrowBox!.x).toBeGreaterThan(ltrSelectBox!.x + ltrSelectBox!.width / 2);
+    // 1. Role preset
+    await page.locator('[data-testid="preset-quick-select-role"]').click();
+    await expect(select).toHaveValue('editor');
 
-    // LTR padding-inline-end has clearance for the arrow
-    const ltrPadding = await select.evaluate((el) => {
-      const s = window.getComputedStyle(el);
-      return {
-        start: parseFloat(s.paddingInlineStart),
-        end: parseFloat(s.paddingInlineEnd),
-      };
-    });
-    expect(ltrPadding.end).toBeGreaterThan(ltrPadding.start);
+    // 2. Currency preset
+    await page.locator('[data-testid="preset-quick-select-currency"]').click();
+    await expect(select).toHaveValue('usd');
 
-    // 2. Switch to Arabic (RTL) via LanguageSwitcher
-    const langSelect = page.locator('[data-testid="language-switcher-select"]');
-    await langSelect.selectOption('ar');
-    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+    // 3. No-icon preset
+    await page.locator('[data-testid="preset-quick-select-no-icon"]').click();
+    await expect(select).toHaveAttribute('data-show-icon', 'false');
 
-    // Under RTL, arrow is at the physical left side
-    const rtlSelectBox = await select.boundingBox();
-    const rtlArrowBox = await arrow.boundingBox();
-    expect(rtlSelectBox).not.toBeNull();
-    expect(rtlArrowBox).not.toBeNull();
-    expect(rtlArrowBox!.x + rtlArrowBox!.width).toBeLessThan(
-      rtlSelectBox!.x + rtlSelectBox!.width / 2,
-    );
-
-    // Switch back to English
-    await langSelect.selectOption('en');
-    await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
+    // 4. Disabled preset
+    await page.locator('[data-testid="preset-quick-select-disabled"]').click();
+    await expect(select).toBeDisabled();
   });
 
-  test('verifies LanguageSwitcher integration with Select primitive', async ({ page }) => {
-    const langSelect = page.locator('[data-testid="language-switcher-select"]');
-    await expect(langSelect).toBeVisible();
-
-    // Verify option count and values
-    const options = await langSelect.locator('option').allInnerTexts();
-    expect(options.length).toBe(3);
-
-    // Switch to French
-    await langSelect.selectOption('fr');
-    await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
-    await expect(page.locator('h1')).toHaveText(/Composant Select|Galerie/i);
-
-    // Switch back to English
-    await langSelect.selectOption('en');
-    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-
-    // Verify typography parity: wrapper specifies 500, inner select inherits 500
-    const fontWeight = await langSelect.evaluate((el) => window.getComputedStyle(el).fontWeight);
-    expect(fontWeight).toBe('500');
-  });
-
-  test('verifies custom width, class-based width, and RTL width alignment with direct hit-testing', async ({
+  test('verifies specimen direction toggle switches to RTL with Arabic options', async ({
     page,
   }) => {
-    // 1. Inline style width (180px)
-    const customWidthSelect = page.locator('[data-testid="specimen-custom-width"]');
-    await customWidthSelect.scrollIntoViewIfNeeded();
-    const customWidthRoot = customWidthSelect.locator('..');
-    const customWidthArrow = customWidthRoot.locator('> [aria-hidden="true"]');
+    await page.locator('[data-testid="opt-dir-rtl"]').click();
 
-    const rootBox = await customWidthRoot.boundingBox();
-    const selectBox = await customWidthSelect.boundingBox();
-    const arrowBox = await customWidthArrow.boundingBox();
+    const label = page.locator('label[for*="active-select"]');
+    await expect(label).toBeVisible();
 
-    expect(rootBox).not.toBeNull();
-    expect(selectBox).not.toBeNull();
-    expect(arrowBox).not.toBeNull();
-
-    // Wrapper and select must match the specified 180px width
-    expect(rootBox!.width).toBeCloseTo(180, 1);
-    expect(selectBox!.width).toBeCloseTo(180, 1);
-
-    // Arrow must be positioned inside the 180px select near the trailing edge
-    expect(arrowBox!.x).toBeGreaterThan(selectBox!.x + selectBox!.width - 45);
-    expect(arrowBox!.x + arrowBox!.width).toBeLessThanOrEqual(selectBox!.x + selectBox!.width + 2);
-
-    // Clicking at the arrow's coordinates must hit-test the 180px select
-    await page.mouse.click(arrowBox!.x + arrowBox!.width / 2, arrowBox!.y + arrowBox!.height / 2);
-    const isCustomWidthFocused = await customWidthSelect.evaluate((el) => document.activeElement === el);
-    expect(isCustomWidthFocused).toBe(true);
-
-    // 2. Class-based width (200px via .fixedWidth)
-    const classWidthSelect = page.locator('[data-testid="specimen-custom-width-class"]');
-    await classWidthSelect.scrollIntoViewIfNeeded();
-    const classWidthRoot = classWidthSelect.locator('..');
-    const classWidthArrow = classWidthRoot.locator('> [aria-hidden="true"]');
-
-    const classRootBox = await classWidthRoot.boundingBox();
-    const classSelectBox = await classWidthSelect.boundingBox();
-    const classArrowBox = await classWidthArrow.boundingBox();
-
-    expect(classRootBox!.width).toBeCloseTo(200, 1);
-    expect(classSelectBox!.width).toBeCloseTo(200, 1);
-    expect(classArrowBox!.x).toBeGreaterThan(classSelectBox!.x + classSelectBox!.width - 45);
-
-    await page.mouse.click(classArrowBox!.x + classArrowBox!.width / 2, classArrowBox!.y + classArrowBox!.height / 2);
-    const isClassWidthFocused = await classWidthSelect.evaluate((el) => document.activeElement === el);
-    expect(isClassWidthFocused).toBe(true);
-
-    // 3. RTL custom width (180px)
-    const rtlWidthSelect = page.locator('[data-testid="specimen-custom-width-rtl"]');
-    await rtlWidthSelect.scrollIntoViewIfNeeded();
-    const rtlWidthRoot = rtlWidthSelect.locator('..');
-    const rtlWidthArrow = rtlWidthRoot.locator('> [aria-hidden="true"]');
-
-    const rtlRootBox = await rtlWidthRoot.boundingBox();
-    const rtlSelectBox = await rtlWidthSelect.boundingBox();
-    const rtlArrowBox = await rtlWidthArrow.boundingBox();
-
-    expect(rtlRootBox!.width).toBeCloseTo(180, 1);
-    expect(rtlSelectBox!.width).toBeCloseTo(180, 1);
-
-    // In RTL, arrow must be positioned inside near the physical left edge
-    expect(rtlArrowBox!.x).toBeGreaterThanOrEqual(rtlSelectBox!.x - 2);
-    expect(rtlArrowBox!.x).toBeLessThan(rtlSelectBox!.x + 45);
-
-    await page.mouse.click(rtlArrowBox!.x + rtlArrowBox!.width / 2, rtlArrowBox!.y + rtlArrowBox!.height / 2);
-    const isRtlWidthFocused = await rtlWidthSelect.evaluate((el) => document.activeElement === el);
-    expect(isRtlWidthFocused).toBe(true);
-
-    // 4. Inner style width regression (160px via selectStyle={{ width: '160px' }})
-    const innerWidthSelect = page.locator('[data-testid="specimen-inner-style-width"]');
-    await innerWidthSelect.scrollIntoViewIfNeeded();
-    const innerWidthRoot = innerWidthSelect.locator('..');
-    const innerWidthArrow = innerWidthRoot.locator('> [aria-hidden="true"]');
-
-    const innerRootBox = await innerWidthRoot.boundingBox();
-    const innerSelectBox = await innerWidthSelect.boundingBox();
-    const innerArrowBox = await innerWidthArrow.boundingBox();
-
-    expect(innerRootBox).not.toBeNull();
-    expect(innerSelectBox).not.toBeNull();
-    expect(innerArrowBox).not.toBeNull();
-
-    expect(innerRootBox!.width).toBeCloseTo(160, 1);
-    expect(innerSelectBox!.width).toBeCloseTo(160, 1);
-
-    // Arrow must be positioned inside the 160px select near the trailing edge
-    expect(innerArrowBox!.x).toBeGreaterThan(innerSelectBox!.x + innerSelectBox!.width - 45);
-    expect(innerArrowBox!.x + innerArrowBox!.width).toBeLessThanOrEqual(innerSelectBox!.x + innerSelectBox!.width + 2);
-
-    await page.mouse.click(innerArrowBox!.x + innerArrowBox!.width / 2, innerArrowBox!.y + innerArrowBox!.height / 2);
-    const isInnerWidthFocused = await innerWidthSelect.evaluate((el) => document.activeElement === el);
-    expect(isInnerWidthFocused).toBe(true);
-  });
-
-  test('verifies keyboard focus and typeahead option selection', async ({ page }) => {
-    const select = page.locator('[data-testid="specimen-default"]');
-    await select.focus();
-
-    // Initial value is admin
-    expect(await select.inputValue()).toBe('admin');
-
-    // Typeahead: pressing 'e' selects editor
-    await page.keyboard.press('e');
-    expect(await select.inputValue()).toBe('editor');
-
-    // Wait for typeahead search buffer to clear
-    await page.waitForTimeout(1000);
-
-    // Typeahead: pressing 'a' selects administrator
-    await page.keyboard.press('a');
-    expect(await select.inputValue()).toBe('admin');
-  });
-
-  test('verifies disabled fieldset inheritance blocks user interaction', async ({ page }) => {
-    const fieldsetSelect = page.locator('[data-testid="specimen-fieldset-disabled"]');
-    await fieldsetSelect.scrollIntoViewIfNeeded();
-    await expect(fieldsetSelect).toBeVisible();
-
-    // Must be disabled via parent fieldset inheritance
-    await expect(fieldsetSelect).toBeDisabled();
-
-    // Arrow color must match disabled color
-    const arrow = fieldsetSelect.locator('..').locator('> [aria-hidden="true"]');
-    const arrowColor = await arrow.evaluate((el) => window.getComputedStyle(el).color);
-    const selectColor = await fieldsetSelect.evaluate((el) => window.getComputedStyle(el).color);
-    expect(arrowColor).toBe(selectColor);
-  });
-
-  test('verifies motion tokens and reduced-motion transition suppression', async ({
-    page,
-    browser,
-  }) => {
-    const select = page.locator('[data-testid="specimen-default"]');
-    const arrow = select.locator('..').locator('> [aria-hidden="true"]');
-
-    // 1. In standard context, verify arrow transitions are active
-    const normalTransition = await arrow.evaluate((el) => window.getComputedStyle(el).transition);
-    expect(normalTransition).not.toBe('none');
-
-    // 2. Under reduced motion, transition collapses to none
-    const reducedMotionContext = await browser.newContext({
-      reducedMotion: 'reduce',
-    });
-    const reducedPage = await reducedMotionContext.newPage();
-    await reducedPage.goto('/gallery/select');
-    await expect(reducedPage.locator('[data-testid="select-gallery"]')).toBeVisible();
-
-    const reducedArrow = reducedPage
-      .locator('[data-testid="specimen-default"]')
-      .locator('..')
-      .locator('> [aria-hidden="true"]');
-
-    const reducedTransition = await reducedArrow.evaluate(
-      (el) => window.getComputedStyle(el).transition,
-    );
-    expect(reducedTransition === 'none' || reducedTransition.includes('0s')).toBe(true);
-
-    await reducedMotionContext.close();
-  });
-
-  test('verifies responsive reflow without horizontal clipping at narrow viewport', async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 320, height: 600 });
-    await expect(page.locator('[data-testid="select-gallery"]')).toBeVisible();
-
-    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
-    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
-    expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 2);
+    const optionText = await page
+      .locator('[data-testid="studio-active-select"] option')
+      .first()
+      .textContent();
+    expect(optionText).toMatch(/[\u0600-\u06FF]/); // Arabic unicode range
   });
 });

@@ -2,7 +2,14 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { AppProviders, useI18n, useTheme } from '@/providers';
-import { TokyoFaq, TokyoFooter, TokyoNavbar, TokyoPricing } from './index';
+import {
+  TokyoFaq,
+  TokyoFooter,
+  TokyoHero,
+  TokyoNavbar,
+  TokyoPricing,
+  TokyoProcess,
+} from './index';
 
 function ThemeAndLocaleProbe() {
   const { resolvedTheme } = useTheme();
@@ -78,6 +85,9 @@ describe('Tokyo Website Sections', () => {
     const annualBtn = screen.getByRole('button', { name: /annually/i });
     expect(annualBtn.getAttribute('aria-pressed')).toBe('true');
     expect(monthlyBtn.getAttribute('aria-pressed')).toBe('false');
+    // Billing options are kit Toggle primitives, not hand-rolled buttons.
+    expect(annualBtn.getAttribute('data-state')).toBe('on');
+    expect(monthlyBtn.getAttribute('data-state')).toBe('off');
 
     fireEvent.click(monthlyBtn);
     expect(monthlyBtn.getAttribute('aria-pressed')).toBe('true');
@@ -89,6 +99,49 @@ describe('Tokyo Website Sections', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /set arabic/i }));
     expect(document.body.textContent).not.toMatch(/€|EUR|SAR|ر\.س/);
+  });
+
+  it('TokyoPricing keeps explicit EUR/JPY tier currencies across locale changes', () => {
+    const { container } = render(
+      <AppProviders initialLocale="en" defaultTheme="light">
+        <ThemeAndLocaleProbe />
+        <TokyoPricing
+          tiers={[
+            {
+              id: 'eur-plan',
+              name: 'Euro Plan',
+              description: 'Billed in euros',
+              monthlyPrice: 49,
+              annualPrice: 490,
+              currency: 'EUR',
+              features: [],
+            },
+            {
+              id: 'jpy-plan',
+              name: 'Yen Plan',
+              description: 'Billed in yen',
+              monthlyPrice: 5000,
+              annualPrice: 50000,
+              currency: 'JPY',
+              features: [],
+            },
+          ]}
+        />
+      </AppProviders>,
+    );
+
+    const expectExplicitCurrencies = () => {
+      const text = container.textContent ?? '';
+      expect(text).toMatch(/€|EUR/);
+      expect(text).toMatch(/¥|JPY/);
+      expect(text).not.toContain('$');
+    };
+
+    expectExplicitCurrencies();
+    fireEvent.click(screen.getByRole('button', { name: /set french/i }));
+    expectExplicitCurrencies();
+    fireEvent.click(screen.getByRole('button', { name: /set arabic/i }));
+    expectExplicitCurrencies();
   });
 
   it('TokyoFaq pairs each trigger aria-controls with its region id via useId', () => {
@@ -107,5 +160,30 @@ describe('Tokyo Website Sections', () => {
     const region = document.getElementById(panelId!);
     expect(region?.getAttribute('role')).toBe('region');
     expect(region?.getAttribute('aria-labelledby')).toBe(firstTrigger.id);
+  });
+
+  it('TokyoHero renders 2-column wireframe layout with placeholder and filter bar by default', () => {
+    const { container } = render(
+      <AppProviders initialLocale="en" defaultTheme="light">
+        <TokyoHero />
+      </AppProviders>,
+    );
+
+    const section = container.querySelector('section');
+    expect(section?.getAttribute('data-layout')).toBe('two-column');
+    expect(screen.getByRole('search')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /search/i })).toBeInTheDocument();
+  });
+
+  it('TokyoProcess renders 3-step wireframe timeline with accessible headings and steps', () => {
+    render(
+      <AppProviders initialLocale="en" defaultTheme="light">
+        <TokyoProcess />
+      </AppProviders>,
+    );
+
+    expect(screen.getByText('Choose Location')).toBeInTheDocument();
+    expect(screen.getByText('Pick-up Date')).toBeInTheDocument();
+    expect(screen.getByText('Book your car')).toBeInTheDocument();
   });
 });

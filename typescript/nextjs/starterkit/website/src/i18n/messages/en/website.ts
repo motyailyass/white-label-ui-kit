@@ -34,6 +34,31 @@ export const website = {
     securityValue: 'Zero-Trust',
     securityNote: 'End-to-end encrypted',
   },
+  filter: {
+    pickupLabel: 'Pick-Up',
+    dropoffLabel: 'Drop-Off',
+    locations: 'Locations',
+    selectCity: 'Select your city',
+    date: 'Date',
+    selectDate: 'Select your date',
+    time: 'Time',
+    selectTime: 'Select your time',
+    search: 'Search',
+  },
+  process: {
+    title: 'Lorem Ipsum passage',
+    subtitle:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et',
+    step1Title: 'Choose Location',
+    step1Desc:
+      'Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices,',
+    step2Title: 'Pick-up Date',
+    step2Desc:
+      'Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices,',
+    step3Title: 'Book your car',
+    step3Desc:
+      'Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices,',
+  },
   waitlist: {
     badge: 'Private Beta Access',
     headline: 'High-Velocity Infrastructure is Coming Soon',

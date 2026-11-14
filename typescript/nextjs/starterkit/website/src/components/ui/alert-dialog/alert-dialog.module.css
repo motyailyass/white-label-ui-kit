@@ -1,0 +1,508 @@
+/**
+ * White Label UI Kit — Native AlertDialog Primitive Stylesheet
+ * Native HTML5 <dialog role="alertdialog"> in browser Top Layer.
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.dialog {
+  /* Local stacking contract: private layer, isolated from the document scale. */
+  isolation: isolate;
+  --_z-layer-raised: 1;
+
+  /* Scoped max-width defaults */
+  --_dialog-max-width: 30rem;
+
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  padding: 0;
+  box-sizing: border-box;
+  inline-size: min(calc(100% - var(--space-8)), var(--_dialog-max-width));
+  max-block-size: min(calc(100vh - var(--space-8)), 90vh);
+  border-radius: var(--radius-dialog);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
+  overflow: visible;
+  outline: none;
+}
+
+/* Ensure closed dialog remains hidden */
+.dialog:not([open]) {
+  display: none !important;
+}
+
+/* Open layout */
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog:lang(ar),
+.title:lang(ar),
+.description:lang(ar),
+.body:lang(ar),
+.cancelButton:lang(ar),
+.actionButton:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.dialog :lang(en),
+.dialog :lang(fr),
+.title:lang(en),
+.title:lang(fr),
+.description:lang(en),
+.description:lang(fr),
+.body:lang(en),
+.body:lang(fr) {
+  font-family: var(--font-family-sans);
+}
+
+/* Sizing scale */
+.dialog[data-size="sm"] {
+  --_dialog-max-width: 24rem; /* 384px */
+}
+
+.dialog[data-size="md"] {
+  --_dialog-max-width: 30rem; /* 480px (Default) */
+}
+
+.dialog[data-size="lg"] {
+  --_dialog-max-width: 36rem; /* 576px */
+}
+
+/* Native Top-Layer Scrim Backdrop */
+.dialog::backdrop {
+  background-color: var(--color-overlay);
+}
+
+.innerContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-block-size: 0;
+  max-block-size: inherit;
+  inline-size: 100%;
+  box-sizing: border-box;
+}
+
+/* Header */
+.header {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-inline: var(--space-6);
+  padding-block: var(--space-6);
+  box-sizing: border-box;
+  border-start-start-radius: var(--radius-dialog);
+  border-start-end-radius: var(--radius-dialog);
+}
+
+.header[data-align="center"] {
+  align-items: center;
+  text-align: center;
+}
+
+.header[data-align="center"] .title,
+.header[data-align="center"] .description {
+  max-inline-size: 38ch;
+  text-wrap: balance;
+}
+
+.header[data-align="start"] {
+  align-items: flex-start;
+  text-align: start;
+}
+
+.headerWithSeparator {
+  border-block-end: 1px solid var(--color-border-subtle);
+}
+
+.headerNoSeparator {
+  border-block-end: none;
+}
+
+/* Optional Alert Status Media / Icon Badge */
+.media {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 3rem;
+  block-size: 3rem;
+  border-radius: var(--radius-full);
+  margin-block-end: var(--space-2);
+  flex-shrink: 0;
+}
+
+.media svg {
+  inline-size: var(--control-icon-size-2xl);
+  block-size: var(--control-icon-size-2xl);
+}
+
+.media[data-variant="danger"] {
+  background-color: var(--color-danger-subtle);
+  color: var(--color-danger);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 30%, transparent);
+}
+
+.media[data-variant="warning"] {
+  background-color: var(--color-warning-subtle);
+  color: var(--color-warning);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 30%, transparent);
+}
+
+.media[data-variant="info"] {
+  background-color: var(--color-info-subtle);
+  color: var(--color-info);
+  border: 1px solid color-mix(in srgb, var(--color-info) 30%, transparent);
+}
+
+.media[data-variant="default"] {
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* Body (optional scrollable content area between header and footer) */
+.body {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  overflow-block: auto;
+  overscroll-behavior: contain;
+  padding-inline: var(--space-6);
+  padding-block: var(--space-5);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+}
+
+.body:lang(ar) {
+  line-height: var(--line-height-arabic-normal);
+}
+
+/* Title & Description */
+.title {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-snug);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.title:lang(ar) {
+  line-height: var(--line-height-arabic-snug);
+}
+
+.description {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+}
+
+.description:lang(ar) {
+  line-height: var(--line-height-arabic-normal);
+}
+
+/* Footer Actions — configurable layout, background, and separator */
+.footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding-inline: var(--space-6);
+  padding-block: var(--space-4);
+  background-color: transparent;
+  box-sizing: border-box;
+  border-end-start-radius: var(--radius-dialog);
+  border-end-end-radius: var(--radius-dialog);
+}
+
+.footerSeamless {
+  background-color: transparent;
+}
+
+.footerDocked {
+  background-color: var(--color-surface);
+}
+
+.footerWithSeparator {
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+
+.footerNoSeparator {
+  border-block-start: none;
+}
+
+/* Prevent double hairline when both header and footer specify separators without an intermediate body */
+.headerWithSeparator + .footerWithSeparator {
+  border-block-start: none;
+}
+
+/* Symmetrical 24px vertical rhythm for compact borderless seamless confirmations without body */
+.headerNoSeparator + .footerSeamless.footerNoSeparator {
+  padding-block-start: 0;
+  padding-block-end: var(--space-6);
+}
+
+/* Footer Layouts */
+.footerLayoutEnd {
+  justify-content: flex-end;
+}
+
+.footerLayoutSplit {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.footerLayoutSplit > :global(button),
+.footerLayoutSplit > .cancelButton,
+.footerLayoutSplit > .actionButton {
+  inline-size: 100%;
+  min-inline-size: 0;
+  justify-content: center;
+  text-align: center;
+}
+
+.footerLayoutCenter {
+  justify-content: center;
+}
+
+.footerLayoutBetween {
+  justify-content: space-between;
+}
+
+.footerLayoutStacked {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.footerLayoutStacked > :global(button),
+.footerLayoutStacked > .cancelButton,
+.footerLayoutStacked > .actionButton {
+  inline-size: 100%;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Action & Cancel Controls — consume product control-sizing contract */
+.cancelButton,
+.actionButton {
+  --_control-height: var(--control-height-default);
+  --_control-padding-inline: var(--control-padding-default);
+  --_control-padding-block: var(--control-padding-block-default);
+  --_control-font-size: var(--control-font-size-default);
+  --_control-line-height: var(--control-line-height-default);
+  --_control-gap: var(--control-gap-default);
+
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--_control-gap);
+  font-family: inherit;
+  font-size: var(--_control-font-size);
+  line-height: var(--_control-line-height);
+  font-weight: var(--font-weight-medium);
+  min-block-size: var(--_control-height);
+  padding-inline: var(--_control-padding-inline);
+  padding-block: var(--_control-padding-block);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.cancelButton[data-size="xs"],
+.actionButton[data-size="xs"] {
+  --_control-height: var(--control-height-xs);
+  --_control-padding-inline: var(--control-padding-xs);
+  --_control-padding-block: var(--control-padding-block-xs);
+  --_control-font-size: var(--control-font-size-xs);
+  --_control-line-height: var(--control-line-height-xs);
+  --_control-gap: var(--control-gap-xs);
+}
+
+.cancelButton[data-size="sm"],
+.actionButton[data-size="sm"] {
+  --_control-height: var(--control-height-sm);
+  --_control-padding-inline: var(--control-padding-sm);
+  --_control-padding-block: var(--control-padding-block-sm);
+  --_control-font-size: var(--control-font-size-sm);
+  --_control-line-height: var(--control-line-height-sm);
+  --_control-gap: var(--control-gap-sm);
+}
+
+.cancelButton[data-size="md"],
+.actionButton[data-size="md"] {
+  --_control-height: var(--control-height-md);
+  --_control-padding-inline: var(--control-padding-md);
+  --_control-padding-block: var(--control-padding-block-md);
+  --_control-font-size: var(--control-font-size-md);
+  --_control-line-height: var(--control-line-height-md);
+  --_control-gap: var(--control-gap-md);
+}
+
+.cancelButton[data-size="lg"],
+.actionButton[data-size="lg"] {
+  --_control-height: var(--control-height-lg);
+  --_control-padding-inline: var(--control-padding-lg);
+  --_control-padding-block: var(--control-padding-block-lg);
+  --_control-font-size: var(--control-font-size-lg);
+  --_control-line-height: var(--control-line-height-lg);
+  --_control-gap: var(--control-gap-lg);
+}
+
+.cancelButton[data-size="xl"],
+.actionButton[data-size="xl"] {
+  --_control-height: var(--control-height-xl);
+  --_control-padding-inline: var(--control-padding-xl);
+  --_control-padding-block: var(--control-padding-block-xl);
+  --_control-font-size: var(--control-font-size-xl);
+  --_control-line-height: var(--control-line-height-xl);
+  --_control-gap: var(--control-gap-xl);
+}
+
+.cancelButton[data-size="2xl"],
+.actionButton[data-size="2xl"] {
+  --_control-height: var(--control-height-2xl);
+  --_control-padding-inline: var(--control-padding-2xl);
+  --_control-padding-block: var(--control-padding-block-2xl);
+  --_control-font-size: var(--control-font-size-2xl);
+  --_control-line-height: var(--control-line-height-2xl);
+  --_control-gap: var(--control-gap-2xl);
+}
+
+.cancelButton[data-touch-target="comfortable"],
+.actionButton[data-touch-target="comfortable"] {
+  min-block-size: max(var(--_control-height), var(--control-touch-target-min));
+}
+
+@media (any-pointer: coarse), (pointer: coarse) {
+  .cancelButton[data-touch-target="auto"],
+  .actionButton[data-touch-target="auto"] {
+    min-block-size: max(var(--_control-height), var(--control-touch-target-min));
+  }
+}
+
+.cancelButton {
+  background-color: var(--color-secondary-bg);
+  border: 1px solid var(--color-secondary-border);
+  color: var(--color-text-primary);
+}
+
+.cancelButton:hover:not(:disabled, [aria-disabled="true"]) {
+  background-color: var(--color-secondary-hover);
+}
+
+.cancelButton:active:not(:disabled, [aria-disabled="true"]) {
+  background-color: var(--color-secondary-active);
+}
+
+.action_danger {
+  background-color: var(--color-danger-solid);
+  border: 1px solid var(--color-danger-solid);
+  color: var(--color-danger-solid-foreground);
+}
+
+.action_danger:hover:not(:disabled, [aria-disabled="true"]) {
+  background-color: var(--color-danger-solid-hover);
+  border-color: var(--color-danger-solid-hover);
+}
+
+.action_danger:active:not(:disabled, [aria-disabled="true"]) {
+  background-color: var(--color-danger-solid-active);
+  border-color: var(--color-danger-solid-active);
+}
+
+.action_primary {
+  background-color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.action_primary:hover:not(:disabled, [aria-disabled="true"]) {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.action_primary:active:not(:disabled, [aria-disabled="true"]) {
+  background-color: var(--color-primary-active);
+  border-color: var(--color-primary-active);
+}
+
+.action_secondary {
+  background-color: var(--color-secondary-bg);
+  border: 1px solid var(--color-secondary-border);
+  color: var(--color-text-primary);
+}
+
+.action_secondary:hover:not(:disabled, [aria-disabled="true"]) {
+  background-color: var(--color-secondary-hover);
+}
+
+.action_secondary:active:not(:disabled, [aria-disabled="true"]) {
+  background-color: var(--color-secondary-active);
+}
+
+.cancelButton:disabled,
+.cancelButton[aria-disabled="true"],
+.actionButton:disabled,
+.actionButton[aria-disabled="true"] {
+  background-color: var(--color-control-disabled-bg);
+  border-color: var(--color-border-disabled);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+.cancelButton:focus-visible,
+.actionButton:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+  z-index: var(--_z-layer-raised);
+}
+
+/* Forced Colors Mode */
+@media (forced-colors: active) {
+  .dialog {
+    border: 2px solid ButtonBorder;
+    background-color: Canvas;
+    color: CanvasText;
+  }
+
+  .dialog::backdrop {
+    background-color: Canvas;
+    opacity: 0.85;
+  }
+
+  .cancelButton,
+  .actionButton {
+    border: 1px solid ButtonBorder;
+  }
+
+  .cancelButton:focus-visible,
+  .actionButton:focus-visible {
+    outline: 2px solid Highlight;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .cancelButton,
+  .actionButton {
+    transition: none !important;
+  }
+}

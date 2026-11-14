@@ -141,7 +141,9 @@ describe('Checkbox Primitive', () => {
       </div>,
     );
 
-    const input = screen.getByRole('checkbox', { name: /i accept the license terms/i }) as HTMLInputElement;
+    const input = screen.getByRole('checkbox', {
+      name: /i accept the license terms/i,
+    }) as HTMLInputElement;
     const label = screen.getByText(/i accept the license terms/i);
 
     expect(input.checked).toBe(false);

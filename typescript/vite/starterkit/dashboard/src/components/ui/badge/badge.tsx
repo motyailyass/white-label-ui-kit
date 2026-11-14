@@ -96,21 +96,20 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
       )}
       {...props}
     >
-      {dot && (
-        <span
-          className={cn(styles.dot, dotPulse && styles.dotPulse)}
-          aria-hidden="true"
-        />
-      )}
+      {dot && <span className={cn(styles.dot, dotPulse && styles.dotPulse)} aria-hidden="true" />}
 
-      {startIcon && <span className={styles.startIcon}>{startIcon}</span>}
+      {startIcon && (
+        <span className={styles.startIcon} aria-hidden="true">
+          {startIcon}
+        </span>
+      )}
 
       <span>{children}</span>
 
       {onRemove && (
         <button
           type="button"
-          aria-label={removeAriaLabel || 'Remove'}
+          aria-label={removeAriaLabel}
           className={styles.removeButton}
           onClick={(e) => {
             e.stopPropagation();

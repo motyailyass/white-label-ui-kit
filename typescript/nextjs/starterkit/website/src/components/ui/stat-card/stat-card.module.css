@@ -1,0 +1,195 @@
+/**
+ * StatCard Primitive Stylesheet
+ *
+ * White-label pure KPI stat-card primitive.
+ * 100% CSS logical properties, semantic tokens, zero dashboard shadows.
+ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  padding: var(--layout-card-padding, var(--space-5));
+  gap: var(--space-3);
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+/* Surface Variants */
+.root_default {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-subtle);
+}
+
+.root_raised {
+  background-color: var(--color-surface-raised);
+  border-color: var(--color-border-strong);
+}
+
+.root_subtle {
+  background-color: var(--color-surface-subtle);
+  border-color: var(--color-border-subtle);
+}
+
+/* Sizing scale */
+.root[data-size="sm"] {
+  padding: var(--space-3);
+  gap: var(--space-2);
+}
+
+.root[data-size="md"] {
+  padding: var(--space-5);
+  gap: var(--space-3);
+}
+
+.root[data-size="lg"] {
+  padding: var(--space-6);
+  gap: var(--space-4);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.title {
+  font-family: inherit;
+  font-size: var(--typography-label-size, var(--font-size-sm));
+  line-height: var(--typography-label-line-height, 1.25rem);
+  font-weight: var(--typography-label-weight, var(--font-weight-medium));
+  color: var(--color-text-secondary);
+  margin: 0;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.iconSlot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.value {
+  font-family: inherit;
+  font-size: var(--typography-metric-value-size, var(--font-size-3xl));
+  line-height: var(--typography-metric-value-line-height, 2.25rem);
+  font-weight: var(--typography-metric-value-weight, var(--font-weight-semibold));
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  margin: 0;
+  letter-spacing: var(--letter-spacing-tight);
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.root[data-size="sm"] .value {
+  font-size: var(--font-size-2xl);
+  line-height: 1.75rem;
+}
+
+.root[data-size="lg"] .value {
+  font-size: var(--font-size-4xl);
+  line-height: 2.5rem;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-0-5);
+  font-size: var(--typography-supporting-size, var(--font-size-xs));
+  line-height: var(--typography-supporting-line-height, 1rem);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  border-radius: var(--radius-xs);
+}
+
+.trend_up {
+  color: var(--color-success);
+}
+
+.trend_down {
+  color: var(--color-danger);
+}
+
+.trend_neutral {
+  color: var(--color-text-muted);
+}
+
+.trendPill {
+  padding-inline: var(--space-2);
+  padding-block: var(--space-0-5);
+  border-radius: var(--radius-full);
+}
+
+.trendPill.trend_up {
+  background-color: var(--color-success-subtle);
+  color: var(--color-success);
+}
+
+.trendPill.trend_down {
+  background-color: var(--color-danger-subtle);
+  color: var(--color-danger);
+}
+
+.trendPill.trend_neutral {
+  background-color: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+}
+
+.description {
+  font-family: inherit;
+  font-size: var(--typography-supporting-size, var(--font-size-xs));
+  line-height: var(--typography-supporting-line-height, 1rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-muted);
+  margin: 0;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Arabic script typography & diacritic clearance */
+.title:lang(ar),
+.description:lang(ar),
+.trend:lang(ar),
+.value:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.root[data-size="sm"] .value:lang(ar) {
+  line-height: 2rem;
+}
+
+.root[data-size="lg"] .value:lang(ar) {
+  line-height: 2.75rem;
+}
+
+.visuallyHidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

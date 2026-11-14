@@ -1,0 +1,166 @@
+.specimenCanvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  box-sizing: border-box;
+  padding: var(--space-8);
+}
+
+.specimenBox {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  max-inline-size: 640px;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border-radius: var(--radius-card, 8px);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  box-sizing: border-box;
+}
+
+.viewportHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  inline-size: 100%;
+  gap: var(--space-2);
+}
+
+.headerTitle {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.headerMeta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.scrollContainer {
+  border-radius: var(--radius-control, 6px);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface-raised);
+}
+
+/* Activity Feed */
+.listGroup {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3);
+  gap: var(--space-2);
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm, 4px);
+  background-color: var(--color-surface);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+  gap: var(--space-3);
+}
+
+.itemMain {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.statusDot {
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.itemTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemTimestamp {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Horizontal Chip List */
+.horizontalList {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  white-space: nowrap;
+}
+
+.chipItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  user-select: none;
+}
+
+/* Bidirectional Data Table & Code */
+.tableWrapper {
+  inline-size: 100%;
+  min-inline-size: 680px;
+  padding: var(--space-3);
+  box-sizing: border-box;
+}
+
+.dataTable {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-xs);
+  text-align: start;
+}
+
+.tableTh {
+  padding: var(--space-2) var(--space-3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  border-block-end: 1px solid var(--color-border-subtle);
+  white-space: nowrap;
+}
+
+.tableTd {
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text-primary);
+  border-block-end: 1px solid var(--color-border-subtle);
+  white-space: nowrap;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-0-5, 2px) var(--space-2);
+  border-radius: var(--radius-full, 9999px);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+}
+
+.statusBadgeSuccess {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}

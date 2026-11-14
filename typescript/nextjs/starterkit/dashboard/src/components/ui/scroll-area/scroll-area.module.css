@@ -1,0 +1,59 @@
+.root {
+  position: relative;
+  overflow: hidden;
+  inline-size: 100%;
+  block-size: 100%;
+  box-sizing: border-box;
+}
+
+.viewport {
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: inherit;
+  max-block-size: inherit;
+  border-radius: inherit;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-subtle) transparent;
+  outline: none;
+}
+
+.viewport:focus-visible {
+  outline: var(--focus-ring-width, 2px) solid var(--color-border-focus);
+  outline-offset: -2px;
+  transition: none;
+}
+
+.overflow_vertical {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.overflow_horizontal {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.overflow_both {
+  overflow: auto;
+}
+
+/* WebKit scrollbar customization */
+.viewport::-webkit-scrollbar {
+  inline-size: 6px;
+  block-size: 6px;
+}
+
+.viewport::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.viewport::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-subtle);
+  border-radius: var(--radius-full, 9999px);
+  transition: background-color var(--motion-duration-fast);
+}
+
+.viewport::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text-muted);
+}

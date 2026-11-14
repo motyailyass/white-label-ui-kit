@@ -1,0 +1,85 @@
+/**
+ * Separator Primitive Stylesheet
+ *
+ * Semantic accessible divider primitive.
+ * 100% CSS logical properties, semantic tokens, zero dashboard shadows.
+ */
+
+.horizontal {
+  flex-shrink: 0;
+  display: block;
+  inline-size: 100%;
+  block-size: 0;
+  border: none;
+  border-block-start: 1px solid var(--color-border-subtle);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.vertical {
+  flex-shrink: 0;
+  display: inline-block;
+  inline-size: 0;
+  min-block-size: 1rem;
+  align-self: stretch;
+  border: none;
+  border-inline-start: 1px solid var(--color-border-subtle);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Horizontal with text label (e.g. "OR") */
+.withLabel {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  inline-size: 100%;
+  border: none;
+  margin: 0;
+  padding: 0;
+  gap: var(--space-3);
+  box-sizing: border-box;
+}
+
+.withLabel::before,
+.withLabel::after {
+  content: "";
+  flex: 1 1 1rem;
+  min-inline-size: 1rem;
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+
+.withLabel[data-label-align="start"]::before {
+  display: none;
+}
+
+.withLabel[data-label-align="end"]::after {
+  display: none;
+}
+
+.label {
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  font-size: var(--typography-supporting-size, var(--font-size-xs));
+  line-height: var(--typography-supporting-line-height, var(--line-height-snug));
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  text-align: center;
+  text-wrap: balance;
+}
+
+.label:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+  text-transform: none;
+}
+
+.label :lang(en),
+.label :lang(fr) {
+  font-family: var(--font-family-sans);
+  letter-spacing: var(--letter-spacing-wide);
+}

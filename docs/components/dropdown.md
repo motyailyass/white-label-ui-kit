@@ -1,6 +1,6 @@
-# Dropdown — Component Specification and Implementation Plan
+# Dropdown — Component Specification and Implementation Reference
 
-> **Status:** Revised baseline incorporating team review (Version 2)  
+> **Status:** Implemented Reference (`popover="auto"` top-layer primitive + interactive Dropdown Studio)  
 > **Component:** `components/ui/dropdown`  
 > **Canonical source:** `typescript/nextjs/starterkit/dashboard/src/components/ui/dropdown/`  
 > **Mirrors:** Next.js Website, Vite Dashboard  
@@ -53,7 +53,7 @@ The Dropdown primitive reuses the battle-tested overlay positioning and top-laye
 3. **Menu Keyboard & Semantics Layer:** While `Popover` allows standard Tab flow through generic disclosures or forms, `Dropdown` layers strict WAI-ARIA Menu behaviors:
    - Sets `role="menu"` on the floating surface.
    - Sets `role="menuitem"` on action items and links.
-   - Implements roving tabindex (`tabIndex={0}` on the currently active item, `tabIndex={-1}` on all other items).
+   - Manages focus across `[role="menuitem"]` items (`tabIndex={-1}` on items with imperative `.focus()` traversal).
    - Replaces Tab navigation inside the menu with Arrow keys (`↑`/`↓`), `Home`, and `End`. Pressing `Tab` or `Shift+Tab` exits the menu and closes it immediately.
 
 ### 2.2 RTL Horizontal Alignment Parity
@@ -75,7 +75,7 @@ For environments lacking native HTML Popover API support:
 - Controlled via `data-fallback="true"` and `data-state="open" | "closed"`.
 - Positions using `position: fixed` with `--z-dropdown: 200`.
 - Attaches document-level outside-pointer listener and keydown Escape listener only when native Popover API is unavailable.
-- Note: A fallback using CSS z-index inside a native modal `<dialog>` renders relative to that dialog's stacking context. This will be verified in testing rather than assumed to be identical to the native top layer.
+- Note: In fallback mode inside a native modal `<dialog>`, the menu renders within that dialog's local stacking context with `--z-dropdown: 200` rather than the browser top layer.
 
 ### 2.4 Core UI Boundary
 
@@ -211,10 +211,10 @@ Per WAI-ARIA Menu Guidelines:
 - In an ARIA menu, disabled items **remain focusable** so users browsing with a keyboard or screen reader can discover available commands.
 - **Implementation:**
   - Disabled items use `aria-disabled="true"` rather than native HTML `disabled`.
-  - Native `disabled` on `<button>` causes browsers to remove the element from sequential focus order; using `aria-disabled="true"` with roving `tabIndex={0 | -1}` ensures arrow navigation reaches them.
+  - Native `disabled` on `<button>` causes browsers to remove the element from sequential focus order; using `aria-disabled="true"` with `tabIndex={-1}` and imperative arrow navigation ensures keyboard users can discover them.
   - When focused, pressing `Enter` or `Space` prevents action execution and prevents menu dismissal (`e.preventDefault()`).
   - Pointer clicks on disabled items prevent action execution and keep the menu open.
-  - Visual styling uses `--color-text-disabled`, `--color-control-disabled-bg`, and `cursor: not-allowed`.
+  - Visual styling uses `--color-text-disabled`, `opacity: 0.6`, `--color-border-disabled` on `:focus-visible`, and `cursor: not-allowed`.
 
 ### 4.3 Focus Restoration vs. Outside Click Non-Stealing Policy
 
@@ -268,6 +268,8 @@ All visual styles consume existing, verified tokens:
 | **Destructive Item Text** | `var(--color-danger)` | `#b91c1c` (light) / `#fca5a5` (dark) | `#b91c1c` (light) / `#fca5a5` (dark) |
 | **Destructive Item Hover** | `var(--color-danger-subtle)` | `#fef2f2` (light) / `#450a0a` (dark) | `#fef2f2` (light) / `#450a0a` (dark) |
 | **Separator** | `var(--color-border-subtle)` | `1px solid var(--color-border-subtle)` | `1px solid var(--color-border-subtle)` |
+| **Menu Min Width** | `min(--space-full / 100%, var(--_dropdown-min-width, 160px))` | `160px` default (driven by `minWidth` prop) | `160px` default (driven by `minWidth` prop) |
+| **Surface / Item Block Padding** | `var(--space-1)` | `4px` (`0.25rem`) | `4px` (`0.25rem`) |
 | **Z-Index Fallback** | `var(--z-dropdown)` | `200` | `200` |
 
 ### 6.2 Dashboard Zero-Shadow Rule
@@ -289,45 +291,42 @@ When a `Dropdown` is opened from within a modal `Dialog`:
 
 ---
 
-## 8. Gallery Specimens (`/gallery/dropdown`)
+## 8. Interactive Dropdown Studio (`/gallery/dropdown`)
 
-The gallery page will demonstrate:
-1. **Basic Action Menu:** Common actions (Edit, Duplicate, Archive).
-2. **Destructive Action:** Delete action opening a confirmation `Dialog`.
-3. **Navigation Links:** Real `<a href="...">` menu items opening in same or new tab.
-4. **Disabled Items:** Visual styling and verification of keyboard focusability without activation.
-5. **Separators & Groups:** Grouped commands with section dividers.
-6. **Controlled vs Uncontrolled:** External state control with acceptance/rejection testing.
-7. **RTL & Arabic Layout:** Verification of bidirectional alignment reversal (`bottom-start` right-aligned in Arabic) and text clearance.
-8. **Dropdown inside Modal Dialog:** Sequential Escape handling and stacking verification.
+The Studio page (`components/patterns/dropdown-gallery`) provides live configuration controls and code/spec inspection:
+1. **Specimen Direction & Script:** Toggle between `LTR` and Arabic `RTL` (`dir` + `lang="ar"` specimen subtree translation) to inspect bidirectional edge anchoring (`bottom-start`, `inline-start`, `inline-end`).
+2. **Anchoring & Size Controls:** Switch across all 8 placements (`bottom-start`, `bottom-center`, `bottom-end`, `top-start`, `top-center`, `top-end`, `inline-start`, `inline-end`), offset distances (`4px`, `8px`, `12px`), `minWidth` presets (`160px`, `220px`, `280px`), `autoFlip`, and `loop`.
+3. **Composition Toggles:** Independently enable or disable `DropdownGroup`/`DropdownLabel`/`DropdownSeparator`, icons and keyboard shortcuts, discovery-focusable `disabled` items (`aria-disabled="true"`), and `variant="danger"` items, plus a safe external `href` (`rel="noopener noreferrer"`) item and live selected-command status feedback.
+4. **Stage View & Code Inspector:** Switch between single specimen view and the 4-card Placements Grid (`bottom-start`, `top-start`, `inline-start`, `inline-end`), and copy live React JSX, AI Agent prompts, and localized token specs.
 
 ---
 
 ## 9. Verification Matrix
 
 ### 9.1 Vitest Unit Tests (`dropdown.test.tsx`)
-- [ ] Opens and closes via trigger click in uncontrolled mode.
-- [ ] Opens via `ArrowDown` (focuses first enabled item) and `ArrowUp` (focuses last enabled item).
-- [ ] Arrow navigation moves focus through items and wraps with `loop={true}`.
-- [ ] `Home` focuses first enabled item; `End` focuses last enabled item.
-- [ ] `Enter` / `Space` activates item and calls `onSelect` / `onClick`.
-- [ ] Disabled item receives focus via arrow navigation but cannot be activated via keyboard or click.
-- [ ] `DropdownItem` with `href` renders valid `<a href>` with `role="menuitem"`.
-- [ ] `Escape` closes menu and restores focus to trigger.
-- [ ] `Tab` closes menu and allows natural focus traversal.
-- [ ] Outside click dismisses menu without swallowing external click.
-- [ ] Controlled `open={false}` prevents trigger click from opening DOM surface.
-- [ ] RTL placement calculation correctly mirrors `bottom-start` to right-aligned in RTL.
-- [ ] Forwarded refs and `asChild` composition work correctly without nested buttons.
+- [x] Opens and closes via trigger click in uncontrolled mode.
+- [x] Opens via `ArrowDown` (focuses first item) and `ArrowUp` (focuses last item).
+- [x] Arrow navigation moves focus through items and wraps with `loop={true}` (and clamps when `loop={false}`).
+- [x] `Home` focuses first item; `End` focuses last item.
+- [x] `Enter` / `Space` activates item and calls `onSelect` / `onClick`.
+- [x] Disabled item receives focus via arrow navigation (`aria-disabled="true"`) but cannot be activated via keyboard or click.
+- [x] `DropdownItem` with `href` renders valid `<a href>` with `role="menuitem"` and enforces `rel="noopener noreferrer"` when `target="_blank"`.
+- [x] `Escape` closes menu and restores focus to trigger.
+- [x] `Tab` closes menu and allows natural focus traversal.
+- [x] Outside click dismisses menu in fallback mode without swallowing click.
+- [x] Controlled `open={false}` prevents trigger click from opening DOM surface, and yielded controlled popovers reopen cleanly.
+- [x] RTL placement calculation mirrors `bottom-start` from `dir` prop and nearest ancestor `[dir="rtl"]`.
+- [x] `minWidth` forwards `--_dropdown-min-width` CSS custom property to `.surface`.
+- [x] Forwarded refs and `asChild` composition work cleanly without nested buttons, and compound subcomponents (`DropdownGroup`, `DropdownLabel`, `DropdownSeparator`) render proper ARIA roles.
 
 ### 9.2 Real-Browser Playwright Tests (`e2e/dropdown.spec.ts`)
-- [ ] Keyboard opening, roving focus navigation, and Escape restoration in real Chromium.
-- [ ] Outside click dismisses menu and executes action on clicked external button.
-- [ ] Dropdown inside modal Dialog: dropdown is visible above dialog surface, and Escape closes dropdown first without closing dialog.
-- [ ] Disabled item is visible, focusable with arrow keys, but never triggers action on click/Enter.
-- [ ] Navigation link item executes real page navigation.
-- [ ] RTL direction alignment verified in Arabic locale.
-- [ ] Dashboard zero-shadow compliance verified via `check-dashboard-shadows.mjs`.
+- [x] Trigger click opens menu, roving arrow navigation + `Enter` dispatches command and updates status readout.
+- [x] `Escape` dismisses menu and restores focus to trigger; `Tab` exits menu.
+- [x] Disabled item (`aria-disabled="true"`) is reachable via keyboard arrows but never activates on `Enter`.
+- [x] Navigation link item enforces `rel="noopener noreferrer"` when `target="_blank"`.
+- [x] Outside click dismisses menu.
+- [x] Placements Grid view & RTL specimen alignment verified across LTR and RTL.
+- [x] Dashboard zero-shadow compliance verified via computed style + `scripts/check-dashboard-shadows.mjs`.
 
 ### 9.3 Handoff Quality Gates
 ```bash

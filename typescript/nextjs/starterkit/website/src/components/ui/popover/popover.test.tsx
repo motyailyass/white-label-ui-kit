@@ -11,6 +11,7 @@ import {
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
+  type PopoverPlacement,
 } from './popover';
 
 // Stub native Popover API in JSDOM if not present
@@ -136,13 +137,14 @@ describe('Popover (Pure Primitive)', () => {
     // Simulate browser native close (e.g. native light dismiss)
     const toggleEvent = new Event('toggle') as unknown as { newState: string };
     toggleEvent.newState = 'closed';
-    popoverDiv.dispatchEvent(toggleEvent as unknown as Event);
+    await act(async () => {
+      popoverDiv.dispatchEvent(toggleEvent as unknown as Event);
+      await new Promise<void>((resolve) => queueMicrotask(() => resolve()));
+    });
 
     // onOpenChange requested false
     expect(handleOpenChange).toHaveBeenCalledWith(false);
 
-    // After microtask, since parent still passed open={true}, component reconciles
-    await new Promise<void>((resolve) => queueMicrotask(() => resolve()));
     const surface = screen.getByTestId('surface');
     expect(surface.getAttribute('data-state')).toBe('open');
   });
@@ -360,10 +362,10 @@ describe('Popover (Pure Primitive)', () => {
       placement,
     }: {
       dir: 'ltr' | 'rtl';
-      placement: 'inline-start' | 'inline-end';
+      placement: PopoverPlacement;
     }) {
       return (
-        <div style={{ direction: dir }}>
+        <div dir={dir} style={{ direction: dir }}>
           <Popover open={true} placement={placement} autoFlip={false}>
             <PopoverTrigger data-testid="trigger">Trigger</PopoverTrigger>
             <PopoverContent data-testid="surface">
@@ -374,69 +376,96 @@ describe('Popover (Pure Primitive)', () => {
       );
     }
 
-    // 1. In LTR, inline-start positions to the left (physical left)
+    const mockRects = (triggerEl: HTMLElement, surfaceEl: HTMLElement) => {
+      vi.spyOn(triggerEl, 'getBoundingClientRect').mockReturnValue({
+        left: 300,
+        right: 400,
+        top: 100,
+        bottom: 140,
+        width: 100,
+        height: 40,
+        x: 300,
+        y: 100,
+        toJSON: () => {},
+      });
+      vi.spyOn(surfaceEl, 'getBoundingClientRect').mockReturnValue({
+        left: 0,
+        right: 150,
+        top: 0,
+        bottom: 80,
+        width: 150,
+        height: 80,
+        x: 0,
+        y: 0,
+        toJSON: () => {},
+      });
+    };
+
+    // 1. In LTR, inline-start positions to the left (physical left): 300 - 150 - 8 = 142px
     const { rerender } = render(<PlacementTest dir="ltr" placement="inline-start" />);
     let trigger = screen.getByTestId('trigger');
     let surface = screen.getByTestId('surface');
-
-    // Mock bounding rects
-    vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({
-      left: 300,
-      right: 400,
-      top: 100,
-      bottom: 140,
-      width: 100,
-      height: 40,
-      x: 300,
-      y: 100,
-      toJSON: () => {},
-    });
-    vi.spyOn(surface, 'getBoundingClientRect').mockReturnValue({
-      left: 0,
-      right: 150,
-      top: 0,
-      bottom: 80,
-      width: 150,
-      height: 80,
-      x: 0,
-      y: 0,
-      toJSON: () => {},
-    });
-
-    // Fire window resize to recompute position
+    mockRects(trigger, surface);
     fireEvent(window, new Event('resize'));
-
-    // In LTR, inline-start is left: 300 - 150 - 8 = 142px
     expect(surface.style.left).toBe('142px');
 
     // 2. In LTR, inline-end positions to the right (physical right): 400 + 8 = 408px
     rerender(<PlacementTest dir="ltr" placement="inline-end" />);
     trigger = screen.getByTestId('trigger');
     surface = screen.getByTestId('surface');
-    vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({
-      left: 300,
-      right: 400,
-      top: 100,
-      bottom: 140,
-      width: 100,
-      height: 40,
-      x: 300,
-      y: 100,
-      toJSON: () => {},
-    });
-    vi.spyOn(surface, 'getBoundingClientRect').mockReturnValue({
-      left: 0,
-      right: 150,
-      top: 0,
-      bottom: 80,
-      width: 150,
-      height: 80,
-      x: 0,
-      y: 0,
-      toJSON: () => {},
-    });
+    mockRects(trigger, surface);
     fireEvent(window, new Event('resize'));
     expect(surface.style.left).toBe('408px');
+
+    // 3. In LTR, bottom-start aligns to left edge: trigger left = 300px
+    rerender(<PlacementTest dir="ltr" placement="bottom-start" />);
+    trigger = screen.getByTestId('trigger');
+    surface = screen.getByTestId('surface');
+    mockRects(trigger, surface);
+    fireEvent(window, new Event('resize'));
+    expect(surface.style.left).toBe('300px');
+
+    // 4. In LTR, bottom-end aligns to right edge: trigger right - surface width = 400 - 150 = 250px
+    rerender(<PlacementTest dir="ltr" placement="bottom-end" />);
+    trigger = screen.getByTestId('trigger');
+    surface = screen.getByTestId('surface');
+    mockRects(trigger, surface);
+    fireEvent(window, new Event('resize'));
+    expect(surface.style.left).toBe('250px');
+
+    // 5. In RTL, bottom-start aligns to right edge: trigger right - surface width = 400 - 150 = 250px
+    rerender(<PlacementTest dir="rtl" placement="bottom-start" />);
+    trigger = screen.getByTestId('trigger');
+    surface = screen.getByTestId('surface');
+    mockRects(trigger, surface);
+    fireEvent(window, new Event('resize'));
+    expect(surface.style.left).toBe('250px');
+
+    // 6. In RTL, bottom-end aligns to left edge: trigger left = 300px
+    rerender(<PlacementTest dir="rtl" placement="bottom-end" />);
+    trigger = screen.getByTestId('trigger');
+    surface = screen.getByTestId('surface');
+    mockRects(trigger, surface);
+    fireEvent(window, new Event('resize'));
+    expect(surface.style.left).toBe('300px');
+
+    // 7. Centered bottom placement aligns horizontally to center: 300 + (100 - 150) / 2 = 275px
+    rerender(<PlacementTest dir="ltr" placement="bottom" />);
+    trigger = screen.getByTestId('trigger');
+    surface = screen.getByTestId('surface');
+    mockRects(trigger, surface);
+    fireEvent(window, new Event('resize'));
+    expect(surface.style.left).toBe('275px');
+    expect(surface.style.top).toBe('148px');
+
+    // 8. Centered top placement aligns horizontally to center: 275px, clamped to min viewport padding 16px
+    rerender(<PlacementTest dir="ltr" placement="top" />);
+    trigger = screen.getByTestId('trigger');
+    surface = screen.getByTestId('surface');
+    mockRects(trigger, surface);
+    fireEvent(window, new Event('resize'));
+    expect(surface.style.left).toBe('275px');
+    expect(surface.style.top).toBe('16px');
   });
 
   it('moves initial focus into dialog or initialFocusRef when opened', () => {
@@ -599,7 +628,13 @@ describe('Popover (Pure Primitive)', () => {
             </PopoverContent>
           </Popover>
 
-          <Popover open={openB} onOpenChange={(val) => { setOpenB(val); handleOpenChangeB(val); }}>
+          <Popover
+            open={openB}
+            onOpenChange={(val) => {
+              setOpenB(val);
+              handleOpenChangeB(val);
+            }}
+          >
             <PopoverTrigger data-testid="trigger-b">Trigger B</PopoverTrigger>
             <PopoverContent data-testid="surface-b">
               <p>Content B</p>

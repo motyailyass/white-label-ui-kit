@@ -1,0 +1,45 @@
+.stageWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  inline-size: 100%;
+}
+
+.stageWrapper:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.specimenCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  padding-block: var(--space-8);
+  padding-inline: var(--space-6);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  min-block-size: 12rem;
+}
+
+.pageStatus {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+}
+
+.pageStatus:lang(ar) {
+  line-height: var(--line-height-arabic-normal);
+}
+
+.pageNumber {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}

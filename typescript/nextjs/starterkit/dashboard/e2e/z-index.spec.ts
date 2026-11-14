@@ -86,7 +86,7 @@ test.describe('Dashboard Z-Index & Overlay Architecture Verification', () => {
     expect(layerValues.toast).toBeLessThan(layerValues.tooltip);
   });
 
-  test('nested overlay ownership: dropdown inside modal renders above the modal surface', async ({
+  test('CSS stacking fixture: a nested z-dropdown layer paints above a z-modal layer (not an implementation test)', async ({
     page,
   }) => {
     await page.goto('/classic');

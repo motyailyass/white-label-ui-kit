@@ -1,0 +1,125 @@
+/**
+ * Spinner Primitive Stylesheet
+ *
+ * Pure loading indicator primitive.
+ * 100% CSS logical properties, semantic tokens, zero dashboard shadows.
+ */
+
+.spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+.svg {
+  display: block;
+  flex-shrink: 0;
+  transform-origin: center center;
+  animation: spin 750ms linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svg {
+    animation-duration: 2000ms;
+  }
+}
+
+/* Sizing scale applied to SVG geometry so optional visible labels grow cleanly */
+.spinner[data-size="xs"] .svg {
+  inline-size: 0.75rem; /* 12px */
+  block-size: 0.75rem;
+}
+
+.spinner[data-size="sm"] .svg {
+  inline-size: 1rem; /* 16px */
+  block-size: 1rem;
+}
+
+.spinner[data-size="md"] .svg {
+  inline-size: 1.25rem; /* 20px */
+  block-size: 1.25rem;
+}
+
+.spinner[data-size="lg"] .svg {
+  inline-size: 1.5rem; /* 24px */
+  block-size: 1.5rem;
+}
+
+.spinner[data-size="xl"] .svg {
+  inline-size: 2rem; /* 32px */
+  block-size: 2rem;
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25rem;
+  color: inherit;
+}
+
+.label:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-arabic-snug);
+}
+
+.label :lang(en),
+.label :lang(fr) {
+  font-family: var(--font-family-sans);
+}
+
+/* Track and Indicator Strokes */
+.track {
+  stroke: currentColor;
+  opacity: 0.2;
+}
+
+.indicator {
+  stroke: currentColor;
+  stroke-linecap: round;
+}
+
+/* Variants */
+.variantDefault {
+  color: var(--color-text-secondary);
+}
+
+.variantPrimary {
+  color: var(--color-primary);
+}
+
+.variantCurrent {
+  color: currentColor;
+}
+
+.variantInverse {
+  color: var(--color-text-inverse);
+}
+
+/* Visually hidden screen reader label */
+.visuallyHidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding-block: 0;
+  padding-inline: 0;
+  margin-block: -1px;
+  margin-inline: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

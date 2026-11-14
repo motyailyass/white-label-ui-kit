@@ -1,0 +1,451 @@
+/**
+ * Accordion Primitive Stylesheet
+ *
+ * White-label pure primitive styles.
+ * 100% CSS logical properties, semantic tokens, zero dashboard shadows.
+ */
+
+/* =============================================================================
+   Root Container
+   ============================================================================= */
+
+.root {
+  /* Local stacking contract: private layer, isolated from the document scale. */
+  isolation: isolate;
+  --_z-layer-raised: 1;
+
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+
+/* Variant 1: Default (Separated Lines) */
+.root_default {
+  border-block-start: 1px solid var(--color-border-subtle);
+  gap: 0;
+}
+
+/* Variant 2: Enclosed (Card Surface) — corners applied on child edges to preserve focus outlines */
+.root_enclosed {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  gap: 0;
+}
+
+/* Variant 3: Flush (Borderless Rows) */
+.root_flush {
+  border: none;
+  gap: var(--space-2);
+}
+
+/* =============================================================================
+   AccordionItem
+   ============================================================================= */
+
+.item {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.item_default {
+  border-block-end: 1px solid var(--color-border-subtle);
+}
+
+.item_enclosed + .item_enclosed {
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+
+.item_flush {
+  border: none;
+}
+
+.itemDisabled {
+  color: var(--color-text-disabled);
+}
+
+/* =============================================================================
+   AccordionHeader
+   ============================================================================= */
+
+.header {
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+/* =============================================================================
+   AccordionTrigger
+   ============================================================================= */
+
+.trigger {
+  --_control-height: var(--control-height-default);
+  --_control-padding-inline: var(--control-padding-default);
+  --_control-padding-block: var(--control-padding-block-default);
+  --_control-font-size: var(--control-font-size-default);
+  --_control-line-height: var(--control-line-height-default);
+  --_control-icon-size: var(--control-icon-size-default);
+  --_control-gap: var(--control-gap-default);
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  inline-size: 100%;
+  min-block-size: var(--_control-height);
+  padding-inline: var(--_control-padding-inline);
+  padding-block: var(--_control-padding-block);
+  gap: var(--_control-gap);
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  cursor: pointer;
+  user-select: none;
+  text-align: start;
+  font-family: var(--font-family-sans);
+  font-size: var(--_control-font-size);
+  line-height: var(--_control-line-height);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  outline: none;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+/* Explicit six-step sizing contract (keeps 0,1,0 specificity for template wrappers) */
+.trigger_xs {
+  --_control-height: var(--control-height-xs);
+  --_control-padding-inline: var(--control-padding-xs);
+  --_control-padding-block: var(--control-padding-block-xs);
+  --_control-font-size: var(--control-font-size-xs);
+  --_control-line-height: var(--control-line-height-xs);
+  --_control-icon-size: var(--control-icon-size-xs);
+  --_control-gap: var(--control-gap-xs);
+}
+
+.trigger_sm {
+  --_control-height: var(--control-height-sm);
+  --_control-padding-inline: var(--control-padding-sm);
+  --_control-padding-block: var(--control-padding-block-sm);
+  --_control-font-size: var(--control-font-size-sm);
+  --_control-line-height: var(--control-line-height-sm);
+  --_control-icon-size: var(--control-icon-size-sm);
+  --_control-gap: var(--control-gap-sm);
+}
+
+.trigger_md {
+  --_control-height: var(--control-height-md);
+  --_control-padding-inline: var(--control-padding-md);
+  --_control-padding-block: var(--control-padding-block-md);
+  --_control-font-size: var(--control-font-size-md);
+  --_control-line-height: var(--control-line-height-md);
+  --_control-icon-size: var(--control-icon-size-md);
+  --_control-gap: var(--control-gap-md);
+}
+
+.trigger_lg {
+  --_control-height: var(--control-height-lg);
+  --_control-padding-inline: var(--control-padding-lg);
+  --_control-padding-block: var(--control-padding-block-lg);
+  --_control-font-size: var(--control-font-size-lg);
+  --_control-line-height: var(--control-line-height-lg);
+  --_control-icon-size: var(--control-icon-size-lg);
+  --_control-gap: var(--control-gap-lg);
+}
+
+.trigger_xl {
+  --_control-height: var(--control-height-xl);
+  --_control-padding-inline: var(--control-padding-xl);
+  --_control-padding-block: var(--control-padding-block-xl);
+  --_control-font-size: var(--control-font-size-xl);
+  --_control-line-height: var(--control-line-height-xl);
+  --_control-icon-size: var(--control-icon-size-xl);
+  --_control-gap: var(--control-gap-xl);
+}
+
+.trigger_2xl {
+  --_control-height: var(--control-height-2xl);
+  --_control-padding-inline: var(--control-padding-2xl);
+  --_control-padding-block: var(--control-padding-block-2xl);
+  --_control-font-size: var(--control-font-size-2xl);
+  --_control-line-height: var(--control-line-height-2xl);
+  --_control-icon-size: var(--control-icon-size-2xl);
+  --_control-gap: var(--control-gap-2xl);
+}
+
+/* Touch interaction target enforcement */
+.trigger[data-touch-target="comfortable"] {
+  min-block-size: max(var(--_control-height), var(--control-touch-target-min));
+}
+
+@media (any-pointer: coarse), (pointer: coarse) {
+  .trigger[data-touch-target="auto"] {
+    min-block-size: max(var(--_control-height), var(--control-touch-target-min));
+  }
+}
+
+/* Script-specific typography parity */
+.trigger:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-arabic-snug);
+}
+
+.trigger:lang(en),
+.trigger:lang(fr) {
+  font-family: var(--font-family-sans);
+  line-height: var(--_control-line-height);
+}
+
+/* Variant-specific Trigger Styling & Hover Discipline */
+
+/* Default (Line-Divided): Pure text underline on hover; no floating pill inside lines */
+.item_default .trigger {
+  border-radius: 0;
+  padding-inline: var(--space-1);
+}
+
+.item_default .trigger:hover:not(:disabled) .label {
+  text-decoration: underline;
+}
+
+.item_default .trigger:hover:not(:disabled) {
+  color: var(--color-text-primary);
+  background-color: transparent;
+}
+
+/* Enclosed (Card): Rounded edge corners on container ends without clipping focus rings */
+.item_enclosed:first-child .trigger {
+  border-start-start-radius: calc(var(--radius-card) - 1px);
+  border-start-end-radius: calc(var(--radius-card) - 1px);
+}
+
+.item_enclosed:last-child:not(.itemOpen) .trigger {
+  border-end-start-radius: calc(var(--radius-card) - 1px);
+  border-end-end-radius: calc(var(--radius-card) - 1px);
+}
+
+.item_enclosed:last-child .content {
+  border-end-start-radius: calc(var(--radius-card) - 1px);
+  border-end-end-radius: calc(var(--radius-card) - 1px);
+}
+
+.item_enclosed .trigger:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+}
+
+/* Flush (Borderless): Clean rounded trigger surface */
+.item_flush .trigger {
+  border-radius: var(--radius-control);
+}
+
+.item_flush .trigger:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+}
+
+.trigger:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+  z-index: var(--_z-layer-raised);
+}
+
+.triggerDisabled {
+  cursor: not-allowed;
+  color: var(--color-text-disabled);
+}
+
+.triggerDisabled .icon,
+.triggerDisabled .chevron {
+  color: var(--color-text-disabled);
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  inline-size: var(--_control-icon-size);
+  block-size: var(--_control-icon-size);
+  color: var(--color-text-secondary);
+}
+
+.icon svg,
+.chevron svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  inline-size: var(--_control-icon-size);
+  block-size: var(--_control-icon-size);
+  color: var(--color-text-secondary);
+  transition: transform var(--transition-normal);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.chevronStart {
+  margin-inline-end: var(--space-1);
+}
+
+.chevronEnd {
+  margin-inline-start: auto;
+}
+
+/* =============================================================================
+   AccordionContent (Animated via CSS Grid)
+   ============================================================================= */
+
+.content {
+  --_content-padding-inline: var(--control-padding-default);
+  --_content-padding-block-end: var(--space-4);
+  --_content-font-size: var(--typography-body-size);
+  --_content-line-height: var(--typography-body-line-height);
+
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--transition-normal);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.content_xs {
+  --_content-padding-inline: var(--control-padding-xs);
+  --_content-padding-block-end: var(--space-2);
+  --_content-font-size: var(--font-size-xs);
+  --_content-line-height: var(--line-height-normal);
+}
+
+.content_sm {
+  --_content-padding-inline: var(--control-padding-sm);
+  --_content-padding-block-end: var(--space-3);
+  --_content-font-size: var(--font-size-xs);
+  --_content-line-height: var(--line-height-relaxed);
+}
+
+.content_md {
+  --_content-padding-inline: var(--control-padding-md);
+  --_content-padding-block-end: var(--space-4);
+  --_content-font-size: var(--font-size-sm);
+  --_content-line-height: var(--line-height-relaxed);
+}
+
+.content_lg {
+  --_content-padding-inline: var(--control-padding-lg);
+  --_content-padding-block-end: var(--space-4);
+  --_content-font-size: var(--font-size-base);
+  --_content-line-height: var(--line-height-relaxed);
+}
+
+.content_xl {
+  --_content-padding-inline: var(--control-padding-xl);
+  --_content-padding-block-end: var(--space-5);
+  --_content-font-size: var(--font-size-base);
+  --_content-line-height: var(--line-height-relaxed);
+}
+
+.content_2xl {
+  --_content-padding-inline: var(--control-padding-2xl);
+  --_content-padding-block-end: var(--space-6);
+  --_content-font-size: var(--font-size-base);
+  --_content-line-height: var(--line-height-relaxed);
+}
+
+/* Allow grid layout when hidden attribute is present */
+.content[hidden] {
+  display: grid;
+}
+
+.contentOpen {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+
+.contentClosed {
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--transition-normal),
+    visibility 0s linear var(--motion-duration-normal);
+}
+
+/* Direct grid child must have zero padding/margin so track collapses to 0px */
+.contentWrapper {
+  min-block-size: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+.contentInner {
+  min-block-size: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  padding-inline: var(--_content-padding-inline);
+  padding-block-end: var(--_content-padding-block-end);
+  font-family: var(--font-family-sans);
+  font-size: var(--_content-font-size);
+  line-height: var(--_content-line-height);
+  color: var(--color-text-secondary);
+}
+
+.contentOpen .contentInner {
+  opacity: 1;
+}
+
+/* Variant-specific Content Alignment */
+.item_default .contentInner {
+  padding-inline: var(--space-1);
+}
+
+/* Arabic script clearance in panel content */
+.contentInner:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-arabic-normal);
+}
+
+.contentInner:lang(en),
+.contentInner:lang(fr) {
+  font-family: var(--font-family-sans);
+  line-height: var(--_content-line-height);
+}
+
+/* =============================================================================
+   Reduced Motion
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .chevron,
+  .content,
+  .contentInner {
+    transition: none !important;
+  }
+}

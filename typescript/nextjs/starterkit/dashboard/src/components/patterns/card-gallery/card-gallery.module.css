@@ -1,0 +1,125 @@
+/**
+ * White Label UI Kit — Card Gallery Studio Stylesheet
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.controlsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.controlDivider {
+  border: none;
+  border-block-start: 1px solid var(--color-border-subtle);
+  margin-block: var(--space-2);
+  inline-size: 100%;
+}
+
+.canvasArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  inline-size: 100%;
+  box-sizing: border-box;
+}
+
+.canvasRtl {
+  direction: rtl;
+}
+
+/* Primary Live Specimen Box */
+.specimenCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  inline-size: 100%;
+  min-block-size: 14rem;
+  padding: var(--space-8);
+  box-sizing: border-box;
+  background-color: var(--color-bg-base);
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+
+.specimenStage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  max-inline-size: 28rem;
+}
+
+.stageBleedCover {
+  position: relative;
+  inline-size: 100%;
+  block-size: 8rem;
+  border-start-start-radius: inherit;
+  border-start-end-radius: inherit;
+  overflow: hidden;
+}
+
+.stageBleedImage {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.stageBleedNotice {
+  position: absolute;
+  inset-block-start: var(--space-3);
+  inset-inline-start: var(--space-3);
+}
+
+.stageBleedInset {
+  padding-inline: var(--space-5);
+  padding-block: var(--space-3);
+}
+
+/* Variant & Density Matrix */
+.matrixContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  inline-size: 100%;
+}
+
+.matrixGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  inline-size: 100%;
+}
+
+.matrixGroupTitle {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.matrixGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+/* Helpers */
+.fullWidth {
+  inline-size: 100%;
+}
+
+.alignSelfStart {
+  align-self: flex-start;
+}
+
+.marginZero {
+  margin: 0;
+}

@@ -1,0 +1,433 @@
+/**
+ * Alert Primitive Stylesheet
+ *
+ * White-label pure primitive styles.
+ * 100% CSS logical properties, semantic tokens, zero dashboard shadows.
+ */
+
+/* =============================================================================
+   Animated Dismiss Wrapper
+   ============================================================================= */
+
+.wrapper {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows var(--transition-normal),
+    opacity var(--transition-normal);
+  overflow: visible;
+  inline-size: 100%;
+  box-sizing: border-box;
+}
+
+.wrapperVisible {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  overflow: visible;
+}
+
+.wrapperDismissed {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+  transition:
+    grid-template-rows var(--transition-normal),
+    opacity var(--transition-normal),
+    visibility 0s linear var(--motion-duration-normal);
+}
+
+/* =============================================================================
+   Alert Container
+   ============================================================================= */
+
+.alert {
+  /* Local stacking contract: private layer, isolated from the document scale. */
+  isolation: isolate;
+  --_z-layer-raised: 1;
+
+  min-block-size: 0;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  box-sizing: border-box;
+  border-radius: var(--radius-card);
+  border-width: 1px;
+  border-style: solid;
+  font-family: var(--font-family-sans);
+  position: relative;
+}
+
+.wrapperDismissed .alert {
+  overflow: hidden;
+}
+
+.alert:lang(ar),
+.title:lang(ar),
+.description:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.alert :lang(en),
+.alert :lang(fr),
+.title:lang(en),
+.title:lang(fr),
+.description:lang(en),
+.description:lang(fr) {
+  font-family: var(--font-family-sans);
+}
+
+/* Content flex layout handles icon, body stack, actions, and close button robustly */
+.contentGrid {
+  display: flex;
+  align-items: flex-start;
+  inline-size: 100%;
+  box-sizing: border-box;
+}
+
+.contentGrid > :not(.iconSlot):not(.closeButton) {
+  flex: 1 1 0%;
+  min-inline-size: 0;
+}
+
+/* =============================================================================
+   Sizing Steps
+   ============================================================================= */
+
+.size_sm {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  font-size: var(--font-size-xs);
+}
+
+.size_sm .contentGrid {
+  gap: var(--space-2);
+}
+
+.size_md {
+  padding-block: var(--space-3);
+  padding-inline: var(--space-4);
+  font-size: var(--font-size-sm);
+}
+
+.size_md .contentGrid {
+  gap: var(--space-3);
+}
+
+.size_lg {
+  padding-block: var(--space-4);
+  padding-inline: var(--space-5);
+  font-size: var(--font-size-base);
+}
+
+.size_lg .contentGrid {
+  gap: var(--space-4);
+}
+
+/* =============================================================================
+   Status Variants: Subtle (Default)
+   ============================================================================= */
+
+.status_info.variant_subtle {
+  background-color: var(--color-info-subtle);
+  border-color: color-mix(in srgb, var(--color-info) 30%, transparent);
+  color: var(--color-text-primary);
+}
+
+.status_info.variant_subtle .iconSlot {
+  color: var(--color-info);
+}
+
+.status_success.variant_subtle {
+  background-color: var(--color-success-subtle);
+  border-color: color-mix(in srgb, var(--color-success) 30%, transparent);
+  color: var(--color-text-primary);
+}
+
+.status_success.variant_subtle .iconSlot {
+  color: var(--color-success);
+}
+
+.status_warning.variant_subtle {
+  background-color: var(--color-warning-subtle);
+  border-color: color-mix(in srgb, var(--color-warning) 30%, transparent);
+  color: var(--color-text-primary);
+}
+
+.status_warning.variant_subtle .iconSlot {
+  color: var(--color-warning);
+}
+
+.status_danger.variant_subtle {
+  background-color: var(--color-danger-subtle);
+  border-color: color-mix(in srgb, var(--color-danger) 30%, transparent);
+  color: var(--color-text-primary);
+}
+
+.status_danger.variant_subtle .iconSlot {
+  color: var(--color-danger);
+}
+
+/* =============================================================================
+   Status Variants: Bordered
+   ============================================================================= */
+
+.variant_bordered {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.status_info.variant_bordered {
+  border-color: var(--color-info);
+}
+
+.status_info.variant_bordered .iconSlot {
+  color: var(--color-info);
+}
+
+.status_success.variant_bordered {
+  border-color: var(--color-success);
+}
+
+.status_success.variant_bordered .iconSlot {
+  color: var(--color-success);
+}
+
+.status_warning.variant_bordered {
+  border-color: var(--color-warning);
+}
+
+.status_warning.variant_bordered .iconSlot {
+  color: var(--color-warning);
+}
+
+.status_danger.variant_bordered {
+  border-color: var(--color-danger);
+}
+
+.status_danger.variant_bordered .iconSlot {
+  color: var(--color-danger);
+}
+
+/* =============================================================================
+   Status Variants: Solid
+   ============================================================================= */
+
+.status_info.variant_solid {
+  background-color: var(--color-info);
+  border-color: var(--color-info);
+  color: var(--color-info-foreground);
+}
+
+.status_info.variant_solid .iconSlot,
+.status_info.variant_solid .description {
+  color: currentColor;
+}
+
+.status_success.variant_solid {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  color: var(--color-success-foreground);
+}
+
+.status_success.variant_solid .iconSlot,
+.status_success.variant_solid .description {
+  color: currentColor;
+}
+
+.status_warning.variant_solid {
+  background-color: var(--color-warning);
+  border-color: var(--color-warning);
+  color: var(--color-warning-foreground);
+}
+
+.status_warning.variant_solid .iconSlot,
+.status_warning.variant_solid .description {
+  color: currentColor;
+}
+
+.status_danger.variant_solid {
+  background-color: var(--color-danger-solid, var(--color-danger));
+  border-color: var(--color-danger-solid, var(--color-danger));
+  color: var(--color-danger-solid-foreground, var(--color-danger-foreground));
+}
+
+.status_danger.variant_solid .iconSlot,
+.status_danger.variant_solid .description {
+  color: currentColor;
+}
+
+/* =============================================================================
+   AlertIcon
+   ============================================================================= */
+
+.iconSlot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon_sm {
+  inline-size: var(--control-icon-size-sm);
+  block-size: var(--control-icon-size-sm);
+}
+
+.icon_sm svg {
+  inline-size: var(--control-icon-size-sm);
+  block-size: var(--control-icon-size-sm);
+}
+
+.icon_md {
+  inline-size: var(--control-icon-size-xl);
+  block-size: var(--control-icon-size-xl);
+}
+
+.icon_md svg {
+  inline-size: var(--control-icon-size-xl);
+  block-size: var(--control-icon-size-xl);
+}
+
+.icon_lg {
+  inline-size: var(--control-icon-size-2xl);
+  block-size: var(--control-icon-size-2xl);
+}
+
+.icon_lg svg {
+  inline-size: var(--control-icon-size-2xl);
+  block-size: var(--control-icon-size-2xl);
+}
+
+/* =============================================================================
+   AlertTitle & Description
+   ============================================================================= */
+
+.title {
+  font-family: inherit;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+  margin: 0;
+  color: inherit;
+}
+
+.title:lang(ar) {
+  line-height: var(--line-height-arabic-snug);
+}
+
+.description {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.description:lang(ar) {
+  line-height: var(--line-height-arabic-normal);
+}
+
+.title + .description {
+  margin-block-start: var(--space-1);
+}
+
+/* =============================================================================
+   AlertAction
+   ============================================================================= */
+
+.action {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block-start: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* =============================================================================
+   AlertCloseButton
+   ============================================================================= */
+
+.closeButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  padding: 0;
+  color: inherit;
+  opacity: 0.78;
+  outline: none;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+  transition:
+    opacity var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.closeButton:hover {
+  opacity: 1;
+  background-color: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.closeButton:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+  z-index: var(--_z-layer-raised);
+  opacity: 1;
+}
+
+.close_sm {
+  inline-size: var(--control-height-xs);
+  block-size: var(--control-height-xs);
+}
+
+.close_sm svg {
+  inline-size: var(--control-icon-size-xs);
+  block-size: var(--control-icon-size-xs);
+}
+
+.close_md {
+  inline-size: var(--control-height-sm);
+  block-size: var(--control-height-sm);
+}
+
+.close_md svg {
+  inline-size: var(--control-icon-size-sm);
+  block-size: var(--control-icon-size-sm);
+}
+
+.close_lg {
+  inline-size: var(--control-height-md);
+  block-size: var(--control-height-md);
+}
+
+.close_lg svg {
+  inline-size: var(--control-icon-size-lg);
+  block-size: var(--control-icon-size-lg);
+}
+
+@media (pointer: coarse) {
+  .closeButton::after {
+    content: "";
+    position: absolute;
+    inset-block: calc(50% - var(--control-touch-target-min) / 2);
+    inset-inline: calc(50% - var(--control-touch-target-min) / 2);
+  }
+}
+
+/* =============================================================================
+   Reduced Motion
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .wrapper,
+  .wrapperDismissed,
+  .closeButton {
+    transition: none !important;
+  }
+}

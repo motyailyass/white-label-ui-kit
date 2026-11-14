@@ -51,30 +51,17 @@
   border-radius: var(--radius-full);
 }
 
-.toggleOption {
+.toggleSwitch .toggleOption {
   border: none;
   background: transparent;
-  min-block-size: var(--control-height-sm);
   padding-block: var(--space-1);
   padding-inline: var(--space-4);
   border-radius: var(--radius-full);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
-  cursor: pointer;
-  transition:
-    background-color var(--transition-fast),
-    color var(--transition-fast);
 }
 
-@media (pointer: coarse) {
-  .toggleOption[data-touch-target="auto"] {
-    min-block-size: var(--control-touch-target-min);
-    min-inline-size: var(--control-touch-target-min);
-  }
-}
-
-.toggleOption[data-active="true"] {
+.toggleSwitch .toggleOption[data-active="true"] {
   background-color: var(--color-surface);
   color: var(--color-text-primary);
 }

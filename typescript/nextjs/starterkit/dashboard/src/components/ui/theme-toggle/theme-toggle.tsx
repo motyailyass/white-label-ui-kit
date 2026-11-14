@@ -1,3 +1,5 @@
+'use client';
+
 import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 import { Icon } from '@/components/icons';
 import { cn } from '@/lib/cn';

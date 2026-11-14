@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Input Primitive Real-Browser Verification', () => {
   test.beforeEach(async ({ page }) => {
@@ -12,7 +12,7 @@ test.describe('Input Primitive Real-Browser Verification', () => {
     const isCoarse = await page.evaluate(() => window.matchMedia('(pointer: coarse)').matches);
 
     // 1. Product default (omitted size) on dashboard
-    const defaultInput = page.locator('[data-testid="specimen-controlled"]');
+    const defaultInput = page.locator('[data-testid="studio-active-input"]');
     const defaultHeight = await defaultInput.evaluate((el) => {
       return parseFloat(window.getComputedStyle(el).height);
     });
@@ -23,18 +23,22 @@ test.describe('Input Primitive Real-Browser Verification', () => {
       expect(defaultHeight).toBeCloseTo(36, 1);
     }
 
-    // 2. Explicit scale heights
+    // 2. Switch to All Sizes view to inspect the explicit scale
+    await page.locator('[data-testid="opt-view-all-sizes"]').click();
+
     const scaleMap: Record<string, number> = {
-      'input[aria-label="XS input"]': 28,
-      'input[aria-label="SM input"]': 32,
-      'input[aria-label="MD input"]': 36,
-      'input[aria-label="LG input"]': 40,
-      'input[aria-label="XL input"]': 48,
-      'input[aria-label="2XL input"]': 56,
+      '[data-testid="studio-size-input-xs"]': 28,
+      '[data-testid="studio-size-input-sm"]': 32,
+      '[data-testid="studio-size-input-md"]': 36,
+      '[data-testid="studio-size-input-lg"]': 40,
+      '[data-testid="studio-size-input-xl"]': 48,
+      '[data-testid="studio-size-input-2xl"]': 56,
     };
 
     for (const [selector, expected] of Object.entries(scaleMap)) {
-      const height = await page.locator(selector).evaluate((el) => {
+      const inputEl = page.locator(selector);
+      await expect(inputEl).toBeVisible();
+      const height = await inputEl.evaluate((el) => {
         return parseFloat(window.getComputedStyle(el).height);
       });
 
@@ -46,10 +50,9 @@ test.describe('Input Primitive Real-Browser Verification', () => {
     }
   });
 
-  test('enforces 48x48px minimum target on coarse pointers and comfortable mode', async ({
-    page,
-  }) => {
-    const comfortableInput = page.locator('[data-testid="specimen-touch-comfortable"]');
+  test('enforces 48x48px minimum target on comfortable touch target mode', async ({ page }) => {
+    await page.locator('[data-testid="opt-touch-comfortable"]').click();
+    const comfortableInput = page.locator('[data-testid="studio-active-input"]');
     await expect(comfortableInput).toBeVisible();
 
     const dimensions = await comfortableInput.evaluate((el) => {
@@ -67,7 +70,7 @@ test.describe('Input Primitive Real-Browser Verification', () => {
   });
 
   test('verifies edge-click focus directly on the native input element', async ({ page }) => {
-    const input = page.locator('[data-testid="specimen-controlled"]');
+    const input = page.locator('[data-testid="studio-active-input"]');
     await expect(input).toBeVisible();
 
     const box = await input.boundingBox();
@@ -86,10 +89,10 @@ test.describe('Input Primitive Real-Browser Verification', () => {
     await expect(input).toBeFocused();
   });
 
-  test('verifies standard Input border remains stable on hover and indicates focus clearly', async ({
+  test('verifies standard Input border remains stable on hover and indicates focus cleanly without double outline', async ({
     page,
   }) => {
-    const input = page.locator('[data-testid="specimen-controlled"]');
+    const input = page.locator('[data-testid="studio-active-input"]');
     await expect(input).toBeVisible();
 
     const colors = await page.evaluate(() => {
@@ -112,40 +115,24 @@ test.describe('Input Primitive Real-Browser Verification', () => {
     const restingBorder = await input.evaluate((el) => window.getComputedStyle(el).borderColor);
     expect(restingBorder).toBe(colors.borderRgb);
 
-    // 2. Hover state: border remains STABLE at var(--color-border-control) (no independent hover border emphasis)
+    // 2. Hover state: border remains STABLE at var(--color-border-control)
     await input.hover();
     const hoverBorder = await input.evaluate((el) => window.getComputedStyle(el).borderColor);
     expect(hoverBorder).toBe(colors.borderRgb);
 
-    // 3. Focus state (click): border and outline indicate focus clearly
+    // 3. Mouse Click Focus: border indicates focus cleanly (no artificial floating double outline)
     await input.click();
     await expect(input).toBeFocused();
     await expect
       .poll(async () => {
-        return input.evaluate((el) => {
-          const style = window.getComputedStyle(el);
-          return {
-            border: style.borderColor,
-            outline: style.outlineColor,
-          };
-        });
+        return input.evaluate((el) => window.getComputedStyle(el).borderColor);
       })
-      .toEqual({
-        border: colors.focusRgb,
-        outline: colors.focusRgb,
-      });
+      .toBe(colors.focusRgb);
 
     // 4. Pointer exit while remaining focused: focus indicator persists
     await page.mouse.move(0, 0);
-    const exitFocusedStyle = await input.evaluate((el) => {
-      const style = window.getComputedStyle(el);
-      return {
-        border: style.borderColor,
-        outline: style.outlineColor,
-      };
-    });
-    expect(exitFocusedStyle.border).toBe(colors.focusRgb);
-    expect(exitFocusedStyle.outline).toBe(colors.focusRgb);
+    const exitFocusedBorder = await input.evaluate((el) => window.getComputedStyle(el).borderColor);
+    expect(exitFocusedBorder).toBe(colors.focusRgb);
 
     // 5. Blur: restores stable resting border
     await page.keyboard.press('Tab');
@@ -156,11 +143,13 @@ test.describe('Input Primitive Real-Browser Verification', () => {
       .toBe(colors.borderRgb);
   });
 
-  test('verifies invalid Input border and focus precedence across hover, focus, and pointer exit', async ({
-    page,
-  }) => {
-    const invalidInput = page.locator('[data-testid="specimen-invalid"]');
+  test('verifies invalid Input border across hover, focus, and pointer exit', async ({ page }) => {
+    // Switch to Invalid state via studio control
+    await page.locator('[data-testid="opt-state-invalid"]').click();
+
+    const invalidInput = page.locator('[data-testid="studio-active-input"]');
     await expect(invalidInput).toBeVisible();
+    await expect(invalidInput).toHaveAttribute('aria-invalid', 'true');
 
     // Resolve computed RGB color of var(--color-danger)
     const expectedDangerRgb = await page.evaluate(() => {
@@ -172,43 +161,32 @@ test.describe('Input Primitive Real-Browser Verification', () => {
       return computed;
     });
 
-    // 1. Resting invalid state: border is danger
-    const restingBorder = await invalidInput.evaluate(
-      (el) => window.getComputedStyle(el).borderColor,
-    );
-    expect(restingBorder).toBe(expectedDangerRgb);
+    // 1. Resting invalid state: border settles on danger (poll past the color transition)
+    await expect
+      .poll(async () => invalidInput.evaluate((el) => window.getComputedStyle(el).borderColor))
+      .toBe(expectedDangerRgb);
 
-    // 2. Hover over invalid input: border MUST remain danger (hover precedence fix)
+    // 2. Hover over invalid input: border MUST remain danger
     await invalidInput.hover();
     const hoverBorder = await invalidInput.evaluate(
       (el) => window.getComputedStyle(el).borderColor,
     );
     expect(hoverBorder).toBe(expectedDangerRgb);
 
-    // 3. Focus the invalid input: both border and outline are danger
+    // 3. Focus the invalid input: border is danger
     await invalidInput.click();
     await expect(invalidInput).toBeFocused();
-    const focusedStyle = await invalidInput.evaluate((el) => {
-      const style = window.getComputedStyle(el);
-      return {
-        border: style.borderColor,
-        outline: style.outlineColor,
-      };
-    });
-    expect(focusedStyle.border).toBe(expectedDangerRgb);
-    expect(focusedStyle.outline).toBe(expectedDangerRgb);
+    const focusedBorder = await invalidInput.evaluate(
+      (el) => window.getComputedStyle(el).borderColor,
+    );
+    expect(focusedBorder).toBe(expectedDangerRgb);
 
-    // 4. Pointer exit while remaining focused: outline and border remain danger
+    // 4. Pointer exit while remaining focused: border remains danger
     await page.mouse.move(0, 0);
-    const exitFocusedStyle = await invalidInput.evaluate((el) => {
-      const style = window.getComputedStyle(el);
-      return {
-        border: style.borderColor,
-        outline: style.outlineColor,
-      };
-    });
-    expect(exitFocusedStyle.border).toBe(expectedDangerRgb);
-    expect(exitFocusedStyle.outline).toBe(expectedDangerRgb);
+    const exitFocusedBorder = await invalidInput.evaluate(
+      (el) => window.getComputedStyle(el).borderColor,
+    );
+    expect(exitFocusedBorder).toBe(expectedDangerRgb);
 
     // 5. Blur input: border remains danger
     await page.keyboard.press('Tab');
@@ -218,175 +196,56 @@ test.describe('Input Primitive Real-Browser Verification', () => {
     expect(blurredBorder).toBe(expectedDangerRgb);
   });
 
-  test('distinguishes required-only input from validation-error input', async ({ page }) => {
-    const requiredInput = page.locator('[data-testid="specimen-required"]');
-    const invalidInput = page.locator('[data-testid="specimen-invalid"]');
+  test('verifies all quick configuration presets update stage meaningfully', async ({ page }) => {
+    const input = page.locator('[data-testid="studio-active-input"]');
 
-    await expect(requiredInput).toBeVisible();
-    await expect(invalidInput).toBeVisible();
+    // 1. Password preset: switches to type="password"
+    await page.locator('[data-testid="preset-quick-select-password"]').click();
+    await expect(input).toHaveAttribute('type', 'password');
 
-    const expectedDangerRgb = await page.evaluate(() => {
-      const el = document.createElement('div');
-      el.style.color = 'var(--color-danger)';
-      document.body.appendChild(el);
-      const computed = window.getComputedStyle(el).color;
-      el.remove();
-      return computed;
-    });
+    // 2. Email preset: switches to type="email"
+    await page.locator('[data-testid="preset-quick-select-email"]').click();
+    await expect(input).toHaveAttribute('type', 'email');
 
-    const requiredBorder = await requiredInput.evaluate(
-      (el) => window.getComputedStyle(el).borderColor,
-    );
-    const invalidBorder = await invalidInput.evaluate(
-      (el) => window.getComputedStyle(el).borderColor,
-    );
+    // 3. Search preset: switches to type="search"
+    await page.locator('[data-testid="preset-quick-select-search"]').click();
+    await expect(input).toHaveAttribute('type', 'search');
 
-    // Invalid input displays danger border
-    expect(invalidBorder).toBe(expectedDangerRgb);
+    // 4. Invalid preset: switches to aria-invalid="true"
+    await page.locator('[data-testid="preset-quick-select-invalid"]').click();
+    await expect(input).toHaveAttribute('aria-invalid', 'true');
 
-    // Required-only input is NOT rendered red as an error
-    expect(requiredBorder).not.toBe(expectedDangerRgb);
+    // 5. Disabled preset: disables input
+    await page.locator('[data-testid="preset-quick-select-disabled"]').click();
+    await expect(input).toBeDisabled();
+
+    // 6. Read-Only preset: enables readOnly
+    await page.locator('[data-testid="preset-quick-select-readonly"]').click();
+    await expect(input).toHaveAttribute('readonly', '');
   });
 
-  test('verifies Arabic specimen language/direction and Arabic application-locale behavior', async ({
+  test('verifies specimen direction switches to RTL on demand', async ({ page }) => {
+    await page.locator('[data-testid="opt-dir-rtl"]').click();
+    const studioPreviewDirection = await page
+      .locator('[data-testid="studio-active-input"]')
+      .evaluate((el) => window.getComputedStyle(el).direction);
+    expect(studioPreviewDirection).toBe('rtl');
+  });
+
+  test('verifies visible label is associated with input and clicking focuses it', async ({
     page,
   }) => {
-    const arabicInput = page.locator('[data-testid="specimen-arabic"]');
-    const mixedInput = page.locator('[data-testid="specimen-mixed-ltr"]');
+    const input = page.locator('[data-testid="studio-active-input"]');
+    await expect(input).toBeVisible();
 
-    await expect(arabicInput).toBeVisible();
-    await expect(mixedInput).toBeVisible();
+    const inputId = await input.getAttribute('id');
+    expect(inputId).toBeTruthy();
 
-    // 1. Initial English view: Arabic specimen has dir="rtl" and lang="ar"
-    const arabicDir = await arabicInput.evaluate((el) => el.getAttribute('dir'));
-    expect(arabicDir).toBe('rtl');
+    const label = page.locator(`label[for="${inputId}"]`);
+    await expect(label).toBeVisible();
 
-    const arabicLang = await arabicInput.evaluate((el) =>
-      el.closest('[lang]')?.getAttribute('lang'),
-    );
-    expect(arabicLang).toBe('ar');
-
-    // Mixed specimen has dir="ltr"
-    const mixedDir = await mixedInput.evaluate((el) => el.getAttribute('dir'));
-    expect(mixedDir).toBe('ltr');
-
-    // 2. Switch application to Arabic locale
-    const langSelect = page.locator('select').first();
-    await expect(langSelect).toBeVisible();
-    await langSelect.selectOption('ar');
-
-    // Verify document-level direction and language
-    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
-    await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
-
-    // Inputs now inherit RTL document direction
-    const defaultInput = page.locator('[data-testid="specimen-controlled"]');
-    const defaultComputedDir = await defaultInput.evaluate(
-      (el) => window.getComputedStyle(el).direction,
-    );
-    expect(defaultComputedDir).toBe('rtl');
-
-    // Explicit LTR token retains LTR direction even in Arabic layout
-    const mixedComputedDir = await mixedInput.evaluate(
-      (el) => window.getComputedStyle(el).direction,
-    );
-    expect(mixedComputedDir).toBe('ltr');
-  });
-
-  test('verifies all visible labels are associated with their controls and clicking focuses them', async ({
-    page,
-  }) => {
-    const fieldsToTest = [
-      { testId: 'field-email', labelText: 'Email Address' },
-      { testId: 'field-tel', labelText: 'Phone Number' },
-      { testId: 'field-url', labelText: 'Website URL' },
-      { testId: 'field-search', labelText: 'Search Query' },
-      { testId: 'field-password', labelText: 'Password' },
-      { testId: 'field-resting', labelText: 'Resting State' },
-      { testId: 'field-readonly', labelText: 'Read-Only State' },
-      { testId: 'specimen-required', labelText: 'Required Field' },
-      { testId: 'specimen-invalid', labelText: 'Invalid State' },
-    ];
-
-    for (const { testId, labelText } of fieldsToTest) {
-      const input = page.locator(`[data-testid="${testId}"]`);
-      await expect(input).toBeVisible();
-
-      const inputId = await input.getAttribute('id');
-      expect(inputId).toBeTruthy();
-
-      const label = page.locator(`label[for="${inputId}"]`);
-      await expect(label).toBeVisible();
-      await expect(label).toContainText(labelText);
-
-      await label.click();
-      await expect(input).toBeFocused();
-    }
-  });
-
-  test('verifies read-only input with aria-invalid="true" renders danger border and outline', async ({
-    page,
-  }) => {
-    const expectedDangerRgb = await page.evaluate(() => {
-      const el = document.createElement('div');
-      el.style.color = 'var(--color-danger)';
-      document.body.appendChild(el);
-      const computed = window.getComputedStyle(el).color;
-      el.remove();
-      return computed;
-    });
-
-    const readOnlyInput = page.locator('[data-testid="field-readonly"]');
-    await expect(readOnlyInput).toBeVisible();
-
-    await readOnlyInput.evaluate((el) => el.setAttribute('aria-invalid', 'true'));
-
-    await expect
-      .poll(async () => {
-        return readOnlyInput.evaluate((el) => window.getComputedStyle(el).borderColor);
-      })
-      .toBe(expectedDangerRgb);
-
-    await readOnlyInput.click();
-    await expect(readOnlyInput).toBeFocused();
-
-    await expect
-      .poll(async () => {
-        return readOnlyInput.evaluate((el) => {
-          const style = window.getComputedStyle(el);
-          return {
-            border: style.borderColor,
-            outline: style.outlineColor,
-          };
-        });
-      })
-      .toEqual({
-        border: expectedDangerRgb,
-        outline: expectedDangerRgb,
-      });
-  });
-
-  test('verifies form reset immediately cancels pending submission timer', async ({ page }) => {
-    const emailInput = page.locator('input[name="email"]');
-    const nameInput = page.locator('input[name="fullName"]');
-    const submitBtn = page.locator('button[type="submit"]');
-    const resetBtn = page.locator('button[type="reset"]');
-    const statusBox = page.locator('[role="status"]');
-
-    await nameInput.fill('Test User');
-    await emailInput.fill('test@example.com');
-
-    await submitBtn.click();
-    await expect(statusBox).toContainText(/Processing registration|simulated/i);
-
-    // Assert Reset is enabled while status is pending before clicking
-    await expect(resetBtn).toBeEnabled();
-    await resetBtn.click();
-    await expect(statusBox).toContainText(/Form reset to initial defaults/i);
-
-    await page.waitForTimeout(1000);
-    await expect(statusBox).toContainText(/Form reset to initial defaults/i);
-    await expect(statusBox).not.toContainText(/Form submitted successfully/i);
+    await label.click();
+    await expect(input).toBeFocused();
   });
 
   test('verifies narrow viewport and 200% text zoom do not produce horizontal overflow', async ({

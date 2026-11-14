@@ -25,8 +25,13 @@
   line-height: var(--typography-section-title-line-height);
   font-weight: var(--typography-section-title-weight);
   color: var(--color-text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--letter-spacing-tight);
   margin: 0;
+}
+
+.tag:lang(ar),
+.title:lang(ar) {
+  letter-spacing: var(--letter-spacing-normal);
 }
 
 .accordion {
@@ -65,16 +70,6 @@
 
 .trigger:hover {
   color: var(--color-text-secondary);
-}
-
-.chevron {
-  flex-shrink: 0;
-  transition: transform var(--transition-fast);
-  color: var(--color-text-muted);
-}
-
-.item[data-open="true"] .chevron {
-  transform: rotate(180deg);
 }
 
 .content {

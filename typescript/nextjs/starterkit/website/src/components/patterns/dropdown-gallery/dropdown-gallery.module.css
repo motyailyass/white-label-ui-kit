@@ -1,96 +1,89 @@
 /**
- * White Label UI Kit — Dropdown Component Gallery Stylesheet
+ * White Label UI Kit — Dropdown Menu Studio Styles
  * 100% CSS Logical Properties, Zero Dashboard Shadows.
  */
 
-.galleryContainer {
+.stageActionArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
   inline-size: 100%;
-  max-inline-size: 64rem;
-  margin-inline: auto;
-  padding-inline: var(--space-4);
-  padding-block: var(--space-8);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-  box-sizing: border-box;
-  overflow-wrap: break-word;
-  word-break: break-word;
 }
 
-.galleryHeader {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  border-block-end: 1px solid var(--color-border-subtle);
-  padding-block-end: var(--space-6);
+.stageHelpText {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: 0;
 }
 
-.headerTop {
+.singleSpecimenRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  justify-content: center;
+  min-block-size: 16rem;
+  inline-size: 100%;
+  padding-block: var(--space-6);
+}
+
+.specimenStack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: var(--space-4);
 }
 
-.title {
-  font-size: var(--typography-page-title-size);
-  line-height: var(--typography-page-title-line-height);
-  font-weight: var(--typography-page-title-weight);
-  color: var(--color-text-primary);
+.statusPill {
   margin: 0;
-}
-
-.subtitle {
-  font-size: var(--typography-body-size);
-  line-height: var(--typography-body-line-height);
+  padding-inline: var(--space-3);
+  padding-block: var(--space-1);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
   color: var(--color-text-secondary);
-  margin: 0;
 }
 
-.controlsRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding-block-end: var(--space-6);
-  border-block-end: 1px solid var(--color-border-subtle);
-}
-
-.sectionTitle {
-  font-size: var(--typography-section-title-size);
-  line-height: var(--typography-section-title-line-height);
-  font-weight: var(--typography-section-title-weight);
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-.sectionDesc {
-  font-size: var(--typography-body-size);
-  line-height: var(--typography-body-line-height);
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.buttonGrid {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-}
-
-.statusText {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.statusActive {
-  color: var(--color-primary-text, var(--color-primary));
+.statusValue {
   font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.allPlacementsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.placementCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding-inline: var(--space-4);
+  padding-block: var(--space-6);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface);
+  min-block-size: 10rem;
+}
+
+.placementCardLabel {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-secondary);
+}
+
+.controlDivider {
+  border: none;
+  border-block-start: 1px solid var(--color-border-subtle);
+  margin-block: var(--space-2);
+  inline-size: 100%;
 }

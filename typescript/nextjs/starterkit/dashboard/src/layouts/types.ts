@@ -22,13 +22,14 @@ export interface NavItem {
   label: string;
   href?: string;
   icon?: React.ReactNode;
-  badge?: string | number;
+  badge?: React.ReactNode;
   isActive?: boolean;
   as?: React.ElementType;
 }
 
 export interface NavGroup {
   label?: string;
+  action?: React.ReactNode;
   items: NavItem[];
 }
 
@@ -50,6 +51,8 @@ export interface LayoutUser {
   email?: string;
   avatarUrl?: string;
   initials?: string;
+  role?: string;
+  status?: 'online' | 'offline' | 'away' | 'busy';
   imageComponent?: React.ElementType;
 }
 
@@ -58,5 +61,6 @@ export interface LayoutLogo {
   subtitle?: string;
   icon?: React.ReactNode;
   href?: string;
+  trailing?: React.ReactNode;
   as?: React.ElementType;
 }

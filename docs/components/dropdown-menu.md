@@ -1,10 +1,10 @@
 # DropdownMenu — Component Specification and Implementation Plan
 
-> **Status:** Proposed baseline for team review  
-> **Component:** `components/ui/dropdown-menu`  
+> **Implementation Status:** Planned. The former `components/ui/dropdown-menu` compatibility alias was removed; shipped menus use [`components/ui/dropdown`](./dropdown.md). Checkbox items, radio groups, cascading submenus, and a dedicated `/gallery/dropdown-menu` route remain planned future extensions in this specification.  
+> **Component:** `components/ui/dropdown-menu` (planned)  
 > **Starters:** Next.js Dashboard, Next.js Website, Vite reference  
-> **Canonical source:** `typescript/nextjs/starterkit/dashboard/src/components/ui/dropdown-menu/`  
-> **Gallery route:** `/gallery/dropdown-menu`  
+> **Canonical source:** not shipped — use `typescript/nextjs/starterkit/dashboard/src/components/ui/dropdown/`  
+> **Active studio route:** `/gallery/dropdown`  
 
 This document defines the architectural foundation, accessibility requirements, state synchronization, public API, positioning engine, keyboard navigation contract, and verification matrix for the white-label **DropdownMenu** primitive.
 

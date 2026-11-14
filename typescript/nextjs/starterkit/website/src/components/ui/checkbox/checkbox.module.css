@@ -6,6 +6,10 @@
  */
 
 .root {
+  /* Local stacking contract: private layer, isolated from the document scale. */
+  isolation: isolate;
+  --_z-layer-raised: 1;
+
   /* Default density aliases */
   --_checkbox-target: var(--control-height-default, 2.25rem);
   --_checkbox-box-size: var(--control-icon-size-default, 1rem);
@@ -97,7 +101,7 @@
   padding: 0;
   opacity: 0;
   cursor: pointer;
-  z-index: 1;
+  z-index: var(--_z-layer-raised);
   box-sizing: border-box;
 }
 
@@ -187,14 +191,14 @@
 
 .input[aria-invalid="true"]:checked + .indicator,
 .input[aria-invalid="true"]:indeterminate + .indicator {
-  background-color: var(--color-danger);
-  border-color: var(--color-danger);
-  color: var(--color-danger-foreground);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-foreground);
 }
 
 /* Invalid Hover Precedence:
  * - Unchecked invalid hover retains surface hover and danger border.
- * - Checked/indeterminate invalid hover retains danger fill, border, and foreground.
+ * - Checked/indeterminate invalid hover retains primary fill, border, and foreground.
  */
 .input[aria-invalid="true"]:not(:checked):not(:indeterminate):hover:not(:disabled) + .indicator {
   background-color: var(--color-surface-hover);
@@ -203,9 +207,9 @@
 
 .input[aria-invalid="true"]:checked:hover:not(:disabled) + .indicator,
 .input[aria-invalid="true"]:indeterminate:hover:not(:disabled) + .indicator {
-  background-color: var(--color-danger);
-  border-color: var(--color-danger);
-  color: var(--color-danger-foreground);
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  color: var(--color-primary-foreground);
 }
 
 .input[aria-invalid="true"]:focus-visible + .indicator {

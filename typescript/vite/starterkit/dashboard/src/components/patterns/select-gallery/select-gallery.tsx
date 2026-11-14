@@ -1,713 +1,735 @@
 'use client';
 
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Select } from '@/components/ui/select';
-import { BidiText, type TranslationKey } from '@/i18n';
-import { useI18n } from '@/providers';
-import { LanguageSwitcher } from '../language-switcher';
-import { ThemeSwitcher } from '../theme-switcher';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { Button, type ControlSize, Select } from '@/components/ui';
+import { cn } from '@/lib/cn';
+import { useI18n, useTheme } from '@/providers';
+import {
+  GalleryCodeInspector,
+  GalleryStudioLayout,
+  type StudioLinkComponent,
+  StudioSegmentedControl,
+  type StudioSegmentedOption,
+  type StudioSpecGroup,
+  StudioToggleRow,
+} from '../gallery-studio';
 import styles from './select-gallery.module.css';
 
-type FormStatusId = 'none' | 'pending' | 'success' | 'reset' | 'error';
+export type SelectSpecimenDirection = 'ltr' | 'rtl';
+export type SelectInteractionState = 'resting' | 'invalid' | 'disabled';
+export type SelectStageView = 'single' | 'all-sizes';
+export type SelectTouchTarget = 'auto' | 'comfortable';
 
-const FORM_STATUS_MAP: Record<FormStatusId, TranslationKey> = {
-  none: 'common.selectGallery.formEventNone',
-  pending: 'common.selectGallery.formEventPending',
-  success: 'common.selectGallery.formEventSuccess',
-  reset: 'common.selectGallery.formEventReset',
-  error: 'common.selectGallery.formEventError',
-};
+export interface SelectGalleryProps {
+  linkComponent?: StudioLinkComponent;
+}
 
-const SIZE_LABELS: Record<string, TranslationKey> = {
-  xs: 'common.selectGallery.sizeXsLabel',
-  sm: 'common.selectGallery.sizeSmLabel',
-  md: 'common.selectGallery.sizeMdLabel',
-  lg: 'common.selectGallery.sizeLgLabel',
-  xl: 'common.selectGallery.sizeXlLabel',
-  '2xl': 'common.selectGallery.size2xlLabel',
-};
+interface SelectOptionDef {
+  value: string;
+  labels: Record<'en' | 'fr' | 'ar', string>;
+}
 
-export function SelectGallery() {
-  const { t } = useI18n();
+interface SelectPresetDef {
+  id: string;
+  labelKey:
+    | 'common.studio.selectPresetRegion'
+    | 'common.studio.selectPresetRole'
+    | 'common.studio.selectPresetCurrency'
+    | 'common.studio.selectPresetNoIcon'
+    | 'common.studio.selectPresetInvalid'
+    | 'common.studio.selectPresetDisabled';
+  state: SelectInteractionState;
+  showIcon: boolean;
+  defaultValue: string;
+  labels: Record<'en' | 'fr' | 'ar', string>;
+  helpers?: Record<'en' | 'fr' | 'ar', string>;
+  errors?: Record<'en' | 'fr' | 'ar', string>;
+  options: readonly SelectOptionDef[];
+  showHelper: boolean;
+  showError: boolean;
+}
 
-  // Controlled mode state
-  const [controlledChannel, setControlledChannel] = useState('email');
-
-  // Required section validation state (starts without premature error)
-  const [requiredCurrency, setRequiredCurrency] = useState('');
-  const [requiredError, setRequiredError] = useState(false);
-
-  // Form demonstration state
-  const [formPlan, setFormPlan] = useState('');
-  const [formAddon, setFormAddon] = useState('');
-  const [formStatusId, setFormStatusId] = useState<FormStatusId>('none');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
-
-  const handleRequiredValidate = useCallback(() => {
-    if (!requiredCurrency) {
-      setRequiredError(true);
-    } else {
-      setRequiredError(false);
-    }
-  }, [requiredCurrency]);
-
-  const handleRequiredChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setRequiredCurrency(e.target.value);
-    if (e.target.value) {
-      setRequiredError(false);
-    }
-  }, []);
-
-  const handleFormSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (isSubmitting) return;
-
-      if (!formPlan) {
-        setFormStatusId('error');
-        return;
-      }
-
-      setIsSubmitting(true);
-      setFormStatusId('pending');
-
-      timerRef.current = setTimeout(() => {
-        setIsSubmitting(false);
-        setFormStatusId('success');
-      }, 1200);
+const REGION_OPTIONS: readonly SelectOptionDef[] = [
+  {
+    value: 'us-east',
+    labels: {
+      en: 'US East (N. Virginia)',
+      fr: 'États-Unis Est (Virginie)',
+      ar: 'شرق الولايات المتحدة (فيرجينيا)',
     },
-    [isSubmitting, formPlan],
+  },
+  {
+    value: 'eu-west',
+    labels: { en: 'EU West (Frankfurt)', fr: 'UE Ouest (Francfort)', ar: 'غرب أوروبا (فرانكفورت)' },
+  },
+  {
+    value: 'ap-south',
+    labels: { en: 'AP South (Mumbai)', fr: 'Asie Sud (Mumbai)', ar: 'جنوب آسيا (مومباي)' },
+  },
+  {
+    value: 'me-central',
+    labels: { en: 'ME Central (Dubai)', fr: 'MO Central (Dubaï)', ar: 'الشرق الأوسط (دبي)' },
+  },
+];
+
+const ROLE_OPTIONS: readonly SelectOptionDef[] = [
+  {
+    value: 'admin',
+    labels: {
+      en: 'Administrator (Full Access)',
+      fr: 'Administrateur (Accès complet)',
+      ar: 'مسؤول (وصول كامل)',
+    },
+  },
+  {
+    value: 'editor',
+    labels: {
+      en: 'Editor (Can Edit & Publish)',
+      fr: 'Éditeur (Peut éditer et publier)',
+      ar: 'محرر (يمكنه التعديل والنشر)',
+    },
+  },
+  {
+    value: 'viewer',
+    labels: { en: 'Viewer (Read Only)', fr: 'Lecteur (Lecture seule)', ar: 'مشاهد (قراءة فقط)' },
+  },
+  {
+    value: 'billing',
+    labels: { en: 'Billing Manager', fr: 'Gestionnaire de facturation', ar: 'مدير الفواتير' },
+  },
+];
+
+const CURRENCY_OPTIONS: readonly SelectOptionDef[] = [
+  {
+    value: 'usd',
+    labels: {
+      en: 'USD ($) — US Dollar',
+      fr: 'USD ($) — Dollar américain',
+      ar: 'USD ($) — دولار أمريكي',
+    },
+  },
+  {
+    value: 'eur',
+    labels: { en: 'EUR (€) — Euro', fr: 'EUR (€) — Euro', ar: 'EUR (€) — يورو' },
+  },
+  {
+    value: 'gbp',
+    labels: {
+      en: 'GBP (£) — British Pound',
+      fr: 'GBP (£) — Livre sterling',
+      ar: 'GBP (£) — جنيه إسترليني',
+    },
+  },
+  {
+    value: 'aed',
+    labels: {
+      en: 'AED (د.إ) — UAE Dirham',
+      fr: 'AED (د.إ) — Dirham des EAU',
+      ar: 'AED (د.إ) — درهم إماراتي',
+    },
+  },
+];
+
+const ENVIRONMENT_OPTIONS: readonly SelectOptionDef[] = [
+  {
+    value: '',
+    labels: {
+      en: 'Choose an environment...',
+      fr: 'Choisir un environnement...',
+      ar: 'اختر بيئة...',
+    },
+  },
+  {
+    value: 'prod',
+    labels: {
+      en: 'Production (Live Traffic)',
+      fr: 'Production (Trafic réel)',
+      ar: 'الإنتاج (الزيارات الفعلية)',
+    },
+  },
+  {
+    value: 'staging',
+    labels: { en: 'Staging (Pre-release)', fr: 'Pré-production (Test)', ar: 'البيئة التجريبية' },
+  },
+];
+
+const CLUSTER_OPTIONS: readonly SelectOptionDef[] = [
+  {
+    value: 'prod-cluster',
+    labels: {
+      en: 'Cluster Alpha (Locked)',
+      fr: 'Cluster Alpha (Verrouillé)',
+      ar: 'المجموعة ألفا (مقفلة)',
+    },
+  },
+];
+
+const SELECT_PRESETS: readonly SelectPresetDef[] = [
+  {
+    id: 'region',
+    labelKey: 'common.studio.selectPresetRegion',
+    state: 'resting',
+    showIcon: true,
+    defaultValue: 'us-east',
+    labels: { en: 'Deployment Region', fr: 'Région de déploiement', ar: 'منطقة النشر' },
+    helpers: {
+      en: 'Choose the datacenter closest to your primary user base.',
+      fr: 'Choisissez le centre de données le plus proche de vos utilisateurs.',
+      ar: 'اختر مركز البيانات الأقرب لمستخدميك لتقليل زمن الاستجابة.',
+    },
+    options: REGION_OPTIONS,
+    showHelper: true,
+    showError: false,
+  },
+  {
+    id: 'role',
+    labelKey: 'common.studio.selectPresetRole',
+    state: 'resting',
+    showIcon: true,
+    defaultValue: 'editor',
+    labels: { en: 'Account Role', fr: 'Rôle du compte', ar: 'دور الحساب' },
+    helpers: {
+      en: 'Controls workspace access and administrative capabilities.',
+      fr: 'Contrôle les accès à l’espace de travail et l’administration.',
+      ar: 'يتحكم في صلاحيات مساحة العمل والأذونات الإدارية.',
+    },
+    options: ROLE_OPTIONS,
+    showHelper: true,
+    showError: false,
+  },
+  {
+    id: 'currency',
+    labelKey: 'common.studio.selectPresetCurrency',
+    state: 'resting',
+    showIcon: true,
+    defaultValue: 'usd',
+    labels: { en: 'Billing Currency', fr: 'Devise de facturation', ar: 'عملة الفواتير' },
+    options: CURRENCY_OPTIONS,
+    showHelper: false,
+    showError: false,
+  },
+  {
+    id: 'no-icon',
+    labelKey: 'common.studio.selectPresetNoIcon',
+    state: 'resting',
+    showIcon: false,
+    defaultValue: 'us-east',
+    labels: {
+      en: 'Minimal Select (No Chevron)',
+      fr: 'Sélection minimale (Sans chevron)',
+      ar: 'اختيار مبسط (بدون سهم)',
+    },
+    helpers: {
+      en: 'Decorative chevron omitted; symmetrical end padding applied.',
+      fr: 'Chevron omis; espacement de fin symétrique appliqué.',
+      ar: 'تم حذف السهم الزخرفي؛ يتم تطبيق الحشوة المتماثلة تلقائياً.',
+    },
+    options: REGION_OPTIONS,
+    showHelper: true,
+    showError: false,
+  },
+  {
+    id: 'invalid',
+    labelKey: 'common.studio.selectPresetInvalid',
+    state: 'invalid',
+    showIcon: true,
+    defaultValue: '',
+    labels: { en: 'Mandatory Environment', fr: 'Environnement obligatoire', ar: 'البيئة المطلوبة' },
+    errors: {
+      en: 'Please select a deployment environment before proceeding.',
+      fr: 'Veuillez sélectionner un environnement avant de continuer.',
+      ar: 'يرجى تحديد بيئة النشر قبل المتابعة.',
+    },
+    options: ENVIRONMENT_OPTIONS,
+    showHelper: false,
+    showError: true,
+  },
+  {
+    id: 'disabled',
+    labelKey: 'common.studio.selectPresetDisabled',
+    state: 'disabled',
+    showIcon: true,
+    defaultValue: 'prod-cluster',
+    labels: { en: 'Locked Cluster', fr: 'Cluster verrouillé', ar: 'المجموعة المقفلة' },
+    options: CLUSTER_OPTIONS,
+    showHelper: false,
+    showError: false,
+  },
+];
+
+const allSizesList: readonly ControlSize[] = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
+
+export function SelectGallery({ linkComponent }: SelectGalleryProps) {
+  const { t, locale, direction } = useI18n();
+  const { resolvedTheme } = useTheme();
+
+  const activeLang = useMemo(() => {
+    return (locale === 'fr' || locale === 'ar' ? locale : 'en') as 'en' | 'fr' | 'ar';
+  }, [locale]);
+
+  // Studio Interactive State
+  const [specimenDir, setSpecimenDir] = useState<SelectSpecimenDirection>('ltr');
+  const [size, setSize] = useState<ControlSize | 'default'>('default');
+  const [stageView, setStageView] = useState<SelectStageView>('single');
+  const [interactionState, setInteractionState] = useState<SelectInteractionState>('resting');
+  const [fullWidth, setFullWidth] = useState(false);
+  const [touchTarget, setTouchTarget] = useState<SelectTouchTarget>('auto');
+  const [showIcon, setShowIcon] = useState(true);
+
+  // Field & Content State
+  const [activePresetId, setActivePresetId] = useState<string>('region');
+  const [selectedValue, setSelectedValue] = useState<string>(SELECT_PRESETS[0].defaultValue);
+  const [currentOptions, setCurrentOptions] = useState<readonly SelectOptionDef[]>(
+    SELECT_PRESETS[0].options,
+  );
+  const [activeLabel, setActiveLabel] = useState(SELECT_PRESETS[0].labels.en);
+  const [activeHelper, setActiveHelper] = useState('');
+  const [activeError, setActiveError] = useState('');
+  const [showLabel, setShowLabel] = useState(true);
+  const [showHelper, setShowHelper] = useState(true);
+  const [showError, setShowError] = useState(false);
+
+  // Live specimen ref for computed specs measurement
+  const specimenRef = useRef<HTMLSelectElement | null>(null);
+  const [measuredSpecs, setMeasuredSpecs] = useState<{
+    height: string;
+    width: string;
+    bg: string;
+    border: string;
+    radius: string;
+  } | null>(null);
+
+  const resolveText = useCallback(
+    (map: Record<'en' | 'fr' | 'ar', string>) => {
+      if (specimenDir === 'rtl') return map.ar;
+      return map[activeLang] ?? map.en;
+    },
+    [activeLang, specimenDir],
   );
 
-  const handleFormReset = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    setIsSubmitting(false);
-    setFormPlan('');
-    setFormAddon('');
-    setFormStatusId('reset');
-  }, []);
+  const applyPreset = useCallback(
+    (preset: SelectPresetDef) => {
+      setActivePresetId(preset.id);
+      setInteractionState(preset.state);
+      setShowIcon(preset.showIcon);
+      setSelectedValue(preset.defaultValue);
+      setCurrentOptions(preset.options);
+      setActiveLabel(resolveText(preset.labels));
+      setActiveHelper(preset.helpers ? resolveText(preset.helpers) : '');
+      setActiveError(preset.errors ? resolveText(preset.errors) : '');
+      setShowHelper(preset.showHelper);
+      setShowError(preset.showError);
+    },
+    [resolveText],
+  );
 
-  // Stable IDs for accessibility
-  const overviewId = useId();
-  const controlledId = useId();
-  const uncontrolledId = useId();
-  const requiredId = useId();
-  const requiredHelpId = `${requiredId}-help`;
-  const requiredErrorId = `${requiredId}-error`;
-  const optgroupsId = useId();
-  const arabicId = useId();
-  const arabicHelpId = `${arabicId}-help`;
-  const mixedTechId = useId();
-  const longId = useId();
-  const formPlanId = useId();
-  const formAddonId = useId();
+  const handleDirectionChange = useCallback(
+    (dir: SelectSpecimenDirection) => {
+      setSpecimenDir(dir);
+      const activePreset = SELECT_PRESETS.find((p) => p.id === activePresetId) ?? SELECT_PRESETS[0];
+      const targetLang = dir === 'rtl' ? 'ar' : activeLang;
+      setActiveLabel(activePreset.labels[targetLang]);
+      if (activePreset.helpers) {
+        setActiveHelper(activePreset.helpers[targetLang]);
+      }
+      if (activePreset.errors) {
+        setActiveError(activePreset.errors[targetLang]);
+      }
+    },
+    [activeLang, activePresetId],
+  );
+
+  const handleReset = useCallback(() => {
+    setSpecimenDir('ltr');
+    setSize('default');
+    setStageView('single');
+    setInteractionState('resting');
+    setFullWidth(false);
+    setTouchTarget('auto');
+    setShowIcon(true);
+    applyPreset(SELECT_PRESETS[0]);
+  }, [applyPreset]);
+
+  const resolvedSize: ControlSize | undefined = size === 'default' ? undefined : size;
+  const isInvalid = interactionState === 'invalid' || showError;
+  const isDisabled = interactionState === 'disabled';
+
+  const baseId = useId();
+  const activeSelectId = `${baseId}-active-select`;
+  const activeHelpId = `${baseId}-active-help`;
+  const activeErrorId = `${baseId}-active-error`;
+
+  const describedBy = useMemo(() => {
+    const ids: string[] = [];
+    if (showHelper && activeHelper) ids.push(activeHelpId);
+    if (isInvalid && activeError) ids.push(activeErrorId);
+    return ids.length > 0 ? ids.join(' ') : undefined;
+  }, [showHelper, activeHelper, activeHelpId, isInvalid, activeError, activeErrorId]);
+
+  useEffect(() => {
+    if (specimenRef.current) {
+      const el = specimenRef.current;
+      const s = window.getComputedStyle(el);
+      const rect = el.getBoundingClientRect();
+      setMeasuredSpecs({
+        height: `${Math.round(rect.height)}px`,
+        width: `${Math.round(rect.width)}px`,
+        bg: s.backgroundColor,
+        border: `${s.borderWidth} ${s.borderStyle} ${s.borderColor}`,
+        radius: s.borderRadius,
+      });
+    }
+  }, [
+    size,
+    touchTarget,
+    interactionState,
+    showIcon,
+    specimenDir,
+    resolvedTheme,
+    fullWidth,
+    selectedValue,
+  ]);
+
+  // Dynamic Standalone Code Snippet
+  const jsxSnippet = useMemo(() => {
+    const propsList: string[] = [];
+    if (size !== 'default') propsList.push(`size="${size}"`);
+    if (touchTarget !== 'auto') propsList.push(`touchTarget="${touchTarget}"`);
+    if (!showIcon) propsList.push('showIcon={false}');
+    if (isDisabled) propsList.push('disabled');
+    if (isInvalid) propsList.push('aria-invalid="true"');
+    if (describedBy) propsList.push(`aria-describedby="${describedBy}"`);
+    propsList.push(`value={value}`);
+    propsList.push(`onChange={(e) => setValue(e.target.value)}`);
+
+    const propsStr = propsList.length > 0 ? `\n  ${propsList.join('\n  ')}\n` : ' ';
+
+    return `import { Select } from '@/components/ui';
+
+<div className="fieldGroup">
+  <label htmlFor="user-select">${activeLabel}</label>
+  <Select id="user-select"${propsStr}>
+    <option value="us-east">US East (N. Virginia)</option>
+    <option value="eu-west">EU West (Frankfurt)</option>
+    <option value="ap-south">AP South (Mumbai)</option>
+    <option value="me-central">ME Central (Dubai)</option>
+  </Select>
+</div>`;
+  }, [size, touchTarget, showIcon, isDisabled, isInvalid, describedBy, activeLabel]);
+
+  const cssModuleSnippet = `.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  inline-size: 100%;${fullWidth ? '' : '\n  max-inline-size: 24rem;'}
+}
+
+.label {
+  font-size: var(--typography-label-size);
+  color: var(--color-text-primary);
+  font-weight: var(--typography-label-weight);
+}`;
+
+  const aiAgentPrompt = useMemo(() => {
+    return `You are implementing an accessible single-choice Select dropdown using the project's white-label UI Kit. Follow these exact rules:
+
+1. Import pure primitive:
+   import { Select } from '@/components/ui';
+
+2. Usage:
+   ${jsxSnippet}
+
+3. Architectural Invariants:
+   - 100% pure native <select> wrapped in an inline-block geometry root with custom token-spaced chevron.
+   - 2px balanced focus ring (zero floating gap, HeroUI style).
+   - Stable neutral hover border: resting border remains stable on hover without artificial jump.
+   - 100% CSS logical properties (inline-size, block-size, padding-inline, padding-block).
+   - Zero dashboard shadows: list elevation is native browser-owned.
+   - Size: ${size === 'default' ? 'Product default (md = 36px in dashboard, xl = 48px in website)' : `Explicit size="${size}"`}.`;
+  }, [jsxSnippet, size]);
+
+  const specGroups: readonly StudioSpecGroup[] = useMemo(() => {
+    return [
+      {
+        title: t('common.studio.specCategoryVariant'),
+        items: [
+          { label: 'size', value: size },
+          { label: 'state', value: interactionState },
+          { label: 'showIcon', value: showIcon ? 'true' : 'false' },
+          { label: 'touchTarget', value: touchTarget },
+          { label: 'fullWidth', value: fullWidth ? 'true' : 'false' },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryMeasured'),
+        items: [
+          { label: t('common.studio.specMinBlockSize'), value: measuredSpecs?.height ?? '—' },
+          { label: t('common.studio.specInlineSize'), value: measuredSpecs?.width ?? '—' },
+          { label: t('common.studio.specBackgroundColor'), value: measuredSpecs?.bg ?? '—' },
+          { label: t('common.studio.specBorder'), value: measuredSpecs?.border ?? '—' },
+          { label: t('common.studio.specRadius'), value: measuredSpecs?.radius ?? '—' },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryTokens'),
+        items: [
+          { label: '--radius-control', value: 'var(--radius-control) (6px / 8px)' },
+          { label: '--color-border-focus', value: 'var(--color-border-focus)' },
+          { label: t('common.studio.specimenDirectionLabel'), value: specimenDir.toUpperCase() },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryEnv'),
+        items: [
+          { label: t('common.studio.specLocale'), value: locale },
+          { label: t('common.studio.specDirection'), value: direction.toUpperCase() },
+          { label: t('common.studio.specTheme'), value: resolvedTheme },
+        ],
+      },
+    ];
+  }, [
+    size,
+    interactionState,
+    showIcon,
+    touchTarget,
+    fullWidth,
+    measuredSpecs,
+    specimenDir,
+    locale,
+    direction,
+    resolvedTheme,
+    t,
+  ]);
+
+  // Sidebar Controls Options
+  const specimenDirOptions: readonly StudioSegmentedOption<SelectSpecimenDirection>[] = [
+    { value: 'ltr', label: t('common.studio.specimenDirLtr'), testId: 'opt-dir-ltr' },
+    { value: 'rtl', label: t('common.studio.specimenDirRtl'), testId: 'opt-dir-rtl' },
+  ];
+
+  const sizeOptions: readonly StudioSegmentedOption<ControlSize | 'default'>[] = [
+    { value: 'default', label: 'Def', testId: 'opt-size-default' },
+    { value: 'xs', label: 'XS', testId: 'opt-size-xs' },
+    { value: 'sm', label: 'SM', testId: 'opt-size-sm' },
+    { value: 'md', label: 'MD', testId: 'opt-size-md' },
+    { value: 'lg', label: 'LG', testId: 'opt-size-lg' },
+    { value: 'xl', label: 'XL', testId: 'opt-size-xl' },
+    { value: '2xl', label: '2XL', testId: 'opt-size-2xl' },
+  ];
+
+  const stateOptions: readonly StudioSegmentedOption<SelectInteractionState>[] = [
+    { value: 'resting', label: t('common.studio.optStateResting'), testId: 'opt-state-resting' },
+    { value: 'invalid', label: t('common.studio.optStateInvalid'), testId: 'opt-state-invalid' },
+    { value: 'disabled', label: t('common.studio.optStateDisabled'), testId: 'opt-state-disabled' },
+  ];
+
+  const viewOptions: readonly StudioSegmentedOption<SelectStageView>[] = [
+    { value: 'single', label: t('common.studio.viewSingle'), testId: 'opt-view-single' },
+    { value: 'all-sizes', label: t('common.studio.viewAllSizes'), testId: 'opt-view-all-sizes' },
+  ];
+
+  const touchTargetOptions: readonly StudioSegmentedOption<SelectTouchTarget>[] = [
+    { value: 'auto', label: t('common.studio.touchAuto'), testId: 'opt-touch-auto' },
+    {
+      value: 'comfortable',
+      label: t('common.studio.touchComfortable'),
+      testId: 'opt-touch-comfortable',
+    },
+  ];
 
   return (
-    <div className={styles.galleryContainer} data-testid="select-gallery">
-      {/* Header */}
-      <header className={styles.galleryHeader}>
-        <div className={styles.headerTop}>
-          <h1 className={styles.title}>{t('common.selectGallery.title')}</h1>
-          <div className={styles.controlsRow}>
-            <ThemeSwitcher />
-            <LanguageSwitcher />
-          </div>
-        </div>
-        <p className={styles.subtitle}>{t('common.selectGallery.subtitle')}</p>
-      </header>
+    <GalleryStudioLayout
+      activeRoute="select"
+      title={t('common.selectGallery.title')}
+      subtitle={t('common.selectGallery.subtitle')}
+      testId="select-gallery"
+      previewDir={specimenDir}
+      onReset={handleReset}
+      linkComponent={linkComponent}
+      controls={
+        <>
+          <StudioSegmentedControl
+            label={t('common.studio.specimenDirectionLabel')}
+            value={specimenDir}
+            options={specimenDirOptions}
+            onChange={handleDirectionChange}
+          />
 
-      {/* 1. Overview & Product Defaults */}
-      <section className={styles.section} aria-labelledby="section-overview">
-        <h2 id="section-overview" className={styles.sectionTitle}>
-          {t('common.selectGallery.overviewTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.selectGallery.overviewDesc')}</p>
+          <hr className={styles.controlDivider} />
 
-        <div className={styles.gridTwo}>
-          <div className={styles.fieldRow}>
-            <label htmlFor={overviewId} className={styles.label}>
-              {t('common.selectGallery.defaultPromptOmitted')}
-            </label>
-            <Select id={overviewId} data-testid="specimen-default" defaultValue="admin">
-              <option value="admin">{t('common.selectGallery.defaultOptionAdmin')}</option>
-              <option value="editor">{t('common.selectGallery.defaultOptionEditor')}</option>
-              <option value="viewer">{t('common.selectGallery.defaultOptionViewer')}</option>
-            </Select>
-          </div>
+          <StudioSegmentedControl
+            label={t('common.studio.btnSizeLabel')}
+            value={size}
+            options={sizeOptions}
+            onChange={setSize}
+          />
 
-          <div className={styles.fieldRow}>
-            <label htmlFor={`${overviewId}-alt`} className={styles.label}>
-              {t('common.selectGallery.defaultPromptAlt')}
-            </label>
-            <Select
-              id={`${overviewId}-alt`}
-              data-testid="specimen-default-alt"
-              defaultValue="editor"
-            >
-              <option value="admin">{t('common.selectGallery.defaultOptionAdmin')}</option>
-              <option value="editor">{t('common.selectGallery.defaultOptionEditor')}</option>
-              <option value="viewer">{t('common.selectGallery.defaultOptionViewer')}</option>
-            </Select>
-          </div>
-        </div>
-      </section>
+          <StudioSegmentedControl
+            label={t('common.studio.btnCanvasViewLabel')}
+            value={stageView}
+            options={viewOptions}
+            onChange={setStageView}
+          />
 
-      {/* 2. Six-Step Scale */}
-      <section className={styles.section} aria-labelledby="section-sizes">
-        <h2 id="section-sizes" className={styles.sectionTitle}>
-          {t('common.selectGallery.sizesTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.selectGallery.sizesDesc')}</p>
+          <hr className={styles.controlDivider} />
 
-        <div className={styles.scaleGrid}>
-          {(['xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const).map((size) => (
-            <div key={size} className={styles.fieldRow}>
-              <label htmlFor={`select-size-${size}`} className={styles.label}>
-                {t(SIZE_LABELS[size])}
-              </label>
+          <StudioSegmentedControl
+            label={t('common.studio.inputStateLabel')}
+            value={interactionState}
+            options={stateOptions}
+            onChange={(s) => {
+              setInteractionState(s);
+              if (s === 'invalid') {
+                setShowError(true);
+              } else {
+                setShowError(false);
+              }
+            }}
+          />
+
+          <StudioToggleRow
+            label={t('common.studio.inputFullWidthLabel')}
+            checked={fullWidth}
+            onCheckedChange={setFullWidth}
+            testId="toggle-select-full-width"
+          />
+
+          <StudioSegmentedControl
+            label={t('common.studio.btnTouchTargetLabel')}
+            value={touchTarget}
+            options={touchTargetOptions}
+            onChange={setTouchTarget}
+          />
+
+          <hr className={styles.controlDivider} />
+
+          <StudioToggleRow
+            label={t('common.studio.selectPresetNoIcon')}
+            checked={!showIcon}
+            onCheckedChange={(omitted) => setShowIcon(!omitted)}
+            testId="toggle-select-hide-icon"
+          />
+
+          <StudioToggleRow
+            label={t('common.studio.inputShowLabelToggle')}
+            checked={showLabel}
+            onCheckedChange={setShowLabel}
+          />
+
+          <StudioToggleRow
+            label={t('common.studio.inputShowHelperToggle')}
+            checked={showHelper}
+            onCheckedChange={setShowHelper}
+          />
+
+          <StudioToggleRow
+            label={t('common.studio.inputShowErrorToggle')}
+            checked={showError}
+            onCheckedChange={setShowError}
+          />
+        </>
+      }
+      inspector={
+        <GalleryCodeInspector
+          aiPrompt={aiAgentPrompt}
+          jsxCode={jsxSnippet}
+          cssCode={cssModuleSnippet}
+          jsxFileName="my-select-dropdown.tsx"
+          cssFileName="my-select-dropdown.module.css"
+          specGroups={specGroups}
+        />
+      }
+    >
+      <div className={cn(styles.stageActionArea, fullWidth && styles.wrapperFullWidth)}>
+        {stageView === 'single' ? (
+          <div className={styles.singleSpecimenRow}>
+            <div className={cn(styles.fieldGroup, fullWidth && styles.wrapperFullWidth)}>
+              {showLabel && (
+                <label htmlFor={activeSelectId} className={styles.label}>
+                  {activeLabel}
+                </label>
+              )}
               <Select
-                id={`select-size-${size}`}
-                size={size}
-                data-testid={`specimen-size-${size}`}
-                defaultValue="opt1"
+                ref={specimenRef}
+                id={activeSelectId}
+                size={resolvedSize}
+                touchTarget={touchTarget}
+                showIcon={showIcon}
+                disabled={isDisabled}
+                aria-invalid={isInvalid || undefined}
+                aria-describedby={describedBy}
+                value={selectedValue}
+                onChange={(e) => setSelectedValue(e.target.value)}
+                data-testid="studio-active-select"
               >
-                <option value="opt1">
-                  {t('common.selectGallery.scaleOption1')} ({size})
-                </option>
-                <option value="opt2">
-                  {t('common.selectGallery.scaleOption2')} ({size})
-                </option>
+                {currentOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {resolveText(opt.labels)}
+                  </option>
+                ))}
               </Select>
+              {showHelper && activeHelper && (
+                <p id={activeHelpId} className={styles.helpText}>
+                  {activeHelper}
+                </p>
+              )}
+              {isInvalid && activeError && (
+                <p id={activeErrorId} className={styles.errorText} role="alert">
+                  {activeError}
+                </p>
+              )}
             </div>
-          ))}
-        </div>
-      </section>
+          </div>
+        ) : (
+          <div className={styles.allSizesGrid}>
+            {allSizesList.map((sz) => (
+              <div key={sz} className={styles.sizeCard}>
+                <span className={styles.sizeCardLabel}>size=&quot;{sz}&quot;</span>
+                <Select
+                  id={`${baseId}-grid-${sz}`}
+                  size={sz}
+                  touchTarget={touchTarget}
+                  showIcon={showIcon}
+                  disabled={isDisabled}
+                  aria-invalid={isInvalid || undefined}
+                  value={selectedValue}
+                  onChange={(e) => setSelectedValue(e.target.value)}
+                  data-testid={`studio-size-select-${sz}`}
+                >
+                  {currentOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {resolveText(opt.labels)}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            ))}
+          </div>
+        )}
 
-      {/* 3. Controlled Mode */}
-      <section className={styles.section} aria-labelledby="section-controlled">
-        <h2 id="section-controlled" className={styles.sectionTitle}>
-          {t('common.selectGallery.controlledTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.selectGallery.controlledDesc')}</p>
-
-        <div className={styles.fieldRow}>
-          <label htmlFor={controlledId} className={styles.label}>
-            {t('common.selectGallery.controlledLabel')}
-          </label>
-          <Select
-            id={controlledId}
-            value={controlledChannel}
-            onChange={(e) => setControlledChannel(e.target.value)}
-            data-testid="specimen-controlled"
-          >
-            <option value="email">{t('common.selectGallery.channelEmail')}</option>
-            <option value="sms">{t('common.selectGallery.channelSms')}</option>
-            <option value="push">{t('common.selectGallery.channelPush')}</option>
-          </Select>
-        </div>
-
-        <div className={styles.statusCard} data-testid="controlled-status-card">
-          <span>{t('common.selectGallery.controlledStatusPrefix')}:</span>
-          <span className={styles.statusValue} data-testid="controlled-status-value">
-            {controlledChannel}
+        {/* Clean, centered Quick Configuration Presets */}
+        <div className={styles.variantsCenterSection}>
+          <span className={styles.variantsCenterLabel}>
+            {t('common.studio.selectQuickPresetsTitle')}
           </span>
-        </div>
-      </section>
-
-      {/* 4. Uncontrolled Mode & Form Reset */}
-      <section className={styles.section} aria-labelledby="section-uncontrolled">
-        <h2 id="section-uncontrolled" className={styles.sectionTitle}>
-          {t('common.selectGallery.uncontrolledTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.selectGallery.uncontrolledDesc')}</p>
-
-        <form
-          className={styles.fieldset}
-          onReset={() => {
-            /* native reset */
-          }}
-        >
-          <div className={styles.fieldRow}>
-            <label htmlFor={uncontrolledId} className={styles.label}>
-              {t('common.selectGallery.uncontrolledLabel')}
-            </label>
-            <Select
-              id={uncontrolledId}
-              name="workspaceRegion"
-              defaultValue="us-west"
-              data-testid="specimen-uncontrolled"
-            >
-              <option value="us-east">{t('common.selectGallery.regionUsEast')}</option>
-              <option value="us-west">{t('common.selectGallery.regionUsWest')}</option>
-              <option value="eu-central">{t('common.selectGallery.regionEuCentral')}</option>
-            </Select>
-          </div>
-          <div className={styles.formActions}>
-            <Button type="reset" size="sm" variant="secondary" data-testid="uncontrolled-reset-btn">
-              {t('common.selectGallery.uncontrolledResetButton')}
-            </Button>
-          </div>
-        </form>
-      </section>
-
-      {/* 5. Operational States & Combined Precedence */}
-      <section className={styles.section} aria-labelledby="section-states">
-        <h2 id="section-states" className={styles.sectionTitle}>
-          {t('common.selectGallery.statesTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.selectGallery.statesDesc')}</p>
-
-        <div className={styles.scaleGrid}>
-          <div className={styles.fieldRow}>
-            <label htmlFor="state-resting" className={styles.label}>
-              {t('common.selectGallery.stateRestingLabel')}
-            </label>
-            <Select id="state-resting" data-testid="specimen-resting" defaultValue="val">
-              <option value="val">{t('common.selectGallery.stateRestingOption')}</option>
-            </Select>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <label htmlFor="state-invalid" className={styles.label}>
-              {t('common.selectGallery.stateInvalidLabel')}
-            </label>
-            <Select
-              id="state-invalid"
-              aria-invalid="true"
-              data-testid="specimen-invalid"
-              defaultValue="val"
-            >
-              <option value="val">{t('common.selectGallery.stateInvalidOption')}</option>
-            </Select>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <label htmlFor="state-disabled" className={styles.label}>
-              {t('common.selectGallery.stateDisabledLabel')}
-            </label>
-            <Select id="state-disabled" disabled data-testid="specimen-disabled" defaultValue="val">
-              <option value="val">{t('common.selectGallery.stateDisabledOption')}</option>
-            </Select>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <label htmlFor="state-disabled-opt" className={styles.label}>
-              {t('common.selectGallery.stateDisabledOptionLabel')}
-            </label>
-            <Select
-              id="state-disabled-opt"
-              data-testid="specimen-disabled-option"
-              defaultValue="active"
-            >
-              <option value="active">{t('common.selectGallery.stateActiveOption')}</option>
-              <option value="dis" disabled>
-                {t('common.selectGallery.stateDisabledOption')}
-              </option>
-            </Select>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <label htmlFor="state-invalid-dis" className={styles.label}>
-              {t('common.selectGallery.stateInvalidDisabledLabel')}
-            </label>
-            <Select
-              id="state-invalid-dis"
-              aria-invalid="true"
-              disabled
-              data-testid="specimen-invalid-disabled"
-              defaultValue="val"
-            >
-              <option value="val">{t('common.selectGallery.stateInvalidDisabledOption')}</option>
-            </Select>
+          <div className={styles.variantsCenterRow}>
+            {SELECT_PRESETS.map((preset) => {
+              const isActive = activePresetId === preset.id;
+              return (
+                <Button
+                  key={preset.id}
+                  variant={isActive ? 'primary' : 'secondary'}
+                  size="sm"
+                  data-testid={`preset-quick-select-${preset.id}`}
+                  onClick={() => applyPreset(preset)}
+                >
+                  {t(preset.labelKey)}
+                </Button>
+              );
+            })}
           </div>
         </div>
-      </section>
-
-      {/* 6. Required Validation & Accessible Relationships */}
-      <section className={styles.section} aria-labelledby="section-required">
-        <h2 id="section-required" className={styles.sectionTitle}>
-          {t('common.selectGallery.helpErrorTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.selectGallery.helpErrorDesc')}</p>
-
-        <div className={styles.fieldRow}>
-          <label htmlFor={requiredId} className={styles.label}>
-            {t('common.selectGallery.requiredLabel')}
-          </label>
-          <Select
-            id={requiredId}
-            required
-            value={requiredCurrency}
-            onChange={handleRequiredChange}
-            aria-invalid={requiredError ? 'true' : undefined}
-            aria-describedby={requiredError ? `${requiredHelpId} ${requiredErrorId}` : requiredHelpId}
-            data-testid="specimen-required"
-          >
-            <option value="">{t('common.selectGallery.requiredPrompt')}</option>
-            <option value="usd">USD ($)</option>
-            <option value="eur">EUR (€)</option>
-            <option value="mad">MAD (د.م.)</option>
-          </Select>
-
-          <p id={requiredHelpId} className={styles.helpText}>
-            {t('common.selectGallery.requiredHelpText')}
-          </p>
-
-          {requiredError && (
-            <p id={requiredErrorId} role="alert" className={styles.errorText} data-testid="required-error-msg">
-              {t('common.selectGallery.requiredErrorText')}
-            </p>
-          )}
-
-          <div className={styles.formActions}>
-            <Button
-              type="button"
-              size="sm"
-              variant="secondary"
-              onClick={handleRequiredValidate}
-              data-testid="required-validate-btn"
-            >
-              {t('common.selectGallery.requiredValidateButton')}
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. Option Groups & Disabled Options */}
-      <section className={styles.section} aria-labelledby="section-optgroups">
-        <h2 id="section-optgroups" className={styles.sectionTitle}>
-          {t('common.selectGallery.optgroupsTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.selectGallery.optgroupsDesc')}</p>
-
-        <div className={styles.fieldRow}>
-          <label htmlFor={optgroupsId} className={styles.label}>
-            {t('common.selectGallery.optgroupsLabel')}
-          </label>
-          <Select id={optgroupsId} data-testid="specimen-optgroups" defaultValue="prod-eu">
-            <optgroup label={t('common.selectGallery.optgroupProduction')}>
-              <option value="prod-eu">{t('common.selectGallery.envProdEu')}</option>
-              <option value="prod-us">{t('common.selectGallery.envProdUs')}</option>
-            </optgroup>
-            <optgroup label={t('common.selectGallery.optgroupStaging')}>
-              <option value="stage-eu">{t('common.selectGallery.envStageEu')}</option>
-              <option value="stage-us" disabled>
-                {t('common.selectGallery.envStageUs')}
-              </option>
-            </optgroup>
-          </Select>
-        </div>
-      </section>
-
-      {/* 8. Localization & RTL */}
-      <section className={styles.section} aria-labelledby="section-localization">
-        <h2 id="section-localization" className={styles.sectionTitle}>
-          {t('common.selectGallery.localizationTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.selectGallery.localizationDesc')}</p>
-
-        <div className={styles.gridTwo}>
-          {/* Arabic Specimen */}
-          <div className={styles.fieldRow} dir="rtl">
-            <label htmlFor={arabicId} className={styles.label}>
-              {t('common.selectGallery.arabicSpecimenLabel')}
-            </label>
-            <Select
-              id={arabicId}
-              dir="rtl"
-              data-testid="specimen-arabic"
-              aria-describedby={arabicHelpId}
-              defaultValue="ar"
-            >
-              <option value="">{t('common.selectGallery.arabicPrompt')}</option>
-              <option value="ar">{t('common.selectGallery.arabicOptionAr')}</option>
-              <option value="en">{t('common.selectGallery.arabicOptionEn')}</option>
-              <option value="fr">{t('common.selectGallery.arabicOptionFr')}</option>
-            </Select>
-            <p id={arabicHelpId} className={styles.helpText}>
-              {t('common.selectGallery.arabicSpecimenHelp')}
-            </p>
-          </div>
-
-          {/* Mixed Tech Content with BidiText */}
-          <div className={styles.fieldRow}>
-            <label htmlFor={mixedTechId} className={styles.label}>
-              {t('common.selectGallery.mixedTechPrefix')}{' '}
-              <BidiText dir="ltr">GW-7700-ALPHA</BidiText>
-            </label>
-            <Select id={mixedTechId} data-testid="specimen-mixed-tech" defaultValue="gw1">
-              <option value="gw1">{t('common.selectGallery.mixedTechOption1')}</option>
-              <option value="gw2">{t('common.selectGallery.mixedTechOption2')}</option>
-            </Select>
-          </div>
-        </div>
-
-        {/* Nested LTR override inside RTL context */}
-        <div className={styles.fieldset} dir="rtl">
-          <legend className={styles.legend}>{t('common.selectGallery.nestedLtrLegend')}</legend>
-          <div className={styles.fieldRow} dir="ltr" data-testid="specimen-nested-ltr-container">
-            <label htmlFor="nested-ltr-select" className={styles.label}>
-              {t('common.selectGallery.nestedLtrLabel')}
-            </label>
-            <Select id="nested-ltr-select" dir="ltr" data-testid="specimen-nested-ltr" defaultValue="eng">
-              <option value="eng">{t('common.selectGallery.nestedLtrOption1')}</option>
-              <option value="lat">{t('common.selectGallery.nestedLtrOption2')}</option>
-            </Select>
-          </div>
-        </div>
-
-        {/* Long multiline label reflow */}
-        <div className={styles.fieldRow}>
-          <label htmlFor={longId} className={styles.label}>
-            {t('common.selectGallery.longLabelSpecimen')}
-          </label>
-          <Select id={longId} data-testid="specimen-long-label" defaultValue="opt1">
-            <option value="opt1">{t('common.selectGallery.longOption1')}</option>
-            <option value="opt2">{t('common.selectGallery.longOption2')}</option>
-          </Select>
-        </div>
-      </section>
-
-      {/* 9. Touch Targets & Theme Parity */}
-      <section className={styles.section} aria-labelledby="section-touch">
-        <h2 id="section-touch" className={styles.sectionTitle}>
-          {t('common.selectGallery.themeTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.selectGallery.themeDesc')}</p>
-
-        <div className={styles.scaleGrid}>
-          <div className={styles.fieldRow}>
-            <label htmlFor="touch-comfortable-select" className={styles.label}>
-              {t('common.selectGallery.touchComfortableSpecimen')}
-            </label>
-            <Select
-              id="touch-comfortable-select"
-              touchTarget="comfortable"
-              size="sm"
-              data-testid="specimen-touch-comfortable"
-              defaultValue="comfort"
-            >
-              <option value="comfort">{t('common.selectGallery.touchComfortableOption')}</option>
-            </Select>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <label htmlFor="touch-auto-select" className={styles.label}>
-              {t('common.selectGallery.touchAutoSpecimen')}
-            </label>
-            <Select
-              id="touch-auto-select"
-              touchTarget="auto"
-              size="xs"
-              data-testid="specimen-touch-auto"
-              defaultValue="auto"
-            >
-              <option value="auto">{t('common.selectGallery.touchAutoOption')}</option>
-            </Select>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <label htmlFor="no-icon-select" className={styles.label}>
-              {t('common.selectGallery.noIconSpecimen')}
-            </label>
-            <Select
-              id="no-icon-select"
-              showIcon={false}
-              data-testid="specimen-no-icon"
-              defaultValue="plain"
-            >
-              <option value="plain">{t('common.selectGallery.noIconOption')}</option>
-            </Select>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <label htmlFor="custom-width-select" className={styles.label}>
-              {t('common.selectGallery.customWidthSpecimen')}
-            </label>
-            <Select
-              id="custom-width-select"
-              style={{ width: '180px' }}
-              data-testid="specimen-custom-width"
-              defaultValue="w180"
-            >
-              <option value="w180">{t('common.selectGallery.customWidthOption')}</option>
-            </Select>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <label htmlFor="custom-width-class-select" className={styles.label}>
-              {t('common.selectGallery.customWidthClassSpecimen')}
-            </label>
-            <Select
-              id="custom-width-class-select"
-              className={styles.fixedWidth}
-              data-testid="specimen-custom-width-class"
-              defaultValue="w200"
-            >
-              <option value="w200">{t('common.selectGallery.customWidthClassOption')}</option>
-            </Select>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <label htmlFor="custom-width-rtl-select" className={styles.label}>
-              {t('common.selectGallery.customWidthRtlSpecimen')}
-            </label>
-            <Select
-              id="custom-width-rtl-select"
-              dir="rtl"
-              style={{ width: '180px' }}
-              data-testid="specimen-custom-width-rtl"
-              defaultValue="w180rtl"
-            >
-              <option value="w180rtl">{t('common.selectGallery.customWidthRtlOption')}</option>
-            </Select>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <label htmlFor="inner-style-width-select" className={styles.label}>
-              {t('common.selectGallery.customInnerWidthSpecimen')}
-            </label>
-            <Select
-              id="inner-style-width-select"
-              selectStyle={{ width: '160px' }}
-              data-testid="specimen-inner-style-width"
-              defaultValue="w160inner"
-            >
-              <option value="w160inner">{t('common.selectGallery.customInnerWidthOption')}</option>
-            </Select>
-          </div>
-        </div>
-
-        <fieldset disabled className={styles.fieldset}>
-          <legend className={styles.legend}>
-            {t('common.selectGallery.fieldsetDisabledLegend')}
-          </legend>
-          <div className={styles.fieldRow}>
-            <label htmlFor="fieldset-disabled-select" className={styles.label}>
-              {t('common.selectGallery.fieldsetDisabledLabel')}
-            </label>
-            <Select
-              id="fieldset-disabled-select"
-              data-testid="specimen-fieldset-disabled"
-              defaultValue="fdis"
-            >
-              <option value="fdis">{t('common.selectGallery.fieldsetDisabledOption')}</option>
-            </Select>
-          </div>
-        </fieldset>
-      </section>
-
-      {/* 10. Local Form Demonstration */}
-      <section className={styles.section} aria-labelledby="section-form">
-        <h2 id="section-form" className={styles.sectionTitle}>
-          {t('common.selectGallery.formDemoTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.selectGallery.formDemoDesc')}</p>
-
-        <form
-          className={styles.formGrid}
-          onSubmit={handleFormSubmit}
-          onReset={handleFormReset}
-          data-testid="select-demo-form"
-        >
-          <div className={styles.fieldRow}>
-            <label htmlFor={formPlanId} className={styles.label}>
-              {t('common.selectGallery.formPlanLabel')}
-            </label>
-            <Select
-              id={formPlanId}
-              name="subscriptionPlan"
-              required
-              value={formPlan}
-              onChange={(e) => setFormPlan(e.target.value)}
-              data-testid="specimen-form-plan"
-            >
-              <option value="">{t('common.selectGallery.formPlanPrompt')}</option>
-              <option value="starter">{t('common.selectGallery.formPlanStarter')}</option>
-              <option value="pro">{t('common.selectGallery.formPlanPro')}</option>
-              <option value="enterprise">{t('common.selectGallery.formPlanEnterprise')}</option>
-            </Select>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <label htmlFor={formAddonId} className={styles.label}>
-              {t('common.selectGallery.formAddonLabel')}
-            </label>
-            <Select
-              id={formAddonId}
-              name="dataRetention"
-              value={formAddon}
-              onChange={(e) => setFormAddon(e.target.value)}
-              data-testid="specimen-form-addon"
-            >
-              <option value="">{t('common.selectGallery.formAddonNone')}</option>
-              <option value="extended">{t('common.selectGallery.formAddonExtended')}</option>
-              <option value="compliance">{t('common.selectGallery.formAddonCompliance')}</option>
-            </Select>
-          </div>
-
-          <div className={styles.formActions}>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              data-testid="form-submit-btn"
-            >
-              {t('common.selectGallery.formSubmitButton')}
-            </Button>
-            <Button
-              type="reset"
-              variant="secondary"
-              data-testid="form-reset-btn"
-            >
-              {t('common.selectGallery.formResetButton')}
-            </Button>
-          </div>
-
-          <div className={styles.statusCard} data-testid="form-status-card">
-            <span>{t('common.selectGallery.formStatusPrefix')}:</span>
-            <span className={styles.statusValue} data-testid="form-status-value">
-              {t(FORM_STATUS_MAP[formStatusId])}
-            </span>
-          </div>
-
-          <p className={styles.helpText}>{t('common.selectGallery.formDisclaimer')}</p>
-        </form>
-      </section>
-
-      {/* 11. Code Usage Examples */}
-      <section className={styles.section} aria-labelledby="section-usage">
-        <h2 id="section-usage" className={styles.sectionTitle}>
-          {t('common.selectGallery.usageTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.selectGallery.usageDesc')}</p>
-
-        <pre className={styles.codeBlock}>
-          {`// Standard single-select dropdown with token-spaced indicator
-<Select name="role" defaultValue="editor">
-  <option value="admin">Administrator</option>
-  <option value="editor">Editor</option>
-  <option value="viewer">Viewer</option>
-</Select>
-
-// Required selection with initial empty option
-<Select required defaultValue="">
-  <option value="">Choose an option...</option>
-  <option value="usd">USD ($)</option>
-  <option value="eur">EUR (€)</option>
-</Select>`}
-        </pre>
-      </section>
-    </div>
+      </div>
+    </GalleryStudioLayout>
   );
 }

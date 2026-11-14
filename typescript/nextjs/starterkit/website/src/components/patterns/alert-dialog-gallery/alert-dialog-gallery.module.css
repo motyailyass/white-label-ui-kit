@@ -1,0 +1,167 @@
+/**
+ * AlertDialog Studio Gallery Stylesheet
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.controlsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.canvasArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  inline-size: 100%;
+  box-sizing: border-box;
+}
+
+.canvasRtl {
+  direction: rtl;
+}
+
+.specimenCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  inline-size: 100%;
+  min-block-size: 16rem;
+  padding: var(--space-6);
+  box-sizing: border-box;
+  background-color: var(--color-bg-base);
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+
+.specimenStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  inline-size: 100%;
+}
+
+.inlineCard {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  inline-size: min(100%, 30rem);
+  border-radius: var(--radius-dialog);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  overflow: visible;
+  position: relative;
+  text-align: start;
+}
+
+.inlineCard[data-size="sm"] {
+  inline-size: min(100%, 24rem);
+}
+
+.inlineCard[data-size="md"] {
+  inline-size: min(100%, 30rem);
+}
+
+.inlineCard[data-size="lg"] {
+  inline-size: min(100%, 36rem);
+}
+
+.triggerModalBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.lastActionStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-inline: var(--space-3);
+  padding-block: var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+}
+
+.lastActionStatus:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+/* Matrix View */
+.matrixContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  inline-size: 100%;
+}
+
+.matrixGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.matrixGroupTitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.matrixGroupTitle:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-arabic-snug);
+}
+
+.matrixGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.matrixCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  box-sizing: border-box;
+  background-color: var(--color-bg-base);
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+
+.matrixCardLabel {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family-mono);
+}
+
+.matrixInlineSurface {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  border-radius: var(--radius-dialog);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  text-align: start;
+}

@@ -22,6 +22,7 @@ The release focuses strictly on a **dependable, pure native `<textarea>` primiti
 - Native multiline editing contract with full support for newlines (`Enter`), multiline selection, and clipboard lifecycles.
 - Initial height determined natively by the `rows` attribute (defaulting to `rows={4}`), while control sizing governs **density** (font size, line height, inline padding, block padding).
 - Default vertical manual resizing (`resize: vertical`), locked against horizontal blowout, while preserving resizing for `readOnly` content inspection.
+- Custom sleek scrollbar architecture: 6px thin scrollbar (`scrollbar-width: thin; scrollbar-color: var(--color-border-subtle) transparent`) with transparent track and rounded pill thumb to eliminate ugly browser-default rectangular scrollbars.
 - Coarse-pointer minimum 48×48px interaction target enforcement.
 - Strict visual parity with `Input` and `Button`: stable borders across resting and hover states, high-visibility keyboard-focus outlines, and dedicated `aria-invalid="true"` validation styling.
 
@@ -184,8 +185,8 @@ In alignment with the visual decision adopted for shared controls, `Textarea` **
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Resting** | Editable textarea | `--color-control-bg` | `--color-border-control` | `--color-text-primary` | None |
 | **Hover** | `:hover:not(:disabled):not(:read-only)` | `--color-control-bg` | `--color-border-control` *(stable)* | `--color-text-primary` | None |
-| **Focus** | `:focus-visible` / `:focus` | `--color-control-bg` | `--color-border-focus` | `--color-text-primary` | `var(--focus-ring-width) solid var(--color-border-focus)` with `var(--focus-ring-offset)` (0ms immediate) |
-| **Invalid** | `aria-invalid="true"` | `--color-control-bg` | `--color-danger` *(stable across hover)* | `--color-text-primary` | Focus ring and border transition to `--color-danger` (0ms immediate) |
+| **Focus** | `:focus-visible` / `:focus` | `--color-control-bg` | `--color-border-focus` | `--color-text-primary` | `1px solid var(--color-border-focus)` flush outline (`outline-offset: 0`), yielding exactly 2px visual focus thickness without floating gap |
+| **Invalid** | `aria-invalid="true"` | `--color-control-bg` | `--color-danger` *(stable across hover)* | `--color-text-primary` | `1px solid var(--color-danger)` flush outline (`outline-offset: 0`) and border `--color-danger` (0ms immediate) |
 | **Disabled** | `disabled` / `aria-disabled="true"` | `--color-control-disabled-bg` | `--color-border-disabled` | `--color-text-disabled` | None (`cursor: not-allowed; resize: none`) |
 | **Read-Only** | `readOnly` / `aria-readonly="true"` | `--color-surface-subtle` | `--color-border-subtle` | `--color-text-secondary` | Focusable; subtle focus indicator (`resize: vertical`) |
 

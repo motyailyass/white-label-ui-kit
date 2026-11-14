@@ -14,7 +14,7 @@
   border-radius: var(--radius-control);
   font-family: inherit;
   font-size: var(--font-size-xs);
-  line-height: 1rem;
+  line-height: var(--line-height-snug);
   font-weight: var(--font-weight-medium);
   pointer-events: auto;
   user-select: none;
@@ -22,6 +22,11 @@
   max-inline-size: 20rem;
   box-sizing: border-box;
   animation: tooltipEnter var(--motion-duration-fast) var(--motion-ease-enter);
+}
+
+:global([dir="rtl"]) .tooltip,
+:global(:lang(ar)) .tooltip {
+  line-height: var(--line-height-arabic-snug);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -39,15 +44,9 @@
 
 /* Visual Variants */
 .variantContrast {
-  background-color: var(--color-tooltip-bg, #18181b);
-  color: var(--color-tooltip-text, #ffffff);
-  border: 1px solid var(--color-tooltip-border, rgba(255, 255, 255, 0.15));
-}
-
-:global([data-theme="dark"]) .variantContrast {
-  background-color: var(--color-tooltip-bg, #27272a);
-  color: var(--color-tooltip-text, #fafafa);
-  border-color: var(--color-tooltip-border, rgba(255, 255, 255, 0.2));
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  border: 1px solid var(--color-primary);
 }
 
 .variantSubtle {
@@ -62,15 +61,15 @@
   align-items: center;
   justify-content: center;
   padding-inline: var(--space-1);
-  padding-block: 1px;
+  padding-block: var(--space-0-5);
   font-family: var(--font-family-mono, monospace);
   font-size: var(--font-size-xs);
-  line-height: 1rem;
+  line-height: var(--line-height-none);
   font-weight: var(--font-weight-medium);
-  border-radius: calc(var(--radius-control) - 4px);
-  background-color: rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-xs);
+  background-color: color-mix(in srgb, currentColor 16%, transparent);
   color: inherit;
-  letter-spacing: 0.05em;
+  letter-spacing: var(--letter-spacing-normal);
 }
 
 .variantSubtle .shortcut {
@@ -92,14 +91,16 @@
 
 .tooltip[data-placement="top"] .arrow {
   inset-block-end: -3px;
-  left: calc(50% - 3px);
+  inset-inline-start: 50%;
+  margin-inline-start: -3px;
   border-top: none;
   border-left: none;
 }
 
 .tooltip[data-placement="bottom"] .arrow {
   inset-block-start: -3px;
-  left: calc(50% - 3px);
+  inset-inline-start: 50%;
+  margin-inline-start: -3px;
   border-right: none;
   border-bottom: none;
 }

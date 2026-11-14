@@ -20,9 +20,7 @@ describe('Switch Primitive', () => {
   it('renders explicit size across all six scale steps', () => {
     const sizes = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const;
     for (const size of sizes) {
-      const { unmount } = render(
-        <Switch size={size} aria-label={`Size ${size}`} />,
-      );
+      const { unmount } = render(<Switch size={size} aria-label={`Size ${size}`} />);
       const input = screen.getByRole('switch', { name: `Size ${size}` });
       const root = input.closest('span');
       expect(root?.getAttribute('data-size')).toBe(size);
@@ -31,9 +29,7 @@ describe('Switch Primitive', () => {
   });
 
   it('supports touchTarget="comfortable" and defaults to "auto"', () => {
-    const { rerender } = render(
-      <Switch touchTarget="comfortable" aria-label="Touch" />,
-    );
+    const { rerender } = render(<Switch touchTarget="comfortable" aria-label="Touch" />);
     let input = screen.getByRole('switch', { name: /touch/i });
     let root = input.closest('span');
     expect(root?.getAttribute('data-touch-target')).toBe('comfortable');
@@ -98,9 +94,7 @@ describe('Switch Primitive', () => {
   it('suppresses events and clicks when disabled', async () => {
     const user = userEvent.setup();
     const handleChange = vi.fn();
-    render(
-      <Switch disabled onChange={handleChange} aria-label="Disabled" />,
-    );
+    render(<Switch disabled onChange={handleChange} aria-label="Disabled" />);
     const input = screen.getByRole('switch', { name: /disabled/i }) as HTMLInputElement;
 
     expect(input.disabled).toBe(true);
@@ -127,9 +121,7 @@ describe('Switch Primitive', () => {
   it('toggles on Space key but does NOT toggle on Enter key', async () => {
     const user = userEvent.setup();
     const handleChange = vi.fn();
-    render(
-      <Switch onChange={handleChange} aria-label="Keyboard" />,
-    );
+    render(<Switch onChange={handleChange} aria-label="Keyboard" />);
     const input = screen.getByRole('switch', { name: /keyboard/i }) as HTMLInputElement;
 
     input.focus();
@@ -188,9 +180,7 @@ describe('Switch Primitive', () => {
 
     const input = screen.getByRole('switch', { name: /two-factor authentication/i });
     expect(input.getAttribute('aria-invalid')).toBe('true');
-    expect(input.getAttribute('aria-describedby')).toBe(
-      'security-help security-error',
-    );
+    expect(input.getAttribute('aria-describedby')).toBe('security-help security-error');
   });
 
   it('validates native required attribute: optional is valid when off; required is invalid until on', async () => {

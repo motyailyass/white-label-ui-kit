@@ -1,0 +1,104 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.dotWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dot {
+  position: relative;
+  display: inline-block;
+  border-radius: var(--radius-full, 9999px);
+  background-color: currentColor;
+}
+
+.pingRing {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full, 9999px);
+  background-color: currentColor;
+  opacity: 0.75;
+  animation: statusPing 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes statusPing {
+  75%,
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pingRing {
+    animation: none !important;
+    display: none !important;
+  }
+}
+
+/* Sizes */
+.sizeSm .dotWrapper,
+.sizeSm .dot,
+.sizeSm .pingRing {
+  inline-size: 0.375rem; /* 6px */
+  block-size: 0.375rem;
+}
+
+.sizeMd .dotWrapper,
+.sizeMd .dot,
+.sizeMd .pingRing {
+  inline-size: 0.5rem; /* 8px */
+  block-size: 0.5rem;
+}
+
+.sizeLg .dotWrapper,
+.sizeLg .dot,
+.sizeLg .pingRing {
+  inline-size: 0.625rem; /* 10px */
+  block-size: 0.625rem;
+}
+
+/* Status Color Variants */
+.statusOnline {
+  color: var(--color-success);
+}
+
+.statusOffline {
+  color: var(--color-text-muted);
+}
+
+.statusBusy {
+  color: var(--color-danger);
+}
+
+.statusAway {
+  color: var(--color-warning);
+}
+
+.statusInfo {
+  color: var(--color-info);
+}
+
+/* Companion Label */
+.label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-tight, 1.25);
+  user-select: none;
+}
+
+@media (forced-colors: active) {
+  .dot {
+    border: 1px solid CanvasText;
+  }
+}

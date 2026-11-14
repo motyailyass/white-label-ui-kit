@@ -266,10 +266,12 @@ export function Popover({
     const surfaceRect = surface.getBoundingClientRect();
 
     // Accurately determine resolved CSS direction on the trigger element itself
+    const dirAttr =
+      (trigger.closest?.('[dir]') as HTMLElement | null)?.getAttribute('dir') ||
+      trigger.ownerDocument?.documentElement?.getAttribute('dir');
     const computedDir =
-      typeof window !== 'undefined'
-        ? window.getComputedStyle(trigger).direction
-        : 'ltr';
+      dirAttr ||
+      (typeof window !== 'undefined' ? window.getComputedStyle(trigger).direction : 'ltr');
     const isRtl = computedDir === 'rtl';
 
     // Resolve logical to physical orientation
@@ -306,13 +308,29 @@ export function Popover({
     }
 
     if (autoFlip) {
-      if (effectiveSide === 'bottom' && spaceBelow < surfaceRect.height && spaceAbove > spaceBelow) {
+      if (
+        effectiveSide === 'bottom' &&
+        spaceBelow < surfaceRect.height &&
+        spaceAbove > spaceBelow
+      ) {
         effectiveSide = 'top';
-      } else if (effectiveSide === 'top' && spaceAbove < surfaceRect.height && spaceBelow > spaceAbove) {
+      } else if (
+        effectiveSide === 'top' &&
+        spaceAbove < surfaceRect.height &&
+        spaceBelow > spaceAbove
+      ) {
         effectiveSide = 'bottom';
-      } else if (effectiveSide === 'left' && spaceLeft < surfaceRect.width && spaceRight > spaceLeft) {
+      } else if (
+        effectiveSide === 'left' &&
+        spaceLeft < surfaceRect.width &&
+        spaceRight > spaceLeft
+      ) {
         effectiveSide = 'right';
-      } else if (effectiveSide === 'right' && spaceRight < surfaceRect.width && spaceLeft > spaceRight) {
+      } else if (
+        effectiveSide === 'right' &&
+        spaceRight < surfaceRect.width &&
+        spaceLeft > spaceRight
+      ) {
         effectiveSide = 'left';
       }
     }
@@ -337,22 +355,34 @@ export function Popover({
       }
     } else if (effectiveSide === 'top') {
       top = triggerRect.top - surfaceRect.height - offset;
-      if (physicalPlacement.endsWith('center')) {
+      if (
+        physicalPlacement === 'top' ||
+        physicalPlacement === 'bottom' ||
+        physicalPlacement.endsWith('center')
+      ) {
         left = triggerRect.left + (triggerRect.width - surfaceRect.width) / 2;
       } else if (physicalPlacement.endsWith('end')) {
-        left = triggerRect.right - surfaceRect.width;
+        // In LTR: end is right edge. In RTL: end is left edge.
+        left = isRtl ? triggerRect.left : triggerRect.right - surfaceRect.width;
       } else {
-        left = triggerRect.left;
+        // In LTR: start is left edge. In RTL: start is right edge.
+        left = isRtl ? triggerRect.right - surfaceRect.width : triggerRect.left;
       }
     } else {
       // bottom
       top = triggerRect.bottom + offset;
-      if (physicalPlacement.endsWith('center')) {
+      if (
+        physicalPlacement === 'bottom' ||
+        physicalPlacement === 'top' ||
+        physicalPlacement.endsWith('center')
+      ) {
         left = triggerRect.left + (triggerRect.width - surfaceRect.width) / 2;
       } else if (physicalPlacement.endsWith('end')) {
-        left = triggerRect.right - surfaceRect.width;
+        // In LTR: end is right edge. In RTL: end is left edge.
+        left = isRtl ? triggerRect.left : triggerRect.right - surfaceRect.width;
       } else {
-        left = triggerRect.left;
+        // In LTR: start is left edge. In RTL: start is right edge.
+        left = isRtl ? triggerRect.right - surfaceRect.width : triggerRect.left;
       }
     }
 
@@ -521,13 +551,7 @@ export const PopoverTrigger = forwardRef<HTMLElement, PopoverTriggerProps>(funct
   const composedRef = composeRefs(handleRef, forwardedRef);
 
   return (
-    <button
-      type="button"
-      {...props}
-      {...triggerAttributes}
-      ref={composedRef}
-      className={className}
-    >
+    <button type="button" {...props} {...triggerAttributes} ref={composedRef} className={className}>
       {children}
     </button>
   );
@@ -555,9 +579,9 @@ export type PopoverContentRoleDialogProps = PopoverContentBaseProps & {
    */
   role: 'dialog';
 } & (
-  | { 'aria-label': string; 'aria-labelledby'?: string }
-  | { 'aria-labelledby': string; 'aria-label'?: string }
-);
+    | { 'aria-label': string; 'aria-labelledby'?: string }
+    | { 'aria-labelledby': string; 'aria-label'?: string }
+  );
 
 export type PopoverContentGenericProps = PopoverContentBaseProps & {
   /**
@@ -570,331 +594,332 @@ export type PopoverContentGenericProps = PopoverContentBaseProps & {
   'aria-labelledby'?: string;
 };
 
-export type PopoverContentProps =
-  | PopoverContentRoleDialogProps
-  | PopoverContentGenericProps;
+export type PopoverContentProps = PopoverContentRoleDialogProps | PopoverContentGenericProps;
 
-export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(function PopoverContent(
-  {
-    role,
-    'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledby,
-    initialFocusRef,
-    maxWidth = 340,
-    className,
-    style,
-    children,
-    ...props
-  },
-  forwardedRef,
-) {
-  const {
-    open,
-    isDomOpen,
-    setIsDomOpen,
-    setOpen,
-    isControlled,
-    controlledOpen,
-    triggerRef,
-    contentRef,
-    surfaceRef,
-    popoverId,
-    popoverRole,
-    setRole,
-    updatePosition,
-  } = usePopoverContext();
+export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(
+  function PopoverContent(
+    {
+      role,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledby,
+      initialFocusRef,
+      maxWidth = 340,
+      className,
+      style,
+      children,
+      ...props
+    },
+    forwardedRef,
+  ) {
+    const {
+      open,
+      isDomOpen,
+      setIsDomOpen,
+      setOpen,
+      isControlled,
+      controlledOpen,
+      triggerRef,
+      contentRef,
+      surfaceRef,
+      popoverId,
+      popoverRole,
+      setRole,
+      updatePosition,
+    } = usePopoverContext();
 
-  const internalSurfaceRef = useRef<HTMLDivElement>(null);
-  useImperativeHandle(forwardedRef, () => internalSurfaceRef.current as HTMLDivElement);
+    const internalSurfaceRef = useRef<HTMLDivElement>(null);
+    useImperativeHandle(forwardedRef, () => internalSurfaceRef.current as HTMLDivElement);
 
-  const effectiveRole = role !== undefined ? role : popoverRole;
+    const effectiveRole = role !== undefined ? role : popoverRole;
 
-  // Validate accessible name for role="dialog"
-  if (effectiveRole === 'dialog') {
-    const hasAccessibleName =
-      Boolean(ariaLabel?.trim()) ||
-      Boolean(ariaLabelledby?.trim()) ||
-      Boolean((props as Record<string, unknown>)['aria-label']) ||
-      Boolean((props as Record<string, unknown>)['aria-labelledby']);
+    // Validate accessible name for role="dialog"
+    if (effectiveRole === 'dialog') {
+      const hasAccessibleName =
+        Boolean(ariaLabel?.trim()) ||
+        Boolean(ariaLabelledby?.trim()) ||
+        Boolean((props as Record<string, unknown>)['aria-label']) ||
+        Boolean((props as Record<string, unknown>)['aria-labelledby']);
 
-    if (!hasAccessibleName) {
-      throw new Error(
-        'PopoverContent: When role="dialog" is specified, a non-empty accessible name is required via `aria-label` or `aria-labelledby`.',
-      );
+      if (!hasAccessibleName) {
+        throw new Error(
+          'PopoverContent: When role="dialog" is specified, a non-empty accessible name is required via `aria-label` or `aria-labelledby`.',
+        );
+      }
     }
-  }
 
-  // Ref tracking controlled open prop for async reconciliation
-  const controlledOpenRef = useRef(controlledOpen);
-  controlledOpenRef.current = controlledOpen;
-  const isClosingRef = useRef(false);
+    // Ref tracking controlled open prop for async reconciliation
+    const controlledOpenRef = useRef(controlledOpen);
+    controlledOpenRef.current = controlledOpen;
+    const isClosingRef = useRef(false);
 
-  // Sync role to context so PopoverTrigger can conditionally attach aria-haspopup="dialog"
-  useLayoutEffect(() => {
-    setRole(effectiveRole);
-  }, [effectiveRole, setRole]);
+    // Sync role to context so PopoverTrigger can conditionally attach aria-haspopup="dialog"
+    useLayoutEffect(() => {
+      setRole(effectiveRole);
+    }, [effectiveRole, setRole]);
 
-  const supportsNativePopover =
-    typeof HTMLElement !== 'undefined' &&
-    typeof HTMLElement.prototype.showPopover === 'function' &&
-    typeof CSS !== 'undefined' &&
-    typeof CSS.supports === 'function' &&
-    CSS.supports('selector(:popover-open)');
+    const supportsNativePopover =
+      typeof HTMLElement !== 'undefined' &&
+      typeof HTMLElement.prototype.showPopover === 'function' &&
+      typeof CSS !== 'undefined' &&
+      typeof CSS.supports === 'function' &&
+      CSS.supports('selector(:popover-open)');
 
-  const [isFallback, setIsFallback] = useState(false);
+    const [isFallback, setIsFallback] = useState(false);
 
-  useEffect(() => {
-    setIsFallback(!supportsNativePopover);
-  }, [supportsNativePopover]);
+    useEffect(() => {
+      setIsFallback(!supportsNativePopover);
+    }, [supportsNativePopover]);
 
-  // Synchronize native HTML Popover API with open state
-  useLayoutEffect(() => {
-    const content = contentRef.current;
-    if (!content) return;
+    // Synchronize native HTML Popover API with open state
+    useLayoutEffect(() => {
+      const content = contentRef.current;
+      if (!content) return;
 
-    if (open) {
-      isClosingRef.current = false;
-      if (supportsNativePopover) {
-        try {
-          if (!content.matches(':popover-open')) {
-            content.showPopover();
-            setIsDomOpen(true);
+      if (open) {
+        isClosingRef.current = false;
+        if (supportsNativePopover) {
+          try {
+            if (!content.matches(':popover-open')) {
+              content.showPopover();
+              setIsDomOpen(true);
+            }
+          } catch {
+            // Native popover throw guard
           }
-        } catch {
-          // Native popover throw guard
+        } else {
+          setIsDomOpen(true);
+        }
+
+        updatePosition();
+
+        // Focus management: If initialFocusRef or role="dialog", focus the first interactive, enabled element
+        if (initialFocusRef?.current && !isElementDisabled(initialFocusRef.current)) {
+          initialFocusRef.current.focus();
+        } else if (effectiveRole === 'dialog') {
+          const surface = internalSurfaceRef.current;
+          if (surface) {
+            const focusTarget = findFirstFocusableElement(surface);
+            if (focusTarget) {
+              focusTarget.focus();
+            } else {
+              // Safe fallback when no focusable control exists: focus the dialog surface itself
+              if (!surface.hasAttribute('tabindex')) {
+                surface.setAttribute('tabindex', '-1');
+              }
+              surface.focus();
+            }
+          }
         }
       } else {
-        setIsDomOpen(true);
-      }
-
-      updatePosition();
-
-      // Focus management: If initialFocusRef or role="dialog", focus the first interactive, enabled element
-      if (initialFocusRef?.current && !isElementDisabled(initialFocusRef.current)) {
-        initialFocusRef.current.focus();
-      } else if (effectiveRole === 'dialog') {
-        const surface = internalSurfaceRef.current;
-        if (surface) {
-          const focusTarget = findFirstFocusableElement(surface);
-          if (focusTarget) {
-            focusTarget.focus();
-          } else {
-            // Safe fallback when no focusable control exists: focus the dialog surface itself
-            if (!surface.hasAttribute('tabindex')) {
-              surface.setAttribute('tabindex', '-1');
-            }
-            surface.focus();
-          }
-        }
-      }
-    } else {
-      isClosingRef.current = false;
-      if (supportsNativePopover) {
-        try {
-          if (content.matches(':popover-open')) {
-            content.hidePopover();
-          }
-        } catch {
-          // Native popover throw guard
-        }
-      }
-      setIsDomOpen(false);
-    }
-  }, [
-    open,
-    effectiveRole,
-    initialFocusRef,
-    contentRef,
-    updatePosition,
-    supportsNativePopover,
-    setIsDomOpen,
-  ]);
-
-  // Continuous coordinate tracking during scroll and resize
-  useEffect(() => {
-    if (!open) return;
-
-    updatePosition();
-
-    const handleScrollAndResize = () => {
-      updatePosition();
-    };
-
-    window.addEventListener('resize', handleScrollAndResize, { passive: true });
-    window.addEventListener('scroll', handleScrollAndResize, { passive: true, capture: true });
-
-    return () => {
-      window.removeEventListener('resize', handleScrollAndResize);
-      window.removeEventListener('scroll', handleScrollAndResize, { capture: true });
-    };
-  }, [open, updatePosition]);
-
-  // Outside click & Escape fallback handling
-  useEffect(() => {
-    if (!open) return;
-
-    const content = contentRef.current;
-
-    const handlePointerDown = (e: globalThis.PointerEvent) => {
-      const surface = internalSurfaceRef.current;
-      const trigger = triggerRef.current;
-      const target = e.target as Node | null;
-
-      if (!target) return;
-
-      // Click is inside surface or trigger -> do not close
-      if (surface?.contains(target) || trigger?.contains(target)) {
-        return;
-      }
-
-      // If clicked element is a designated external toggle, let its click handler toggle state
-      if (
-        target instanceof Element &&
-        (target.closest('[data-popover-toggle]') || target.closest('[data-popover-trigger]'))
-      ) {
-        return;
-      }
-
-      // Outside click: dismiss popover without stealing focus (prevent duplicate close notifications within the same event tick)
-      if (isClosingRef.current) return;
-      isClosingRef.current = true;
-      setOpen(false);
-      queueMicrotask(() => {
         isClosingRef.current = false;
-      });
-    };
-
-    const handleKeyDown = (e: globalThis.KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        e.stopPropagation();
-        setOpen(false);
-        // Restore focus to trigger on keyboard Escape
-        triggerRef.current?.focus();
-      }
-    };
-
-    // Native toggle event support with controlled-state reconciliation
-    const handleNativeToggle = (e: Event) => {
-      const toggleEvent = e as unknown as { newState?: string };
-      if (toggleEvent.newState === 'open') {
-        setIsDomOpen(true);
-      } else if (toggleEvent.newState === 'closed') {
-        setIsDomOpen(false);
-
-        if (open) {
-          if (!isClosingRef.current) {
-            isClosingRef.current = true;
-            setOpen(false);
-            queueMicrotask(() => {
-              isClosingRef.current = false;
-            });
+        if (supportsNativePopover) {
+          try {
+            if (content.matches(':popover-open')) {
+              content.hidePopover();
+            }
+          } catch {
+            // Native popover throw guard
           }
+        }
+        setIsDomOpen(false);
+      }
+    }, [
+      open,
+      effectiveRole,
+      initialFocusRef,
+      contentRef,
+      updatePosition,
+      supportsNativePopover,
+      setIsDomOpen,
+    ]);
 
-          if (isControlled) {
-            // Reconcile: If parent component rejects dismissal and still supplies open={true},
-            // check whether another popover took or is currently in the top layer.
-            queueMicrotask(() => {
-              const currentContent = contentRef.current;
-              if (!currentContent) return;
+    // Continuous coordinate tracking during scroll and resize
+    useEffect(() => {
+      if (!open) return;
 
-              // Explicit policy for competing popovers:
-              // If another popover is currently active in the top layer, yield cleanly to it.
-              // Do not contest or loop. Ensure trigger reflects the closed DOM state.
-              const activePopover =
-                typeof document !== 'undefined'
-                  ? document.querySelector('[popover]:popover-open')
-                  : null;
+      updatePosition();
 
-              if (activePopover && activePopover !== currentContent) {
-                setIsDomOpen(false);
-                return;
-              }
+      const handleScrollAndResize = () => {
+        updatePosition();
+      };
 
-              // If top layer is not contested and parent insisted on open={true}, re-assert top layer
-              if (controlledOpenRef.current) {
-                if (supportsNativePopover && !currentContent.matches(':popover-open')) {
-                  try {
-                    currentContent.showPopover();
-                    setIsDomOpen(true);
-                    updatePosition();
-                  } catch {
-                    setIsDomOpen(false);
+      window.addEventListener('resize', handleScrollAndResize, { passive: true });
+      window.addEventListener('scroll', handleScrollAndResize, { passive: true, capture: true });
+
+      return () => {
+        window.removeEventListener('resize', handleScrollAndResize);
+        window.removeEventListener('scroll', handleScrollAndResize, { capture: true });
+      };
+    }, [open, updatePosition]);
+
+    // Outside click & Escape fallback handling
+    useEffect(() => {
+      if (!open) return;
+
+      const content = contentRef.current;
+
+      const handlePointerDown = (e: globalThis.PointerEvent) => {
+        const surface = internalSurfaceRef.current;
+        const trigger = triggerRef.current;
+        const target = e.target as Node | null;
+
+        if (!target) return;
+
+        // Click is inside surface or trigger -> do not close
+        if (surface?.contains(target) || trigger?.contains(target)) {
+          return;
+        }
+
+        // If clicked element is a designated external toggle, let its click handler toggle state
+        if (
+          target instanceof Element &&
+          (target.closest('[data-popover-toggle]') || target.closest('[data-popover-trigger]'))
+        ) {
+          return;
+        }
+
+        // Outside click: dismiss popover without stealing focus (prevent duplicate close notifications within the same event tick)
+        if (isClosingRef.current) return;
+        isClosingRef.current = true;
+        setOpen(false);
+        queueMicrotask(() => {
+          isClosingRef.current = false;
+        });
+      };
+
+      const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen(false);
+          // Restore focus to trigger on keyboard Escape
+          triggerRef.current?.focus();
+        }
+      };
+
+      // Native toggle event support with controlled-state reconciliation
+      const handleNativeToggle = (e: Event) => {
+        const toggleEvent = e as unknown as { newState?: string };
+        if (toggleEvent.newState === 'open') {
+          setIsDomOpen(true);
+        } else if (toggleEvent.newState === 'closed') {
+          setIsDomOpen(false);
+
+          if (open) {
+            if (!isClosingRef.current) {
+              isClosingRef.current = true;
+              setOpen(false);
+              queueMicrotask(() => {
+                isClosingRef.current = false;
+              });
+            }
+
+            if (isControlled) {
+              // Reconcile: If parent component rejects dismissal and still supplies open={true},
+              // check whether another popover took or is currently in the top layer.
+              queueMicrotask(() => {
+                const currentContent = contentRef.current;
+                if (!currentContent) return;
+
+                // Explicit policy for competing popovers:
+                // If another popover is currently active in the top layer, yield cleanly to it.
+                // Do not contest or loop. Ensure trigger reflects the closed DOM state.
+                const activePopover =
+                  typeof document !== 'undefined'
+                    ? document.querySelector('[popover]:popover-open')
+                    : null;
+
+                if (activePopover && activePopover !== currentContent) {
+                  setIsDomOpen(false);
+                  return;
+                }
+
+                // If top layer is not contested and parent insisted on open={true}, re-assert top layer
+                if (controlledOpenRef.current) {
+                  if (supportsNativePopover && !currentContent.matches(':popover-open')) {
+                    try {
+                      currentContent.showPopover();
+                      setIsDomOpen(true);
+                      updatePosition();
+                    } catch {
+                      setIsDomOpen(false);
+                    }
                   }
                 }
-              }
-            });
+              });
+            }
           }
         }
-      }
-    };
+      };
 
-    // Only attach manual pointerdown dismiss when native Popover light dismiss is not supported
-    if (!supportsNativePopover) {
-      document.addEventListener('pointerdown', handlePointerDown);
-    }
-    document.addEventListener('keydown', handleKeyDown, true);
-    if (content) {
-      content.addEventListener('toggle', handleNativeToggle);
-    }
-
-    return () => {
+      // Only attach manual pointerdown dismiss when native Popover light dismiss is not supported
       if (!supportsNativePopover) {
-        document.removeEventListener('pointerdown', handlePointerDown);
+        document.addEventListener('pointerdown', handlePointerDown);
       }
-      document.removeEventListener('keydown', handleKeyDown, true);
+      document.addEventListener('keydown', handleKeyDown, true);
       if (content) {
-        content.removeEventListener('toggle', handleNativeToggle);
+        content.addEventListener('toggle', handleNativeToggle);
       }
-    };
-  }, [
-    open,
-    setOpen,
-    isControlled,
-    triggerRef,
-    contentRef,
-    updatePosition,
-    supportsNativePopover,
-    setIsDomOpen,
-  ]);
 
-  // Assign combined surface ref
-  const setCombinedSurfaceRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      internalSurfaceRef.current = node;
-      surfaceRef.current = node;
-    },
-    [surfaceRef],
-  );
+      return () => {
+        if (!supportsNativePopover) {
+          document.removeEventListener('pointerdown', handlePointerDown);
+        }
+        document.removeEventListener('keydown', handleKeyDown, true);
+        if (content) {
+          content.removeEventListener('toggle', handleNativeToggle);
+        }
+      };
+    }, [
+      open,
+      setOpen,
+      isControlled,
+      triggerRef,
+      contentRef,
+      updatePosition,
+      supportsNativePopover,
+      setIsDomOpen,
+    ]);
 
-  return (
-    <div
-      ref={contentRef as Ref<HTMLDivElement>}
-      id={popoverId}
-      popover="auto"
-      data-fallback={isFallback ? 'true' : undefined}
-      data-state={open && isDomOpen ? 'open' : 'closed'}
-      className={styles.popover}
-    >
+    // Assign combined surface ref
+    const setCombinedSurfaceRef = useCallback(
+      (node: HTMLDivElement | null) => {
+        internalSurfaceRef.current = node;
+        surfaceRef.current = node;
+      },
+      [surfaceRef],
+    );
+
+    return (
       <div
-        {...props}
-        ref={setCombinedSurfaceRef}
-        role={effectiveRole === 'none' ? undefined : effectiveRole}
-        aria-modal={effectiveRole === 'dialog' ? 'false' : undefined}
-        aria-label={ariaLabel}
-        aria-labelledby={ariaLabelledby}
-        data-state={open ? 'open' : 'closed'}
-        className={cn(styles.surface, className)}
-        style={{
-          ...style,
-          ['--_popover-max-width' as string]: typeof maxWidth === 'number' ? `${maxWidth}px` : maxWidth,
-        }}
+        ref={contentRef as Ref<HTMLDivElement>}
+        id={popoverId}
+        popover="auto"
+        data-fallback={isFallback ? 'true' : undefined}
+        data-state={open && isDomOpen ? 'open' : 'closed'}
+        className={styles.popover}
       >
-        {children}
+        <div
+          {...props}
+          ref={setCombinedSurfaceRef}
+          role={effectiveRole === 'none' ? undefined : effectiveRole}
+          aria-modal={effectiveRole === 'dialog' ? 'false' : undefined}
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledby}
+          data-state={open ? 'open' : 'closed'}
+          className={cn(styles.surface, className)}
+          style={{
+            ...style,
+            ['--_popover-max-width' as string]:
+              typeof maxWidth === 'number' ? `${maxWidth}px` : maxWidth,
+          }}
+        >
+          {children}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 PopoverContent.displayName = 'PopoverContent';
 

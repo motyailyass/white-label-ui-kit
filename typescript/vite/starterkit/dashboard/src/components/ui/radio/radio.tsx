@@ -1,3 +1,5 @@
+'use client';
+
 import {
   type ComponentPropsWithoutRef,
   forwardRef,
@@ -10,22 +12,11 @@ import type { ControlSizingProps } from '../control-sizing';
 import styles from './radio.module.css';
 
 export interface RadioProps
-  extends Omit<
-      ComponentPropsWithoutRef<'input'>,
-      'type' | 'size' | 'children' | 'readOnly'
-    >,
+  extends Omit<ComponentPropsWithoutRef<'input'>, 'type' | 'size' | 'children' | 'readOnly'>,
     ControlSizingProps {}
 
 export const Radio = forwardRef<HTMLInputElement, RadioProps>(function Radio(
-  {
-    size,
-    touchTarget = 'auto',
-    disabled = false,
-    className,
-    style,
-    id: callerId,
-    ...props
-  },
+  { size, touchTarget = 'auto', disabled = false, className, style, id: callerId, ...props },
   forwardedRef,
 ) {
   const generatedId = useId();

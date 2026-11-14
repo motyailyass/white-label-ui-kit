@@ -1,2 +1,2 @@
-export type { ContentBodyProps, ContentProps } from './content';
+export type { ContentBodyProps, ContentComponent, ContentProps } from './content';
 export { Content, ContentBody } from './content';

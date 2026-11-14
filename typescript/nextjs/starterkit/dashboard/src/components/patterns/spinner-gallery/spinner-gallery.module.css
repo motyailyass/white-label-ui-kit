@@ -1,0 +1,118 @@
+/**
+ * Spinner Studio Gallery Stylesheet
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.controlDivider {
+  inline-size: 100%;
+  border: none;
+  border-block-start: 1px solid var(--color-border-subtle);
+  margin: 0;
+}
+
+.canvasArea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  inline-size: 100%;
+}
+
+.canvasRtl {
+  direction: rtl;
+}
+
+.specimenCard {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.inverseStage {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.currentStage {
+  color: var(--color-primary);
+}
+
+.specimenStage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 8rem;
+}
+
+.sectionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.sectionHeading {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.sectionHeading:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-arabic-snug);
+}
+
+.specimenGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.showcaseCard {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.scaleItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.scaleLabel {
+  font-size: var(--font-size-xs);
+  line-height: 1rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.scaleLabel:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-arabic-snug);
+}
+
+.inverseLabel {
+  color: var(--color-text-inverse);
+}

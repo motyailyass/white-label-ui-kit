@@ -1,0 +1,8 @@
+.specimenCanvas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  box-sizing: border-box;
+  padding: var(--space-8);
+}

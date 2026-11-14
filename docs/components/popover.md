@@ -1,11 +1,11 @@
-# Popover — Component Specification and Implementation Plan
+# Popover — Component Specification & Reference
 
-> **Status:** Approved baseline for implementation  
+> **Status:** Implemented canonical primitive  
 > **Component:** `components/ui/popover`  
 > **Starters:** Next.js Dashboard, Next.js Website, Vite reference  
 > **Canonical source:** `typescript/nextjs/starterkit/dashboard/src/components/ui/popover/`  
 > **Gallery route:** `/gallery/popover`  
-> **Specification Version:** 2.1 (Reconciled with Auditor Feedback)
+> **Specification Version:** 2.2 (Reconciled with UI Primitive & Studio)
 
 ---
 
@@ -20,7 +20,6 @@ A **Popover** is a non-modal floating overlay anchored to a trigger element (typ
 | **Popover** *(This Component)* | **No** (`aria-modal="false"`) | **No** (Underlying page interactive) | Native HTML `popover="auto"` (Top Layer) / Data-state attribute | Anchored to trigger. Light dismiss on outside click and <kbd>Escape</kbd>. Outside click does **not** hijack focus back to trigger. |
 | **Dialog** (`components/ui/dialog`) | **Yes** (`showModal()`) | **Yes** (`inert` via browser) | Top Layer (`::backdrop`) | Blocking modal for critical workflows, confirmations, or long forms. Traps focus inside. |
 | **Tooltip** (`components/ui/tooltip`) | **No** | **No** | `--z-tooltip: 600` | Non-interactive text label on hover/focus (`role="tooltip"`). Contains zero interactive controls. |
-| **DropdownMenu** (`components/ui/dropdown-menu`) | **No** | **No** | `--z-dropdown: 200` | Menu command item selection via arrow keys (`role="menu"` / `role="menuitem"`). |
 
 ---
 
@@ -111,6 +110,12 @@ export type PopoverPlacement =
   | 'bottom'
   | 'bottom-start'
   | 'bottom-end'
+  | 'left'
+  | 'left-start'
+  | 'left-end'
+  | 'right'
+  | 'right-start'
+  | 'right-end'
   | 'inline-start'
   | 'inline-end';
 
@@ -150,6 +155,11 @@ export interface PopoverProps {
   autoFlip?: boolean;
 
   /**
+   * Default semantic role propagated to PopoverContent (`'dialog'`, `'region'`, or `'none'`).
+   */
+  role?: 'dialog' | 'region' | 'none';
+
+  /**
    * Popover children (typically PopoverTrigger and PopoverContent).
    */
   children: ReactNode;
@@ -162,33 +172,59 @@ export interface PopoverTriggerProps extends ComponentPropsWithRef<'button'> {
   asChild?: boolean;
 }
 
+export interface PopoverContentBaseProps extends ComponentPropsWithRef<'div'> {
+  /**
+   * Optional ref to element that should receive focus when opened.
+   */
+  initialFocusRef?: RefObject<HTMLElement | null>;
+
+  /**
+   * Maximum inline size override.
+   * @default 340
+   */
+  maxWidth?: number | string;
+}
+
 export type PopoverContentProps =
-  | {
+  | (PopoverContentBaseProps & {
       /**
-       * Interactive dialog popover. Requires an accessible name.
+       * Interactive dialog popover. Requires an accessible name via aria-label or aria-labelledby.
        */
       role: 'dialog';
-      'aria-label'?: string;
-      'aria-labelledby'?: string;
-      initialFocusRef?: RefObject<HTMLElement | null>;
-      maxWidth?: number | string;
-      className?: string;
-      style?: CSSProperties;
-      children?: ReactNode;
-    }
-  | {
+    } & (
+      | { 'aria-label': string; 'aria-labelledby'?: string }
+      | { 'aria-labelledby': string; 'aria-label'?: string }
+    ))
+  | (PopoverContentBaseProps & {
       /**
        * Generic non-dialog floating disclosure (default).
        */
       role?: 'region' | 'none';
       'aria-label'?: string;
       'aria-labelledby'?: string;
-      initialFocusRef?: RefObject<HTMLElement | null>;
-      maxWidth?: number | string;
-      className?: string;
-      style?: CSSProperties;
-      children?: ReactNode;
-    };
+    });
+
+export interface PopoverHeaderProps extends ComponentPropsWithRef<'div'> {}
+
+export interface PopoverTitleProps extends ComponentPropsWithRef<'h3'> {
+  /**
+   * Heading level element.
+   * @default 'h3'
+   */
+  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+}
+
+export interface PopoverDescriptionProps extends ComponentPropsWithRef<'p'> {}
+export interface PopoverBodyProps extends ComponentPropsWithRef<'div'> {}
+export interface PopoverFooterProps extends ComponentPropsWithRef<'div'> {}
+
+export type PopoverCloseProps = ComponentPropsWithRef<'button'> & {
+  /**
+   * Accessible label for close button. Required when icon-only (no children).
+   */
+  closeLabel?: string;
+  asChild?: boolean;
+};
 ```
 
 ---
@@ -198,7 +234,8 @@ export type PopoverContentProps =
 ```css
 /**
  * White Label UI Kit — Popover Stylesheet
- * 100% CSS Logical Properties. Zero Dashboard Shadows.
+ * Native HTML Popover API with Coordinate Positioning Engine.
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
  */
 
 .popover {
@@ -210,17 +247,30 @@ export type PopoverContentProps =
   overflow: visible;
 }
 
-.popover[data-state="open"] {
-  display: block;
+/* Primary Top Layer & Fallback Layering */
+@supports selector(:popover-open) {
+  .popover:not(:popover-open):not([data-fallback="true"]) {
+    display: none !important;
+  }
 }
 
-.popover[data-state="closed"] {
+@supports not selector(:popover-open) {
+  .popover[data-state="closed"] {
+    display: none !important;
+  }
+}
+
+.popover[data-fallback="true"][data-state="closed"] {
   display: none !important;
+}
+
+.popover[data-fallback="true"][data-state="open"] {
+  display: block;
 }
 
 .surface {
   position: fixed;
-  z-index: var(--z-dropdown); /* 200 */
+  z-index: var(--z-overlay); /* 300 */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -247,6 +297,9 @@ export type PopoverContentProps =
 
 .header {
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
   padding-inline: var(--space-4);
   padding-block: var(--space-3);
   border-block-end: 1px solid var(--color-border-subtle);
@@ -254,16 +307,19 @@ export type PopoverContentProps =
 
 .title {
   margin: 0;
+  font-family: inherit;
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
 }
 
 .description {
   margin: 0;
+  font-family: inherit;
   font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
   line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
 }
 
 .footer {
@@ -278,18 +334,67 @@ export type PopoverContentProps =
   background-color: var(--color-surface);
 }
 
+/* Prevent duplicate separator when body is omitted */
+.header + .footer {
+  border-block-start: none;
+}
+
+/* Close button within popover */
+.closeButton {
+  position: absolute;
+  inset-block-start: var(--space-3);
+  inset-inline-end: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--control-height-xs);
+  block-size: var(--control-height-xs);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  outline: none;
+}
+
+/* Coarse touch target expander */
+.closeButton::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.closeButton:hover {
+  background-color: var(--color-primary-subtle);
+  color: var(--color-text-primary);
+}
+
+.closeButton:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
 @media (forced-colors: active) {
   .surface {
     border: 2px solid ButtonBorder;
     background-color: Canvas;
     color: CanvasText;
   }
+
+  .closeButton {
+    border: 1px solid ButtonBorder;
+  }
+
+  .closeButton:focus-visible {
+    outline: 2px solid Highlight;
+  }
 }
 ```
 
 ---
 
-## 6. Implementation Plan & Minimum Acceptance Tests
+## 6. Verification & Acceptance Criteria
 
 1. **Trigger & Pointer/Keyboard Opening**:
    - Pointer click toggles state; updates `aria-expanded`.

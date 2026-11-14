@@ -1,0 +1,176 @@
+/**
+ * White Label UI Kit — SearchInput Primitive Stylesheet
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.wrapper {
+  --_control-height: var(--control-height-default);
+  --_control-padding-inline: var(--control-padding-default);
+  --_control-font-size: var(--control-font-size-default);
+
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: var(--_control-height);
+  padding-inline: var(--_control-padding-inline);
+  border-radius: var(--radius-control);
+  background-color: var(--color-control-bg);
+  border: 1px solid var(--color-border-control);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--_control-font-size);
+  gap: var(--space-2);
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+/* Focus State (2px Modern Balanced Focus: 1px border + 1px flush outline) */
+.wrapper:focus-within {
+  outline: 1px solid var(--color-border-focus);
+  outline-offset: 0;
+  border-color: var(--color-border-focus);
+  transition: none;
+}
+
+.wrapper[data-variant="subtle"] {
+  border-color: var(--color-border-subtle);
+  background-color: var(--color-surface);
+}
+
+.wrapper[data-variant="subtle"]:hover {
+  border-color: var(--color-border-strong);
+}
+
+.wrapper[data-variant="subtle"]:focus-within {
+  outline: 1px solid var(--color-border-focus);
+  outline-offset: 0;
+  border-color: var(--color-border-focus);
+  background-color: var(--color-surface);
+  transition: none;
+}
+
+.wrapper[data-variant="flush"] {
+  border: none;
+  border-block-end: 1px solid var(--color-border-subtle);
+  border-radius: 0;
+  background-color: transparent;
+  padding-inline: var(--space-4);
+  padding-block: var(--space-2);
+  gap: var(--space-3);
+}
+
+.wrapper[data-variant="flush"]:focus-within {
+  outline: none;
+  border-block-end-color: var(--color-border-subtle);
+  transition: none;
+}
+
+.wrapper[data-variant="flush"]:focus-within .iconWrapper {
+  color: var(--color-text-primary);
+}
+
+@media (forced-colors: active) {
+  .wrapper[data-variant="flush"]:focus-within {
+    border-block-end-color: Highlight;
+  }
+}
+
+/* Control Sizing Scale Bindings */
+.wrapper[data-size="xs"] {
+  --_control-height: var(--control-height-xs);
+  --_control-padding-inline: var(--control-padding-xs);
+  --_control-font-size: var(--control-font-size-xs);
+}
+
+.wrapper[data-size="sm"] {
+  --_control-height: var(--control-height-sm);
+  --_control-padding-inline: var(--control-padding-sm);
+  --_control-font-size: var(--control-font-size-sm);
+}
+
+.wrapper[data-size="md"] {
+  --_control-height: var(--control-height-md);
+  --_control-padding-inline: var(--control-padding-md);
+  --_control-font-size: var(--control-font-size-md);
+}
+
+.wrapper[data-size="lg"] {
+  --_control-height: var(--control-height-lg);
+  --_control-padding-inline: var(--control-padding-lg);
+  --_control-font-size: var(--control-font-size-lg);
+}
+
+.wrapper[data-size="xl"] {
+  --_control-height: var(--control-height-xl);
+  --_control-padding-inline: var(--control-padding-xl);
+  --_control-font-size: var(--control-font-size-xl);
+}
+
+.wrapper[data-size="2xl"] {
+  --_control-height: var(--control-height-2xl);
+  --_control-padding-inline: var(--control-padding-2xl);
+  --_control-font-size: var(--control-font-size-2xl);
+}
+
+/* Touch-target decoupling */
+@media (any-pointer: coarse), (pointer: coarse) {
+  .wrapper[data-touch-target="auto"],
+  .wrapper[data-touch-target="comfortable"] {
+    min-block-size: max(var(--_control-height), var(--control-touch-target-min));
+  }
+
+  .wrapper[data-variant="flush"][data-touch-target="auto"],
+  .wrapper[data-variant="flush"][data-touch-target="comfortable"] {
+    min-block-size: calc(var(--control-touch-target-min) + var(--space-4) + 1px);
+  }
+}
+
+.iconWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  min-inline-size: 0;
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  outline: none;
+}
+
+.input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.input:lang(ar) {
+  line-height: var(--line-height-arabic-normal, var(--line-height-relaxed));
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+.shortcut {
+  flex-shrink: 0;
+}
+
+.suffix {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}

@@ -1,0 +1,260 @@
+/* =============================================================================
+   Toast Primitive Styles
+   Strict white-label tokens, zero box-shadows in dashboard, 100% logical CSS
+   ============================================================================= */
+
+@keyframes toastEnter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-2));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Viewport container fixed to screen */
+.viewport {
+  position: fixed;
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  inline-size: min(24rem, 100%);
+  max-inline-size: 100%;
+  margin-block: 0;
+  margin-inline: 0;
+  padding-block: var(--space-4);
+  padding-inline: var(--space-4);
+  list-style: none;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.pos_top_end {
+  inset-block-start: 0;
+  inset-inline-end: 0;
+}
+
+.pos_top_start {
+  inset-block-start: 0;
+  inset-inline-start: 0;
+}
+
+.pos_bottom_end {
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  flex-direction: column-reverse;
+}
+
+.pos_bottom_start {
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  flex-direction: column-reverse;
+}
+
+.pos_top_center {
+  inset-block-start: 0;
+  inset-inline: 0;
+  margin-inline: auto;
+}
+
+.pos_bottom_center {
+  inset-block-end: 0;
+  inset-inline: 0;
+  margin-inline: auto;
+  flex-direction: column-reverse;
+}
+
+/* Individual Toast card */
+.toast {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  padding-inline: var(--space-4);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  pointer-events: auto;
+  box-sizing: border-box;
+  inline-size: 100%;
+  animation: toastEnter var(--motion-duration-fast) var(--motion-ease-enter);
+  transition:
+    opacity var(--motion-duration-fast) var(--motion-ease-standard),
+    transform var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.toast:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+/* Variant Accents */
+.variant_info {
+  border-inline-start: var(--space-1) solid var(--color-info);
+}
+
+.variant_success {
+  border-inline-start: var(--space-1) solid var(--color-success);
+}
+
+.variant_warning {
+  border-inline-start: var(--space-1) solid var(--color-warning);
+}
+
+.variant_danger {
+  border-inline-start: var(--space-1) solid var(--color-danger);
+}
+
+.iconWrapper {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-block-start: var(--space-0-5);
+}
+
+.icon_info {
+  color: var(--color-info);
+}
+
+.icon_success {
+  color: var(--color-success);
+}
+
+.icon_warning {
+  color: var(--color-warning);
+}
+
+.icon_danger {
+  color: var(--color-danger);
+}
+
+.content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 0;
+}
+
+.title {
+  margin-block: 0;
+  margin-inline: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.title:lang(ar) {
+  line-height: var(--line-height-arabic-tight);
+}
+
+.description {
+  margin-block: 0;
+  margin-inline: 0;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.description:lang(ar) {
+  line-height: var(--line-height-arabic-normal);
+}
+
+.actionArea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block-start: var(--space-2);
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: var(--control-height-xs);
+  padding-block: var(--space-1);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.actionButton:lang(ar) {
+  line-height: var(--line-height-arabic-tight);
+}
+
+.actionButton:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.actionButton:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.closeButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--control-height-xs);
+  block-size: var(--control-height-xs);
+  padding-block: 0;
+  padding-inline: 0;
+  border-radius: var(--radius-control);
+  border: none;
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    color var(--motion-duration-fast) var(--motion-ease-standard),
+    background-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.closeButton:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-hover);
+}
+
+.closeButton:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@media (pointer: coarse) {
+  .actionButton {
+    min-block-size: var(--control-touch-target-min, 3rem);
+  }
+
+  .closeButton {
+    min-inline-size: var(--control-touch-target-min, 3rem);
+    min-block-size: var(--control-touch-target-min, 3rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .actionButton,
+  .closeButton {
+    animation: none;
+    transition: none;
+  }
+}

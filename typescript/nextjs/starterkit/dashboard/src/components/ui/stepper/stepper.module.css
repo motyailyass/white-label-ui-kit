@@ -1,0 +1,231 @@
+.root {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  inline-size: 100%;
+  box-sizing: border-box;
+  --_stepper-indicator-size: 2.25rem;
+}
+
+.root_sm {
+  --_stepper-indicator-size: 1.75rem;
+}
+
+.root_md {
+  --_stepper-indicator-size: 2.25rem;
+}
+
+.root_lg {
+  --_stepper-indicator-size: 2.75rem;
+}
+
+.root_horizontal {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.root_vertical {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+
+.step {
+  display: flex;
+  box-sizing: border-box;
+  min-inline-size: 0;
+}
+
+.step_horizontal {
+  flex: 1;
+  align-items: center;
+}
+
+.step_horizontal:last-child {
+  flex: 0 1 auto;
+}
+
+.step_horizontal > .stepButton,
+.step_horizontal > .stepStatic {
+  flex: 1;
+  inline-size: 100%;
+}
+
+.step_horizontal:last-child > .stepButton,
+.step_horizontal:last-child > .stepStatic {
+  flex: 0 1 auto;
+  inline-size: auto;
+}
+
+.step_vertical {
+  flex-direction: column;
+  inline-size: 100%;
+}
+
+.step_vertical > .stepButton,
+.step_vertical > .stepStatic {
+  display: grid;
+  grid-template-columns: var(--_stepper-indicator-size, 2.25rem) 1fr;
+  column-gap: var(--space-3);
+  align-items: center;
+  inline-size: 100%;
+}
+
+.stepButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: start;
+  text-decoration: none;
+  outline: none;
+}
+
+.stepButton:focus-visible .indicator {
+  outline: var(--focus-ring-width, 2px) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset, 2px);
+  transition: none;
+}
+
+.stepButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.stepStatic {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: start;
+}
+
+/* Indicators */
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full, 9999px);
+  border: 2px solid transparent;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  font-weight: var(--font-weight-semibold, 600);
+  transition:
+    background-color var(--motion-duration-fast),
+    border-color var(--motion-duration-fast),
+    color var(--motion-duration-fast);
+}
+
+/* Sizing */
+.indicator_sm {
+  inline-size: 1.75rem; /* 28px */
+  block-size: 1.75rem;
+  font-size: var(--font-size-xs, 0.75rem);
+}
+
+.indicator_md {
+  inline-size: 2.25rem; /* 36px */
+  block-size: 2.25rem;
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.indicator_lg {
+  inline-size: 2.75rem; /* 44px */
+  block-size: 2.75rem;
+  font-size: var(--font-size-base, 1rem);
+}
+
+/* Status variants */
+.indicator_complete {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.indicator_current {
+  background-color: var(--color-surface);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.indicator_upcoming {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-muted);
+}
+
+/* Labels */
+.labelGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5, 2px);
+  min-inline-size: 0;
+}
+
+.title {
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-snug);
+  white-space: nowrap;
+}
+
+.title_sm {
+  font-size: var(--font-size-xs, 0.75rem);
+}
+
+.title_md {
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.title_lg {
+  font-size: var(--font-size-base, 1rem);
+}
+
+.title_current {
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-primary);
+}
+
+.title_upcoming {
+  color: var(--color-text-muted);
+}
+
+.description {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-tight);
+}
+
+/* Separator */
+.separator_horizontal {
+  flex: 1;
+  block-size: 2px;
+  background-color: var(--color-border-subtle);
+  margin-inline: var(--space-3);
+  min-inline-size: 1rem;
+}
+
+.separator_horizontal_complete {
+  background-color: var(--color-primary);
+}
+
+.separator_vertical {
+  grid-column: 1;
+  grid-row: 2;
+  justify-self: center;
+  inline-size: 2px;
+  min-block-size: 1.5rem;
+  background-color: var(--color-border-subtle);
+  margin-block: var(--space-1);
+}
+
+.separator_vertical_complete {
+  background-color: var(--color-primary);
+}

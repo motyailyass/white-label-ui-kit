@@ -1,0 +1,148 @@
+.root {
+  position: relative;
+  display: inline-flex;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  outline: none;
+}
+
+.trigger:focus-visible {
+  outline: var(--focus-ring-width, 2px) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset, 2px);
+  border-radius: var(--radius-sm, 4px);
+  transition: none;
+}
+
+.content {
+  position: absolute;
+  z-index: var(--z-dropdown, 200);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card, 8px);
+  padding: var(--space-4);
+  box-sizing: border-box;
+  inline-size: max-content;
+  max-inline-size: 340px;
+  min-inline-size: 240px;
+  color: var(--color-text-primary);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--motion-duration-fast, 120ms) var(--motion-ease-standard),
+    visibility 0s linear var(--motion-duration-fast, 120ms);
+}
+
+.content[data-state="open"] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    opacity var(--motion-duration-fast, 120ms) var(--motion-ease-standard),
+    visibility 0s linear 0s;
+}
+
+/* Invisible pointer bridge spanning the offset gap between trigger and card */
+.content::before {
+  content: "";
+  position: absolute;
+  pointer-events: auto;
+}
+
+/* Placements */
+.placement_bottom {
+  inset-block-start: calc(100% + var(--hovercard-offset, 8px));
+}
+
+.placement_bottom::before {
+  inset-block-start: calc(-1 * var(--hovercard-offset, 8px));
+  inset-inline: 0;
+  block-size: var(--hovercard-offset, 8px);
+}
+
+.placement_top {
+  inset-block-end: calc(100% + var(--hovercard-offset, 8px));
+}
+
+.placement_top::before {
+  inset-block-end: calc(-1 * var(--hovercard-offset, 8px));
+  inset-inline: 0;
+  block-size: var(--hovercard-offset, 8px);
+}
+
+.placement_start {
+  inset-inline-end: calc(100% + var(--hovercard-offset, 8px));
+  inset-block-start: 50%;
+  translate: 0 -50%;
+}
+
+.placement_start::before {
+  inset-inline-start: 100%;
+  inset-block: 0;
+  inline-size: var(--hovercard-offset, 8px);
+}
+
+.placement_end {
+  inset-inline-start: calc(100% + var(--hovercard-offset, 8px));
+  inset-block-start: 50%;
+  translate: 0 -50%;
+}
+
+.placement_end::before {
+  inset-inline-end: 100%;
+  inset-block: 0;
+  inline-size: var(--hovercard-offset, 8px);
+}
+
+/* Alignments for top/bottom placements */
+.placement_bottom.align_start,
+.placement_top.align_start {
+  inset-inline-start: 0;
+}
+
+.placement_bottom.align_center,
+.placement_top.align_center {
+  inset-inline-start: 50%;
+  translate: -50% 0;
+}
+
+[dir="rtl"] .placement_bottom.align_center,
+[dir="rtl"] .placement_top.align_center {
+  translate: 50% 0;
+}
+
+.placement_bottom.align_end,
+.placement_top.align_end {
+  inset-inline-end: 0;
+}
+
+/* Alignments for start/end placements */
+.placement_start.align_start,
+.placement_end.align_start {
+  inset-block-start: 0;
+  translate: none;
+}
+
+.placement_start.align_end,
+.placement_end.align_end {
+  inset-block-start: auto;
+  inset-block-end: 0;
+  translate: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content {
+    transition: none !important;
+  }
+}

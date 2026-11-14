@@ -13,7 +13,7 @@
           },
           {
             "group": ["next", "next/*"],
-            "message": "Keep reusable code framework-neutral. Only src/app/** may import from next/*."
+            "message": "Keep reusable code framework-neutral. Only src/app/** and src/proxy.ts may import from next/*."
           },
           {
             "group": ["@starterkit/*", "**/website/**"],
@@ -33,7 +33,7 @@
             "patterns": [
               {
                 "group": ["next", "next/*"],
-                "message": "Keep reusable code framework-neutral. Only src/app/** may import from next/*."
+                "message": "Keep reusable code framework-neutral. Only src/app/** and src/proxy.ts may import from next/*."
               },
               {
                 "group": ["@starterkit/*", "**/website/**"],
@@ -45,7 +45,7 @@
       }
     },
     {
-      "files": ["src/app/**"],
+      "files": ["src/app/**", "src/proxy.ts"],
       "rules": {
         "no-restricted-imports": [
           "error",

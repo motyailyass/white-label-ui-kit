@@ -1,878 +1,787 @@
 'use client';
 
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Radio } from '@/components/ui/radio';
-import { BidiText, type TranslationKey } from '@/i18n';
-import { useI18n } from '@/providers';
-import { LanguageSwitcher } from '../language-switcher';
-import { ThemeSwitcher } from '../theme-switcher';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { Button, type ControlSize, Radio } from '@/components/ui';
+import { cn } from '@/lib/cn';
+import { useI18n, useTheme } from '@/providers';
+import {
+  GalleryCodeInspector,
+  GalleryStudioLayout,
+  type StudioLinkComponent,
+  StudioSegmentedControl,
+  type StudioSegmentedOption,
+  type StudioSpecGroup,
+  StudioToggleRow,
+} from '../gallery-studio';
 import styles from './radio-gallery.module.css';
 
-type FormStatusId = 'none' | 'pending' | 'success' | 'reset' | 'error';
+export type RadioSpecimenDirection = 'ltr' | 'rtl';
+export type RadioInteractionState = 'resting' | 'invalid' | 'disabled';
+export type RadioStageView = 'single' | 'all-sizes';
+export type RadioTouchTarget = 'auto' | 'comfortable';
 
-const FORM_STATUS_MAP: Record<FormStatusId, TranslationKey> = {
-  none: 'common.radioGallery.formEventNone',
-  pending: 'common.radioGallery.formEventPending',
-  success: 'common.radioGallery.formEventSuccess',
-  reset: 'common.radioGallery.formEventReset',
-  error: 'common.radioGallery.formEventError',
-};
+export interface RadioGalleryProps {
+  linkComponent?: StudioLinkComponent;
+}
 
-const SIZE_LABELS: Record<string, TranslationKey> = {
-  xs: 'common.radioGallery.sizeXsLabel',
-  sm: 'common.radioGallery.sizeSmLabel',
-  md: 'common.radioGallery.sizeMdLabel',
-  lg: 'common.radioGallery.sizeLgLabel',
-  xl: 'common.radioGallery.sizeXlLabel',
-  '2xl': 'common.radioGallery.size2xlLabel',
-};
+interface RadioOptionDef {
+  id: string;
+  labels: Record<'en' | 'fr' | 'ar', string>;
+}
 
-export function RadioGallery() {
-  const { t } = useI18n();
+interface RadioPresetDef {
+  id: string;
+  labelKey:
+    | 'common.studio.radioPresetBilling'
+    | 'common.studio.radioPresetTier'
+    | 'common.studio.radioPresetDeployment'
+    | 'common.studio.radioPresetResidency'
+    | 'common.studio.radioPresetNotification';
+  defaultValue: string;
+  legends: Record<'en' | 'fr' | 'ar', string>;
+  options: readonly RadioOptionDef[];
+  helpers?: Record<'en' | 'fr' | 'ar', string>;
+  errors: Record<'en' | 'fr' | 'ar', string>;
+  showHelper: boolean;
+}
 
-  // Controlled mode state
-  const [controlledValue, setControlledValue] = useState('dev');
+const RADIO_PRESETS: readonly RadioPresetDef[] = [
+  {
+    id: 'billing',
+    labelKey: 'common.studio.radioPresetBilling',
+    defaultValue: 'annual',
+    legends: {
+      en: 'Billing Cycle',
+      fr: 'Cycle de facturation',
+      ar: 'دورة الفوترة',
+    },
+    options: [
+      {
+        id: 'monthly',
+        labels: {
+          en: 'Monthly billing (standard rate)',
+          fr: 'Facturation mensuelle (tarif standard)',
+          ar: 'فاتورة شهرية (السعر القياسي)',
+        },
+      },
+      {
+        id: 'annual',
+        labels: {
+          en: 'Annual billing (Save 20% on cloud workloads)',
+          fr: 'Facturation annuelle (Économisez 20% sur le cloud)',
+          ar: 'فاتورة سنوية (خصم 20% على أحمال العمل السحابية)',
+        },
+      },
+    ],
+    helpers: {
+      en: 'Annual commitments receive priority cloud ingress and support.',
+      fr: 'Les forfaits annuels bénéficient d’une priorité sur le support et l’infrastructure.',
+      ar: 'تحصل الخطط السنوية على أولوية في دعم العملاء والبنية السحابية.',
+    },
+    errors: {
+      en: 'Please select a billing cycle to finalize your subscription tier.',
+      fr: 'Veuillez sélectionner un cycle de facturation pour finaliser votre abonnement.',
+      ar: 'يرجى اختيار دورة الفوترة لإتمام اشتراكك.',
+    },
+    showHelper: true,
+  },
+  {
+    id: 'tier',
+    labelKey: 'common.studio.radioPresetTier',
+    defaultValue: 'pro',
+    legends: {
+      en: 'Subscription Tier',
+      fr: 'Formule d’abonnement',
+      ar: 'مستوى الاشتراك',
+    },
+    options: [
+      {
+        id: 'starter',
+        labels: {
+          en: 'Starter ($19/mo per seat)',
+          fr: 'Starter (19 $/mois par utilisateur)',
+          ar: 'البداية (19 $/شهر لكل مقعد)',
+        },
+      },
+      {
+        id: 'pro',
+        labels: {
+          en: 'Professional ($49/mo per seat)',
+          fr: 'Professionnel (49 $/mois par utilisateur)',
+          ar: 'المحترف (49 $/شهر لكل مقعد)',
+        },
+      },
+      {
+        id: 'enterprise',
+        labels: {
+          en: 'Enterprise (Custom SLA & dedicated VPC)',
+          fr: 'Entreprise (SLA dédié et VPC privé)',
+          ar: 'المؤسسات (اتفاقية مستوى خدمة مخصصة وشبكة خاصة)',
+        },
+      },
+    ],
+    helpers: {
+      en: 'Upgrade or downgrade anytime with prorated credit calculation.',
+      fr: 'Changez d’offre à tout moment avec ajustement calculé au prorata.',
+      ar: 'قم بالترقية أو التخفيض في أي وقت مع حساب الرصيد تناسبيًا.',
+    },
+    errors: {
+      en: 'Please select a subscription tier to continue provisioning.',
+      fr: 'Veuillez sélectionner une formule d’abonnement pour continuer.',
+      ar: 'يرجى اختيار باقة الاشتراك للمتابعة.',
+    },
+    showHelper: true,
+  },
+  {
+    id: 'deployment',
+    labelKey: 'common.studio.radioPresetDeployment',
+    defaultValue: 'cloud',
+    legends: {
+      en: 'Deployment Model',
+      fr: 'Modèle de déploiement',
+      ar: 'نموذج النشر',
+    },
+    options: [
+      {
+        id: 'cloud',
+        labels: {
+          en: 'Multi-Tenant Public Cloud',
+          fr: 'Cloud public mutualisé',
+          ar: 'سحابة عامة مشتركة',
+        },
+      },
+      {
+        id: 'hybrid',
+        labels: {
+          en: 'Hybrid Virtual Private Cloud',
+          fr: 'Cloud privé virtuel hybride',
+          ar: 'سحابة هجينة خاصة',
+        },
+      },
+      {
+        id: 'onpremise',
+        labels: {
+          en: 'Air-Gapped On-Premises Installation',
+          fr: 'Installation sur site isolé (Air-gapped)',
+          ar: 'تثبيت محلي معزول تماماً',
+        },
+      },
+    ],
+    helpers: {
+      en: 'Controls where your encrypted data partitions and workloads reside.',
+      fr: 'Détermine l’emplacement de vos partitions de données chiffrées.',
+      ar: 'يحدد موقع أقسام بياناتك المشفرة وأحمال العمل الخاصة بك.',
+    },
+    errors: {
+      en: 'Please select an infrastructure deployment model.',
+      fr: 'Veuillez sélectionner un modèle de déploiement d’infrastructure.',
+      ar: 'يرجى اختيار نموذج نشر البنية التحتية.',
+    },
+    showHelper: true,
+  },
+  {
+    id: 'residency',
+    labelKey: 'common.studio.radioPresetResidency',
+    defaultValue: 'eu',
+    legends: {
+      en: 'Data Residency Region',
+      fr: 'Région de résidence des données',
+      ar: 'منطقة استضافة البيانات',
+    },
+    options: [
+      {
+        id: 'eu',
+        labels: {
+          en: 'European Union (GDPR compliance & Frankfurt cluster)',
+          fr: 'Union Européenne (Conformité RGPD et cluster Francfort)',
+          ar: 'الاتحاد الأوروبي (امتثال GDPR وخادم فرانكفورت)',
+        },
+      },
+      {
+        id: 'us',
+        labels: {
+          en: 'United States (CCPA / SOC2 Type II & Virginia cluster)',
+          fr: 'États-Unis (CCPA / SOC2 Type II et cluster Virginie)',
+          ar: 'الولايات المتحدة (CCPA / SOC2 وخادم فرجينيا)',
+        },
+      },
+    ],
+    helpers: {
+      en: 'Determines the geographical region where persistent storage is provisioned.',
+      fr: 'Définit la région géographique où le stockage persistant est alloué.',
+      ar: 'يحدد المنطقة الجغرافية التي يتم فيها توفير التخزين الدائم.',
+    },
+    errors: {
+      en: 'Please select an applicable legal jurisdiction to establish data residency.',
+      fr: 'Veuillez sélectionner une juridiction légale pour définir la résidence des données.',
+      ar: 'يرجى اختيار الاختصاص القانوني المعمول به لتحديد موطن تخزين البيانات.',
+    },
+    showHelper: true,
+  },
+  {
+    id: 'notification',
+    labelKey: 'common.studio.radioPresetNotification',
+    defaultValue: 'daily',
+    legends: {
+      en: 'Notification Digest Cadence',
+      fr: 'Fréquence du récapitulatif des notifications',
+      ar: 'وتيرة ملخص الإشعارات',
+    },
+    options: [
+      {
+        id: 'realtime',
+        labels: {
+          en: 'Real-Time Push Notifications',
+          fr: 'Notifications push en temps réel',
+          ar: 'إشعارات فورية مباشرة',
+        },
+      },
+      {
+        id: 'daily',
+        labels: {
+          en: 'Daily Activity Digest (09:00 UTC)',
+          fr: 'Récapitulatif quotidien (09h00 UTC)',
+          ar: 'ملخص يومي للنشاط (09:00 بالتوقيت العالمي)',
+        },
+      },
+      {
+        id: 'weekly',
+        labels: {
+          en: 'Weekly Executive Summary (Monday)',
+          fr: 'Synthèse hebdomadaire (Lundi)',
+          ar: 'ملخص تنفيذي أسبوعي (كل اثنين)',
+        },
+      },
+    ],
+    helpers: {
+      en: 'Can be customized per workspace or channel from account settings.',
+      fr: 'Personnalisable par espace de travail depuis vos paramètres de compte.',
+      ar: 'يمكن تخصيص الإشعارات لكل مساحة عمل من خلال إعدادات الحساب.',
+    },
+    errors: {
+      en: 'Please select a notification delivery cadence.',
+      fr: 'Veuillez choisir une fréquence de distribution des notifications.',
+      ar: 'يرجى تحديد وتيرة استلام الإشعارات.',
+    },
+    showHelper: true,
+  },
+];
 
-  // Required section validation state (starts without premature error)
-  const [requiredPayment, setRequiredPayment] = useState('');
-  const [requiredError, setRequiredError] = useState(false);
+const allSizesList: readonly ControlSize[] = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
 
-  // Form demonstration state
-  const [formCompute, setFormCompute] = useState<string>('');
-  const [formStatusId, setFormStatusId] = useState<FormStatusId>('none');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+export function RadioGallery({ linkComponent }: RadioGalleryProps) {
+  const { t, locale, direction } = useI18n();
+  const { resolvedTheme } = useTheme();
 
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
+  // Studio Interactive State
+  const [activePresetId, setActivePresetId] = useState<string>(RADIO_PRESETS[0].id);
+  const [specimenDir, setSpecimenDir] = useState<RadioSpecimenDirection>('ltr');
+  const [size, setSize] = useState<ControlSize | 'default'>('default');
+  const [stageView, setStageView] = useState<RadioStageView>('single');
+  const [interactionState, setInteractionState] = useState<RadioInteractionState>('resting');
+  const [touchTarget, setTouchTarget] = useState<RadioTouchTarget>('auto');
+
+  // Radio Group Value
+  const [selectedValue, setSelectedValue] = useState<string>(RADIO_PRESETS[0].defaultValue);
+
+  // Content & Feedback States
+  const [showLabel, setShowLabel] = useState(true);
+  const [showHelper, setShowHelper] = useState(RADIO_PRESETS[0].showHelper);
+  const [showError, setShowError] = useState(false);
+
+  const activeRadioRef = useRef<HTMLInputElement>(null);
+
+  // Live Measured DOM Geometry
+  const [measuredSpecs, setMeasuredSpecs] = useState<{
+    targetHeight: string;
+    targetWidth: string;
+    circleSize: string;
+    dotSize: string;
+    bg: string;
+    border: string;
+    radius: string;
+  } | null>(null);
+
+  const activeLang = specimenDir === 'rtl' ? 'ar' : (locale as 'en' | 'fr' | 'ar');
+
+  const currentPreset = useMemo(() => {
+    return RADIO_PRESETS.find((p) => p.id === activePresetId) ?? RADIO_PRESETS[0];
+  }, [activePresetId]);
+
+  const applyPreset = useCallback((preset: RadioPresetDef) => {
+    setActivePresetId(preset.id);
+    setSelectedValue(preset.defaultValue);
+    setInteractionState('resting');
+    setShowError(false);
   }, []);
 
-  const handleFormSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (isSubmitting) return;
-
-      if (!formCompute) {
-        setFormStatusId('error');
-        return;
+  const handleStateChange = useCallback(
+    (nextState: RadioInteractionState) => {
+      setInteractionState(nextState);
+      if (nextState === 'invalid') {
+        setSelectedValue(''); // Simulates empty mandatory choice that failed validation
+        setShowError(true);
+      } else {
+        setShowError(false);
+        if (!selectedValue) {
+          setSelectedValue(currentPreset.defaultValue);
+        }
       }
-
-      setIsSubmitting(true);
-      setFormStatusId('pending');
-
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        setFormStatusId('success');
-        setIsSubmitting(false);
-        timerRef.current = null;
-      }, 800);
     },
-    [isSubmitting, formCompute],
+    [currentPreset, selectedValue],
   );
 
-  const handleFormReset = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    setFormCompute('');
-    setIsSubmitting(false);
-    setFormStatusId('reset');
+  const handleSelectOption = useCallback(
+    (optId: string) => {
+      setSelectedValue(optId);
+      // Selecting an option resolves any mandatory empty selection error
+      if (interactionState === 'invalid') {
+        setInteractionState('resting');
+        setShowError(false);
+      }
+    },
+    [interactionState],
+  );
+
+  const handleDirectionChange = useCallback((dir: RadioSpecimenDirection) => {
+    setSpecimenDir(dir);
   }, []);
 
-  // Section IDs
-  const baseId = useId();
-  const overviewId = `${baseId}-sec-overview`;
-  const sizesId = `${baseId}-sec-sizes`;
-  const controlledId = `${baseId}-sec-controlled`;
-  const uncontrolledId = `${baseId}-sec-uncontrolled`;
-  const statesId = `${baseId}-sec-states`;
-  const helpErrorId = `${baseId}-sec-help-error`;
-  const independentId = `${baseId}-sec-independent`;
-  const localizationId = `${baseId}-sec-localization`;
-  const themeId = `${baseId}-sec-theme`;
-  const formDemoId = `${baseId}-sec-form-demo`;
-  const usageId = `${baseId}-sec-usage`;
+  const handleReset = useCallback(() => {
+    setSpecimenDir('ltr');
+    setSize('default');
+    setStageView('single');
+    setInteractionState('resting');
+    setTouchTarget('auto');
+    setShowLabel(true);
+    applyPreset(RADIO_PRESETS[0]);
+  }, [applyPreset]);
 
-  // Field IDs
-  const defaultMonthlyId = `${baseId}-def-monthly`;
-  const defaultAnnualId = `${baseId}-def-annual`;
-  const ctrlDevId = `${baseId}-ctrl-dev`;
-  const ctrlStagingId = `${baseId}-ctrl-staging`;
-  const ctrlProdId = `${baseId}-ctrl-prod`;
-  const unctrlStarterId = `${baseId}-unctrl-starter`;
-  const unctrlProId = `${baseId}-unctrl-pro`;
-  const unctrlEnterpriseId = `${baseId}-unctrl-enterprise`;
-  const reqCardId = `${baseId}-req-card`;
-  const reqBankId = `${baseId}-req-bank`;
-  const reqHelpId = `${baseId}-req-help`;
-  const reqErrorId = `${baseId}-req-error`;
-  const grpA1Id = `${baseId}-grp-a1`;
-  const grpA2Id = `${baseId}-grp-a2`;
-  const grpB1Id = `${baseId}-grp-b1`;
-  const grpB2Id = `${baseId}-grp-b2`;
-  const arabicId = `${baseId}-arabic-opt`;
-  const arabicHelpId = `${arabicId}-help`;
-  const mixedId = `${baseId}-mixed-opt`;
-  const longLabelId = `${baseId}-long-label-opt`;
-  const formSharedId = `${baseId}-form-shared`;
-  const formDedicatedId = `${baseId}-form-dedicated`;
-  const formGpuId = `${baseId}-form-gpu`;
+  const resolvedSize: ControlSize | undefined = size === 'default' ? undefined : size;
+  const isInvalid = (interactionState === 'invalid' && !selectedValue) || showError;
+  const isDisabled = interactionState === 'disabled';
+
+  const baseId = useId();
+  const groupName = `${baseId}-radio-group`;
+  const helpId = `${baseId}-help`;
+  const errorId = `${baseId}-error`;
+
+  const describedBy = useMemo(() => {
+    const ids: string[] = [];
+    if (showHelper && currentPreset.helpers) ids.push(helpId);
+    if (isInvalid && currentPreset.errors) ids.push(errorId);
+    return ids.length > 0 ? ids.join(' ') : undefined;
+  }, [showHelper, currentPreset.helpers, helpId, isInvalid, currentPreset.errors, errorId]);
+
+  useEffect(() => {
+    if (activeRadioRef.current) {
+      const input = activeRadioRef.current;
+      const root = input.closest('span');
+      const indicator = input.nextElementSibling as HTMLElement | null;
+      const dot = indicator?.firstElementChild as HTMLElement | null;
+
+      if (root && indicator) {
+        const rootRect = root.getBoundingClientRect();
+        const indRect = indicator.getBoundingClientRect();
+        const dotRect = dot?.getBoundingClientRect() ?? { width: 0 };
+        const s = window.getComputedStyle(indicator);
+
+        setMeasuredSpecs({
+          targetHeight: `${Math.round(rootRect.height)}px`,
+          targetWidth: `${Math.round(rootRect.width)}px`,
+          circleSize: `${Math.round(indRect.width)}px`,
+          dotSize: `${Math.round(dotRect.width)}px`,
+          bg: s.backgroundColor,
+          border: `${s.borderWidth} ${s.borderStyle} ${s.borderColor}`,
+          radius: s.borderRadius,
+        });
+      }
+    }
+  }, [size, touchTarget, interactionState, selectedValue, specimenDir, resolvedTheme, stageView]);
+
+  // Dynamic Standalone Code Snippet
+  const jsxSnippet = useMemo(() => {
+    const propsList: string[] = [];
+    if (size !== 'default') propsList.push(`size="${size}"`);
+    if (touchTarget !== 'auto') propsList.push(`touchTarget="${touchTarget}"`);
+    if (isDisabled) propsList.push('disabled');
+    if (isInvalid) propsList.push('aria-invalid="true"');
+    if (describedBy) propsList.push(`aria-describedby="${describedBy}"`);
+
+    const extraProps = propsList.length > 0 ? `\n      ${propsList.join('\n      ')}` : '';
+    const legendText = currentPreset.legends[activeLang];
+
+    const optionsMarkup = currentPreset.options
+      .map((opt) => {
+        const optId = `radio-${opt.id}`;
+        return `    <div className="fieldRow">
+      <Radio
+        id="${optId}"
+        name="radio-group"
+        value="${opt.id}"
+        checked={value === '${opt.id}'}
+        onChange={(e) => setValue(e.target.value)}${extraProps}
+      />
+      <label htmlFor="${optId}">${opt.labels[activeLang]}</label>
+    </div>`;
+      })
+      .join('\n');
+
+    return `import { Radio } from '@/components/ui';
+
+<fieldset className="fieldset">
+  <legend className="legend">${legendText}</legend>
+${optionsMarkup}
+</fieldset>`;
+  }, [size, touchTarget, isDisabled, isInvalid, describedBy, currentPreset, activeLang]);
+
+  const cssModuleSnippet = `.fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.legend {
+  font-size: var(--typography-label-size);
+  font-weight: var(--typography-label-weight);
+  color: var(--color-text-primary);
+  margin-block-end: var(--space-2);
+}
+
+.fieldRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.label {
+  font-size: var(--typography-label-size);
+  color: var(--color-text-primary);
+  font-weight: var(--typography-label-weight);
+  cursor: pointer;
+  user-select: none;
+}`;
+
+  const aiAgentPrompt = useMemo(() => {
+    return `You are implementing an accessible Radio mutual-exclusion selection group using the project's white-label UI Kit. Follow these exact rules:
+
+1. Import pure primitive:
+   import { Radio } from '@/components/ui';
+
+2. Usage:
+   ${jsxSnippet}
+
+3. Architectural Invariants:
+   - 100% pure native <input type="radio"> driving DOM state, wrapped in an inline-flex target container.
+   - Mutual exclusivity governed natively by the 'name' attribute across options within the group.
+   - Interaction target (${touchTarget === 'comfortable' ? '48x48px min' : '36px md / 48px xl'}) is decoupled from the visible circular indicator (16px md / 20px xl).
+   - Inner bullet dot scales to 50% outer diameter with smooth standard easing.
+   - Stable neutral hover border: resting border does not jump on hover.
+   - Group validation occurs at the <fieldset> level with an accessible alert message rather than alarming solid-red dots.
+   - 100% CSS logical properties (inline-size, block-size, padding-inline, margin-block).
+   - Zero dashboard shadows.
+   - Size: ${size === 'default' ? 'Product default (md = 36px in dashboard, xl = 48px in website)' : `Explicit size="${size}"`}.`;
+  }, [jsxSnippet, size, touchTarget]);
+
+  const specGroups: readonly StudioSpecGroup[] = useMemo(() => {
+    return [
+      {
+        title: t('common.studio.specCategoryVariant'),
+        items: [
+          { label: 'size', value: size },
+          { label: 'state', value: interactionState },
+          { label: 'selectedValue', value: selectedValue || '(none - empty mandatory choice)' },
+          { label: 'touchTarget', value: touchTarget },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryMeasured'),
+        items: [
+          { label: t('common.studio.specMinBlockSize'), value: measuredSpecs?.targetHeight ?? '—' },
+          { label: t('common.studio.specInlineSize'), value: measuredSpecs?.targetWidth ?? '—' },
+          { label: t('common.studio.specCircleSize'), value: measuredSpecs?.circleSize ?? '—' },
+          { label: t('common.studio.specDotSize'), value: measuredSpecs?.dotSize ?? '—' },
+          { label: t('common.studio.specBackgroundColor'), value: measuredSpecs?.bg ?? '—' },
+          { label: t('common.studio.specBorder'), value: measuredSpecs?.border ?? '—' },
+          { label: t('common.studio.specRadius'), value: measuredSpecs?.radius ?? '—' },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryTokens'),
+        items: [
+          { label: '--radius-full', value: 'var(--radius-full) (9999px)' },
+          { label: '--color-border-control', value: 'var(--color-border-control)' },
+          { label: '--color-primary', value: 'var(--color-primary)' },
+          { label: t('common.studio.specimenDirectionLabel'), value: specimenDir.toUpperCase() },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryEnv'),
+        items: [
+          { label: t('common.studio.specLocale'), value: locale },
+          { label: t('common.studio.specDirection'), value: direction.toUpperCase() },
+          { label: t('common.studio.specTheme'), value: resolvedTheme },
+        ],
+      },
+    ];
+  }, [
+    size,
+    interactionState,
+    selectedValue,
+    touchTarget,
+    measuredSpecs,
+    specimenDir,
+    locale,
+    direction,
+    resolvedTheme,
+    t,
+  ]);
+
+  // Sidebar Controls Options
+  const specimenDirOptions: readonly StudioSegmentedOption<RadioSpecimenDirection>[] = [
+    { value: 'ltr', label: t('common.studio.specimenDirLtr'), testId: 'opt-dir-ltr' },
+    { value: 'rtl', label: t('common.studio.specimenDirRtl'), testId: 'opt-dir-rtl' },
+  ];
+
+  const sizeOptions: readonly StudioSegmentedOption<ControlSize | 'default'>[] = [
+    { value: 'default', label: 'Def', testId: 'opt-size-default' },
+    { value: 'xs', label: 'XS', testId: 'opt-size-xs' },
+    { value: 'sm', label: 'SM', testId: 'opt-size-sm' },
+    { value: 'md', label: 'MD', testId: 'opt-size-md' },
+    { value: 'lg', label: 'LG', testId: 'opt-size-lg' },
+    { value: 'xl', label: 'XL', testId: 'opt-size-xl' },
+    { value: '2xl', label: '2XL', testId: 'opt-size-2xl' },
+  ];
+
+  const stateOptions: readonly StudioSegmentedOption<RadioInteractionState>[] = [
+    { value: 'resting', label: t('common.studio.optStateResting'), testId: 'opt-state-resting' },
+    { value: 'invalid', label: t('common.studio.optStateInvalid'), testId: 'opt-state-invalid' },
+    { value: 'disabled', label: t('common.studio.optStateDisabled'), testId: 'opt-state-disabled' },
+  ];
+
+  const viewOptions: readonly StudioSegmentedOption<RadioStageView>[] = [
+    { value: 'single', label: t('common.studio.viewSingle'), testId: 'opt-view-single' },
+    { value: 'all-sizes', label: t('common.studio.viewAllSizes'), testId: 'opt-view-all-sizes' },
+  ];
+
+  const touchTargetOptions: readonly StudioSegmentedOption<RadioTouchTarget>[] = [
+    { value: 'auto', label: t('common.studio.touchAuto'), testId: 'opt-touch-auto' },
+    {
+      value: 'comfortable',
+      label: t('common.studio.touchComfortable'),
+      testId: 'opt-touch-comfortable',
+    },
+  ];
 
   return (
-    <main className={styles.galleryContainer} data-testid="radio-gallery">
-      {/* Header */}
-      <header className={styles.galleryHeader}>
-        <div className={styles.headerTop}>
-          <h1 className={styles.title}>{t('common.radioGallery.title')}</h1>
-          <div className={styles.controlsRow}>
-            <LanguageSwitcher />
-            <ThemeSwitcher />
-          </div>
-        </div>
-        <p className={styles.subtitle}>{t('common.radioGallery.subtitle')}</p>
-      </header>
+    <GalleryStudioLayout
+      activeRoute="radio"
+      title={t('common.radioGallery.title')}
+      subtitle={t('common.radioGallery.subtitle')}
+      testId="radio-gallery"
+      previewDir={specimenDir}
+      onReset={handleReset}
+      linkComponent={linkComponent}
+      controls={
+        <>
+          <StudioSegmentedControl
+            label={t('common.studio.specimenDirectionLabel')}
+            value={specimenDir}
+            options={specimenDirOptions}
+            onChange={handleDirectionChange}
+          />
 
-      {/* 1. Overview & Product Defaults */}
-      <section className={styles.section} aria-labelledby={overviewId}>
-        <h2 id={overviewId} className={styles.sectionTitle}>
-          {t('common.radioGallery.overviewTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.radioGallery.overviewDesc')}</p>
-        <fieldset className={styles.fieldset}>
-          <legend className={styles.legend}>{t('common.radioGallery.defaultLegend')}</legend>
-          <div className={styles.fieldRow}>
-            <Radio
-              id={defaultMonthlyId}
-              name={`${baseId}-default-billing`}
-              value="monthly"
-              defaultChecked
-              data-testid="specimen-default"
-            />
-            <label htmlFor={defaultMonthlyId} className={styles.label}>
-              {t('common.radioGallery.defaultOptionMonthly')}
-            </label>
-          </div>
-          <div className={styles.fieldRow}>
-            <Radio
-              id={defaultAnnualId}
-              name={`${baseId}-default-billing`}
-              value="annual"
-              data-testid="specimen-default-alt"
-            />
-            <label htmlFor={defaultAnnualId} className={styles.label}>
-              {t('common.radioGallery.defaultOptionAnnual')}
-            </label>
-          </div>
-        </fieldset>
-      </section>
+          <hr className={styles.controlDivider} />
 
-      {/* 2. Six-Step Sizing Scale */}
-      <section className={styles.section} aria-labelledby={sizesId}>
-        <h2 id={sizesId} className={styles.sectionTitle}>
-          {t('common.radioGallery.sizesTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.radioGallery.sizesDesc')}</p>
-        <div className={styles.scaleGrid}>
-          {(['xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const).map((sz) => {
-            const sizeFieldId = `${baseId}-size-${sz}`;
-            return (
-              <div key={sz} className={styles.fieldRow}>
-                <Radio
-                  id={sizeFieldId}
-                  name={`${baseId}-scale-group`}
-                  value={sz}
-                  size={sz}
-                  defaultChecked={sz === 'md'}
-                  data-testid={`specimen-size-${sz}`}
-                />
-                <label htmlFor={sizeFieldId} className={styles.label}>
-                  {t(SIZE_LABELS[sz])}
-                </label>
+          <StudioSegmentedControl
+            label={t('common.studio.btnSizeLabel')}
+            value={size}
+            options={sizeOptions}
+            onChange={setSize}
+          />
+
+          <StudioSegmentedControl
+            label={t('common.studio.btnCanvasViewLabel')}
+            value={stageView}
+            options={viewOptions}
+            onChange={setStageView}
+          />
+
+          <hr className={styles.controlDivider} />
+
+          <StudioSegmentedControl
+            label={t('common.studio.inputStateLabel')}
+            value={interactionState}
+            options={stateOptions}
+            onChange={handleStateChange}
+          />
+
+          <StudioSegmentedControl
+            label={t('common.studio.btnTouchTargetLabel')}
+            value={touchTarget}
+            options={touchTargetOptions}
+            onChange={setTouchTarget}
+          />
+
+          <hr className={styles.controlDivider} />
+
+          <StudioToggleRow
+            label={t('common.studio.inputShowLabelToggle')}
+            checked={showLabel}
+            onCheckedChange={setShowLabel}
+          />
+
+          <StudioToggleRow
+            label={t('common.studio.inputShowHelperToggle')}
+            checked={showHelper}
+            onCheckedChange={setShowHelper}
+          />
+
+          <StudioToggleRow
+            label={t('common.studio.inputShowErrorToggle')}
+            checked={showError}
+            onCheckedChange={setShowError}
+          />
+        </>
+      }
+      inspector={
+        <GalleryCodeInspector
+          aiPrompt={aiAgentPrompt}
+          jsxCode={jsxSnippet}
+          cssCode={cssModuleSnippet}
+          jsxFileName="my-radio-group.tsx"
+          cssFileName="my-radio-group.module.css"
+          specGroups={specGroups}
+        />
+      }
+    >
+      <div className={styles.stageActionArea}>
+        {stageView === 'single' ? (
+          <div className={styles.singleSpecimenRow}>
+            <fieldset className={styles.fieldset} aria-describedby={describedBy}>
+              <legend className={styles.legend}>{currentPreset.legends[activeLang]}</legend>
+              {currentPreset.options.map((opt, index) => {
+                const optId = `${baseId}-option-${opt.id}`;
+                const isChecked = selectedValue === opt.id;
+                const isPrimaryRef = isChecked || (!selectedValue && index === 0);
+
+                return (
+                  <div key={opt.id} className={styles.fieldRow}>
+                    <Radio
+                      ref={isPrimaryRef ? activeRadioRef : undefined}
+                      id={optId}
+                      name={groupName}
+                      value={opt.id}
+                      checked={isChecked}
+                      size={resolvedSize}
+                      touchTarget={touchTarget}
+                      disabled={isDisabled}
+                      aria-invalid={isInvalid || undefined}
+                      onChange={() => handleSelectOption(opt.id)}
+                      data-testid={`studio-radio-${opt.id}`}
+                    />
+                    {showLabel && (
+                      <label
+                        htmlFor={optId}
+                        className={cn(styles.label, isDisabled && styles.labelDisabled)}
+                      >
+                        {opt.labels[activeLang]}
+                      </label>
+                    )}
+                  </div>
+                );
+              })}
+              {showHelper && !isInvalid && currentPreset.helpers && (
+                <p id={helpId} className={styles.helpText}>
+                  {currentPreset.helpers[activeLang]}
+                </p>
+              )}
+              {isInvalid && currentPreset.errors && (
+                <p id={errorId} className={styles.errorText} role="alert">
+                  {currentPreset.errors[activeLang]}
+                </p>
+              )}
+            </fieldset>
+          </div>
+        ) : (
+          <div className={styles.allSizesGrid}>
+            {allSizesList.map((sz) => (
+              <div key={sz} className={styles.sizeCard}>
+                <span className={styles.sizeCardLabel}>size=&quot;{sz}&quot;</span>
+                <div className={styles.fieldRow}>
+                  <Radio
+                    id={`${baseId}-grid-${sz}-1`}
+                    name={`grid-group-${sz}`}
+                    size={sz}
+                    touchTarget={touchTarget}
+                    checked={selectedValue === 'opt-1'}
+                    disabled={isDisabled}
+                    aria-invalid={isInvalid || undefined}
+                    onChange={() => setSelectedValue('opt-1')}
+                    data-testid={`studio-size-radio-${sz}-1`}
+                  />
+                  {showLabel && (
+                    <label
+                      htmlFor={`${baseId}-grid-${sz}-1`}
+                      className={cn(styles.label, isDisabled && styles.labelDisabled)}
+                    >
+                      Option 1
+                    </label>
+                  )}
+                </div>
+                <div className={styles.fieldRow}>
+                  <Radio
+                    id={`${baseId}-grid-${sz}-2`}
+                    name={`grid-group-${sz}`}
+                    size={sz}
+                    touchTarget={touchTarget}
+                    checked={selectedValue === 'opt-2'}
+                    disabled={isDisabled}
+                    aria-invalid={isInvalid || undefined}
+                    onChange={() => setSelectedValue('opt-2')}
+                    data-testid={`studio-size-radio-${sz}-2`}
+                  />
+                  {showLabel && (
+                    <label
+                      htmlFor={`${baseId}-grid-${sz}-2`}
+                      className={cn(styles.label, isDisabled && styles.labelDisabled)}
+                    >
+                      Option 2
+                    </label>
+                  )}
+                </div>
               </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 3. Controlled Mode */}
-      <section className={styles.section} aria-labelledby={controlledId}>
-        <h2 id={controlledId} className={styles.sectionTitle}>
-          {t('common.radioGallery.controlledTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.radioGallery.controlledDesc')}</p>
-        <fieldset className={styles.fieldset}>
-          <legend className={styles.legend}>
-            {t('common.radioGallery.controlledLegend')}
-          </legend>
-          <div className={styles.fieldRow}>
-            <Radio
-              id={ctrlDevId}
-              name={`${baseId}-controlled-env`}
-              value="dev"
-              checked={controlledValue === 'dev'}
-              onChange={(e) => setControlledValue(e.target.value)}
-              data-testid="specimen-controlled-dev"
-            />
-            <label htmlFor={ctrlDevId} className={styles.label}>
-              {t('common.radioGallery.controlledOptDev')}
-            </label>
+            ))}
           </div>
-          <div className={styles.fieldRow}>
-            <Radio
-              id={ctrlStagingId}
-              name={`${baseId}-controlled-env`}
-              value="staging"
-              checked={controlledValue === 'staging'}
-              onChange={(e) => setControlledValue(e.target.value)}
-              data-testid="specimen-controlled-staging"
-            />
-            <label htmlFor={ctrlStagingId} className={styles.label}>
-              {t('common.radioGallery.controlledOptStaging')}
-            </label>
-          </div>
-          <div className={styles.fieldRow}>
-            <Radio
-              id={ctrlProdId}
-              name={`${baseId}-controlled-env`}
-              value="prod"
-              checked={controlledValue === 'prod'}
-              onChange={(e) => setControlledValue(e.target.value)}
-              data-testid="specimen-controlled-prod"
-            />
-            <label htmlFor={ctrlProdId} className={styles.label}>
-              {t('common.radioGallery.controlledOptProd')}
-            </label>
-          </div>
-        </fieldset>
-        <div className={styles.statusCard}>
-          <span>{t('common.radioGallery.controlledStatusPrefix')}:</span>
-          <span className={styles.statusValue}>{controlledValue}</span>
-        </div>
-      </section>
+        )}
 
-      {/* 4. Uncontrolled Mode & Form Reset */}
-      <section className={styles.section} aria-labelledby={uncontrolledId}>
-        <h2 id={uncontrolledId} className={styles.sectionTitle}>
-          {t('common.radioGallery.uncontrolledTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>
-          {t('common.radioGallery.uncontrolledDesc')}
-        </p>
-        <form
-          onReset={() => {
-            // Native form reset behavior
-          }}
-          className={styles.fieldset}
-        >
-          <fieldset className={styles.fieldset}>
-            <legend className={styles.legend}>
-              {t('common.radioGallery.uncontrolledLegend')}
-            </legend>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={unctrlStarterId}
-                name="tier-choice"
-                value="starter"
-                defaultChecked
-                data-testid="specimen-uncontrolled-starter"
-              />
-              <label htmlFor={unctrlStarterId} className={styles.label}>
-                {t('common.radioGallery.uncontrolledOptStarter')}
-              </label>
-            </div>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={unctrlProId}
-                name="tier-choice"
-                value="pro"
-                data-testid="specimen-uncontrolled-pro"
-              />
-              <label htmlFor={unctrlProId} className={styles.label}>
-                {t('common.radioGallery.uncontrolledOptPro')}
-              </label>
-            </div>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={unctrlEnterpriseId}
-                name="tier-choice"
-                value="enterprise"
-                data-testid="specimen-uncontrolled-enterprise"
-              />
-              <label htmlFor={unctrlEnterpriseId} className={styles.label}>
-                {t('common.radioGallery.uncontrolledOptEnterprise')}
-              </label>
-            </div>
-          </fieldset>
-          <div>
-            <Button
-              type="reset"
-              variant="secondary"
-              size="sm"
-              data-testid="specimen-uncontrolled-reset-btn"
-            >
-              {t('common.radioGallery.uncontrolledResetButton')}
-            </Button>
-          </div>
-        </form>
-      </section>
-
-      {/* 5. Operational States & Combined Precedence */}
-      <section className={styles.section} aria-labelledby={statesId}>
-        <h2 id={statesId} className={styles.sectionTitle}>
-          {t('common.radioGallery.statesTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.radioGallery.statesDesc')}</p>
-        <div className={styles.gridTwo}>
-          <div className={styles.fieldRow}>
-            <Radio
-              id={`${baseId}-state-unchecked`}
-              name={`${baseId}-state-demo-1`}
-              value="unchecked"
-              data-testid="specimen-unchecked"
-            />
-            <label htmlFor={`${baseId}-state-unchecked`} className={styles.label}>
-              {t('common.radioGallery.stateUncheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Radio
-              id={`${baseId}-state-checked`}
-              name={`${baseId}-state-demo-2`}
-              value="checked"
-              defaultChecked
-              data-testid="specimen-checked"
-            />
-            <label htmlFor={`${baseId}-state-checked`} className={styles.label}>
-              {t('common.radioGallery.stateCheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Radio
-              id={`${baseId}-state-disabled-unchecked`}
-              name={`${baseId}-state-demo-3`}
-              value="disabled-unchecked"
-              disabled
-              data-testid="specimen-disabled-unchecked"
-            />
-            <label
-              htmlFor={`${baseId}-state-disabled-unchecked`}
-              className={styles.label}
-            >
-              {t('common.radioGallery.stateDisabledUncheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Radio
-              id={`${baseId}-state-disabled-checked`}
-              name={`${baseId}-state-demo-4`}
-              value="disabled-checked"
-              disabled
-              defaultChecked
-              data-testid="specimen-disabled-checked"
-            />
-            <label
-              htmlFor={`${baseId}-state-disabled-checked`}
-              className={styles.label}
-            >
-              {t('common.radioGallery.stateDisabledCheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Radio
-              id={`${baseId}-state-invalid-unchecked`}
-              name={`${baseId}-state-demo-5`}
-              value="invalid-unchecked"
-              aria-invalid="true"
-              data-testid="specimen-invalid-unchecked"
-            />
-            <label
-              htmlFor={`${baseId}-state-invalid-unchecked`}
-              className={styles.label}
-            >
-              {t('common.radioGallery.stateInvalidUncheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Radio
-              id={`${baseId}-state-invalid-checked`}
-              name={`${baseId}-state-demo-6`}
-              value="invalid-checked"
-              aria-invalid="true"
-              defaultChecked
-              data-testid="specimen-invalid-checked"
-            />
-            <label
-              htmlFor={`${baseId}-state-invalid-checked`}
-              className={styles.label}
-            >
-              {t('common.radioGallery.stateInvalidCheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Radio
-              id={`${baseId}-state-invalid-disabled-unchecked`}
-              name={`${baseId}-state-demo-7`}
-              value="invalid-disabled-unchecked"
-              aria-invalid="true"
-              disabled
-              data-testid="specimen-invalid-disabled-unchecked"
-            />
-            <label
-              htmlFor={`${baseId}-state-invalid-disabled-unchecked`}
-              className={styles.label}
-            >
-              {t('common.radioGallery.stateInvalidDisabledUncheckedLabel')}
-            </label>
-          </div>
-
-          <div className={styles.fieldRow}>
-            <Radio
-              id={`${baseId}-state-invalid-disabled-checked`}
-              name={`${baseId}-state-demo-8`}
-              value="invalid-disabled-checked"
-              aria-invalid="true"
-              disabled
-              defaultChecked
-              data-testid="specimen-invalid-disabled-checked"
-            />
-            <label
-              htmlFor={`${baseId}-state-invalid-disabled-checked`}
-              className={styles.label}
-            >
-              {t('common.radioGallery.stateInvalidDisabledCheckedLabel')}
-            </label>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Required Validation & Accessible Relationships */}
-      <section className={styles.section} aria-labelledby={helpErrorId}>
-        <h2 id={helpErrorId} className={styles.sectionTitle}>
-          {t('common.radioGallery.helpErrorTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.radioGallery.helpErrorDesc')}</p>
-        <form
-          className={styles.fieldset}
-          data-testid="specimen-required-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!requiredPayment) {
-              setRequiredError(true);
-            } else {
-              setRequiredError(false);
-            }
-          }}
-        >
-          <fieldset
-            className={styles.fieldset}
-            aria-describedby={requiredError ? `${reqHelpId} ${reqErrorId}` : reqHelpId}
-          >
-            <legend className={styles.legend}>
-              {t('common.radioGallery.requiredLegend')}
-            </legend>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={reqCardId}
-                name={`${baseId}-payment-method`}
-                value="card"
-                required
-                checked={requiredPayment === 'card'}
-                aria-invalid={requiredError ? 'true' : 'false'}
-                onChange={(e) => {
-                  setRequiredPayment(e.target.value);
-                  setRequiredError(false);
-                }}
-                data-testid="specimen-required-card"
-              />
-              <label htmlFor={reqCardId} className={styles.label}>
-                {t('common.radioGallery.requiredOptCard')}
-              </label>
-            </div>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={reqBankId}
-                name={`${baseId}-payment-method`}
-                value="bank"
-                required
-                checked={requiredPayment === 'bank'}
-                aria-invalid={requiredError ? 'true' : 'false'}
-                onChange={(e) => {
-                  setRequiredPayment(e.target.value);
-                  setRequiredError(false);
-                }}
-                data-testid="specimen-required-bank"
-              />
-              <label htmlFor={reqBankId} className={styles.label}>
-                {t('common.radioGallery.requiredOptBank')}
-              </label>
-            </div>
-            <span id={reqHelpId} className={styles.helpText}>
-              {t('common.radioGallery.requiredHelpText')}
-            </span>
-            {requiredError && (
-              <span id={reqErrorId} className={styles.errorText} role="alert">
-                {t('common.radioGallery.requiredErrorText')}
-              </span>
-            )}
-            <div className={styles.formActions}>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => {
-                  if (!requiredPayment) {
-                    setRequiredError(true);
-                  } else {
-                    setRequiredError(false);
-                  }
-                }}
-                data-testid="specimen-required-validate-btn"
-              >
-                {t('common.radioGallery.requiredValidateButton')}
-              </Button>
-              <button
-                type="submit"
-                aria-hidden="true"
-                tabIndex={-1}
-                style={{
-                  position: 'absolute',
-                  width: 1,
-                  height: 1,
-                  opacity: 0,
-                  pointerEvents: 'none',
-                }}
-              />
-            </div>
-          </fieldset>
-        </form>
-      </section>
-
-      {/* 7. Independent Groups */}
-      <section className={styles.section} aria-labelledby={independentId}>
-        <h2 id={independentId} className={styles.sectionTitle}>
-          {t('common.radioGallery.independentTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>
-          {t('common.radioGallery.independentDesc')}
-        </p>
-        <div className={styles.gridTwo}>
-          <fieldset className={styles.fieldset}>
-            <legend className={styles.legend}>
-              {t('common.radioGallery.groupALegend')}
-            </legend>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={grpA1Id}
-                name={`${baseId}-group-a`}
-                value="std"
-                defaultChecked
-                data-testid="specimen-group-a-1"
-              />
-              <label htmlFor={grpA1Id} className={styles.label}>
-                {t('common.radioGallery.groupAOptStandard')}
-              </label>
-            </div>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={grpA2Id}
-                name={`${baseId}-group-a`}
-                value="exp"
-                data-testid="specimen-group-a-2"
-              />
-              <label htmlFor={grpA2Id} className={styles.label}>
-                {t('common.radioGallery.groupAOptExpress')}
-              </label>
-            </div>
-          </fieldset>
-
-          <fieldset className={styles.fieldset}>
-            <legend className={styles.legend}>
-              {t('common.radioGallery.groupBLegend')}
-            </legend>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={grpB1Id}
-                name={`${baseId}-group-b`}
-                value="box"
-                defaultChecked
-                data-testid="specimen-group-b-1"
-              />
-              <label htmlFor={grpB1Id} className={styles.label}>
-                {t('common.radioGallery.groupBOptStandard')}
-              </label>
-            </div>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={grpB2Id}
-                name={`${baseId}-group-b`}
-                value="eco"
-                data-testid="specimen-group-b-2"
-              />
-              <label htmlFor={grpB2Id} className={styles.label}>
-                {t('common.radioGallery.groupBOptEco')}
-              </label>
-            </div>
-          </fieldset>
-        </div>
-      </section>
-
-      {/* 8. Localization, RTL & Long Labels */}
-      <section className={styles.section} aria-labelledby={localizationId}>
-        <h2 id={localizationId} className={styles.sectionTitle}>
-          {t('common.radioGallery.localizationTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>
-          {t('common.radioGallery.localizationDesc')}
-        </p>
-        <div className={styles.fieldset}>
-          {/* Explicit Arabic script container */}
-          <div dir="rtl" className={styles.fieldset}>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={arabicId}
-                name={`${baseId}-arabic-group`}
-                value="arabic"
-                defaultChecked
-                data-testid="specimen-arabic"
-              />
-              <label htmlFor={arabicId} className={styles.label}>
-                {t('common.radioGallery.arabicSpecimenLabel')}
-              </label>
-            </div>
-            <span id={arabicHelpId} className={styles.helpText}>
-              {t('common.radioGallery.arabicSpecimenHelp')}
-            </span>
-          </div>
-
-          {/* Mixed LTR technical code */}
-          <div className={styles.fieldRowSpaced}>
-            <Radio
-              id={mixedId}
-              name={`${baseId}-mixed-group`}
-              value="sensor"
-              defaultChecked
-              data-testid="specimen-mixed-code"
-            />
-            <label htmlFor={mixedId} className={styles.label}>
-              {t('common.radioGallery.mixedTechPrefix')}{' '}
-              <BidiText dir="ltr">SENS-84920-X</BidiText>
-            </label>
-          </div>
-
-          {/* Multi-line wrapping label */}
-          <div className={styles.fieldRowSpaced}>
-            <Radio
-              id={longLabelId}
-              name={`${baseId}-long-group`}
-              value="long"
-              defaultChecked
-              data-testid="specimen-long-label"
-            />
-            <label htmlFor={longLabelId} className={styles.label}>
-              {t('common.radioGallery.longLabelSpecimen')}
-            </label>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. Touch Targets & Theme Parity */}
-      <section className={styles.section} aria-labelledby={themeId}>
-        <h2 id={themeId} className={styles.sectionTitle}>
-          {t('common.radioGallery.themeTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.radioGallery.themeDesc')}</p>
-        <div className={styles.fieldset}>
-          <div className={styles.fieldRow}>
-            <Radio
-              id={`${baseId}-touch-auto`}
-              name={`${baseId}-touch-group`}
-              value="auto"
-              touchTarget="auto"
-              defaultChecked
-              data-testid="specimen-touch-auto"
-            />
-            <label htmlFor={`${baseId}-touch-auto`} className={styles.label}>
-              {t('common.radioGallery.touchAutoSpecimen')}
-            </label>
-          </div>
-          <div className={styles.fieldRow}>
-            <Radio
-              id={`${baseId}-touch-comfortable`}
-              name={`${baseId}-touch-group`}
-              value="comfortable"
-              touchTarget="comfortable"
-              data-testid="specimen-touch-comfortable"
-            />
-            <label
-              htmlFor={`${baseId}-touch-comfortable`}
-              className={styles.label}
-            >
-              {t('common.radioGallery.touchComfortableSpecimen')}
-            </label>
-          </div>
-        </div>
-
-        <div className={styles.gridTwo}>
-          <div className={styles.fieldRow}>
-            <Radio
-              id={`${baseId}-theme-checked`}
-              name={`${baseId}-theme-specimen`}
-              value="checked"
-              defaultChecked
-              data-testid="specimen-theme-checked"
-            />
-            <label htmlFor={`${baseId}-theme-checked`} className={styles.label}>
-              {t('common.radioGallery.themeCheckedLabel')}
-            </label>
-          </div>
-          <div className={styles.fieldRow}>
-            <Radio
-              id={`${baseId}-theme-unchecked`}
-              name={`${baseId}-theme-specimen`}
-              value="unchecked"
-              data-testid="specimen-theme-unchecked"
-            />
-            <label htmlFor={`${baseId}-theme-unchecked`} className={styles.label}>
-              {t('common.radioGallery.themeUncheckedLabel')}
-            </label>
-          </div>
-        </div>
-      </section>
-
-      {/* 10. Local Form Demonstration */}
-      <section className={styles.section} aria-labelledby={formDemoId}>
-        <h2 id={formDemoId} className={styles.sectionTitle}>
-          {t('common.radioGallery.formDemoTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.radioGallery.formDemoDesc')}</p>
-        <form
-          onSubmit={handleFormSubmit}
-          onReset={handleFormReset}
-          className={styles.formGrid}
-          data-testid="gallery-form"
-        >
-          <fieldset className={styles.fieldset}>
-            <legend className={styles.legend}>
-              {t('common.radioGallery.formLegend')}
-            </legend>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={formSharedId}
-                name="compute-plan"
-                value="shared"
-                checked={formCompute === 'shared'}
-                onChange={(e) => setFormCompute(e.target.value)}
-                data-testid="specimen-form-shared"
-              />
-              <label htmlFor={formSharedId} className={styles.label}>
-                {t('common.radioGallery.formOptShared')}
-              </label>
-            </div>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={formDedicatedId}
-                name="compute-plan"
-                value="dedicated"
-                checked={formCompute === 'dedicated'}
-                onChange={(e) => setFormCompute(e.target.value)}
-                data-testid="specimen-form-dedicated"
-              />
-              <label htmlFor={formDedicatedId} className={styles.label}>
-                {t('common.radioGallery.formOptDedicated')}
-              </label>
-            </div>
-            <div className={styles.fieldRow}>
-              <Radio
-                id={formGpuId}
-                name="compute-plan"
-                value="gpu"
-                checked={formCompute === 'gpu'}
-                onChange={(e) => setFormCompute(e.target.value)}
-                data-testid="specimen-form-gpu"
-              />
-              <label htmlFor={formGpuId} className={styles.label}>
-                {t('common.radioGallery.formOptGpu')}
-              </label>
-            </div>
-          </fieldset>
-
-          <div className={styles.formActions}>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              data-testid="specimen-form-submit-btn"
-            >
-              {t('common.radioGallery.formSubmitButton')}
-            </Button>
-            <Button
-              type="reset"
-              variant="secondary"
-              data-testid="specimen-form-reset-btn"
-            >
-              {t('common.radioGallery.formResetButton')}
-            </Button>
-          </div>
-
-          <div className={styles.statusCard} data-testid="form-status-display">
-            <span>{t('common.radioGallery.formStatusPrefix')}:</span>
-            <span className={styles.statusValue}>
-              {t(FORM_STATUS_MAP[formStatusId])}
-            </span>
-          </div>
-          <span className={styles.helpText}>
-            {t('common.radioGallery.formDisclaimer')}
+        {/* Clean, centered Quick Configuration Presets */}
+        <div className={styles.variantsCenterSection}>
+          <span className={styles.variantsCenterLabel}>
+            {t('common.studio.radioQuickPresetsTitle')}
           </span>
-        </form>
-      </section>
-
-      {/* 11. Code Usage Examples */}
-      <section className={styles.section} aria-labelledby={usageId}>
-        <h2 id={usageId} className={styles.sectionTitle}>
-          {t('common.radioGallery.usageTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.radioGallery.usageDesc')}</p>
-        <pre className={styles.codeBlock}>
-          {`// Standard Uncontrolled Native Group
-<fieldset>
-  <legend>Select Delivery Speed</legend>
-  <div>
-    <Radio id="speed-std" name="speed" value="standard" defaultChecked />
-    <label htmlFor="speed-std">Standard Shipping</label>
-  </div>
-  <div>
-    <Radio id="speed-exp" name="speed" value="express" />
-    <label htmlFor="speed-exp">Express Shipping</label>
-  </div>
-</fieldset>
-
-// Controlled Group
-const [speed, setSpeed] = useState('standard');
-
-<fieldset>
-  <legend>Select Delivery Speed</legend>
-  <div>
-    <Radio
-      id="speed-std"
-      name="speed"
-      value="standard"
-      checked={speed === 'standard'}
-      onChange={(e) => setSpeed(e.target.value)}
-    />
-    <label htmlFor="speed-std">Standard Shipping</label>
-  </div>
-</fieldset>`}
-        </pre>
-      </section>
-    </main>
+          <div className={styles.variantsCenterRow}>
+            {RADIO_PRESETS.map((preset) => {
+              const isActive = activePresetId === preset.id;
+              return (
+                <Button
+                  key={preset.id}
+                  variant={isActive ? 'primary' : 'secondary'}
+                  size="sm"
+                  data-testid={`preset-quick-radio-${preset.id}`}
+                  onClick={() => applyPreset(preset)}
+                >
+                  {t(preset.labelKey)}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </GalleryStudioLayout>
   );
 }

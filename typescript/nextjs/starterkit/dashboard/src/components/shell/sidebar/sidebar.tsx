@@ -2,11 +2,20 @@
 
 import type React from 'react';
 import { useEffect, useRef } from 'react';
-import { Icon } from '@/components/icons';
 import { cn } from '@/lib/cn';
 import { acquireBodyScrollLock } from '@/lib/scroll-lock';
 import { useLayout } from '../layout-context';
 import { isTopmostModal, pushModal } from '../modal-stack';
+import { PrimarySidebarMenu, SidebarGroup, SidebarItem } from './primary-sidebar-menu';
+import { SidebarAvatar } from './sidebar-avatar';
+import { SidebarAvatarPopover } from './sidebar-avatar-popover';
+import { SidebarFooter } from './sidebar-footer';
+import { SidebarLogo } from './sidebar-logo';
+import { SidebarSearch } from './sidebar-search';
+import { SidebarSupportMenu } from './sidebar-support-menu';
+import { SidebarTrigger } from './sidebar-trigger';
+import { SidebarWorkspacesMenu } from './sidebar-workspaces-menu';
+import { SidebarWorkspaceSwitcher } from './sidebar-workspace-switcher';
 import styles from './sidebar.module.css';
 
 /* -------------------------------------------------------------------------- */
@@ -20,7 +29,24 @@ export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
   variant?: 'single' | 'dual';
 }
 
-export function Sidebar({
+export interface SidebarComponent {
+  (props: SidebarProps): React.JSX.Element;
+  Logo: typeof SidebarLogo;
+  WorkspaceSwitcher: typeof SidebarWorkspaceSwitcher;
+  Search: typeof SidebarSearch;
+  Nav: typeof PrimarySidebarMenu;
+  Menu: typeof PrimarySidebarMenu;
+  Group: typeof SidebarGroup;
+  Item: typeof SidebarItem;
+  WorkspacesMenu: typeof SidebarWorkspacesMenu;
+  SupportMenu: typeof SidebarSupportMenu;
+  Footer: typeof SidebarFooter;
+  Avatar: typeof SidebarAvatar;
+  AvatarPopover: typeof SidebarAvatarPopover;
+  Trigger: typeof SidebarTrigger;
+}
+
+function SidebarRoot({
   id,
   collapsed,
   onCollapsedChange,
@@ -201,308 +227,32 @@ export function Sidebar({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                               SidebarPrimary                               */
-/* -------------------------------------------------------------------------- */
+export const Sidebar: SidebarComponent = Object.assign(SidebarRoot, {
+  Logo: SidebarLogo,
+  WorkspaceSwitcher: SidebarWorkspaceSwitcher,
+  Search: SidebarSearch,
+  Nav: PrimarySidebarMenu,
+  Menu: PrimarySidebarMenu,
+  Group: SidebarGroup,
+  Item: SidebarItem,
+  WorkspacesMenu: SidebarWorkspacesMenu,
+  SupportMenu: SidebarSupportMenu,
+  Footer: SidebarFooter,
+  Avatar: SidebarAvatar,
+  AvatarPopover: SidebarAvatarPopover,
+  Trigger: SidebarTrigger,
+});
 
-export interface SidebarPrimaryProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
-}
-
-/**
- * SidebarPrimary renders the primary icon rail in multi-column sidebar layouts.
- * Renders a <div> to avoid duplicate <aside> landmark regions within the root sidebar.
- */
-export function SidebarPrimary({ className, children, ...props }: SidebarPrimaryProps) {
-  return (
-    <div className={cn(styles.primary, className)} {...props}>
-      {children}
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*                              SidebarSecondary                              */
-/* -------------------------------------------------------------------------- */
-
-export interface SidebarSecondaryProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
-}
-
-/**
- * SidebarSecondary renders the sub-navigation panel in multi-column sidebar layouts.
- * Renders a <div> to avoid duplicate <aside> landmark regions within the root sidebar.
- */
-export function SidebarSecondary({ className, children, ...props }: SidebarSecondaryProps) {
-  return (
-    <div className={cn(styles.secondary, className)} {...props}>
-      {children}
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                 SidebarLogo                                */
-/* -------------------------------------------------------------------------- */
-
-export interface SidebarLogoProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
-  icon?: React.ReactNode;
-  title: string;
-  subtitle?: string;
-  href?: string;
-  /**
-   * Host-agnostic Link slot (e.g. Next.js Link, TanStack Router Link, Vite <a>).
-   */
-  as?: React.ElementType;
-}
-
-export function SidebarLogo({
-  icon,
-  title,
-  subtitle,
-  href = '/',
-  as: Component = 'a',
-  className,
-  ...props
-}: SidebarLogoProps) {
-  return (
-    <Component href={href} className={cn(styles.logo, className)} {...props}>
-      <span className={styles.logoIcon}>{icon || title.charAt(0).toUpperCase()}</span>
-      <div className={styles.logoText}>
-        <div>{title}</div>
-        {subtitle && <div className={styles.logoSubtitle}>{subtitle}</div>}
-      </div>
-    </Component>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*                            Navigation Components                           */
-/* -------------------------------------------------------------------------- */
-
-export function SidebarNav({ className, children, ...props }: React.HTMLAttributes<HTMLElement>) {
-  return (
-    <nav className={cn(styles.nav, className)} {...props}>
-      {children}
-    </nav>
-  );
-}
-
-export interface SidebarGroupProps extends React.HTMLAttributes<HTMLDivElement> {
-  label?: string;
-  children: React.ReactNode;
-}
-
-export function SidebarGroup({ label, className, children, ...props }: SidebarGroupProps) {
-  return (
-    <div className={cn(styles.group, className)} {...props}>
-      {label && (
-        <div className={styles.groupLabel} data-role="eyebrow">
-          {label}
-        </div>
-      )}
-      {children}
-    </div>
-  );
-}
-
-export interface SidebarItemBaseProps {
-  icon?: React.ReactNode;
-  label: string;
-  badge?: string | number;
-  isActive?: boolean;
-  /**
-   * Host-agnostic custom Link/router component slot (e.g. Next.js Link, TanStack Router Link).
-   */
-  as?: React.ElementType;
-}
-
-export type SidebarItemProps =
-  | (SidebarItemBaseProps & { href: string } & React.AnchorHTMLAttributes<HTMLAnchorElement>)
-  | (SidebarItemBaseProps & { href?: undefined } & React.ButtonHTMLAttributes<HTMLButtonElement>);
-
-export function SidebarItem(props: SidebarItemProps) {
-  const { icon, label, badge, isActive = false, as: CustomComponent, className } = props;
-
-  const content = (
-    <>
-      {icon && <span className={styles.itemIcon}>{icon}</span>}
-      <span className={styles.itemLabel}>{label}</span>
-      {badge !== undefined && (
-        <span className={styles.badge} data-role="badge">
-          {badge}
-        </span>
-      )}
-    </>
-  );
-
-  const sharedClassName = cn(styles.item, className);
-  const ariaCurrent = isActive ? ('page' as const) : undefined;
-
-  if (CustomComponent) {
-    const {
-      icon: _icon,
-      label: _label,
-      badge: _badge,
-      isActive: _active,
-      as: _as,
-      className: _cls,
-      ...customProps
-    } = props;
-    return (
-      <CustomComponent
-        data-active={isActive}
-        aria-current={ariaCurrent}
-        title={label}
-        className={sharedClassName}
-        {...customProps}
-      >
-        {content}
-      </CustomComponent>
-    );
-  }
-
-  if (props.href !== undefined) {
-    const {
-      icon: _icon,
-      label: _label,
-      badge: _badge,
-      isActive: _active,
-      as: _as,
-      className: _cls,
-      ...anchorProps
-    } = props;
-    return (
-      <a
-        data-active={isActive}
-        aria-current={ariaCurrent}
-        title={label}
-        className={sharedClassName}
-        {...anchorProps}
-      >
-        {content}
-      </a>
-    );
-  }
-
-  const {
-    icon: _icon,
-    label: _label,
-    badge: _badge,
-    isActive: _active,
-    as: _as,
-    className: _cls,
-    ...buttonProps
-  } = props;
-  return (
-    <button
-      type="button"
-      data-active={isActive}
-      aria-current={ariaCurrent}
-      title={label}
-      className={sharedClassName}
-      {...buttonProps}
-    >
-      {content}
-    </button>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                SidebarAvatar                               */
-/* -------------------------------------------------------------------------- */
-
-export interface SidebarAvatarProps extends React.HTMLAttributes<HTMLDivElement> {
-  name: string;
-  email?: string;
-  avatarUrl?: string;
-  initials?: string;
-  /**
-   * Host-agnostic Image component slot (e.g. Next.js Image, custom optimized image component).
-   */
-  imageComponent?: React.ElementType;
-}
-
-export function SidebarAvatar({
-  name,
-  email,
-  avatarUrl,
-  initials,
-  imageComponent: ImageComponent,
-  className,
-  ...props
-}: SidebarAvatarProps) {
-  return (
-    <div className={cn(styles.avatar, className)} {...props}>
-      {avatarUrl ? (
-        ImageComponent ? (
-          <ImageComponent src={avatarUrl} alt={name} className={styles.avatarImage} />
-        ) : (
-          <img src={avatarUrl} alt={name} className={styles.avatarImage} />
-        )
-      ) : (
-        <div className={styles.avatarImage}>{initials || name.slice(0, 2).toUpperCase()}</div>
-      )}
-      <div className={styles.avatarInfo}>
-        <div className={styles.avatarName}>{name}</div>
-        {email && <div className={styles.avatarSub}>{email}</div>}
-      </div>
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*                               SidebarTrigger                               */
-/* -------------------------------------------------------------------------- */
-
-export interface SidebarTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  id?: string;
-}
-
-export function SidebarTrigger({
-  id,
-  className,
-  onClick,
-  'aria-label': ariaLabel = 'Toggle navigation sidebar',
-  'aria-controls': ariaControls,
-  ...props
-}: SidebarTriggerProps) {
-  const {
-    sidebarId,
-    toggleSidebar,
-    toggleSidebarMobile,
-    isSidebarOpenMobile,
-    isSidebarCollapsed,
-    isMobile,
-  } = useLayout();
-  const isExpanded = isMobile ? isSidebarOpenMobile : !isSidebarCollapsed;
-
-  return (
-    <button
-      {...props}
-      id={id ?? `${sidebarId}-trigger`}
-      data-sidebar-trigger=""
-      type="button"
-      className={cn(styles.trigger, className)}
-      onClick={(e) => {
-        onClick?.(e);
-        if (e.defaultPrevented) return;
-        const isMobileEffective =
-          isMobile ||
-          (typeof window !== 'undefined' &&
-            typeof window.matchMedia === 'function' &&
-            window.matchMedia('(max-width: 768px)').matches);
-        if (isMobileEffective) {
-          toggleSidebarMobile();
-        } else {
-          toggleSidebar();
-        }
-      }}
-      aria-label={ariaLabel}
-      aria-controls={ariaControls ?? sidebarId}
-      aria-expanded={isExpanded}
-    >
-      <Icon name="sidebar-left" size={16} aria-hidden="true" />
-    </button>
-  );
-}
+// Re-export modular components for convenience
+export * from './primary-sidebar';
+export * from './secondary-sidebar';
+export * from './sidebar-logo';
+export * from './sidebar-workspace-switcher';
+export * from './primary-sidebar-menu';
+export * from './sidebar-workspaces-menu';
+export * from './sidebar-support-menu';
+export * from './sidebar-search';
+export * from './sidebar-footer';
+export * from './sidebar-avatar';
+export * from './sidebar-avatar-popover';
+export * from './sidebar-trigger';

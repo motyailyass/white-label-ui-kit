@@ -78,7 +78,7 @@ export function ThreeColumnLayout({
   headerActions,
   config = {},
 }: ThreeColumnLayoutProps) {
-  const { contentLayout = 'full', sidebarWidth, panelWidth = 340, density, headerSticky } = config;
+  const { contentLayout = 'full', sidebarWidth, panelWidth, density, headerSticky } = config;
 
   const handleInspectorOpenChange = (nextOpen: boolean) => {
     onInspectorOpenChange?.(nextOpen);

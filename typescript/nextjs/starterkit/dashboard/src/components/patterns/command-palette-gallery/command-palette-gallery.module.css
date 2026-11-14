@@ -1,0 +1,103 @@
+.stageWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  inline-size: 100%;
+}
+
+.stageWrapper:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.triggerCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding-block: var(--space-6);
+  padding-inline: var(--space-6);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+
+.triggerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.triggerTitle {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-block: 0;
+  margin-inline: 0;
+}
+
+.triggerDesc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+  margin-block: 0;
+  margin-inline: 0;
+}
+
+.triggerDesc:lang(ar) {
+  line-height: var(--line-height-arabic-normal, var(--line-height-relaxed));
+}
+
+.kbdPair {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block: var(--space-1);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-medium);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+}
+
+.statusPill:lang(ar) {
+  line-height: var(--line-height-arabic-tight);
+}
+
+.statusValue {
+  color: var(--color-text-primary);
+}
+
+.recentActionNotice {
+  padding-block: var(--space-3);
+  padding-inline: var(--space-4);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}

@@ -213,7 +213,7 @@ All pixel equivalents assume standard `1rem = 16px`:
 
 ### 6.3 Real Input-Sized Interaction Hitbox
 - The outer container has dimensions equal to `--_checkbox-target`.
-- The native `<input type="checkbox">` is positioned with `position: absolute; inset: 0; inline-size: 100%; block-size: 100%; opacity: 0; cursor: pointer; z-index: 1;`.
+- The native `<input type="checkbox">` is positioned with `position: absolute; inset: 0; inline-size: 100%; block-size: 100%; opacity: 0; cursor: pointer; z-index: var(--_z-layer-raised);`.
 - **Result**: Tapping or clicking anywhere inside the 36px, 48px, or 56px container hits the real native input directly.
 - The visible indicator sits centered within the container with `pointer-events: none;`.
 
@@ -520,7 +520,7 @@ Checkbox.displayName = 'Checkbox';
   padding: 0;
   opacity: 0;
   cursor: pointer;
-  z-index: 1;
+  z-index: var(--_z-layer-raised);
   box-sizing: border-box;
 }
 
@@ -695,20 +695,19 @@ export type { CheckboxProps } from './checkbox';
 
 ---
 
-## 13. Demonstration Gallery Specifications (`/gallery/checkbox`)
+## 13. Interactive Studio Gallery Specifications (`/gallery/checkbox`)
 
-The demonstration gallery in both starters showcases complete real-world scenarios:
-1. **Overview & Product Default Sizing**: Single checkbox with omitted size prop demonstrating Dashboard default (36px target, 16px box) vs Website default (48px target, 20px box).
-2. **Six-Step Sizing Scale**: Explicit specimens `xs` through `2xl` with identical text labels.
-3. **Operational States**: Unchecked resting, hover border stability, active keyboard focus-visible outline, checked, indeterminate, disabled unchecked, disabled checked, and disabled indeterminate.
-4. **Interactive "Select All" Tri-State Pattern**: Parent checkbox controlling a set of 3 child options (real-time indeterminate calculation).
-5. **Validation & Error Relationships**: Associated description and error text linked via `aria-describedby` with `aria-invalid="true"` danger styling and invalid-hover verification.
-6. **Controlled vs. Uncontrolled**: Controlled React state tracking alongside native uncontrolled form reset.
-7. **Localization & RTL Parity**:
-   - Arabic layout (`lang="ar" dir="rtl"`) demonstrating natural inline-start alignment and diacritic clearance.
-   - Mixed-script technical specimen (`dir="ltr"`) containing tracking IDs or code terms.
-8. **Theme Parity**: Light and Dark theme verification with zero dashboard shadows.
-9. **Form Lifecycle & Reset**: Interactive signup form with validation, submission announcement, and reset cancellation.
+The interactive studio gallery presents live verification and developer tooling for the `Checkbox` primitive in both starters:
+1. **Interactive Stage**: Live single specimen and all-sizes grid (`xs` to `2xl`) responsive views.
+2. **Domain Quick Presets & Orthogonal States**:
+   - **Terms of Service**: Binary acceptance selection with associated helper text.
+   - **Marketing Digests**: Opt-in newsletter updates.
+   - **Bulk Permissions**: Tri-state mixed selection (`indeterminate={true}`).
+   - **Crash Diagnostics**: Performance and telemetry tracking toggle.
+   - **Security Baseline**: Hardware security key (FIDO2) enforcement.
+   - *Orthogonal interaction state*: Any preset can be toggled to `Resting`, `Indeterminate`, `Invalid` (empty required consent with accessible alert), or `Disabled` via the sidebar. Checking an invalid box dynamically clears the error.
+3. **Ergonomic Controls**: 6-step density switch, fine vs. comfortable touch targets ($48\times 48\text{px}$), checked toggle, and LTR/RTL specimen switch.
+4. **AI Agent Prompt & Code Inspector**: Live copyable JSX, wrapper CSS Module snippet, and measured DOM geometry (target block size, target inline size, indicator box size, background, border, radius).
 
 ---
 

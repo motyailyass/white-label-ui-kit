@@ -1,0 +1,206 @@
+.specimenCanvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  box-sizing: border-box;
+  padding: var(--space-8);
+  min-block-size: 380px;
+}
+
+.specimenBox {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  max-inline-size: 580px;
+  gap: var(--space-5);
+}
+
+.stageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  inline-size: 100%;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.helperText {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.lastActionPill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-muted);
+  padding: var(--space-1) var(--space-3);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-full, 9999px);
+}
+
+.lastActionValue {
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-primary);
+}
+
+/* Real-World Scenario: File Asset Card */
+.fileCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-card, 8px);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  cursor: context-menu;
+  user-select: none;
+  transition:
+    border-color var(--motion-duration-fast),
+    background-color var(--motion-duration-fast);
+}
+
+.fileCard:hover {
+  border-color: var(--color-border-focus);
+  background-color: var(--color-surface-hover);
+}
+
+.fileIconWrapper {
+  inline-size: 44px;
+  block-size: 44px;
+  border-radius: var(--radius-control, 6px);
+  background-color: var(--color-surface-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.fileMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5, 2px);
+  min-inline-size: 0;
+  flex: 1;
+}
+
+.fileName {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-primary);
+}
+
+.fileSubtext {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-muted);
+}
+
+/* Real-World Scenario: Table / Invoice Row */
+.tableRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-card, 8px);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  cursor: context-menu;
+  user-select: none;
+  transition:
+    border-color var(--motion-duration-fast),
+    background-color var(--motion-duration-fast);
+}
+
+.tableRow:hover {
+  border-color: var(--color-border-focus);
+  background-color: var(--color-surface-hover);
+}
+
+.tableCellPrimary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5, 2px);
+}
+
+.tableRowId {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+}
+
+.tableRowSubtitle {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-muted);
+}
+
+.tableCellSecondary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.tableAmount {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.tableBadge {
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-success);
+  background-color: var(--color-surface-hover);
+  padding: 2px 8px;
+  border-radius: var(--radius-full, 9999px);
+}
+
+/* Real-World Scenario: Workspace / Editor Canvas */
+.editorCanvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-12) var(--space-6);
+  border: 2px dashed var(--color-border-subtle);
+  border-radius: var(--radius-card, 8px);
+  background-color: var(--color-surface-hover);
+  text-align: center;
+  user-select: none;
+  cursor: context-menu;
+  transition:
+    border-color var(--motion-duration-fast),
+    background-color var(--motion-duration-fast);
+}
+
+.editorCanvas:hover {
+  border-color: var(--color-border-focus);
+  background-color: var(--color-surface-raised);
+}
+
+.editorTitle {
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.editorSubtitle {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.itemLabelContent {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}

@@ -77,19 +77,18 @@ describe('Badge Primitive', () => {
     expect(dot?.tagName.toLowerCase()).toBe('span');
   });
 
-  it('renders start icon slot', () => {
-    render(
-      <Badge startIcon={<span data-testid="test-icon">★</span>}>
-        Featured
-      </Badge>,
-    );
-    expect(screen.getByTestId('test-icon')).toBeDefined();
+  it('renders decorative start icon slot with aria-hidden', () => {
+    render(<Badge startIcon={<span data-testid="test-icon">★</span>}>Featured</Badge>);
+    const icon = screen.getByTestId('test-icon');
+    expect(icon).toBeDefined();
+    expect(icon.parentElement?.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('renders dismissible remove button and fires onRemove', () => {
+  it('renders dismissible remove button, respects removeAriaLabel without English fallback, and stops propagation', () => {
+    const handleBadgeClick = vi.fn();
     const handleRemove = vi.fn();
-    render(
-      <Badge onRemove={handleRemove} removeAriaLabel="Remove Draft tag">
+    const { rerender } = render(
+      <Badge onClick={handleBadgeClick} onRemove={handleRemove} removeAriaLabel="Remove Draft tag">
         Draft
       </Badge>,
     );
@@ -99,6 +98,10 @@ describe('Badge Primitive', () => {
 
     fireEvent.click(removeBtn);
     expect(handleRemove).toHaveBeenCalledTimes(1);
+    expect(handleBadgeClick).not.toHaveBeenCalled();
+
+    rerender(<Badge onRemove={handleRemove}>No fallback</Badge>);
+    expect(screen.queryByRole('button', { name: 'Remove' })).toBeNull();
   });
 
   it('forwards ref to the span element', () => {

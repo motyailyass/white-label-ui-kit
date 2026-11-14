@@ -246,6 +246,7 @@ Tokens are native CSS custom properties structured across shared primitives and 
    - **Product defaults**: Dashboard defaults to `md` (36px); Website defaults to `xl` (48px). Explicit `size="md"` renders identically in both starters.
 9. **`z-index.css`**:
    - **10-step ascending scale**: `--z-base` (0), `--z-raised` (10), `--z-sticky` (100), `--z-dropdown` (200), `--z-overlay` (300), `--z-drawer` (310), `--z-modal-backdrop` (400), `--z-modal` (410), `--z-toast` (500), `--z-tooltip` (600), plus semantic aliases (`--z-header`, `--z-sidebar`, `--z-panel`). Magic numbers (`9999`) are forbidden.
+   - **Local paint order**: The scale orders document-level layers and overlay surfaces only. Components that stack their own descendants declare `isolation: isolate` on the root and consume private `--_z-layer-base|raised|overlay|top` values; those values never enter the document scale.
 10. **`motion.css`**:
     - **4-step duration scale**: `--motion-duration-instant` (0ms), `--motion-duration-fast` (120ms), `--motion-duration-normal` (180ms), `--motion-duration-slow` (240ms) and three easings (`--motion-ease-standard`, `--motion-ease-enter`, `--motion-ease-exit`).
     - Under `prefers-reduced-motion: reduce`, duration tokens collapse to `0ms` and `scroll-behavior: auto !important` is enforced. Never use `transition: all` or gate state cleanup on `transitionend`.

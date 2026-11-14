@@ -1,0 +1,98 @@
+.specimenCanvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  box-sizing: border-box;
+  padding: var(--space-12) var(--space-8);
+  min-block-size: 360px;
+}
+
+.specimenBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  max-inline-size: 520px;
+  gap: var(--space-6);
+}
+
+.helperText {
+  margin: 0;
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.triggerLink {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium, 500);
+  font-size: var(--font-size-base, 1rem);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.cardContentInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.authorHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.authorAvatar {
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+}
+
+.authorMeta {
+  display: flex;
+  flex-direction: column;
+}
+
+.authorName {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+}
+
+.authorHandle {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-muted);
+}
+
+.authorBio {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+.statsRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-muted);
+  border-block-start: 1px solid var(--color-border-subtle);
+  padding-block-start: var(--space-2);
+}
+
+.statItem strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}

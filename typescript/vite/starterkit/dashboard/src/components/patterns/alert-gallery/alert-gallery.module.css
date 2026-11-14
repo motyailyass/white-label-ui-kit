@@ -1,0 +1,144 @@
+/**
+ * Alert Studio Gallery Stylesheet
+ * 100% CSS Logical Properties, Zero Dashboard Shadows.
+ */
+
+.controlsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.canvasArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  inline-size: 100%;
+  box-sizing: border-box;
+}
+
+.canvasRtl {
+  direction: rtl;
+}
+
+/* Primary Specimen Box */
+.specimenCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  inline-size: 100%;
+  min-block-size: 16rem;
+  padding: var(--space-6);
+  box-sizing: border-box;
+  background-color: var(--color-bg-base);
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+
+.specimenStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  inline-size: 100%;
+  max-inline-size: 44rem;
+}
+
+.reopenBar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  inline-size: 100%;
+  padding-block: var(--space-5);
+  padding-inline: var(--space-4);
+  box-sizing: border-box;
+  text-align: center;
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+}
+
+.reopenNotice {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.reopenNotice:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-arabic-normal);
+}
+
+.bodyStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1 1 0%;
+  min-inline-size: 0;
+}
+
+.fullWidth {
+  inline-size: 100%;
+}
+
+/* Matrix View */
+.matrixContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  inline-size: 100%;
+}
+
+.matrixGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.matrixGroupTitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.matrixGroupTitle:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-arabic-snug);
+}
+
+.matrixGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: var(--space-4);
+  inline-size: 100%;
+}
+
+.matrixCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  box-sizing: border-box;
+  background-color: var(--color-bg-base);
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+
+.matrixCardLabel {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family-mono);
+}

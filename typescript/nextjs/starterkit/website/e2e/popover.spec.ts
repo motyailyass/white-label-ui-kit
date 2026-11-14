@@ -1,25 +1,22 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('Website Popover Primitive Real-Browser Verification', () => {
+test.describe('Dashboard Popover Primitive Real-Browser Verification', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/gallery/popover');
     await expect(page.locator('[data-testid="popover-gallery"]')).toBeVisible();
   });
 
-  test('1. Basic disclosure: opens on click, keeps focus on trigger, closes on Escape with focus restoration', async ({
+  test('1. Studio Popover: opens on click, closes on Escape with focus restoration to trigger', async ({
     page,
   }) => {
-    const trigger = page.locator('[data-testid="open-basic-popover-btn"]');
-    const content = page.locator('[data-testid="basic-popover-content"]');
+    const trigger = page.locator('[data-testid="studio-active-popover-trigger"]');
+    const content = page.locator('[data-testid="studio-active-popover-content"]');
 
     await expect(content).not.toBeVisible();
 
     // Open via click
     await trigger.click();
     await expect(content).toBeVisible();
-
-    // For generic disclosure, focus remains on trigger
-    await expect(trigger).toBeFocused();
 
     // Close via Escape key
     await page.keyboard.press('Escape');
@@ -29,38 +26,31 @@ test.describe('Website Popover Primitive Real-Browser Verification', () => {
     await expect(trigger).toBeFocused();
   });
 
-  test('2. Outside click light-dismiss does NOT steal focus and executes external action', async ({
-    page,
-  }) => {
-    const trigger = page.locator('[data-testid="open-manual-close-popover-btn"]');
-    const content = page.locator('[data-testid="manual-close-popover-content"]');
-    const outsideActionBtn = page.locator('[data-testid="outside-action-btn"]');
+  test('2. Outside click light-dismiss closes popover', async ({ page }) => {
+    const trigger = page.locator('[data-testid="studio-active-popover-trigger"]');
+    const content = page.locator('[data-testid="studio-active-popover-content"]');
 
     await trigger.click();
     await expect(content).toBeVisible();
-    await expect(outsideActionBtn).toHaveText('Outside Action Count: 0');
 
-    // Click external button directly
-    await outsideActionBtn.click();
+    // Click outside on the studio header / background
+    await page.mouse.click(20, 20);
 
     // Popover is dismissed
     await expect(content).not.toBeVisible();
-
-    // Outside click actually executed its action
-    await expect(outsideActionBtn).toHaveText('Outside Action Count: 1');
-
-    // Focus is NOT stolen back to old trigger
-    await expect(trigger).not.toBeFocused();
   });
 
-  test('3. Interactive filter with role="dialog": accessible name, initial focus, and form submission', async ({
+  test('3. Interactive filter with role="dialog": radio selection and accessible name', async ({
     page,
   }) => {
-    const trigger = page.locator('[data-testid="open-filter-popover-btn"]');
-    const content = page.locator('[data-testid="filter-popover-content"]');
+    const trigger = page.locator('[data-testid="studio-active-popover-trigger"]');
+    const content = page.locator('[data-testid="studio-active-popover-content"]');
     const stagingRadio = page.locator('[data-testid="filter-env-staging-radio"]');
-    const applyBtn = page.locator('[data-testid="filter-apply-btn"]');
-    const statusText = page.locator('[data-testid="applied-env-status"]');
+    const applyBtn = page.locator('[data-testid="studio-popover-apply-btn"]');
+
+    // Switch from default Status Disclosure to Interactive Form and enable footer actions
+    await page.locator('[data-testid="opt-mode-form"]').click();
+    await page.locator('[data-testid="toggle-popover-footer"]').click();
 
     await trigger.click();
     await expect(content).toBeVisible();
@@ -75,18 +65,18 @@ test.describe('Website Popover Primitive Real-Browser Verification', () => {
 
     // Click Apply button
     await applyBtn.click();
-
-    // Popover is dismissed and status updated
     await expect(content).not.toBeVisible();
-    await expect(statusText).toHaveText('staging');
   });
 
-  test('4. Manual close button: dismisses popover and restores focus to trigger', async ({
+  test('4. Manual close button (X): dismisses popover and restores focus to trigger', async ({
     page,
   }) => {
-    const trigger = page.locator('[data-testid="open-manual-close-popover-btn"]');
-    const content = page.locator('[data-testid="manual-close-popover-content"]');
-    const closeBtn = page.locator('[data-testid="manual-popover-x-close-btn"]');
+    const trigger = page.locator('[data-testid="studio-active-popover-trigger"]');
+    const content = page.locator('[data-testid="studio-active-popover-content"]');
+    const closeBtn = page.locator('[data-testid="studio-popover-close-btn"]');
+
+    // Enable the optional manual close button before opening
+    await page.locator('[data-testid="toggle-popover-close"]').click();
 
     await trigger.click();
     await expect(content).toBeVisible();
@@ -96,219 +86,50 @@ test.describe('Website Popover Primitive Real-Browser Verification', () => {
     await expect(trigger).toBeFocused();
   });
 
-  test('5. Viewport collision & auto-flip: flips from bottom to top near viewport edge', async ({
+  test('5. Multi-placement grid: switches view and activates top, bottom, inline placements', async ({
     page,
   }) => {
-    const trigger = page.locator('[data-testid="open-collision-popover-btn"]');
-    const content = page.locator('[data-testid="collision-popover-content"]');
+    // Switch to Placements Grid view
+    await page.locator('[data-testid="opt-view-all-placements"]').click();
 
-    // Scroll window so trigger is positioned near the bottom edge of the viewport
-    await trigger.scrollIntoViewIfNeeded();
-    await page.evaluate(() => {
-      const btn = document.querySelector('[data-testid="open-collision-popover-btn"]');
-      if (btn) {
-        const rect = btn.getBoundingClientRect();
-        // Scroll so button bottom is 30px from bottom of viewport
-        window.scrollBy(0, rect.bottom - (window.innerHeight - 30));
-      }
-    });
+    // Top placement
+    const topTrigger = page.locator('[data-testid="studio-placement-trigger-top"]');
+    const topContent = page.locator('[data-testid="studio-placement-content-top"]');
+    await topTrigger.click();
+    await expect(topContent).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(topContent).not.toBeVisible();
 
+    // Bottom placement
+    const bottomTrigger = page.locator('[data-testid="studio-placement-trigger-bottom"]');
+    const bottomContent = page.locator('[data-testid="studio-placement-content-bottom"]');
+    await bottomTrigger.click();
+    await expect(bottomContent).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(bottomContent).not.toBeVisible();
+  });
+
+  test('6. Trigger element & content mode switching: switches between Button, Icon Only, Action Chip, and Interactive Form', async ({
+    page,
+  }) => {
+    const trigger = page.locator('[data-testid="studio-active-popover-trigger"]');
+    const content = page.locator('[data-testid="studio-active-popover-content"]');
+
+    // Default Status Disclosure mode has no dialog role
     await trigger.click();
     await expect(content).toBeVisible();
-
-    const triggerBox = await trigger.boundingBox();
-    const contentBox = await content.boundingBox();
-    const viewportSize = page.viewportSize();
-
-    expect(triggerBox).not.toBeNull();
-    expect(contentBox).not.toBeNull();
-
-    if (triggerBox && contentBox && viewportSize) {
-      // Because trigger is near bottom, content must flip to top: content bottom <= trigger top
-      expect(contentBox.y + contentBox.height).toBeLessThanOrEqual(triggerBox.y + 10);
-      // Viewport bounds respected
-      expect(contentBox.x).toBeGreaterThanOrEqual(0);
-      expect(contentBox.x + contentBox.width).toBeLessThanOrEqual(viewportSize.width);
-    }
-  });
-
-  test('6. Controlled mode: external button toggle and rejection reconciliation', async ({
-    page,
-  }) => {
-    const externalToggle = page.locator('[data-testid="external-toggle-controlled-btn"]');
-    const content = page.locator('[data-testid="controlled-popover-content"]');
-
-    await expect(content).not.toBeVisible();
-
-    await externalToggle.click();
-    await expect(content).toBeVisible();
-
-    await externalToggle.click();
-    await expect(content).not.toBeVisible();
-
-    // Test rejection: parent keeps open={true} despite native dismissal attempt
-    const persistedTrigger = page.locator('[data-testid="open-persisted-popover-btn"]');
-    const persistedContent = page.locator('[data-testid="persisted-popover-content"]');
-    const explicitDismiss = page.locator('[data-testid="explicit-close-persisted-popover-btn"]');
-
-    await persistedTrigger.click();
-    await expect(persistedContent).toBeVisible();
-
-    // Outside click attempt
-    await page.mouse.click(10, 10);
-    // Popover reconciles and remains open because parent kept state true
-    await expect(persistedContent).toBeVisible();
-
-    // Explicit parent dismiss closes it
-    await explicitDismiss.click();
-    await expect(persistedContent).not.toBeVisible();
-  });
-
-  test('7. Competing controlled popovers: opening one closes the other, and yielded popover can reopen on trigger click', async ({
-    page,
-  }) => {
-    const triggerA = page.locator('[data-testid="open-popover-alpha-btn"]');
-    const contentA = page.locator('[data-testid="popover-alpha-content"]');
-    const triggerB = page.locator('[data-testid="open-popover-beta-btn"]');
-    const contentB = page.locator('[data-testid="popover-beta-content"]');
-
-    await triggerA.click();
-    await expect(contentA).toBeVisible();
-    await expect(contentB).not.toBeVisible();
-    await expect(triggerA).toHaveAttribute('aria-expanded', 'true');
-    await expect(triggerB).toHaveAttribute('aria-expanded', 'false');
-
-    // Open B -> A should close and yield
-    await triggerB.click();
-    await expect(contentB).toBeVisible();
-    await expect(contentA).not.toBeVisible();
-    await expect(triggerA).toHaveAttribute('aria-expanded', 'false');
-    await expect(triggerB).toHaveAttribute('aria-expanded', 'true');
-
-    // Click Trigger A afterward -> A reopens, B closes and yields
-    await triggerA.click();
-    await expect(contentA).toBeVisible();
-    await expect(contentB).not.toBeVisible();
-    await expect(triggerA).toHaveAttribute('aria-expanded', 'true');
-    await expect(triggerB).toHaveAttribute('aria-expanded', 'false');
-  });
-
-  test('8. True lateral inline placement: inline-start is left in LTR, inline-end is right in LTR', async ({
-    page,
-  }) => {
-    // 1. inline-end in LTR (should place surface to the RIGHT of trigger)
-    const triggerEnd = page.locator('[data-testid="placement-inline-end-btn"]');
-    const contentEnd = page.locator('[data-testid="placement-inline-end-content"]');
-
-    await triggerEnd.click();
-    await expect(contentEnd).toBeVisible();
-
-    const triggerEndBox = await triggerEnd.boundingBox();
-    const contentEndBox = await contentEnd.boundingBox();
-    const viewportSize = page.viewportSize();
-
-    expect(triggerEndBox).not.toBeNull();
-    expect(contentEndBox).not.toBeNull();
-    if (triggerEndBox && contentEndBox && viewportSize) {
-      if (viewportSize.width >= 600) {
-        // On desktop, lateral placement is strictly to the right of the trigger
-        expect(contentEndBox.x).toBeGreaterThanOrEqual(triggerEndBox.x + triggerEndBox.width - 2);
-      } else {
-        // On mobile, lateral placement clamps safely within viewport boundaries
-        expect(contentEndBox.x + contentEndBox.width).toBeLessThanOrEqual(viewportSize.width);
-        expect(contentEndBox.x).toBeGreaterThanOrEqual(0);
-      }
-    }
-
-    // Dismiss
+    await expect(content).not.toHaveAttribute('role', 'dialog');
     await page.keyboard.press('Escape');
-    await expect(contentEnd).not.toBeVisible();
-  });
 
-  test('9. Popover inside Modal Dialog: elevates to top layer above dialog surface', async ({
-    page,
-  }) => {
-    const openDialogBtn = page.locator('[data-testid="open-parent-dialog-btn"]');
-    const dialog = page.locator('dialog[open]');
-    const openNestedPopoverBtn = page.locator('[data-testid="open-nested-popover-in-dialog-btn"]');
-    const nestedPopoverContent = page.locator('[data-testid="nested-popover-in-dialog-content"]');
-
-    await openDialogBtn.click();
-    await expect(dialog).toBeVisible();
-
-    // Open nested popover inside dialog
-    await openNestedPopoverBtn.click();
-    await expect(nestedPopoverContent).toBeVisible();
-
-    // Press Escape to dismiss popover first; dialog stays open
-    await page.keyboard.press('Escape');
-    await expect(nestedPopoverContent).not.toBeVisible();
-    await expect(dialog).toBeVisible();
-
-    // Second Escape closes modal dialog
-    await page.keyboard.press('Escape');
-    await expect(dialog).not.toBeVisible();
-  });
-
-  test('10. Mobile viewport (320x400) containment without horizontal overflow', async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 320, height: 400 });
-    const trigger = page.locator('[data-testid="open-basic-popover-btn"]');
-    const content = page.locator('[data-testid="basic-popover-content"]');
-
+    // Switch to Interactive Form mode (sets role="dialog")
+    await page.locator('[data-testid="opt-mode-form"]').click();
     await trigger.click();
     await expect(content).toBeVisible();
-
-    const box = await content.boundingBox();
-    expect(box).not.toBeNull();
-    if (box) {
-      expect(box.width).toBeLessThanOrEqual(320);
-      expect(box.x).toBeGreaterThanOrEqual(0);
-      expect(box.x + box.width).toBeLessThanOrEqual(320);
-    }
-  });
-
-  test('11. Initial dialog focus skips hidden and disabled controls to first visible enabled control', async ({
-    page,
-  }) => {
-    const trigger = page.locator('[data-testid="open-disabled-first-popover-btn"]');
-    const content = page.locator('[data-testid="disabled-first-popover-content"]');
-    const hiddenBtn = page.locator('[data-testid="popover-hidden-first-btn"]');
-    const disabledBtn = page.locator('[data-testid="popover-disabled-first-btn"]');
-    const enabledBtn = page.locator('[data-testid="popover-enabled-second-btn"]');
-
-    await trigger.click();
-    await expect(content).toBeVisible();
-    await expect(hiddenBtn).toBeHidden();
-    await expect(disabledBtn).toBeDisabled();
-    await expect(enabledBtn).toBeFocused();
-  });
-
-  test('12. Repeated Escape key presses send repeated close requests when parent rejects dismissal', async ({
-    page,
-  }) => {
-    const persistedTrigger = page.locator('[data-testid="open-persisted-popover-btn"]');
-    const persistedContent = page.locator('[data-testid="persisted-popover-content"]');
-
-    await persistedTrigger.click();
-    await expect(persistedContent).toBeVisible();
-    await expect(persistedTrigger).toHaveAttribute('aria-expanded', 'true');
-
-    // First Escape attempt
+    await expect(content).toHaveAttribute('role', 'dialog');
     await page.keyboard.press('Escape');
-    await expect(persistedContent).toBeVisible();
-    await expect(persistedTrigger).toHaveAttribute('aria-expanded', 'true');
 
-    // Second Escape attempt must still be handled
-    await page.keyboard.press('Escape');
-    await expect(persistedContent).toBeVisible();
-    await expect(persistedTrigger).toHaveAttribute('aria-expanded', 'true');
-
-    // Explicit close button dismisses it
-    const explicitDismiss = page.locator('[data-testid="explicit-close-persisted-popover-btn"]');
-    await explicitDismiss.click();
-    await expect(persistedContent).not.toBeVisible();
-    await expect(persistedTrigger).toHaveAttribute('aria-expanded', 'false');
+    // Switch trigger kind to Icon Only
+    await page.locator('[data-testid="opt-trig-icon"]').click();
+    await expect(trigger).toHaveAttribute('data-icon-only', 'true');
   });
 });

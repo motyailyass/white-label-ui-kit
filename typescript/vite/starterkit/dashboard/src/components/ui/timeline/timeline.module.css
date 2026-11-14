@@ -1,0 +1,136 @@
+.root {
+  /* Local stacking contract: private layer, isolated from the document scale. */
+  isolation: isolate;
+  --_z-layer-raised: 1;
+
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  inline-size: 100%;
+  box-sizing: border-box;
+  --_timeline-point-size: 1.75rem;
+}
+
+.item {
+  position: relative;
+  display: flex;
+  gap: var(--space-4);
+  padding-block-end: var(--space-6);
+  box-sizing: border-box;
+}
+
+.item:last-child {
+  padding-block-end: 0;
+}
+
+/* Track / Connector */
+.connectorWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.point {
+  position: relative;
+  z-index: var(--_z-layer-raised);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--_timeline-point-size, 1.75rem); /* 28px */
+  block-size: var(--_timeline-point-size, 1.75rem);
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  transition:
+    background-color var(--motion-duration-fast),
+    border-color var(--motion-duration-fast),
+    color var(--motion-duration-fast);
+}
+
+.point_default {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-secondary);
+}
+
+.point_complete {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.point_active {
+  background-color: var(--color-surface);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.point_danger {
+  background-color: var(--color-danger-solid, var(--color-danger));
+  border-color: var(--color-danger-solid, var(--color-danger));
+  color: var(--color-danger-solid-foreground, var(--color-text-inverse));
+}
+
+.connector {
+  position: absolute;
+  inset-block-start: var(--_timeline-point-size, 1.75rem);
+  inset-block-end: 0;
+  inset-inline: 0;
+  margin-inline: auto;
+  inline-size: 2px;
+  background-color: var(--color-border-subtle);
+  transition: background-color var(--motion-duration-fast);
+}
+
+.item:last-child .connector {
+  display: none;
+}
+
+.connector_complete {
+  background-color: var(--color-primary);
+}
+
+/* Content */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  flex: 1;
+  padding-block-start: var(--space-0-5, 2px);
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-snug);
+}
+
+.time {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.body {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}

@@ -1,0 +1,82 @@
+.specimenCanvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  box-sizing: border-box;
+  padding: var(--space-8);
+}
+
+.specimenBox {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  max-inline-size: 760px;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border-radius: var(--radius-card, 8px);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  box-sizing: border-box;
+}
+
+.viewportHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  inline-size: 100%;
+  gap: var(--space-2);
+}
+
+.headerTitle {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.headerMeta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.panelContainer {
+  inline-size: 100%;
+  block-size: 340px;
+  border-radius: var(--radius-control, 6px);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface-raised);
+  overflow: hidden;
+}
+
+.panelContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  inline-size: 100%;
+  block-size: 100%;
+  padding: var(--space-4);
+  box-sizing: border-box;
+  text-align: center;
+  user-select: none;
+  background-color: var(--color-surface-raised);
+}
+
+.panelContentAlt {
+  background-color: var(--color-surface);
+}
+
+.panelTitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.panelSubtitle {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+}

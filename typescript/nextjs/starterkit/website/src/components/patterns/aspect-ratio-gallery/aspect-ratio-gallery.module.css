@@ -1,0 +1,191 @@
+.specimenCanvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  box-sizing: border-box;
+}
+
+.specimenBox {
+  inline-size: 100%;
+  max-inline-size: 36rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.ratioFrame {
+  border-radius: var(--radius-card, 8px);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface-raised);
+  overflow: hidden;
+}
+
+/* Media Graphic / Video Preset */
+.mediaCanvas {
+  /* Local stacking contract: private layer, isolated from the document scale. */
+  isolation: isolate;
+  --_z-layer-raised: 1;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  inline-size: 100%;
+  block-size: 100%;
+  padding: var(--space-3) var(--space-4);
+  box-sizing: border-box;
+  background: linear-gradient(
+    145deg,
+    var(--color-surface-raised) 0%,
+    var(--color-surface-hover) 100%
+  );
+}
+
+.mediaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  inline-size: 100%;
+  z-index: var(--_z-layer-raised);
+}
+
+.ratioBadge {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--space-2);
+  padding-block: var(--space-0-5);
+  border-radius: var(--radius-sm, 4px);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.qualityBadge {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--space-2);
+  padding-block: var(--space-0-5);
+  border-radius: var(--radius-sm, 4px);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-muted);
+  background-color: var(--color-surface-raised);
+}
+
+.mediaCenter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.playButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 3rem;
+  block-size: 3rem;
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-primary);
+  box-sizing: border-box;
+}
+
+.mediaFooter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  inline-size: 100%;
+  z-index: var(--_z-layer-raised);
+}
+
+.mediaTitle {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.mediaMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-muted);
+}
+
+.ratioSubtext {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-muted);
+}
+
+.timeBadge {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-medium, 500);
+}
+
+/* Custom Card Preset */
+.cardCanvas {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  inline-size: 100%;
+  block-size: 100%;
+  padding: var(--space-4);
+  box-sizing: border-box;
+  background-color: var(--color-surface);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  inline-size: 100%;
+}
+
+.cardCategory {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary);
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.cardTitle {
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.cardDesc {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-muted);
+  border-block-start: 1px solid var(--color-border-subtle);
+  padding-block-start: var(--space-2);
+}

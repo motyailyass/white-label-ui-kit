@@ -83,11 +83,11 @@
   --_control-line-height: var(--control-line-height-2xl);
 }
 
-/* Focus State (Immediate 0ms Visible Outline) */
+/* Focus State (2px Modern Balanced Focus: 1px border + 1px flush outline) */
 .input:focus-visible,
 .input:focus {
-  outline: var(--focus-ring-width) solid var(--color-border-focus);
-  outline-offset: var(--focus-ring-offset);
+  outline: 1px solid var(--color-border-focus);
+  outline-offset: 0;
   border-color: var(--color-border-focus);
   transition: none;
 }
@@ -118,7 +118,8 @@
 .input:read-only:not(:disabled)[aria-invalid="true"]:focus-visible,
 .input:read-only:not(:disabled)[aria-invalid="true"]:focus {
   border-color: var(--color-danger);
-  outline-color: var(--color-danger);
+  outline: 1px solid var(--color-danger);
+  outline-offset: 0;
   transition: none;
 }
 

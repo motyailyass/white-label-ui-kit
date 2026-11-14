@@ -1,0 +1,343 @@
+/**
+ * Tabs Primitive Stylesheet
+ *
+ * White-label pure primitive styles.
+ * 100% CSS logical properties, semantic tokens, zero dashboard shadows.
+ */
+
+/* =============================================================================
+   Root Container
+   ============================================================================= */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  box-sizing: border-box;
+}
+
+.rootVertical {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-6);
+}
+
+/* =============================================================================
+   TabsList Container
+   ============================================================================= */
+
+.list {
+  /* Local stacking contract: private layer, isolated from the document scale. */
+  isolation: isolate;
+  --_z-layer-raised: 1;
+
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  position: relative;
+  max-inline-size: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  outline: none;
+}
+
+.listFullWidth {
+  inline-size: 100%;
+}
+
+.listFullWidth > .trigger {
+  flex: 1 1 0;
+  min-inline-size: 0;
+  justify-content: center;
+}
+
+.listVertical {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  inline-size: auto;
+  min-inline-size: 11rem;
+}
+
+/* =============================================================================
+   Variant 1: Line (Default)
+   ============================================================================= */
+
+.list_line {
+  border-block-end: 1px solid var(--color-border-subtle);
+  gap: var(--space-4);
+}
+
+.listVertical.list_line {
+  border-block-end: none;
+  border-inline-end: 1px solid var(--color-border-subtle);
+  gap: var(--space-1);
+}
+
+.trigger_line {
+  position: relative;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-regular);
+}
+
+.trigger_line:hover:not(:disabled) {
+  color: var(--color-text-primary);
+}
+
+.trigger_line.triggerActive {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.indicator {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: -1px;
+  block-size: 2px;
+  background-color: var(--color-primary);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.listVertical .indicator {
+  inset-inline-start: auto;
+  inset-inline-end: -1px;
+  inset-block: 0;
+  inline-size: 2px;
+  block-size: auto;
+}
+
+.indicatorActive {
+  opacity: 1;
+}
+
+/* =============================================================================
+   Variant 2: Segment (Capsule / Pill)
+   ============================================================================= */
+
+.list_segment {
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-control);
+  padding: var(--space-1);
+  gap: var(--space-1);
+}
+
+.trigger_segment {
+  position: relative;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius-control) - var(--space-0-5));
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-regular);
+}
+
+.trigger_segment:hover:not(:disabled) {
+  color: var(--color-text-primary);
+}
+
+.trigger_segment.triggerActive {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  border-color: var(--color-border-subtle);
+}
+
+/* =============================================================================
+   Variant 3: Enclosed (Folder Box)
+   ============================================================================= */
+
+.list_enclosed {
+  border-block-end: 1px solid var(--color-border-subtle);
+  gap: var(--space-1);
+}
+
+.listVertical.list_enclosed {
+  border-block-end: none;
+  border-inline-end: 1px solid var(--color-border-subtle);
+}
+
+.trigger_enclosed {
+  position: relative;
+  background: transparent;
+  border: 1px solid transparent;
+  border-block-end: none;
+  border-start-start-radius: var(--radius-control);
+  border-start-end-radius: var(--radius-control);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-regular);
+  margin-block-end: -1px;
+}
+
+.trigger_enclosed:hover:not(:disabled) {
+  color: var(--color-text-primary);
+}
+
+.trigger_enclosed.triggerActive {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.listVertical .trigger_enclosed {
+  border-block-end: 1px solid transparent;
+  border-inline-end: none;
+  border-start-end-radius: 0;
+  border-end-start-radius: var(--radius-control);
+  margin-block-end: 0;
+  margin-inline-end: -1px;
+}
+
+.listVertical .trigger_enclosed.triggerActive {
+  border-color: var(--color-border-subtle);
+  border-inline-end-color: var(--color-surface);
+}
+
+/* =============================================================================
+   Trigger Base & Sizing Scale
+   ============================================================================= */
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--control-gap-md);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
+  text-decoration: none;
+  outline: none;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.trigger:lang(ar) {
+  font-family: var(--font-family-arabic), var(--font-family-sans);
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-arabic-snug);
+}
+
+.trigger:lang(en),
+.trigger:lang(fr) {
+  font-family: var(--font-family-sans);
+}
+
+/* Size SM: 32px minimum block size */
+.trigger_sm {
+  min-block-size: var(--control-height-sm);
+  padding-inline: var(--control-padding-sm);
+  padding-block: var(--control-padding-block-sm);
+  gap: var(--control-gap-sm);
+  font-size: var(--control-font-size-sm);
+  line-height: var(--control-line-height-sm);
+}
+
+.trigger_sm .icon {
+  inline-size: var(--control-icon-size-sm);
+  block-size: var(--control-icon-size-sm);
+}
+
+/* Size MD: 36px minimum block size (Default standard) */
+.trigger_md {
+  min-block-size: var(--control-height-md);
+  padding-inline: var(--control-padding-md);
+  padding-block: var(--control-padding-block-md);
+  gap: var(--control-gap-md);
+  font-size: var(--control-font-size-md);
+  line-height: var(--control-line-height-md);
+}
+
+.trigger_md .icon {
+  inline-size: var(--control-icon-size-md);
+  block-size: var(--control-icon-size-md);
+}
+
+/* Size LG: 40px minimum block size */
+.trigger_lg {
+  min-block-size: var(--control-height-lg);
+  padding-inline: var(--control-padding-lg);
+  padding-block: var(--control-padding-block-lg);
+  gap: var(--control-gap-lg);
+  font-size: var(--control-font-size-lg);
+  line-height: var(--control-line-height-lg);
+}
+
+.trigger_lg .icon {
+  inline-size: var(--control-icon-size-lg);
+  block-size: var(--control-icon-size-lg);
+}
+
+/* Focus Visible */
+.trigger:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+  z-index: var(--_z-layer-raised);
+}
+
+/* Disabled */
+.triggerDisabled {
+  cursor: not-allowed;
+  color: var(--color-text-disabled);
+  opacity: 0.6;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  inline-size: var(--control-icon-size-md);
+  block-size: var(--control-icon-size-md);
+}
+
+/* =============================================================================
+   TabsContent (Panel) Container
+   ============================================================================= */
+
+.content {
+  inline-size: 100%;
+  box-sizing: border-box;
+  padding-block-start: var(--space-4);
+  outline: none;
+}
+
+.rootVertical > .content {
+  flex: 1 1 0;
+  min-inline-size: 0;
+  padding-block-start: 0;
+}
+
+.content:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.contentHidden {
+  display: none !important;
+}
+
+/* =============================================================================
+   Reduced Motion
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .indicator {
+    transition: none !important;
+  }
+}

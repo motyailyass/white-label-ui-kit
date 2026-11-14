@@ -1,0 +1,77 @@
+/**
+ * Label Primitive Stylesheet
+ *
+ * Pure white-label form label primitive.
+ * Consumes product-owned --typography-label-* defaults unless an explicit size is given.
+ * 100% CSS logical properties, semantic tokens, zero dashboard shadows.
+ */
+
+.label {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  max-inline-size: 100%;
+  text-align: start;
+  font-family: inherit;
+  font-size: var(--typography-label-size, var(--font-size-sm));
+  line-height: var(--typography-label-line-height, var(--line-height-snug));
+  font-weight: var(--typography-label-weight, var(--font-weight-medium));
+  color: var(--color-text-primary);
+  user-select: none;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.label[for]:not([data-disabled="true"]) {
+  cursor: pointer;
+}
+
+.label:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.label :lang(en),
+.label :lang(fr) {
+  font-family: var(--font-family-sans);
+}
+
+.label[data-size="sm"] {
+  font-size: var(--font-size-xs);
+  line-height: 1rem;
+}
+
+.label[data-size="sm"]:lang(ar) {
+  line-height: 1.25rem;
+}
+
+.label[data-size="md"] {
+  font-size: var(--font-size-sm);
+  line-height: 1.25rem;
+}
+
+.label[data-size="md"]:lang(ar) {
+  line-height: 1.5rem;
+}
+
+.label[data-size="lg"] {
+  font-size: var(--font-size-base);
+  line-height: 1.5rem;
+}
+
+.label[data-size="lg"]:lang(ar) {
+  line-height: 1.75rem;
+}
+
+.label[data-disabled="true"] {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+.requiredIndicator {
+  color: var(--color-danger);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}

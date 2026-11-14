@@ -229,7 +229,7 @@ To prevent click-interception defects, no pseudo-element hitboxes are used. The 
   padding: 0;
   opacity: 0;
   cursor: pointer;
-  z-index: 1;
+  z-index: var(--_z-layer-raised);
   box-sizing: border-box;
 }
 ```
@@ -580,7 +580,7 @@ Radio.displayName = 'Radio';
   padding: 0;
   opacity: 0;
   cursor: pointer;
-  z-index: 1;
+  z-index: var(--_z-layer-raised);
   box-sizing: border-box;
 }
 
@@ -776,24 +776,25 @@ export { Radio, type RadioProps } from './radio';
 
 ---
 
-## 11. Demonstration Gallery Specifications (`/gallery/radio`)
+## 11. Interactive Studio Gallery Specifications (`/gallery/radio`)
 
 The interactive gallery lives in `src/components/patterns/radio-gallery/` and routes at `/gallery/radio` in both Dashboard and Website.
-All section titles, descriptions, options, and status messages are localized in `en`, `fr`, and `ar` message dictionaries:
+It provides a live component workshop with dynamic inspection, zero dashboard shadows, 100% CSS logical properties, and real-time DOM geometry measurement:
 
-1. **Overview & Product Defaults**: Demonstrates omitted `size` resolving to `md` (36px target, 16px circle, 8px dot) in Dashboard and `xl` (48px target, 20px circle, 10px dot) in Website.
-2. **Six-Step Sizing Scale**: Explicit specimens from `xs` through `2xl` demonstrating target decoupling and proportional dot scaling.
-3. **Controlled Group**: Caller state managing active selection and reflecting current state in text.
-4. **Uncontrolled Group & Form Reset**: Native browser state tracking via `defaultChecked` with a working form reset button.
-5. **Operational States & Combined Precedence**:
-   - Unchecked resting, unchecked hover, checked resting, checked hover, disabled unchecked, disabled checked.
-   - Combined states: Invalid + checked, Invalid + unchecked, Invalid + disabled unchecked, Invalid + disabled checked.
-6. **Required Validation & Help/Error Relationships**: Native `required` group validation with helper and error text associated via `aria-describedby`.
-7. **Independent Groups**: Multiple groups on the same page verifying that selecting an option in Group A does not deselect options in Group B.
-8. **Localization, RTL & Long Labels**: Multi-line wrapping text, Arabic script clearance, and explicit RTL specimen.
-9. **Touch Targets & Themes**: Demonstrating fine-pointer vs comfortable touch targets across light and dark themes with zero dashboard shadows.
-10. **Guarded Form Simulation**: Form submission with client-side validation, duplicate submission guarding, timer cancellation on reset/unmount, and active reset during pending requests.
-11. **Code Usage Snippets**: Production-ready copyable snippets.
+1. **Interactive Stage & Six Density Sizes**:
+   - Single specimen canvas with interactive `<fieldset>` and `<legend>` semantics.
+   - All 6 sizes view grid (`xs`, `sm`, `md`, `lg`, `xl`, `2xl`) demonstrating target decoupling and proportional dot scaling.
+2. **Domain Quick Presets & Orthogonal States**:
+   - **Billing Frequency**: Monthly vs Annual (20% discount) with supporting discount helper.
+   - **Subscription Tier**: Starter ($19/mo) vs Pro ($49/mo) vs Enterprise (Custom SLA) 3-option group.
+   - **Deployment Model**: Multi-Tenant Cloud vs Hybrid VPC vs Air-Gapped On-Premises.
+   - **Data Residency**: European Union (GDPR) vs United States (CCPA / SOC2).
+   - **Notification Cadence**: Real-Time Push vs Daily Digest vs Weekly Summary.
+   - *Orthogonal interaction state*: Any preset can be toggled to `Resting`, `Invalid` (empty required state with accessible group alert), or `Disabled` via the sidebar. Selecting an option in an invalid group dynamically clears the error.
+3. **Live Geometry Inspector & Token Export**:
+   - Real-time DOM bounding box measurements (`min-block-size`, `inline-size`, `circleSize`, `dotSize`, `background-color`, `border`, `border-radius`).
+   - Dynamic JSX and CSS module code snippet generation ready for AI coding agents.
+   - Full token inspection across color themes, viewport touch policies, and LTR/RTL bidirectional script rendering.
 
 ---
 

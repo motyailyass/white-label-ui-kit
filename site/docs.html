@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentation — White Label UI Kit</title>
+<meta name="description" content="Run, theme, localize, and publish the White Label UI Kit. Quick start, repository map, design tokens, RTL and i18n, testing, and licensing.">
+<meta name="theme-color" content="#fafaf8"><meta property="og:title" content="Documentation — White Label UI Kit"><meta property="og:description" content="Run, theme, localize, and publish the White Label UI Kit."><meta property="og:type" content="website">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top"><a class="wordmark" href="./index.html" aria-label="White Label UI Kit home"><span class="mark" aria-hidden="true">w/</span> white label<span class="wordmark-sub">UI KIT</span></a><nav aria-label="Main navigation"><a href="./docs.html" aria-current="page">Docs</a><a href="./cli.html">CLI</a><a href="./gallery/">Gallery</a><a class="nav-github" href="https://github.com/motyailyass/white-label-ui-kit">GitHub ↗</a></nav></header>
+<main id="main">
+<section class="doc-hero wrap">
+<p class="eyebrow">DOCUMENTATION</p>
+<h1>Start from the source.</h1>
+<p>Everything you need to run the kit, change its tokens, and ship in English, French, or Arabic. These docs describe the code that exists today — not the roadmap.</p>
+<div class="doc-meta"><span>MIT licensed</span><span>Node 22 + pnpm 12</span><span>Updated November 2026</span><span>Early development</span></div>
+</section>
+<div class="doc-layout wrap">
+<nav class="doc-toc" aria-label="Documentation sections">
+<h2>On this page</h2>
+<ul>
+<li><a href="#quick-start">Quick start</a></li>
+<li><a href="#repository-map">Repository map</a></li>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#design-tokens">Design tokens</a></li>
+<li><a href="#rtl-and-i18n">RTL &amp; i18n</a></li>
+<li><a href="#testing">Testing</a></li>
+<li><a href="#publishing">Publishing the gallery</a></li>
+<li><a href="#contributing">Contributing</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+</nav>
+<article class="doc-body">
+<section id="quick-start" aria-labelledby="quick-start-title">
+<h2 id="quick-start-title">Quick start</h2>
+<p>Requirements: Node.js 22 or newer and pnpm 12. Enable pnpm through Corepack if it is not installed yet.</p>
+<pre><code>corepack enable
+git clone https://github.com/motyailyass/white-label-ui-kit.git
+cd white-label-ui-kit
+pnpm install</code></pre>
+<p>Then run the starter you want:</p>
+<pre><code># Dashboard — canonical shared source
+cd typescript/nextjs/starterkit/dashboard
+pnpm dev
+
+# Website
+cd typescript/nextjs/starterkit/website
+pnpm dev
+
+# Vite dashboard (mirrored core, single overview screen)
+cd typescript/vite/starterkit/dashboard
+pnpm dev</code></pre>
+<p>There is no published npm package and no released CLI yet. Copy the starter you need, then keep the files you want — the kit is designed to be edited, not imported as a locked dependency.</p>
+</section>
+
+<section id="repository-map" aria-labelledby="repository-map-title">
+<h2 id="repository-map-title">Repository map</h2>
+<table class="doc-table">
+<thead><tr><th scope="col">Path</th><th scope="col">What it is</th></tr></thead>
+<tbody>
+<tr><td><code>typescript/nextjs/starterkit/dashboard/src</code></td><td>Canonical source for shared primitives, icons, providers, tokens, and patterns.</td></tr>
+<tr><td><code>typescript/nextjs/starterkit/website/src</code></td><td>Website starter. Shared code is mirrored here; website sections and its preset stay local.</td></tr>
+<tr><td><code>typescript/vite/starterkit/dashboard/src</code></td><td>Vite mirror of the same core, currently rendered as a single dashboard overview.</td></tr>
+<tr><td><code>site/</code></td><td>This website. Hand-written HTML, CSS, and JavaScript — no framework.</td></tr>
+<tr><td><code>scripts/</code></td><td>Shared-code sync, policy checks, and the Pages build.</td></tr>
+<tr><td><code>docs/standards/</code></td><td>Architecture, RTL, and commercial standards.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="architecture" aria-labelledby="architecture-title">
+<h2 id="architecture-title">Architecture</h2>
+<p>Dependencies flow one way. A lower tier never imports an upper tier.</p>
+<ol>
+<li><strong>Host routes</strong> — <code>src/app/</code>. Next.js metadata, routing, <code>Link</code>, and <code>Image</code> wiring.</li>
+<li><strong>Product composition</strong> — layouts, shell, website sections, and templates.</li>
+<li><strong>Connected patterns</strong> — bind <code>useI18n()</code> and <code>useTheme()</code> to pure primitives.</li>
+<li><strong>Core primitives</strong> — <code>components/ui/</code>. Props in, events out; no i18n, router, query, or form libraries.</li>
+<li><strong>Foundation</strong> — tokens, presets, providers, and the i18n engine.</li>
+</ol>
+<p>The shared rule: edit shared files in <code>dashboard/src</code>, then run <code>pnpm run sync:shared</code> from the repository root. Editing a mirrored file only in <code>website/src</code> or the Vite app is overwritten by the next sync.</p>
+<pre><code>pnpm run sync:shared         # mirror dashboard/src into website + Vite
+pnpm run sync:shared:check   # fail on drift (CI gate)</code></pre>
+</section>
+
+<section id="design-tokens" aria-labelledby="design-tokens-title">
+<h2 id="design-tokens-title">Design tokens</h2>
+<p>Components consume semantic roles, never raw values. Tokens live in <code>src/styles/tokens/</code>; each starter owns its local preset in <code>src/styles/dashboard/</code> or <code>src/styles/website/</code>.</p>
+<h3>Product defaults</h3>
+<table class="doc-table">
+<thead><tr><th scope="col">Role</th><th scope="col">Dashboard</th><th scope="col">Website</th></tr></thead>
+<tbody>
+<tr><td>Control size</td><td><code>md</code> — 36px minimum</td><td><code>xl</code> — 48px minimum</td></tr>
+<tr><td>Control radius</td><td><code>--radius-md</code> — 6px</td><td><code>--radius-lg</code> — 8px</td></tr>
+<tr><td>Card radius</td><td><code>--radius-lg</code> — 8px</td><td><code>--radius-xl</code> — 12px</td></tr>
+<tr><td>Body text</td><td>14px / 20px, 400</td><td>16px / 24px, 400</td></tr>
+<tr><td>Page title</td><td>24px / 32px, 600</td><td>32→48px, 600</td></tr>
+</tbody>
+</table>
+<p>Explicit sizes keep their meaning in both products: <code>size="md"</code> is 36px wherever it appears. Dimensions never change with theme or direction.</p>
+<h3>Control sizes</h3>
+<table class="doc-table">
+<thead><tr><th scope="col">Size</th><th scope="col">Minimum block size</th></tr></thead>
+<tbody>
+<tr><td><code>xs</code></td><td>28px / 1.75rem</td></tr>
+<tr><td><code>sm</code></td><td>32px / 2rem</td></tr>
+<tr><td><code>md</code></td><td>36px / 2.25rem</td></tr>
+<tr><td><code>lg</code></td><td>40px / 2.5rem</td></tr>
+<tr><td><code>xl</code></td><td>48px / 3rem</td></tr>
+<tr><td><code>2xl</code></td><td>56px / 3.5rem</td></tr>
+</tbody>
+</table>
+<h3>Layers and motion</h3>
+<p>Document-level layers use a fixed ten-step scale: <code>--z-sticky</code> 100, <code>--z-dropdown</code> 200, <code>--z-drawer</code> 310, <code>--z-modal</code> 410, <code>--z-toast</code> 500, <code>--z-tooltip</code> 600. Arbitrary numbers such as <code>9999</code> are rejected by review.</p>
+<p>Transitions use four durations — instant 0ms, fast 120ms, normal 180ms, slow 240ms — and three easings. Under <code>prefers-reduced-motion: reduce</code> every duration collapses to 0ms and continuous animations stop. Focus outlines never transition.</p>
+<p>Depth is product-owned: the dashboard is 100% shadow-free and separates surfaces with borders and surface steps. Website shadows are opt-in semantic roles.</p>
+</section>
+
+<section id="rtl-and-i18n" aria-labelledby="rtl-and-i18n-title">
+<h2 id="rtl-and-i18n-title">RTL &amp; i18n</h2>
+<p>Locale is the single source of truth. Direction is derived: <code>ar</code> renders RTL; <code>en</code> and <code>fr</code> render LTR. The locale cookie is read on the server so the first paint already has the right <code>lang</code> and <code>dir</code>.</p>
+<ul>
+<li>Keys are typed: <code>t('dashboard.layouts.classicTitle')</code>. Missing keys fail compilation; there are no English fallbacks in code.</li>
+<li>Every user-facing string, placeholder, and <code>aria-label</code> goes through <code>t()</code>.</li>
+<li>Numbers, currencies, percentages, dates, and relative times use the locale formatters. A record's own currency always wins over the display locale.</li>
+<li>Embedded LTR tokens — IDs, numbers, phone numbers, URLs — are wrapped in <code>&lt;BidiText dir="ltr"&gt;</code>. Only actual foreign prose gets a <code>lang</code> attribute.</li>
+<li>CSS uses logical properties only: <code>padding-inline</code>, <code>margin-block</code>, <code>inset-inline-start</code>. Directional icons mirror automatically.</li>
+</ul>
+<p>Try it on real components: <a href="./gallery/">open the gallery</a>, switch the language, then flip the preview direction.</p>
+</section>
+
+<section id="testing" aria-labelledby="testing-title">
+<h2 id="testing-title">Testing</h2>
+<p>Every primitive ships with a Vitest and React Testing Library test. Overlays and layout behavior are covered with Playwright. Bug fixes include a regression test.</p>
+<table class="doc-table">
+<thead><tr><th scope="col">Command</th><th scope="col">Run from</th></tr></thead>
+<tbody>
+<tr><td><code>pnpm lint</code></td><td>Each app directory</td></tr>
+<tr><td><code>pnpm type-check</code></td><td>Each app directory</td></tr>
+<tr><td><code>pnpm test</code></td><td>Each app directory</td></tr>
+<tr><td><code>pnpm test:e2e</code></td><td>Dashboard or website</td></tr>
+<tr><td><code>pnpm run sync:shared:check</code></td><td>Repository root</td></tr>
+<tr><td><code>pnpm run check:shadows</code></td><td>Repository root</td></tr>
+<tr><td><code>pnpm run check:client</code></td><td>Repository root</td></tr>
+<tr><td><code>pnpm run format:check</code></td><td>Repository root</td></tr>
+</tbody>
+</table>
+<p>Run the smallest check first. The full gate above runs before handoff and in CI.</p>
+</section>
+
+<section id="publishing" aria-labelledby="publishing-title">
+<h2 id="publishing-title">Publishing the gallery</h2>
+<p>This site is assembled from two sources: the hand-written pages in <code>site/</code> and a static export of the dashboard app, which contains the real mounted gallery.</p>
+<pre><code>node scripts/build-gallery-site.mjs   # writes _pages/
+npx serve _pages                      # preview locally</code></pre>
+<p>The script builds the app with <code>output: 'export'</code> and <code>basePath: '/white-label-ui-kit'</code>, drops the app root so the landing page keeps <code>/</code>, excludes test-only fixtures, and adds <code>.nojekyll</code> so Pages serves the <code>_next</code> asset directory. The Pages workflow runs it on every push to <code>main</code>.</p>
+<div class="doc-callout"><strong>Gallery is not a screenshot.</strong><p>Every page under <code>/gallery/</code> is the exported app: real primitives, real keyboard behavior, real language switching. The same pages run in development with <code>pnpm dev</code>.</p></div>
+</section>
+
+<section id="contributing" aria-labelledby="contributing-title">
+<h2 id="contributing-title">Contributing</h2>
+<p>Open an issue before anything larger than a bug fix. Read <a href="https://github.com/motyailyass/white-label-ui-kit/blob/main/AGENTS.md">AGENTS.md</a> and <code>docs/standards/</code> before touching shared code.</p>
+<p>Commits are signed off under the Developer Certificate of Origin:</p>
+<pre><code>git commit -s</code></pre>
+<p>Full expectations live in <a href="https://github.com/motyailyass/white-label-ui-kit/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
+</section>
+
+<section id="license" aria-labelledby="license-title">
+<h2 id="license-title">License</h2>
+<p>The free core is MIT licensed. Use it, modify it, and redistribute it commercially — keep the copyright and permission notices.</p>
+<ul>
+<li><a href="https://github.com/motyailyass/white-label-ui-kit/blob/main/THIRD_PARTY_NOTICES.md">Third-party notices</a> for bundled fonts and the free icon set.</li>
+<li><a href="https://github.com/motyailyass/white-label-ui-kit/blob/main/TRADEMARK.md">Trademark policy</a>: the code is MIT; the name and logo are not.</li>
+<li>Pro and enterprise offerings are licensed separately under commercial terms.</li>
+</ul>
+<div class="doc-next"><a class="button primary" href="./gallery/">Open the live gallery <span aria-hidden="true">↗</span></a><a class="button secondary" href="https://github.com/motyailyass/white-label-ui-kit">Browse the source</a></div>
+</section>
+</article>
+</div>
+</main>
+<footer class="wrap"><a class="wordmark" href="./index.html"><span class="mark" aria-hidden="true">w/</span> white label</a><p>Independent foundation. Your identity.</p><span><a href="./docs.html">Docs</a> · <a href="./cli.html">CLI</a> · <a href="./gallery/">Gallery</a></span></footer>
+</body></html>

@@ -1,16 +1,9 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { Icon } from '@/components/icons';
 import {
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import {
+  Button,
   Popover,
   PopoverBody,
   PopoverClose,
@@ -20,527 +13,756 @@ import {
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Radio } from '@/components/ui/radio';
-import { Select } from '@/components/ui/select';
-import { useI18n } from '@/providers';
-import { LanguageSwitcher } from '../language-switcher';
-import { ThemeSwitcher } from '../theme-switcher';
+  Radio,
+} from '@/components/ui';
+import { defaultMessages, translate, type SupportedLocale, type TranslationKey } from '@/i18n';
+import { useI18n, useTheme } from '@/providers';
+import {
+  GalleryCodeInspector,
+  GalleryStudioLayout,
+  type StudioLinkComponent,
+  StudioSegmentedControl,
+  type StudioSegmentedOption,
+  type StudioSpecGroup,
+  StudioToggleRow,
+} from '../gallery-studio';
 import styles from './popover-gallery.module.css';
 
-export function PopoverGallery() {
-  const { t } = useI18n();
+export type PopoverTriggerKind = 'button' | 'icon' | 'chip';
+export type PopoverContentMode = 'form' | 'info';
+export type PopoverSpecimenDirection = 'ltr' | 'rtl';
+export type PopoverPlacementOption =
+  | 'bottom-start'
+  | 'bottom'
+  | 'bottom-end'
+  | 'top-start'
+  | 'top'
+  | 'top-end'
+  | 'inline-start'
+  | 'inline-end';
+export type PopoverStageView = 'single' | 'all-placements';
+export type PopoverOffsetOption = '4' | '8' | '12';
+export type PopoverMaxWidth = '280' | '340' | '420';
+
+export interface PopoverGalleryProps {
+  linkComponent?: StudioLinkComponent;
+}
+
+export function PopoverGallery({ linkComponent }: PopoverGalleryProps) {
+  const { t, locale, direction } = useI18n();
+  const { resolvedTheme } = useTheme();
   const baseId = useId();
 
-  // Specimen 2: Filter Form State
-  const [selectedEnv, setSelectedEnv] = useState('production');
-  const [appliedEnv, setAppliedEnv] = useState('production');
+  // Studio Interactive State
+  const [specimenDir, setSpecimenDir] = useState<PopoverSpecimenDirection>(direction);
+  const [triggerKind, setTriggerKind] = useState<PopoverTriggerKind>('button');
+  const [contentMode, setContentMode] = useState<PopoverContentMode>('info');
+  const [placement, setPlacement] = useState<PopoverPlacementOption>('bottom-start');
+  const [offsetStr, setOffsetStr] = useState<PopoverOffsetOption>('8');
+  const [stageView, setStageView] = useState<PopoverStageView>('single');
+  const [hasHeader, setHasHeader] = useState(false);
+  const [hasFooter, setHasFooter] = useState(false);
+  const [showClose, setShowClose] = useState(false);
+  const [modalRole, setModalRole] = useState(false);
+  const [autoFlip, setAutoFlip] = useState(true);
+  const [maxWidth, setMaxWidth] = useState<PopoverMaxWidth>('340');
+  const [studioOpen, setStudioOpen] = useState(false);
 
-  // Specimen 5: Outside Click Counter
-  const [outsideCounter, setOutsideCounter] = useState(0);
+  // Sync specimen preview direction when global LanguageSwitcher changes direction
+  useEffect(() => {
+    setSpecimenDir(direction);
+  }, [direction]);
 
-  // Specimen 6: Controlled State & Rejection
-  const [controlledOpen, setControlledOpen] = useState(false);
-  const [persistedOpen, setPersistedOpen] = useState(false);
+  // Specimen Dynamic Form State
+  const [selectedEnv, setSelectedEnv] = useState<'production' | 'staging' | 'sandbox'>(
+    'production',
+  );
 
-  // Specimen 8: Controlled Competing Popovers
-  const [competingAOpen, setCompetingAOpen] = useState(false);
-  const [competingBOpen, setCompetingBOpen] = useState(false);
+  // Multi-placement grid states
+  const [gridOpenTop, setGridOpenTop] = useState(false);
+  const [gridOpenBottom, setGridOpenBottom] = useState(false);
+  const [gridOpenStart, setGridOpenStart] = useState(false);
+  const [gridOpenEnd, setGridOpenEnd] = useState(false);
 
-  // Specimen 9: Modal Dialog with Inner Popover
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const handleReset = useCallback(() => {
+    setSpecimenDir(direction);
+    setTriggerKind('button');
+    setContentMode('info');
+    setPlacement('bottom-start');
+    setOffsetStr('8');
+    setStageView('single');
+    setHasHeader(false);
+    setHasFooter(false);
+    setShowClose(false);
+    setModalRole(false);
+    setAutoFlip(true);
+    setMaxWidth('340');
+    setStudioOpen(false);
+    setSelectedEnv('production');
+  }, [direction]);
+
+  const handleContentModeChange = useCallback((nextMode: PopoverContentMode) => {
+    setContentMode(nextMode);
+    setModalRole(nextMode === 'form');
+  }, []);
+
+  const dirOptions: readonly StudioSegmentedOption<PopoverSpecimenDirection>[] = [
+    { value: 'ltr', label: t('common.studio.specimenDirLtr'), testId: 'opt-dir-ltr' },
+    { value: 'rtl', label: t('common.studio.specimenDirRtl'), testId: 'opt-dir-rtl' },
+  ];
+
+  const triggerKindOptions: readonly StudioSegmentedOption<PopoverTriggerKind>[] = [
+    {
+      value: 'button',
+      label: t('common.studio.popoverTriggerButton'),
+      testId: 'opt-trig-button',
+    },
+    {
+      value: 'icon',
+      label: t('common.studio.popoverTriggerIcon'),
+      testId: 'opt-trig-icon',
+    },
+    {
+      value: 'chip',
+      label: t('common.studio.popoverTriggerChip'),
+      testId: 'opt-trig-chip',
+    },
+  ];
+
+  const contentModeOptions: readonly StudioSegmentedOption<PopoverContentMode>[] = [
+    {
+      value: 'info',
+      label: t('common.studio.popoverContentInfo'),
+      testId: 'opt-mode-info',
+    },
+    {
+      value: 'form',
+      label: t('common.studio.popoverContentForm'),
+      testId: 'opt-mode-form',
+    },
+  ];
+
+  const placementOptions: readonly StudioSegmentedOption<PopoverPlacementOption>[] = useMemo(
+    () => [
+      {
+        value: 'bottom-start',
+        label: t('common.studio.popoverPlaceBottomStart'),
+        testId: 'opt-place-bs',
+      },
+      { value: 'bottom', label: t('common.studio.popoverPlaceBottom'), testId: 'opt-place-bc' },
+      {
+        value: 'bottom-end',
+        label: t('common.studio.popoverPlaceBottomEnd'),
+        testId: 'opt-place-be',
+      },
+      {
+        value: 'top-start',
+        label: t('common.studio.popoverPlaceTopStart'),
+        testId: 'opt-place-ts',
+      },
+      { value: 'top', label: t('common.studio.popoverPlaceTop'), testId: 'opt-place-tc' },
+      { value: 'top-end', label: t('common.studio.popoverPlaceTopEnd'), testId: 'opt-place-te' },
+      {
+        value: 'inline-start',
+        label: t('common.studio.popoverPlaceInlineStart'),
+        testId: 'opt-place-is',
+      },
+      {
+        value: 'inline-end',
+        label: t('common.studio.popoverPlaceInlineEnd'),
+        testId: 'opt-place-ie',
+      },
+    ],
+    [t],
+  );
+
+  const offsetOptions: readonly StudioSegmentedOption<PopoverOffsetOption>[] = [
+    { value: '4', label: '4px', testId: 'opt-offset-4' },
+    { value: '8', label: '8px', testId: 'opt-offset-8' },
+    { value: '12', label: '12px', testId: 'opt-offset-12' },
+  ];
+
+  const viewOptions: readonly StudioSegmentedOption<PopoverStageView>[] = [
+    { value: 'single', label: t('common.studio.viewSingle'), testId: 'opt-view-single' },
+    {
+      value: 'all-placements',
+      label: t('common.studio.popoverViewAllPlacements'),
+      testId: 'opt-view-all-placements',
+    },
+  ];
+
+  const maxWidthOptions: readonly StudioSegmentedOption<PopoverMaxWidth>[] = [
+    { value: '280', label: '280px', testId: 'opt-w-280' },
+    { value: '340', label: '340px', testId: 'opt-w-340' },
+    { value: '420', label: '420px', testId: 'opt-w-420' },
+  ];
+
+  const effectiveRole = modalRole ? 'dialog' : 'none';
+  const parsedOffset = parseInt(offsetStr, 10);
+  const parsedMaxWidth = parseInt(maxWidth, 10);
+
+  const specimenLocale: SupportedLocale =
+    specimenDir === 'rtl' ? 'ar' : locale === 'ar' ? 'en' : locale;
+  const specimenLangAttr = specimenLocale !== locale ? specimenLocale : undefined;
+  const specimenT = useCallback(
+    (key: TranslationKey) => translate(defaultMessages, specimenLocale, key),
+    [specimenLocale],
+  );
+
+  const triggerLabel =
+    contentMode === 'form'
+      ? specimenT('common.studio.popoverTriggerFilter')
+      : specimenT('common.studio.popoverTriggerInfo');
+
+  const popoverTitleText =
+    contentMode === 'form'
+      ? specimenT('common.studio.popoverTitleFilter')
+      : specimenT('common.studio.popoverTitleInfo');
+
+  const popoverDescText =
+    contentMode === 'form'
+      ? specimenT('common.studio.popoverDescFilter')
+      : specimenT('common.studio.popoverDescInfo');
+
+  const closeLabelText = specimenT('common.studio.popoverCloseBtnAria');
+  const cancelLabelText = specimenT('common.cancel');
+  const saveLabelText = specimenT('common.save');
+
+  // Dynamic code snippets
+  const jsxSnippet = useMemo(() => {
+    const uiImports = [
+      triggerKind !== 'chip' || hasFooter ? 'Button' : null,
+      'Popover',
+      'PopoverBody',
+      showClose || hasFooter ? 'PopoverClose' : null,
+      'PopoverContent',
+      hasHeader ? 'PopoverDescription' : null,
+      hasFooter ? 'PopoverFooter' : null,
+      hasHeader ? 'PopoverHeader' : null,
+      hasHeader ? 'PopoverTitle' : null,
+      'PopoverTrigger',
+    ].filter((name): name is string => Boolean(name));
+
+    const needsIconImport = triggerKind === 'icon' || triggerKind === 'chip';
+    const imports = [
+      `import { ${uiImports.join(', ')} } from '@/components/ui';`,
+      needsIconImport ? `import { Icon } from '@/components/icons';` : null,
+      triggerKind === 'chip' ? `import styles from './my-popover-panel.module.css';` : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const propsList: string[] = [];
+    if (placement !== 'bottom-start') propsList.push(`placement="${placement}"`);
+    if (offsetStr !== '8') propsList.push(`offset={${offsetStr}}`);
+    if (!autoFlip) propsList.push('autoFlip={false}');
+
+    const popoverProps = propsList.length > 0 ? ` ${propsList.join(' ')}` : '';
+    const roleAttr = modalRole ? ` role="dialog" aria-label="${popoverTitleText}"` : '';
+    const widthAttr = maxWidth !== '340' ? ` maxWidth={${maxWidth}}` : '';
+
+    const triggerMarkup =
+      triggerKind === 'icon'
+        ? `<Button variant="secondary" iconOnly aria-label="${triggerLabel}">
+      <Icon name="sliders" />
+    </Button>`
+        : triggerKind === 'chip'
+          ? `<button type="button" className={styles.actionPill}>
+      <Icon name="sliders" size={14} />
+      <span>${triggerLabel}</span>
+    </button>`
+          : `<Button variant="primary">${triggerLabel}</Button>`;
+
+    const contentChildren = [
+      showClose ? `    <PopoverClose closeLabel="${closeLabelText}" />` : null,
+      hasHeader
+        ? `    <PopoverHeader>
+      <PopoverTitle>${popoverTitleText}</PopoverTitle>
+      <PopoverDescription>${popoverDescText}</PopoverDescription>
+    </PopoverHeader>`
+        : null,
+      `    <PopoverBody>
+      {/* ${contentMode === 'form' ? 'Interactive form controls' : 'Contextual disclosure content'} */}
+    </PopoverBody>`,
+      hasFooter
+        ? `    <PopoverFooter>
+      <PopoverClose asChild>
+        <Button variant="secondary" size="sm">${cancelLabelText}</Button>
+      </PopoverClose>
+      <Button variant="primary" size="sm">${saveLabelText}</Button>
+    </PopoverFooter>`
+        : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    return `${imports}
+
+<Popover${popoverProps}>
+  <PopoverTrigger asChild>
+    ${triggerMarkup}
+  </PopoverTrigger>
+  <PopoverContent${roleAttr}${widthAttr}>
+${contentChildren}
+  </PopoverContent>
+</Popover>`;
+  }, [
+    placement,
+    offsetStr,
+    autoFlip,
+    modalRole,
+    popoverTitleText,
+    popoverDescText,
+    maxWidth,
+    triggerKind,
+    triggerLabel,
+    hasHeader,
+    hasFooter,
+    showClose,
+    contentMode,
+    closeLabelText,
+    cancelLabelText,
+    saveLabelText,
+  ]);
+
+  const cssModuleSnippet = useMemo(() => {
+    if (triggerKind !== 'chip') return null;
+    return `.actionPill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding-inline: var(--space-3);
+  padding-block: var(--space-1);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-control);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}`;
+  }, [triggerKind]);
+
+  const aiAgentPrompt = useMemo(
+    () => `Generate an accessible non-modal Popover component using the UI Kit Popover primitive.
+Requirements:
+- Native HTML Popover top-layer positioning (popover="auto") with coordinate anchoring and CSS fallback layer var(--z-overlay)
+- placement="${placement}", offset={${offsetStr}}, autoFlip={${autoFlip}}, dir="${specimenDir}"
+- maxWidth={${maxWidth}}
+- role="${effectiveRole}" (${modalRole ? 'focuses first interactive element on open' : 'keeps focus on trigger'})
+- Zero external libraries; purely consumes token contracts and CSS logical properties
+- 100% shadow-free in dashboard routes; visual depth via --color-surface-raised and --color-border-subtle`,
+    [placement, offsetStr, autoFlip, specimenDir, maxWidth, effectiveRole, modalRole],
+  );
+
+  const specGroups: readonly StudioSpecGroup[] = useMemo(
+    () => [
+      {
+        title: t('common.studio.popoverSpecCategoryAnchoring'),
+        items: [
+          { label: t('common.studio.popoverSpecLayer'), value: '--z-overlay (300) / Top Layer' },
+          { label: t('common.studio.popoverSpecPlacement'), value: placement },
+          { label: t('common.studio.popoverSpecOffset'), value: `${offsetStr}px` },
+          {
+            label: t('common.studio.popoverSpecAutoFlip'),
+            value: autoFlip ? t('common.studio.enabled') : t('common.studio.disabledOption'),
+          },
+          { label: t('common.studio.popoverSpecWritingMode'), value: specimenDir.toUpperCase() },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryVariant'),
+        items: [
+          {
+            label: t('common.studio.popoverSpecRole'),
+            value:
+              effectiveRole === 'dialog'
+                ? t('common.studio.popoverSpecRoleDialog')
+                : t('common.studio.popoverSpecRoleNone'),
+          },
+          {
+            label: t('common.studio.popoverSpecTrigger'),
+            value:
+              triggerKind === 'icon'
+                ? t('common.studio.popoverTriggerIcon')
+                : triggerKind === 'chip'
+                  ? t('common.studio.popoverTriggerChip')
+                  : t('common.studio.popoverTriggerButton'),
+          },
+          { label: t('common.studio.popoverSpecMaxWidth'), value: `${maxWidth}px` },
+          {
+            label: t('common.studio.popoverSpecSlots'),
+            value: `${hasHeader ? t('common.studio.popoverSpecHasHeader') : t('common.studio.popoverSpecNoHeader')} / ${hasFooter ? t('common.studio.popoverSpecHasFooter') : t('common.studio.popoverSpecNoFooter')} / ${showClose ? t('common.studio.popoverSpecHasClose') : t('common.studio.popoverSpecNoClose')}`,
+          },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryTokens'),
+        items: [
+          { label: t('common.studio.popoverSpecSurface'), value: 'var(--color-surface-raised)' },
+          {
+            label: t('common.studio.specRadius'),
+            value: t('common.studio.popoverSpecRadiusValue'),
+          },
+          {
+            label: t('common.studio.popoverSpecShadowPolicy'),
+            value: t('common.studio.popoverSpecShadowValue'),
+          },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryEnv'),
+        items: [
+          { label: t('common.studio.specTheme'), value: resolvedTheme },
+          { label: t('common.studio.specLocale'), value: locale },
+          { label: t('common.studio.specDirection'), value: direction.toUpperCase() },
+        ],
+      },
+    ],
+    [
+      t,
+      placement,
+      offsetStr,
+      autoFlip,
+      specimenDir,
+      effectiveRole,
+      triggerKind,
+      maxWidth,
+      hasHeader,
+      hasFooter,
+      showClose,
+      resolvedTheme,
+      locale,
+      direction,
+    ],
+  );
+
+  const renderTriggerElement = () => {
+    if (triggerKind === 'icon') {
+      return (
+        <Button
+          variant="secondary"
+          iconOnly
+          aria-label={triggerLabel}
+          data-testid="studio-active-popover-trigger"
+        >
+          <Icon name="sliders" />
+        </Button>
+      );
+    }
+
+    if (triggerKind === 'chip') {
+      return (
+        <button
+          type="button"
+          className={styles.actionPill}
+          data-testid="studio-active-popover-trigger"
+        >
+          <Icon name="sliders" size={14} />
+          <span>{triggerLabel}</span>
+        </button>
+      );
+    }
+
+    return (
+      <Button variant="primary" data-testid="studio-active-popover-trigger">
+        {triggerLabel}
+      </Button>
+    );
+  };
+
+  const renderPopoverBodyContent = () => {
+    if (contentMode === 'info') {
+      return <p className={styles.surfaceText}>{specimenT('common.studio.popoverInfoBody')}</p>;
+    }
+
+    return (
+      <fieldset className={styles.fieldset}>
+        <legend className={styles.legend}>{specimenT('common.studio.popoverFilterEnv')}</legend>
+        <div className={styles.fieldRow}>
+          <Radio
+            id={`${baseId}-env-prod`}
+            name={`${baseId}-env`}
+            value="production"
+            checked={selectedEnv === 'production'}
+            onChange={() => setSelectedEnv('production')}
+            data-testid="filter-env-prod-radio"
+          />
+          <label htmlFor={`${baseId}-env-prod`} className={styles.label}>
+            {specimenT('common.studio.popoverFilterEnvProd')}
+          </label>
+        </div>
+        <div className={styles.fieldRow}>
+          <Radio
+            id={`${baseId}-env-staging`}
+            name={`${baseId}-env`}
+            value="staging"
+            checked={selectedEnv === 'staging'}
+            onChange={() => setSelectedEnv('staging')}
+            data-testid="filter-env-staging-radio"
+          />
+          <label htmlFor={`${baseId}-env-staging`} className={styles.label}>
+            {specimenT('common.studio.popoverFilterEnvStaging')}
+          </label>
+        </div>
+        <div className={styles.fieldRow}>
+          <Radio
+            id={`${baseId}-env-sandbox`}
+            name={`${baseId}-env`}
+            value="sandbox"
+            checked={selectedEnv === 'sandbox'}
+            onChange={() => setSelectedEnv('sandbox')}
+            data-testid="filter-env-sandbox-radio"
+          />
+          <label htmlFor={`${baseId}-env-sandbox`} className={styles.label}>
+            {specimenT('common.studio.popoverFilterEnvSandbox')}
+          </label>
+        </div>
+      </fieldset>
+    );
+  };
+
+  const roleProps =
+    effectiveRole === 'dialog'
+      ? { role: 'dialog' as const, 'aria-label': popoverTitleText }
+      : { role: 'none' as const };
 
   return (
-    <div className={styles.galleryContainer} data-testid="popover-gallery">
-      <header className={styles.galleryHeader}>
-        <div className={styles.headerTop}>
-          <h1 className={styles.title}>{t('common.popoverGallery.title')}</h1>
-          <div className={styles.controlsRow}>
-            <LanguageSwitcher />
-            <ThemeSwitcher />
-          </div>
-        </div>
-        <p className={styles.subtitle}>{t('common.popoverGallery.subtitle')}</p>
-      </header>
+    <GalleryStudioLayout
+      activeRoute="popover"
+      title={t('common.studio.popoverTitle')}
+      subtitle={t('common.studio.popoverSubtitle')}
+      testId="popover-gallery"
+      radiusPreset="preset"
+      previewDir={specimenDir}
+      onReset={handleReset}
+      linkComponent={linkComponent}
+      controls={
+        <>
+          <StudioSegmentedControl
+            label={t('common.studio.specimenDirectionLabel')}
+            value={specimenDir}
+            options={dirOptions}
+            onChange={setSpecimenDir}
+          />
 
-      {/* 1. Overview & Basic Disclosure */}
-      <section className={styles.section} aria-labelledby={`${baseId}-overview-title`}>
-        <h2 id={`${baseId}-overview-title`} className={styles.sectionTitle}>
-          {t('common.popoverGallery.sectionOverviewTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.popoverGallery.sectionOverviewDesc')}</p>
-        <div className={styles.buttonGrid}>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="secondary" data-testid="open-basic-popover-btn">
-                {t('common.popoverGallery.openBasicPopover')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent data-testid="basic-popover-content">
-              <PopoverHeader>
-                <PopoverTitle>{t('common.popoverGallery.basicPopoverHeading')}</PopoverTitle>
-                <PopoverDescription>{t('common.popoverGallery.basicPopoverDesc')}</PopoverDescription>
-              </PopoverHeader>
-            </PopoverContent>
-          </Popover>
-        </div>
-      </section>
+          <hr className={styles.controlDivider} />
 
-      {/* 2. Interactive Filter (role="dialog") */}
-      <section className={styles.section} aria-labelledby={`${baseId}-filter-title`}>
-        <h2 id={`${baseId}-filter-title`} className={styles.sectionTitle}>
-          {t('common.popoverGallery.sectionFilterTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.popoverGallery.sectionFilterDesc')}</p>
-        <div className={styles.buttonGrid}>
-          <Popover role="dialog">
-            <PopoverTrigger asChild>
-              <Button variant="primary" data-testid="open-filter-popover-btn">
-                {t('common.popoverGallery.openFilterPopover')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              role="dialog"
-              aria-label={t('common.popoverGallery.filterPopoverTitle')}
-              data-testid="filter-popover-content"
+          <StudioSegmentedControl
+            label={t('common.studio.popoverTriggerKindLabel')}
+            value={triggerKind}
+            options={triggerKindOptions}
+            onChange={setTriggerKind}
+          />
+
+          <StudioSegmentedControl
+            label={t('common.studio.popoverContentTypeLabel')}
+            value={contentMode}
+            options={contentModeOptions}
+            onChange={handleContentModeChange}
+          />
+
+          <StudioSegmentedControl
+            label={t('common.studio.popoverPlacementLabel')}
+            value={placement}
+            options={placementOptions}
+            onChange={setPlacement}
+          />
+
+          <StudioSegmentedControl
+            label={t('common.studio.popoverOffsetLabel')}
+            value={offsetStr}
+            options={offsetOptions}
+            onChange={setOffsetStr}
+          />
+
+          <StudioSegmentedControl
+            label={t('common.studio.popoverCanvasViewLabel')}
+            value={stageView}
+            options={viewOptions}
+            onChange={setStageView}
+          />
+
+          <hr className={styles.controlDivider} />
+
+          <StudioToggleRow
+            label={t('common.studio.popoverHeaderToggle')}
+            checked={hasHeader}
+            onCheckedChange={setHasHeader}
+            testId="toggle-popover-header"
+          />
+
+          <StudioToggleRow
+            label={t('common.studio.popoverFooterToggle')}
+            checked={hasFooter}
+            onCheckedChange={setHasFooter}
+            testId="toggle-popover-footer"
+          />
+
+          <StudioToggleRow
+            label={t('common.studio.popoverCloseToggle')}
+            checked={showClose}
+            onCheckedChange={setShowClose}
+            testId="toggle-popover-close"
+          />
+
+          <StudioToggleRow
+            label={t('common.studio.popoverDialogRoleToggle')}
+            checked={modalRole}
+            onCheckedChange={setModalRole}
+            testId="toggle-popover-dialog-role"
+          />
+
+          <StudioToggleRow
+            label={t('common.studio.popoverAutoFlipToggle')}
+            checked={autoFlip}
+            onCheckedChange={setAutoFlip}
+            testId="toggle-popover-autoflip"
+          />
+
+          <hr className={styles.controlDivider} />
+
+          <StudioSegmentedControl
+            label={t('common.studio.popoverMaxWidthLabel')}
+            value={maxWidth}
+            options={maxWidthOptions}
+            onChange={setMaxWidth}
+          />
+        </>
+      }
+      inspector={
+        <GalleryCodeInspector
+          aiPrompt={aiAgentPrompt}
+          jsxCode={jsxSnippet}
+          cssCode={cssModuleSnippet}
+          jsxFileName="my-popover-panel.tsx"
+          cssFileName="my-popover-panel.module.css"
+          specGroups={specGroups}
+        />
+      }
+    >
+      <div className={styles.stageActionArea}>
+        <p className={styles.stageHelpText}>{t('common.studio.popoverStageHint')}</p>
+
+        {stageView === 'single' ? (
+          <div className={styles.singleSpecimenRow} lang={specimenLangAttr}>
+            <Popover
+              placement={placement}
+              offset={parsedOffset}
+              autoFlip={autoFlip}
+              role={effectiveRole}
+              open={studioOpen}
+              onOpenChange={setStudioOpen}
             >
-              <PopoverHeader>
-                <PopoverTitle>{t('common.popoverGallery.filterPopoverTitle')}</PopoverTitle>
-                <PopoverDescription>{t('common.popoverGallery.filterPopoverDesc')}</PopoverDescription>
-              </PopoverHeader>
-              <PopoverBody>
-                <fieldset className={styles.fieldset}>
-                  <legend className={styles.legend}>
-                    {t('common.popoverGallery.filterEnvLabel')}
-                  </legend>
-                  <div className={styles.fieldRow}>
-                    <Radio
-                      id={`${baseId}-env-prod`}
-                      name={`${baseId}-env`}
-                      value="production"
-                      checked={selectedEnv === 'production'}
-                      onChange={() => setSelectedEnv('production')}
-                      data-testid="filter-env-prod-radio"
-                    />
-                    <label htmlFor={`${baseId}-env-prod`} className={styles.label}>
-                      {t('common.popoverGallery.filterEnvProduction')}
-                    </label>
-                  </div>
-                  <div className={styles.fieldRow}>
-                    <Radio
-                      id={`${baseId}-env-staging`}
-                      name={`${baseId}-env`}
-                      value="staging"
-                      checked={selectedEnv === 'staging'}
-                      onChange={() => setSelectedEnv('staging')}
-                      data-testid="filter-env-staging-radio"
-                    />
-                    <label htmlFor={`${baseId}-env-staging`} className={styles.label}>
-                      {t('common.popoverGallery.filterEnvStaging')}
-                    </label>
-                  </div>
-                  <div className={styles.fieldRow}>
-                    <Radio
-                      id={`${baseId}-env-sandbox`}
-                      name={`${baseId}-env`}
-                      value="sandbox"
-                      checked={selectedEnv === 'sandbox'}
-                      onChange={() => setSelectedEnv('sandbox')}
-                      data-testid="filter-env-sandbox-radio"
-                    />
-                    <label htmlFor={`${baseId}-env-sandbox`} className={styles.label}>
-                      {t('common.popoverGallery.filterEnvSandbox')}
-                    </label>
-                  </div>
-                </fieldset>
-              </PopoverBody>
-              <PopoverFooter>
-                <PopoverClose asChild>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setSelectedEnv('production')}
-                    data-testid="filter-reset-btn"
-                  >
-                    {t('common.popoverGallery.filterResetButton')}
-                  </Button>
-                </PopoverClose>
-                <PopoverClose asChild>
-                  <Button
-                    variant="primary"
-                    onClick={() => setAppliedEnv(selectedEnv)}
-                    data-testid="filter-apply-btn"
-                  >
-                    {t('common.popoverGallery.filterApplyButton')}
-                  </Button>
-                </PopoverClose>
-              </PopoverFooter>
-            </PopoverContent>
-          </Popover>
-
-          <Popover role="dialog">
-            <PopoverTrigger asChild>
-              <Button variant="secondary" data-testid="open-disabled-first-popover-btn">
-                {t('common.popoverGallery.openDisabledFirstPopover')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              role="dialog"
-              aria-label={t('common.popoverGallery.openDisabledFirstPopover')}
-              data-testid="disabled-first-popover-content"
-            >
-              <PopoverBody>
-                <div className={styles.dialogBodyContent}>
-                  <Button
-                    variant="secondary"
-                    className={styles.hiddenAction}
-                    data-testid="popover-hidden-first-btn"
-                  >
-                    {t('common.popoverGallery.disabledFirstAction')}
-                  </Button>
-                  <Button disabled variant="secondary" data-testid="popover-disabled-first-btn">
-                    {t('common.popoverGallery.disabledFirstAction')}
-                  </Button>
-                  <Button variant="primary" data-testid="popover-enabled-second-btn">
-                    {t('common.popoverGallery.enabledSecondAction')}
-                  </Button>
-                </div>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-        </div>
-        <div className={styles.statusCard}>
-          <span className={styles.statusLabel}>{t('common.popoverGallery.filterAppliedStatus')}</span>
-          <p className={styles.statusText} data-testid="applied-env-status">
-            {appliedEnv}
-          </p>
-        </div>
-      </section>
-
-      {/* 3. Placement Matrix */}
-      <section className={styles.section} aria-labelledby={`${baseId}-placement-title`}>
-        <h2 id={`${baseId}-placement-title`} className={styles.sectionTitle}>
-          {t('common.popoverGallery.sectionPlacementTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.popoverGallery.sectionPlacementDesc')}</p>
-        <div className={styles.buttonGrid}>
-          <Popover placement="top">
-            <PopoverTrigger asChild>
-              <Button variant="secondary" data-testid="placement-top-btn">
-                {t('common.popoverGallery.placementTop')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent data-testid="placement-top-content">
-              <PopoverBody>
-                <p className={styles.surfaceText}>{t('common.popoverGallery.placementSurfaceText')}</p>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-
-          <Popover placement="bottom">
-            <PopoverTrigger asChild>
-              <Button variant="secondary" data-testid="placement-bottom-btn">
-                {t('common.popoverGallery.placementBottom')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent data-testid="placement-bottom-content">
-              <PopoverBody>
-                <p className={styles.surfaceText}>{t('common.popoverGallery.placementSurfaceText')}</p>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-
-          <Popover placement="inline-start">
-            <PopoverTrigger asChild>
-              <Button variant="secondary" data-testid="placement-inline-start-btn">
-                {t('common.popoverGallery.placementInlineStart')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent data-testid="placement-inline-start-content">
-              <PopoverBody>
-                <p className={styles.surfaceText}>{t('common.popoverGallery.placementSurfaceText')}</p>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-
-          <Popover placement="inline-end">
-            <PopoverTrigger asChild>
-              <Button variant="secondary" data-testid="placement-inline-end-btn">
-                {t('common.popoverGallery.placementInlineEnd')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent data-testid="placement-inline-end-content">
-              <PopoverBody>
-                <p className={styles.surfaceText}>{t('common.popoverGallery.placementSurfaceText')}</p>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-        </div>
-      </section>
-
-      {/* 4. Viewport Edge Collision & Auto-Flip */}
-      <section className={styles.section} aria-labelledby={`${baseId}-collision-title`}>
-        <h2 id={`${baseId}-collision-title`} className={styles.sectionTitle}>
-          {t('common.popoverGallery.sectionCollisionTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.popoverGallery.sectionCollisionDesc')}</p>
-        <div className={styles.collisionContainer}>
-          <Popover placement="bottom">
-            <PopoverTrigger asChild>
-              <Button variant="secondary" data-testid="open-collision-popover-btn">
-                {t('common.popoverGallery.openCollisionPopover')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent data-testid="collision-popover-content">
-              <PopoverBody>
-                <p className={styles.surfaceText}>
-                  {t('common.popoverGallery.collisionPopoverText')}
-                </p>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-        </div>
-      </section>
-
-      {/* 5. Light Dismiss vs Manual Close */}
-      <section className={styles.section} aria-labelledby={`${baseId}-light-dismiss-title`}>
-        <h2 id={`${baseId}-light-dismiss-title`} className={styles.sectionTitle}>
-          {t('common.popoverGallery.sectionLightDismissTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.popoverGallery.sectionLightDismissDesc')}</p>
-        <div className={styles.buttonGrid}>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="secondary" data-testid="open-manual-close-popover-btn">
-                {t('common.popoverGallery.openManualClosePopover')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent data-testid="manual-close-popover-content">
-              <PopoverHeader>
-                <PopoverTitle>{t('common.popoverGallery.openManualClosePopover')}</PopoverTitle>
-                <PopoverClose
-                  closeLabel={t('common.popoverGallery.closeButtonLabel')}
-                  data-testid="manual-popover-x-close-btn"
-                />
-              </PopoverHeader>
-              <PopoverBody>
-                <p className={styles.surfaceText}>{t('common.popoverGallery.placementSurfaceText')}</p>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-
-          <Button
-            variant="secondary"
-            onClick={() => setOutsideCounter((c) => c + 1)}
-            data-testid="outside-action-btn"
-          >
-            {t('common.popoverGallery.outsideActionBtn')} {outsideCounter}
-          </Button>
-        </div>
-      </section>
-
-      {/* 6. Controlled vs Uncontrolled Mode */}
-      <section className={styles.section} aria-labelledby={`${baseId}-controlled-title`}>
-        <h2 id={`${baseId}-controlled-title`} className={styles.sectionTitle}>
-          {t('common.popoverGallery.sectionControlledTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.popoverGallery.sectionControlledDesc')}</p>
-        <div className={styles.buttonGrid}>
-          <Button
-            variant="secondary"
-            onClick={() => setControlledOpen(!controlledOpen)}
-            data-popover-toggle
-            data-testid="external-toggle-controlled-btn"
-          >
-            {t('common.popoverGallery.externalToggleBtn')}
-          </Button>
-
-          <Popover open={controlledOpen} onOpenChange={setControlledOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="secondary" data-testid="controlled-popover-trigger-btn">
-                {t('common.popoverGallery.openBasicPopover')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent data-testid="controlled-popover-content">
-              <PopoverBody>
-                <p className={styles.surfaceText}>
-                  {t('common.popoverGallery.controlledPopoverText')}
-                </p>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-
-          <Popover
-            open={persistedOpen}
-            onOpenChange={() => {
-              // Rejects native close requests: caller keeps state true
-            }}
-          >
-            <PopoverTrigger asChild>
-              <Button
-                variant="secondary"
-                onClick={() => setPersistedOpen(true)}
-                data-testid="open-persisted-popover-btn"
+              <PopoverTrigger asChild>{renderTriggerElement()}</PopoverTrigger>
+              <PopoverContent
+                {...roleProps}
+                maxWidth={parsedMaxWidth}
+                data-testid="studio-active-popover-content"
               >
-                {t('common.popoverGallery.openPersistedPopover')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent data-testid="persisted-popover-content">
-              <PopoverBody>
-                <p className={styles.surfaceText}>
-                  {t('common.popoverGallery.persistedPopoverText')}
-                </p>
-                <Button
-                  variant="primary"
-                  onClick={() => setPersistedOpen(false)}
-                  data-testid="explicit-close-persisted-popover-btn"
+                {showClose && (
+                  <PopoverClose
+                    closeLabel={closeLabelText}
+                    data-testid="studio-popover-close-btn"
+                  />
+                )}
+
+                {hasHeader && (
+                  <PopoverHeader>
+                    <PopoverTitle>{popoverTitleText}</PopoverTitle>
+                    <PopoverDescription>{popoverDescText}</PopoverDescription>
+                  </PopoverHeader>
+                )}
+
+                <PopoverBody>{renderPopoverBodyContent()}</PopoverBody>
+
+                {hasFooter && (
+                  <PopoverFooter>
+                    <PopoverClose asChild>
+                      <Button variant="secondary" size="sm" data-testid="studio-popover-cancel-btn">
+                        {cancelLabelText}
+                      </Button>
+                    </PopoverClose>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setStudioOpen(false)}
+                      data-testid="studio-popover-apply-btn"
+                    >
+                      {saveLabelText}
+                    </Button>
+                  </PopoverFooter>
+                )}
+              </PopoverContent>
+            </Popover>
+          </div>
+        ) : (
+          <div className={styles.allPlacementsGrid} lang={specimenLangAttr}>
+            {[
+              {
+                p: 'top' as const,
+                open: gridOpenTop,
+                setOpen: setGridOpenTop,
+                labelKey: 'common.studio.popoverPlaceTop' as const,
+              },
+              {
+                p: 'bottom' as const,
+                open: gridOpenBottom,
+                setOpen: setGridOpenBottom,
+                labelKey: 'common.studio.popoverPlaceBottom' as const,
+              },
+              {
+                p: 'inline-start' as const,
+                open: gridOpenStart,
+                setOpen: setGridOpenStart,
+                labelKey: 'common.studio.popoverPlaceInlineStart' as const,
+              },
+              {
+                p: 'inline-end' as const,
+                open: gridOpenEnd,
+                setOpen: setGridOpenEnd,
+                labelKey: 'common.studio.popoverPlaceInlineEnd' as const,
+              },
+            ].map(({ p, open, setOpen, labelKey }) => (
+              <div key={p} className={styles.placementCard}>
+                <span className={styles.placementCardLabel} dir="ltr">
+                  placement=&quot;{p}&quot;
+                </span>
+                <Popover
+                  placement={p}
+                  offset={parsedOffset}
+                  autoFlip={autoFlip}
+                  role={effectiveRole}
+                  open={open}
+                  onOpenChange={setOpen}
                 >
-                  {t('common.popoverGallery.explicitDismissPersistedBtn')}
-                </Button>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-
-          <Popover
-            open={false}
-            onOpenChange={() => {
-              // Rejects open requests: caller keeps state false
-            }}
-          >
-            <PopoverTrigger asChild>
-              <Button variant="secondary" data-testid="rejected-open-controlled-trigger-btn">
-                {t('common.popoverGallery.openBasicPopover')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent data-testid="rejected-open-controlled-content">
-              <PopoverBody>
-                <p className={styles.surfaceText}>
-                  {t('common.popoverGallery.controlledPopoverText')}
-                </p>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-        </div>
-      </section>
-
-      {/* 7. Nested Select Integration */}
-      <section className={styles.section} aria-labelledby={`${baseId}-nested-select-title`}>
-        <h2 id={`${baseId}-nested-select-title`} className={styles.sectionTitle}>
-          {t('common.popoverGallery.sectionNestedSelectTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.popoverGallery.sectionNestedSelectDesc')}</p>
-        <div className={styles.buttonGrid}>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="secondary" data-testid="open-nested-select-popover-btn">
-                {t('common.popoverGallery.openNestedSelectPopover')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent data-testid="nested-select-popover-content">
-              <PopoverHeader>
-                <PopoverTitle>{t('common.popoverGallery.nestedSelectLabel')}</PopoverTitle>
-              </PopoverHeader>
-              <PopoverBody>
-                <Select
-                  id={`${baseId}-region-select`}
-                  defaultValue="us-east"
-                  data-testid="nested-region-select"
-                  aria-label={t('common.popoverGallery.nestedSelectLabel')}
-                >
-                  <option value="us-east">{t('common.popoverGallery.nestedRegionUsEast')}</option>
-                  <option value="eu-central">{t('common.popoverGallery.nestedRegionEuCentral')}</option>
-                  <option value="ap-south">{t('common.popoverGallery.nestedRegionApSouth')}</option>
-                </Select>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-        </div>
-      </section>
-
-      {/* 8. Competing Popovers */}
-      <section className={styles.section} aria-labelledby={`${baseId}-competing-title`}>
-        <h2 id={`${baseId}-competing-title`} className={styles.sectionTitle}>
-          {t('common.popoverGallery.sectionCompetingTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.popoverGallery.sectionCompetingDesc')}</p>
-        <div className={styles.buttonGrid}>
-          <Popover open={competingAOpen} onOpenChange={setCompetingAOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="secondary" data-testid="open-popover-alpha-btn">
-                {t('common.popoverGallery.openPopoverA')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent data-testid="popover-alpha-content">
-              <PopoverBody>
-                <p className={styles.surfaceText}>{t('common.popoverGallery.popoverAText')}</p>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-
-          <Popover open={competingBOpen} onOpenChange={setCompetingBOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="secondary" data-testid="open-popover-beta-btn">
-                {t('common.popoverGallery.openPopoverB')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent data-testid="popover-beta-content">
-              <PopoverBody>
-                <p className={styles.surfaceText}>{t('common.popoverGallery.popoverBText')}</p>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-        </div>
-      </section>
-
-      {/* 9. Popover Inside Modal Dialog */}
-      <section className={styles.section} aria-labelledby={`${baseId}-inside-dialog-title`}>
-        <h2 id={`${baseId}-inside-dialog-title`} className={styles.sectionTitle}>
-          {t('common.popoverGallery.sectionInsideDialogTitle')}
-        </h2>
-        <p className={styles.sectionDesc}>{t('common.popoverGallery.sectionInsideDialogDesc')}</p>
-        <div className={styles.buttonGrid}>
-          <Button
-            variant="secondary"
-            onClick={() => setDialogOpen(true)}
-            data-testid="open-parent-dialog-btn"
-          >
-            {t('common.popoverGallery.openParentDialog')}
-          </Button>
-
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen} size="md">
-            <DialogHeader>
-              <DialogTitle>{t('common.popoverGallery.parentDialogTitle')}</DialogTitle>
-              <DialogDescription>{t('common.popoverGallery.parentDialogDesc')}</DialogDescription>
-            </DialogHeader>
-            <DialogBody>
-              <div className={styles.dialogBodyContent}>
-                <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="primary" data-testid="open-nested-popover-in-dialog-btn">
-                      {t('common.popoverGallery.openNestedPopoverInDialog')}
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      data-testid={`studio-placement-trigger-${p}`}
+                    >
+                      {specimenT(labelKey)}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent data-testid="nested-popover-in-dialog-content">
+                  <PopoverContent
+                    {...roleProps}
+                    maxWidth={280}
+                    data-testid={`studio-placement-content-${p}`}
+                  >
                     <PopoverBody>
                       <p className={styles.surfaceText}>
-                        {t('common.popoverGallery.nestedPopoverInDialogText')}
+                        {specimenT('common.studio.popoverPlacementCardBody')}{' '}
+                        <code dir="ltr">{p}</code>
                       </p>
                     </PopoverBody>
                   </PopoverContent>
                 </Popover>
               </div>
-            </DialogBody>
-            <DialogFooter>
-              <Button
-                variant="secondary"
-                onClick={() => setDialogOpen(false)}
-                data-testid="close-parent-dialog-btn"
-              >
-                {t('common.popoverGallery.closeDialogButton')}
-              </Button>
-            </DialogFooter>
-          </Dialog>
-        </div>
-      </section>
-    </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </GalleryStudioLayout>
   );
 }

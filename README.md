@@ -66,7 +66,7 @@ The full product roadmap targets:
 
 These are engineering standards and release goals, not certification of current accessibility or test coverage.
 
-Read the [technical standards](docs/standards/TECH_STACK.md) and [RTL & internationalization architecture](docs/standards/RTL_AND_I18N.md).
+Read the [technical standards](docs/standards/TECH_STACK.md), [RTL & internationalization architecture](docs/standards/RTL_AND_I18N.md), and [commercial & pro component catalog roadmap](docs/standards/COMMERCIAL_AND_PRO_CATALOG.md).
 
 ## Free foundation. Premium depth.
 
@@ -74,7 +74,7 @@ The intended model is **a free open-source core with paid premium offerings**, n
 
 | Offering | Intended scope | Status |
 | --- | --- | --- |
-| Free | Useful core UI and starter foundations | Scope and license being defined |
+| Free | Useful core UI and starter foundations | MIT |
 | Pro | Additional components, layouts, and templates | Planned |
 | Companies & agencies | Premium offerings with terms suited to teams, client delivery, and larger organizations | Planned |
 
@@ -82,7 +82,13 @@ The exact free/premium split, pricing, support commitments, seat rules, and clie
 
 ### License status
 
-**A project license has not yet been published in this repository.** The intended open-source model does not itself grant permission to use, modify, or redistribute this code. Do not assume MIT, commercial-use, or redistribution rights until the applicable license is published. Premium terms will be documented separately.
+The free core is **MIT licensed** — see [LICENSE](LICENSE). You may use, modify, and redistribute it commercially, provided the copyright and permission notices are preserved.
+
+- [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) — bundled fonts and icon set
+- [TRADEMARK.md](TRADEMARK.md) — the code is MIT; the name and logo are not
+- [CONTRIBUTING.md](CONTRIBUTING.md) — DCO sign-off, checks, and testing expectations
+
+Pro and Companies & agencies offerings are distributed separately under commercial terms and are not covered by the MIT license. Those terms will be published with the offerings.
 
 ## Building in the open
 
@@ -93,7 +99,7 @@ The exact free/premium split, pricing, support commitments, seat rules, and clie
 | Component catalog | Early implementation; full catalog is not released |
 | Vite starters | Product target; parity and release readiness are not verified in this public snapshot |
 | One-command setup | Planned; no released CLI |
-| Free/premium catalog and licensing | Being defined |
+| Free/premium catalog and licensing | Free core MIT; premium terms being defined |
 
 Local development may be ahead of the public repository. Published releases—not screenshots or folder counts—will establish supported functionality.
 
@@ -122,7 +128,7 @@ For local exploration, see each application's `package.json` and repository stan
 
 Star or watch this repository for progress and releases. Have a use case, accessibility concern, or layout request? [Open an issue](https://github.com/motyailyass/white-label-ui-kit/issues).
 
-Please discuss substantial changes before implementing them. Contribution and licensing policies will be formalized before wider external contribution.
+Please discuss substantial changes before implementing them. Contribution and licensing policies are documented in [CONTRIBUTING.md](CONTRIBUTING.md) and [LICENSE](LICENSE).
 
 ---
 

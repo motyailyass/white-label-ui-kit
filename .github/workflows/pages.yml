@@ -1,10 +1,12 @@
-name: Deploy landing page
+name: Deploy site
 
 on:
   push:
     branches: [main]
     paths:
       - 'site/**'
+      - 'scripts/build-gallery-site.mjs'
+      - 'typescript/nextjs/starterkit/dashboard/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -28,12 +30,32 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.16.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Build landing pages and exported gallery
+        run: node scripts/build-gallery-site.mjs
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
-      - name: Upload landing site only
+
+      - name: Upload assembled site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: _pages
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

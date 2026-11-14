@@ -301,6 +301,44 @@ describe('Dialog (Pure Primitive)', () => {
     expect(screen.getByTestId('footer')).toBeTruthy();
   });
 
+  it('renders DialogFooter with seamless and docked background classes', () => {
+    const { rerender } = render(
+      <DialogFooter data-testid="test-footer" background="seamless">
+        <button type="button">Action</button>
+      </DialogFooter>,
+    );
+
+    const footer = screen.getByTestId('test-footer');
+    expect(footer.className).toContain('footerSeamless');
+
+    rerender(
+      <DialogFooter data-testid="test-footer" background="docked">
+        <button type="button">Action</button>
+      </DialogFooter>,
+    );
+
+    expect(footer.className).toContain('footerDocked');
+  });
+
+  it('renders DialogBody with default scrollable styles or uncontained overflow when scrollable is false', () => {
+    const { rerender } = render(
+      <DialogBody data-testid="test-body" scrollable={true}>
+        <p>Scrollable content</p>
+      </DialogBody>,
+    );
+
+    const body = screen.getByTestId('test-body');
+    expect(body.className).not.toContain('bodyUncontained');
+
+    rerender(
+      <DialogBody data-testid="test-body" scrollable={false}>
+        <p>Visible popover content</p>
+      </DialogBody>,
+    );
+
+    expect(body.className).toContain('bodyUncontained');
+  });
+
   it('cycles focus correctly across focusable elements, skipping elements with tabIndex={-1}', () => {
     render(
       <Dialog open={true} onOpenChange={vi.fn()}>
@@ -442,5 +480,44 @@ describe('Dialog (Pure Primitive)', () => {
       </Dialog>,
     );
     expect(screen.queryByTestId('dialog-close-button')).toBeNull();
+  });
+
+  it('automatically wires DialogTitle to aria-labelledby and DialogDescription to aria-describedby', () => {
+    render(
+      <Dialog open={true} onOpenChange={vi.fn()}>
+        <DialogHeader>
+          <DialogTitle>Edit Profile</DialogTitle>
+          <DialogDescription>Make changes to your account.</DialogDescription>
+        </DialogHeader>
+        <DialogBody>
+          <p>Body</p>
+        </DialogBody>
+      </Dialog>,
+    );
+
+    const dialog = screen.getByRole('dialog', { name: 'Edit Profile' });
+    expect(dialog).toBeTruthy();
+
+    const title = screen.getByRole('heading', { level: 2, name: 'Edit Profile' });
+    expect(title.id).toBeTruthy();
+    expect(dialog.getAttribute('aria-labelledby')).toBe(title.id);
+
+    const description = screen.getByText('Make changes to your account.');
+    expect(description.id).toBeTruthy();
+    expect(dialog.getAttribute('aria-describedby')).toBe(description.id);
+  });
+
+  it('allows explicit aria-label to override auto-wired title', () => {
+    render(
+      <Dialog open={true} onOpenChange={vi.fn()} aria-label="Custom Accessible Name">
+        <DialogHeader>
+          <DialogTitle>Visible Title</DialogTitle>
+        </DialogHeader>
+      </Dialog>,
+    );
+
+    const dialog = screen.getByRole('dialog', { name: 'Custom Accessible Name' });
+    expect(dialog).toBeTruthy();
+    expect(dialog.getAttribute('aria-labelledby')).toBeNull();
   });
 });

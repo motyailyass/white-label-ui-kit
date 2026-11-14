@@ -1,0 +1,25 @@
+.root {
+  position: relative;
+  inline-size: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  aspect-ratio: var(--aspect-ratio, 16 / 9);
+}
+
+.content {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.content > * {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.content > img,
+.content > video,
+.content > iframe {
+  object-fit: cover;
+}

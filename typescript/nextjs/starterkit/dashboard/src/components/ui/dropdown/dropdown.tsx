@@ -60,7 +60,10 @@ function isElementVisible(element: HTMLElement): boolean {
   if (element.hasAttribute('hidden')) return false;
   if (element.getAttribute('aria-hidden') === 'true') return false;
 
-  const style = typeof window !== 'undefined' && window.getComputedStyle ? window.getComputedStyle(element) : null;
+  const style =
+    typeof window !== 'undefined' && window.getComputedStyle
+      ? window.getComputedStyle(element)
+      : null;
   if (style) {
     if (style.visibility === 'hidden' || style.visibility === 'collapse') return false;
     if (style.display === 'none') return false;
@@ -68,7 +71,8 @@ function isElementVisible(element: HTMLElement): boolean {
 
   const isJsdom =
     typeof navigator !== 'undefined' &&
-    (/jsdom/i.test(navigator.userAgent) || typeof (window as unknown as { render?: unknown }).render !== 'undefined');
+    (/jsdom/i.test(navigator.userAgent) ||
+      typeof (window as unknown as { render?: unknown }).render !== 'undefined');
 
   if (!isJsdom && element.offsetParent === null && style?.position !== 'fixed') {
     return false;
@@ -102,8 +106,6 @@ export interface DropdownContextValue {
   autoFlip: boolean;
   dir?: 'ltr' | 'rtl';
   updatePosition: () => void;
-  focusedIndex: number;
-  setFocusedIndex: (index: number) => void;
   openDirectionRef: React.MutableRefObject<'first' | 'last'>;
 }
 
@@ -184,7 +186,6 @@ export function Dropdown({
     }
   }, [isControlled, controlledOpen]);
 
-  const [focusedIndex, setFocusedIndex] = useState(-1);
   const openDirectionRef = useRef<'first' | 'last'>('first');
 
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -203,9 +204,11 @@ export function Dropdown({
     const triggerRect = trigger.getBoundingClientRect();
     const surfaceRect = surface.getBoundingClientRect();
 
-    // Accurately determine resolved CSS direction
+    // Accurately determine resolved direction from prop, nearest ancestor [dir], documentElement, or computed style
     const computedDir =
       dir ||
+      (trigger.closest?.('[dir]') as HTMLElement | null)?.getAttribute('dir') ||
+      trigger.ownerDocument?.documentElement?.getAttribute('dir') ||
       (typeof window !== 'undefined'
         ? (window.getComputedStyle(trigger).direction as 'ltr' | 'rtl')
         : 'ltr');
@@ -242,13 +245,29 @@ export function Dropdown({
     }
 
     if (autoFlip) {
-      if (effectiveSide === 'bottom' && spaceBelow < surfaceRect.height && spaceAbove > spaceBelow) {
+      if (
+        effectiveSide === 'bottom' &&
+        spaceBelow < surfaceRect.height &&
+        spaceAbove > spaceBelow
+      ) {
         effectiveSide = 'top';
-      } else if (effectiveSide === 'top' && spaceAbove < surfaceRect.height && spaceBelow > spaceAbove) {
+      } else if (
+        effectiveSide === 'top' &&
+        spaceAbove < surfaceRect.height &&
+        spaceBelow > spaceAbove
+      ) {
         effectiveSide = 'bottom';
-      } else if (effectiveSide === 'left' && spaceLeft < surfaceRect.width && spaceRight > spaceLeft) {
+      } else if (
+        effectiveSide === 'left' &&
+        spaceLeft < surfaceRect.width &&
+        spaceRight > spaceLeft
+      ) {
         effectiveSide = 'right';
-      } else if (effectiveSide === 'right' && spaceRight < surfaceRect.width && spaceLeft > spaceRight) {
+      } else if (
+        effectiveSide === 'right' &&
+        spaceRight < surfaceRect.width &&
+        spaceLeft > spaceRight
+      ) {
         effectiveSide = 'left';
       }
     }
@@ -357,8 +376,6 @@ export function Dropdown({
       autoFlip,
       dir,
       updatePosition,
-      focusedIndex,
-      setFocusedIndex,
       openDirectionRef,
     }),
     [
@@ -375,7 +392,6 @@ export function Dropdown({
       autoFlip,
       dir,
       updatePosition,
-      focusedIndex,
     ],
   );
 
@@ -389,101 +405,104 @@ export interface DropdownTriggerProps extends ComponentPropsWithoutRef<'button'>
   asChild?: boolean;
 }
 
-export const DropdownTrigger = forwardRef<HTMLElement, DropdownTriggerProps>(function DropdownTrigger(
-  { asChild = false, children, onClick, onKeyDown, className, ...props },
-  forwardedRef,
-) {
-  const { open, isDomOpen, setOpen, triggerRef, dropdownId, triggerId, openDirectionRef } = useDropdownContext();
+export const DropdownTrigger = forwardRef<HTMLElement, DropdownTriggerProps>(
+  function DropdownTrigger(
+    { asChild = false, children, onClick, onKeyDown, className, ...props },
+    forwardedRef,
+  ) {
+    const { open, isDomOpen, setOpen, triggerRef, dropdownId, triggerId, openDirectionRef } =
+      useDropdownContext();
 
-  const handleRef = useCallback(
-    (node: HTMLElement | null) => {
-      triggerRef.current = node;
-    },
-    [triggerRef],
-  );
+    const handleRef = useCallback(
+      (node: HTMLElement | null) => {
+        triggerRef.current = node;
+      },
+      [triggerRef],
+    );
 
-  const isExpanded = Boolean(open && isDomOpen);
+    const isExpanded = Boolean(open && isDomOpen);
 
-  const handleClick = (e: MouseEvent<HTMLElement>) => {
-    onClick?.(e as MouseEvent<HTMLButtonElement>);
-    if (e.defaultPrevented) return;
-    openDirectionRef.current = 'first';
-    setOpen(!isExpanded);
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
-    onKeyDown?.(e as KeyboardEvent<HTMLButtonElement>);
-    if (e.defaultPrevented) return;
-
-    if (e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault();
+    const handleClick = (e: MouseEvent<HTMLElement>) => {
+      onClick?.(e as MouseEvent<HTMLButtonElement>);
+      if (e.defaultPrevented) return;
       openDirectionRef.current = 'first';
       setOpen(!isExpanded);
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      openDirectionRef.current = 'first';
-      setOpen(true);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      openDirectionRef.current = 'last';
-      setOpen(true);
-    }
-  };
-
-  const triggerAttributes = {
-    id: triggerId,
-    'aria-haspopup': 'menu' as const,
-    'aria-expanded': isExpanded,
-    'aria-controls': isExpanded ? dropdownId : undefined,
-    onClick: handleClick,
-    onKeyDown: handleKeyDown,
-  };
-
-  if (asChild && isValidElement(children)) {
-    const child = Children.only(children) as ReactElement<Record<string, unknown>>;
-    const childProps = child.props as {
-      className?: string;
-      onClick?: (e: React.MouseEvent<HTMLElement>) => void;
-      onKeyDown?: (e: React.KeyboardEvent<HTMLElement>) => void;
     };
-    const childRef = getElementRef<HTMLElement>(child);
-    const composedRef = composeRefs(handleRef, forwardedRef, childRef);
 
-    return cloneElement(child, {
-      ...props,
-      ...triggerAttributes,
-      ...childProps,
-      ref: composedRef,
-      className: cn(childProps.className, className),
-      onClick: (e: React.MouseEvent<HTMLElement>) => {
-        childProps.onClick?.(e);
-        if (!e.defaultPrevented) {
-          handleClick(e);
-        }
-      },
-      onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
-        childProps.onKeyDown?.(e);
-        if (!e.defaultPrevented) {
-          handleKeyDown(e);
-        }
-      },
-    } as Record<string, unknown>);
-  }
+    const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
+      onKeyDown?.(e as KeyboardEvent<HTMLButtonElement>);
+      if (e.defaultPrevented) return;
 
-  const composedRef = composeRefs(handleRef, forwardedRef);
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        openDirectionRef.current = 'first';
+        setOpen(!isExpanded);
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        openDirectionRef.current = 'first';
+        setOpen(true);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        openDirectionRef.current = 'last';
+        setOpen(true);
+      }
+    };
 
-  return (
-    <button
-      ref={composedRef}
-      type="button"
-      className={className}
-      {...triggerAttributes}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-});
+    const triggerAttributes = {
+      id: triggerId,
+      'aria-haspopup': 'menu' as const,
+      'aria-expanded': isExpanded,
+      'aria-controls': isExpanded ? dropdownId : undefined,
+      onClick: handleClick,
+      onKeyDown: handleKeyDown,
+    };
+
+    if (asChild && isValidElement(children)) {
+      const child = Children.only(children) as ReactElement<Record<string, unknown>>;
+      const childProps = child.props as {
+        className?: string;
+        onClick?: (e: React.MouseEvent<HTMLElement>) => void;
+        onKeyDown?: (e: React.KeyboardEvent<HTMLElement>) => void;
+      };
+      const childRef = getElementRef<HTMLElement>(child);
+      const composedRef = composeRefs(handleRef, forwardedRef, childRef);
+
+      return cloneElement(child, {
+        ...props,
+        ...triggerAttributes,
+        ...childProps,
+        ref: composedRef,
+        className: cn(childProps.className, className),
+        onClick: (e: React.MouseEvent<HTMLElement>) => {
+          childProps.onClick?.(e);
+          if (!e.defaultPrevented) {
+            handleClick(e);
+          }
+        },
+        onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
+          childProps.onKeyDown?.(e);
+          if (!e.defaultPrevented) {
+            handleKeyDown(e);
+          }
+        },
+      } as Record<string, unknown>);
+    }
+
+    const composedRef = composeRefs(handleRef, forwardedRef);
+
+    return (
+      <button
+        ref={composedRef}
+        type="button"
+        className={className}
+        {...triggerAttributes}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  },
+);
 
 export interface DropdownContentProps extends ComponentPropsWithoutRef<'div'> {
   /**
@@ -508,321 +527,309 @@ export interface DropdownContentProps extends ComponentPropsWithoutRef<'div'> {
   loop?: boolean;
 }
 
-export const DropdownContent = forwardRef<HTMLDivElement, DropdownContentProps>(function DropdownContent(
-  {
-    'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledby,
-    minWidth = 160,
-    maxHeight = 360,
-    loop = true,
-    className,
-    style,
-    children,
-    ...props
-  },
-  forwardedRef,
-) {
-  const {
-    open,
-    setIsDomOpen,
-    setOpen,
-    isControlled,
-    controlledOpen,
-    triggerRef,
-    contentRef,
-    surfaceRef,
-    dropdownId,
-    triggerId,
-    updatePosition,
-    setFocusedIndex,
-    openDirectionRef,
-  } = useDropdownContext();
+export const DropdownContent = forwardRef<HTMLDivElement, DropdownContentProps>(
+  function DropdownContent(
+    {
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledby,
+      minWidth = 160,
+      maxHeight = 360,
+      loop = true,
+      className,
+      style,
+      children,
+      ...props
+    },
+    forwardedRef,
+  ) {
+    const {
+      open,
+      isDomOpen,
+      setIsDomOpen,
+      setOpen,
+      isControlled,
+      controlledOpen,
+      triggerRef,
+      contentRef,
+      surfaceRef,
+      dropdownId,
+      triggerId,
+      updatePosition,
+      openDirectionRef,
+    } = useDropdownContext();
 
-  const internalSurfaceRef = useRef<HTMLDivElement>(null);
-  useImperativeHandle(forwardedRef, () => internalSurfaceRef.current as HTMLDivElement);
+    const internalSurfaceRef = useRef<HTMLDivElement>(null);
+    useImperativeHandle(forwardedRef, () => internalSurfaceRef.current as HTMLDivElement);
 
-  const controlledOpenRef = useRef(controlledOpen);
-  controlledOpenRef.current = controlledOpen;
-  const isClosingRef = useRef(false);
+    const controlledOpenRef = useRef(controlledOpen);
+    controlledOpenRef.current = controlledOpen;
+    const isClosingRef = useRef(false);
 
-  const supportsNativePopover =
-    typeof HTMLElement !== 'undefined' &&
-    typeof HTMLElement.prototype.showPopover === 'function' &&
-    typeof CSS !== 'undefined' &&
-    typeof CSS.supports === 'function' &&
-    CSS.supports('selector(:popover-open)');
+    const supportsNativePopover =
+      typeof HTMLElement !== 'undefined' &&
+      typeof HTMLElement.prototype.showPopover === 'function' &&
+      typeof CSS !== 'undefined' &&
+      typeof CSS.supports === 'function' &&
+      CSS.supports('selector(:popover-open)');
 
-  const [isFallback, setIsFallback] = useState(false);
+    const [isFallback, setIsFallback] = useState(false);
 
-  useEffect(() => {
-    setIsFallback(!supportsNativePopover);
-  }, [supportsNativePopover]);
+    useEffect(() => {
+      setIsFallback(!supportsNativePopover);
+    }, [supportsNativePopover]);
 
-  // Synchronize native HTML Popover API with open state
-  useLayoutEffect(() => {
-    const content = contentRef.current;
-    if (!content) return;
+    // Synchronize native HTML Popover API with open state
+    useLayoutEffect(() => {
+      const content = contentRef.current;
+      if (!content) return;
 
-    if (open) {
-      isClosingRef.current = false;
-      if (supportsNativePopover) {
-        try {
-          if (!content.matches(':popover-open')) {
-            content.showPopover();
-            setIsDomOpen(true);
+      if (open) {
+        isClosingRef.current = false;
+        if (supportsNativePopover) {
+          try {
+            if (!content.matches(':popover-open')) {
+              content.showPopover();
+              setIsDomOpen(true);
+            }
+          } catch {
+            // Native popover throw guard
           }
-        } catch {
-          // Native popover throw guard
+        } else {
+          setIsDomOpen(true);
+        }
+
+        updatePosition();
+
+        // Focus management: Query visible items and set initial focus
+        const surface = internalSurfaceRef.current;
+        if (surface) {
+          const items = Array.from(
+            surface.querySelectorAll<HTMLElement>('[role="menuitem"]'),
+          ).filter(isElementVisible);
+
+          if (items.length > 0) {
+            const targetIndex = openDirectionRef.current === 'last' ? items.length - 1 : 0;
+            items[targetIndex]?.focus();
+          } else {
+            surface.focus();
+          }
         }
       } else {
-        setIsDomOpen(true);
-      }
-
-      updatePosition();
-
-      // Focus management: Query visible items and set initial focus
-      const surface = internalSurfaceRef.current;
-      if (surface) {
-        const items = Array.from(
-          surface.querySelectorAll<HTMLElement>('[role="menuitem"]'),
-        ).filter(isElementVisible);
-
-        if (items.length > 0) {
-          const targetIndex = openDirectionRef.current === 'last' ? items.length - 1 : 0;
-          setFocusedIndex(targetIndex);
-          items[targetIndex]?.focus();
-        } else {
-          surface.focus();
-        }
-      }
-    } else {
-      isClosingRef.current = false;
-      if (supportsNativePopover) {
-        try {
-          if (content.matches(':popover-open')) {
-            content.hidePopover();
+        isClosingRef.current = false;
+        if (supportsNativePopover) {
+          try {
+            if (content.matches(':popover-open')) {
+              content.hidePopover();
+            }
+          } catch {
+            // Native popover throw guard
           }
-        } catch {
-          // Native popover throw guard
         }
-      }
-      setIsDomOpen(false);
-      setFocusedIndex(-1);
-    }
-  }, [
-    open,
-    contentRef,
-    updatePosition,
-    supportsNativePopover,
-    setIsDomOpen,
-    setFocusedIndex,
-    openDirectionRef,
-  ]);
-
-  // Continuous coordinate tracking during scroll and resize
-  useEffect(() => {
-    if (!open) return;
-
-    updatePosition();
-
-    const handleScrollAndResize = () => {
-      updatePosition();
-    };
-
-    window.addEventListener('resize', handleScrollAndResize, { passive: true });
-    window.addEventListener('scroll', handleScrollAndResize, { passive: true, capture: true });
-
-    return () => {
-      window.removeEventListener('resize', handleScrollAndResize);
-      window.removeEventListener('scroll', handleScrollAndResize, true);
-    };
-  }, [open, updatePosition]);
-
-  // Outside click dismiss & Escape listener
-  useEffect(() => {
-    if (!open) return;
-
-    const content = contentRef.current;
-    const surface = surfaceRef.current;
-
-    const handlePointerDown = (e: PointerEvent) => {
-      const target = e.target as Node | null;
-      if (!target) return;
-
-      const isInsideSurface = surface?.contains(target);
-      const isInsideTrigger = triggerRef.current?.contains(target);
-
-      if (!isInsideSurface && !isInsideTrigger) {
-        setOpen(false);
-      }
-    };
-
-    const handleKeyDown = (e: globalThis.KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        e.stopPropagation();
-        setOpen(false);
-        // Restore focus to trigger on keyboard Escape
-        triggerRef.current?.focus();
-      }
-    };
-
-    // Native toggle event support with controlled-state reconciliation
-    const handleNativeToggle = (e: Event) => {
-      const toggleEvent = e as unknown as { newState?: string };
-      if (toggleEvent.newState === 'open') {
-        setIsDomOpen(true);
-      } else if (toggleEvent.newState === 'closed') {
         setIsDomOpen(false);
+      }
+    }, [open, contentRef, updatePosition, supportsNativePopover, setIsDomOpen, openDirectionRef]);
 
-        if (open) {
-          if (!isClosingRef.current) {
-            isClosingRef.current = true;
-            setOpen(false);
-            queueMicrotask(() => {
-              isClosingRef.current = false;
-            });
-          }
+    // Continuous coordinate tracking during scroll and resize
+    useEffect(() => {
+      if (!open) return;
 
-          if (isControlled) {
-            queueMicrotask(() => {
-              const currentContent = contentRef.current;
-              if (!currentContent) return;
+      updatePosition();
 
-              // If another popover took the top layer, yield cleanly
-              const activePopover =
-                typeof document !== 'undefined'
-                  ? document.querySelector('[popover]:popover-open')
-                  : null;
+      const handleScrollAndResize = () => {
+        updatePosition();
+      };
 
-              if (activePopover && activePopover !== currentContent) {
-                setIsDomOpen(false);
-                return;
-              }
+      window.addEventListener('resize', handleScrollAndResize, { passive: true });
+      window.addEventListener('scroll', handleScrollAndResize, { passive: true, capture: true });
 
-              // If parent insisted on open={true} and top layer isn't contested, re-assert
-              if (controlledOpenRef.current) {
-                if (supportsNativePopover && !currentContent.matches(':popover-open')) {
-                  try {
-                    currentContent.showPopover();
-                    setIsDomOpen(true);
-                    updatePosition();
-                  } catch {
-                    setIsDomOpen(false);
+      return () => {
+        window.removeEventListener('resize', handleScrollAndResize);
+        window.removeEventListener('scroll', handleScrollAndResize, true);
+      };
+    }, [open, updatePosition]);
+
+    // Outside click dismiss & Escape listener
+    useEffect(() => {
+      if (!open) return;
+
+      const content = contentRef.current;
+      const surface = surfaceRef.current;
+
+      const handlePointerDown = (e: PointerEvent) => {
+        const target = e.target as Node | null;
+        if (!target) return;
+
+        const isInsideSurface = surface?.contains(target);
+        const isInsideTrigger = triggerRef.current?.contains(target);
+
+        if (!isInsideSurface && !isInsideTrigger) {
+          setOpen(false);
+        }
+      };
+
+      const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen(false);
+          // Restore focus to trigger on keyboard Escape
+          triggerRef.current?.focus();
+        }
+      };
+
+      // Native toggle event support with controlled-state reconciliation
+      const handleNativeToggle = (e: Event) => {
+        const toggleEvent = e as unknown as { newState?: string };
+        if (toggleEvent.newState === 'open') {
+          setIsDomOpen(true);
+        } else if (toggleEvent.newState === 'closed') {
+          setIsDomOpen(false);
+
+          if (open) {
+            if (!isClosingRef.current) {
+              isClosingRef.current = true;
+              setOpen(false);
+              queueMicrotask(() => {
+                isClosingRef.current = false;
+              });
+            }
+
+            if (isControlled) {
+              queueMicrotask(() => {
+                const currentContent = contentRef.current;
+                if (!currentContent) return;
+
+                // If another popover took the top layer, yield cleanly
+                const activePopover =
+                  typeof document !== 'undefined'
+                    ? document.querySelector('[popover]:popover-open')
+                    : null;
+
+                if (activePopover && activePopover !== currentContent) {
+                  setIsDomOpen(false);
+                  return;
+                }
+
+                // If parent insisted on open={true} and top layer isn't contested, re-assert
+                if (controlledOpenRef.current) {
+                  if (supportsNativePopover && !currentContent.matches(':popover-open')) {
+                    try {
+                      currentContent.showPopover();
+                      setIsDomOpen(true);
+                      updatePosition();
+                    } catch {
+                      setIsDomOpen(false);
+                    }
                   }
                 }
-              }
-            });
+              });
+            }
           }
         }
-      }
-    };
+      };
 
-    if (!supportsNativePopover) {
-      document.addEventListener('pointerdown', handlePointerDown);
-    }
-    document.addEventListener('keydown', handleKeyDown, true);
-    if (content) {
-      content.addEventListener('toggle', handleNativeToggle);
-    }
-
-    return () => {
       if (!supportsNativePopover) {
-        document.removeEventListener('pointerdown', handlePointerDown);
+        document.addEventListener('pointerdown', handlePointerDown);
       }
-      document.removeEventListener('keydown', handleKeyDown, true);
+      document.addEventListener('keydown', handleKeyDown, true);
       if (content) {
-        content.removeEventListener('toggle', handleNativeToggle);
+        content.addEventListener('toggle', handleNativeToggle);
+      }
+
+      return () => {
+        if (!supportsNativePopover) {
+          document.removeEventListener('pointerdown', handlePointerDown);
+        }
+        document.removeEventListener('keydown', handleKeyDown, true);
+        if (content) {
+          content.removeEventListener('toggle', handleNativeToggle);
+        }
+      };
+    }, [
+      open,
+      isControlled,
+      setOpen,
+      triggerRef,
+      contentRef,
+      surfaceRef,
+      updatePosition,
+      supportsNativePopover,
+      setIsDomOpen,
+    ]);
+
+    // Menu roving keyboard navigation
+    const handleMenuKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+      const surface = internalSurfaceRef.current;
+      if (!surface) return;
+
+      const items = Array.from(surface.querySelectorAll<HTMLElement>('[role="menuitem"]')).filter(
+        isElementVisible,
+      );
+
+      if (items.length === 0) return;
+
+      const currentIndex = items.findIndex((item) => item === document.activeElement);
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        let nextIndex = currentIndex + 1;
+        if (nextIndex >= items.length) {
+          nextIndex = loop ? 0 : items.length - 1;
+        }
+        items[nextIndex]?.focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        let prevIndex = currentIndex - 1;
+        if (prevIndex < 0) {
+          prevIndex = loop ? items.length - 1 : 0;
+        }
+        items[prevIndex]?.focus();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        items[0]?.focus();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        const lastIndex = items.length - 1;
+        items[lastIndex]?.focus();
+      } else if (e.key === 'Tab') {
+        // Per WAI-ARIA Menu: Tab exits the menu immediately and resumes normal tab flow
+        setOpen(false);
       }
     };
-  }, [
-    open,
-    isControlled,
-    setOpen,
-    triggerRef,
-    contentRef,
-    surfaceRef,
-    updatePosition,
-    supportsNativePopover,
-    setIsDomOpen,
-  ]);
 
-  // Menu roving keyboard navigation
-  const handleMenuKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    const surface = internalSurfaceRef.current;
-    if (!surface) return;
+    const dynamicStyle = {
+      ...style,
+      '--_dropdown-min-width': typeof minWidth === 'number' ? `${minWidth}px` : minWidth,
+      '--_dropdown-max-height': typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight,
+    } as React.CSSProperties;
 
-    const items = Array.from(
-      surface.querySelectorAll<HTMLElement>('[role="menuitem"]'),
-    ).filter(isElementVisible);
-
-    if (items.length === 0) return;
-
-    const currentIndex = items.findIndex((item) => item === document.activeElement);
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      let nextIndex = currentIndex + 1;
-      if (nextIndex >= items.length) {
-        nextIndex = loop ? 0 : items.length - 1;
-      }
-      setFocusedIndex(nextIndex);
-      items[nextIndex]?.focus();
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      let prevIndex = currentIndex - 1;
-      if (prevIndex < 0) {
-        prevIndex = loop ? items.length - 1 : 0;
-      }
-      setFocusedIndex(prevIndex);
-      items[prevIndex]?.focus();
-    } else if (e.key === 'Home') {
-      e.preventDefault();
-      setFocusedIndex(0);
-      items[0]?.focus();
-    } else if (e.key === 'End') {
-      e.preventDefault();
-      const lastIndex = items.length - 1;
-      setFocusedIndex(lastIndex);
-      items[lastIndex]?.focus();
-    } else if (e.key === 'Tab') {
-      // Per WAI-ARIA Menu: Tab exits the menu immediately and resumes normal tab flow
-      setOpen(false);
-    }
-  };
-
-  const dynamicStyle = {
-    ...style,
-    '--_dropdown-min-width': typeof minWidth === 'number' ? `${minWidth}px` : minWidth,
-    '--_dropdown-max-height': typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight,
-  } as React.CSSProperties;
-
-  return (
-    <div
-      ref={contentRef}
-      popover="auto"
-      id={dropdownId}
-      className={styles.dropdown}
-      data-fallback={isFallback ? 'true' : undefined}
-      data-state={open ? 'open' : 'closed'}
-    >
+    return (
       <div
-        ref={composeRefs(internalSurfaceRef, surfaceRef)}
-        role="menu"
-        tabIndex={-1}
-        aria-labelledby={ariaLabelledby ?? triggerId}
-        aria-label={ariaLabel}
-        data-state={open ? 'open' : 'closed'}
-        className={cn(styles.surface, className)}
-        style={dynamicStyle}
-        onKeyDown={handleMenuKeyDown}
-        {...props}
+        ref={contentRef}
+        popover="auto"
+        id={dropdownId}
+        className={styles.dropdown}
+        data-fallback={isFallback ? 'true' : undefined}
+        data-state={open && isDomOpen ? 'open' : 'closed'}
       >
-        {children}
+        <div
+          ref={composeRefs(internalSurfaceRef, surfaceRef)}
+          role="menu"
+          tabIndex={-1}
+          aria-labelledby={ariaLabelledby ?? triggerId}
+          aria-label={ariaLabel}
+          data-state={open && isDomOpen ? 'open' : 'closed'}
+          className={cn(styles.surface, className)}
+          style={dynamicStyle}
+          onKeyDown={handleMenuKeyDown}
+          {...props}
+        >
+          {children}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 export type DropdownItemBaseProps = {
   /**
@@ -932,10 +939,22 @@ export const DropdownItem = forwardRef<HTMLElement, DropdownItemProps>(function 
 
   const itemContent = (
     <>
-      {startIcon && <span className={styles.startIcon} aria-hidden="true">{startIcon}</span>}
+      {startIcon && (
+        <span className={styles.startIcon} aria-hidden="true">
+          {startIcon}
+        </span>
+      )}
       <span className={styles.itemLabel}>{children}</span>
-      {shortcut && <kbd className={styles.shortcut}>{shortcut}</kbd>}
-      {endIcon && <span className={styles.endIcon} aria-hidden="true">{endIcon}</span>}
+      {shortcut && (
+        <kbd className={styles.shortcut}>
+          <span dir="ltr">{shortcut}</span>
+        </kbd>
+      )}
+      {endIcon && (
+        <span className={styles.endIcon} aria-hidden="true">
+          {endIcon}
+        </span>
+      )}
     </>
   );
 
@@ -952,7 +971,8 @@ export const DropdownItem = forwardRef<HTMLElement, DropdownItemProps>(function 
   // Discriminated navigation link vs button action
   if ('href' in props && typeof props.href === 'string') {
     const { href, target, rel, ...linkProps } = props as DropdownItemLinkProps;
-    const resolvedRel = rel !== undefined ? rel : (target === '_blank' ? 'noopener noreferrer' : undefined);
+    const resolvedRel =
+      rel !== undefined ? rel : target === '_blank' ? 'noopener noreferrer' : undefined;
 
     return (
       <a
@@ -984,20 +1004,19 @@ export const DropdownItem = forwardRef<HTMLElement, DropdownItemProps>(function 
 
 export interface DropdownSeparatorProps extends ComponentPropsWithoutRef<'div'> {}
 
-export const DropdownSeparator = forwardRef<HTMLDivElement, DropdownSeparatorProps>(function DropdownSeparator(
-  { className, ...props },
-  ref,
-) {
-  return (
-    <div
-      ref={ref}
-      role="separator"
-      aria-orientation="horizontal"
-      className={cn(styles.separator, className)}
-      {...props}
-    />
-  );
-});
+export const DropdownSeparator = forwardRef<HTMLDivElement, DropdownSeparatorProps>(
+  function DropdownSeparator({ className, ...props }, ref) {
+    return (
+      <div
+        ref={ref}
+        role="separator"
+        aria-orientation="horizontal"
+        className={cn(styles.separator, className)}
+        {...props}
+      />
+    );
+  },
+);
 
 export interface DropdownGroupProps extends ComponentPropsWithoutRef<'div'> {}
 

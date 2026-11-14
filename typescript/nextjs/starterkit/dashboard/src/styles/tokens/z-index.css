@@ -1,6 +1,12 @@
 /**
  * Z-Index & Layer Design Tokens
  * Predictable, semantic layer scale for predictable stacking without arbitrary magic numbers.
+ *
+ * Two tiers:
+ * 1. Document layers (this scale): only for surfaces that must compete across the app
+ *    (chrome, dropdowns, drawers, modals, toasts, tooltips).
+ * 2. Component paint order: private `--_z-layer-base|raised|overlay|top` values declared
+ *    on an isolated root (`isolation: isolate`). Local values must never use this scale.
  */
 
 :root {

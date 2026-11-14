@@ -18,7 +18,7 @@ Detailed architectural rationale: @docs/standards/TECH_STACK.md
 - **Documentation integrity**: Maintain existing comments and docstrings unless explicitly instructed otherwise.
 
 ## 3. Verification & Disclosure
-- **Run the smallest check first**: Run type-check (`tsc --noEmit`) and lint (`oxlint`) before running full test suites (`vitest run`), shared sync verification (`node scripts/sync-shared.mjs --check`), and shadow policy check (`node scripts/check-dashboard-shadows.mjs`).
+- **Run the smallest check first**: Run type-check (`tsc --noEmit`) and lint (`oxlint`) before running full test suites (`vitest run`), shared sync verification (`node scripts/sync-shared.mjs --check`), shadow policy check (`node scripts/check-dashboard-shadows.mjs`), and client boundary check (`node scripts/check-client-directives.mjs`).
 - **Verify or disclose**: Never claim a check you did not run. Only report commands that actually executed and exited with code 0. If a check was skipped or blocked, state it clearly.
 - **No unapproved push**: Never execute `git push` without explicit user permission.
 - **Handoff note**: Every task completion must state:

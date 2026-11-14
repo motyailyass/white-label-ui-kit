@@ -34,6 +34,31 @@ export const website = {
     securityValue: 'Zéro confiance',
     securityNote: 'Chiffrement de bout en bout',
   },
+  filter: {
+    pickupLabel: 'Départ',
+    dropoffLabel: 'Retour',
+    locations: 'Lieux',
+    selectCity: 'Sélectionnez votre ville',
+    date: 'Date',
+    selectDate: 'Sélectionnez votre date',
+    time: 'Heure',
+    selectTime: 'Sélectionnez votre heure',
+    search: 'Rechercher',
+  },
+  process: {
+    title: 'Lorem Ipsum passage',
+    subtitle:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et',
+    step1Title: 'Choisir le lieu',
+    step1Desc:
+      'Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices,',
+    step2Title: 'Date de départ',
+    step2Desc:
+      'Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices,',
+    step3Title: 'Réservez votre véhicule',
+    step3Desc:
+      'Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices,',
+  },
   waitlist: {
     badge: 'Accès bêta privé',
     headline: 'Une infrastructure haute vélocité arrive bientôt',

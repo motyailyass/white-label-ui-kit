@@ -169,6 +169,27 @@
   padding-inline: var(--space-4);
   overflow-block: auto;
   overflow-inline: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-subtle) transparent;
+}
+
+.body::-webkit-scrollbar {
+  inline-size: 6px;
+  block-size: 6px;
+}
+
+.body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.body::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-subtle);
+  border-radius: var(--radius-full);
+  transition: background-color var(--motion-duration-fast);
+}
+
+.body::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text-muted);
 }
 
 .footer {

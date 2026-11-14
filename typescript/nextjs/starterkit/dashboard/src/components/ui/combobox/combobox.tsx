@@ -72,21 +72,6 @@ export interface ComboboxBaseProps
   /** List of flat options or grouped options */
   options: ComboboxItems;
 
-  /** Multi-select mode with interactive removable tags */
-  multiple?: boolean;
-
-  /** Controlled selected value: string in single-select, string[] in multi-select */
-  value?: string | string[];
-
-  /** Initial selected value for uncontrolled usage */
-  defaultValue?: string | string[];
-
-  /** Callback fired when an option is selected or cleared */
-  onValueChange?: (
-    value: any,
-    selected: any,
-  ) => void;
-
   /** Callback fired as the user types in the search input */
   onSearchChange?: (query: string) => void;
 
@@ -95,6 +80,9 @@ export interface ComboboxBaseProps
 
   /** Message displayed when search query matches zero options */
   emptyMessage?: ReactNode;
+
+  /** Optional message displayed next to the spinner in loading state */
+  loadingMessage?: ReactNode;
 
   /** Loading state displaying animated spinner and aria-busy */
   loading?: boolean;
@@ -153,12 +141,13 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
     onSearchChange,
     filterFn,
     emptyMessage,
+    loadingMessage,
     loading = false,
     invalid = false,
     disabled = false,
     clearable = false,
-    clearAriaLabel = 'Clear selection',
-    toggleAriaLabel = 'Toggle options',
+    clearAriaLabel,
+    toggleAriaLabel,
     removeChipAriaLabel,
     startIcon,
     size,
@@ -321,7 +310,10 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
         }
 
         const newSelectedOptions = flatOptions.filter((opt) => newValues.includes(opt.value));
-        onValueChange?.(newValues as any, newSelectedOptions as any);
+        const onMultiChange = onValueChange as
+          | ((values: string[], selectedOptions: ComboboxOption[]) => void)
+          | undefined;
+        onMultiChange?.(newValues, newSelectedOptions);
         setSearchQuery('');
         inputRef.current?.focus();
         // Keep popup open for seamless multiple picks
@@ -332,7 +324,10 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
         setSearchQuery(option.label);
         setIsOpen(false);
         setActiveIndex(-1);
-        onValueChange?.(option.value as any, option as any);
+        const onSingleChange = onValueChange as
+          | ((value: string, selectedOption: ComboboxOption | null) => void)
+          | undefined;
+        onSingleChange?.(option.value, option);
         inputRef.current?.focus();
       }
     },
@@ -347,7 +342,10 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
         setInternalValue(newValues);
       }
       const newSelectedOptions = flatOptions.filter((opt) => newValues.includes(opt.value));
-      onValueChange?.(newValues as any, newSelectedOptions as any);
+      const onMultiChange = onValueChange as
+        | ((values: string[], selectedOptions: ComboboxOption[]) => void)
+        | undefined;
+      onMultiChange?.(newValues, newSelectedOptions);
       inputRef.current?.focus();
     },
     [multiple, selectedValues, isControlled, flatOptions, onValueChange],
@@ -361,13 +359,19 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
           setInternalValue([]);
         }
         setSearchQuery('');
-        onValueChange?.([] as any, [] as any);
+        const onMultiChange = onValueChange as
+          | ((values: string[], selectedOptions: ComboboxOption[]) => void)
+          | undefined;
+        onMultiChange?.([], []);
       } else {
         if (!isControlled) {
           setInternalValue('');
         }
         setSearchQuery('');
-        onValueChange?.('' as any, null as any);
+        const onSingleChange = onValueChange as
+          | ((value: string, selectedOption: ComboboxOption | null) => void)
+          | undefined;
+        onSingleChange?.('', null);
       }
       setIsOpen(false);
       setActiveIndex(-1);
@@ -392,9 +396,10 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
       e.preventDefault();
       if (!isOpen) {
         setIsOpen(true);
-        const selectedIdx = !multiple && singleSelectedValue
-          ? visibleOptions.findIndex((opt) => opt.value === singleSelectedValue && !opt.disabled)
-          : -1;
+        const selectedIdx =
+          !multiple && singleSelectedValue
+            ? visibleOptions.findIndex((opt) => opt.value === singleSelectedValue && !opt.disabled)
+            : -1;
         const firstEnabled = visibleOptions.findIndex((opt) => !opt.disabled);
         setActiveIndex(selectedIdx >= 0 ? selectedIdx : firstEnabled);
       } else {
@@ -507,9 +512,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
       {/* Hidden native inputs for standard form submission */}
       {name &&
         (multiple ? (
-          selectedValues.map((v) => (
-            <input key={v} type="hidden" name={name} value={v} />
-          ))
+          selectedValues.map((v) => <input key={v} type="hidden" name={name} value={v} />)
         ) : (
           <input type="hidden" name={name} value={singleSelectedValue} />
         ))}
@@ -531,18 +534,14 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
           {/* Multi-Select Interactive Removable Chips */}
           {multiple &&
             selectedOptionsMulti.map((opt) => (
-              <span key={opt.value} className={styles.chip}>
+              <span key={opt.value} className={styles.chip} data-testid="combobox-chip">
                 {opt.icon && <span className={styles.chipIcon}>{opt.icon}</span>}
                 <span className={styles.chipText}>{opt.label}</span>
                 {!disabled && (
                   <button
                     type="button"
                     tabIndex={-1}
-                    aria-label={
-                      removeChipAriaLabel
-                        ? removeChipAriaLabel(opt.label)
-                        : `Remove ${opt.label}`
-                    }
+                    aria-label={removeChipAriaLabel ? removeChipAriaLabel(opt.label) : opt.label}
                     className={styles.chipRemove}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -577,9 +576,12 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
               onFocus?.(e);
               if (!disabled) {
                 setIsOpen(true);
-                const selectedIdx = !multiple && singleSelectedValue
-                  ? visibleOptions.findIndex((opt) => opt.value === singleSelectedValue && !opt.disabled)
-                  : -1;
+                const selectedIdx =
+                  !multiple && singleSelectedValue
+                    ? visibleOptions.findIndex(
+                        (opt) => opt.value === singleSelectedValue && !opt.disabled,
+                      )
+                    : -1;
                 if (selectedIdx >= 0) setActiveIndex(selectedIdx);
               }
             }}
@@ -621,9 +623,12 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
               setIsOpen((prev) => {
                 const nextOpen = !prev;
                 if (nextOpen) {
-                  const selectedIdx = !multiple && singleSelectedValue
-                    ? visibleOptions.findIndex((opt) => opt.value === singleSelectedValue && !opt.disabled)
-                    : -1;
+                  const selectedIdx =
+                    !multiple && singleSelectedValue
+                      ? visibleOptions.findIndex(
+                          (opt) => opt.value === singleSelectedValue && !opt.disabled,
+                        )
+                      : -1;
                   if (selectedIdx >= 0) setActiveIndex(selectedIdx);
                 }
                 return nextOpen;
@@ -651,11 +656,11 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
               <span className={styles.spinner} aria-hidden="true">
                 <Icon name="loader" />
               </span>
-              <span>Searching...</span>
+              {loadingMessage && <span>{loadingMessage}</span>}
             </li>
-          ) : visibleOptions.length === 0 ? (
+          ) : visibleOptions.length === 0 && emptyMessage ? (
             <li role="presentation" className={styles.emptyMessage}>
-              {emptyMessage ?? 'No options found'}
+              {emptyMessage}
             </li>
           ) : isGrouped(filteredItems) ? (
             filteredItems.map((group) => {
@@ -685,7 +690,8 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                           className={cn(
                             styles.option,
                             isActive && styles.optionActive,
-                            isSelected && (multiple ? styles.optionMultiSelected : styles.optionSelected),
+                            isSelected &&
+                              (multiple ? styles.optionMultiSelected : styles.optionSelected),
                             opt.disabled && styles.optionDisabled,
                             Boolean(opt.description) && styles.optionWithDescription,
                           )}

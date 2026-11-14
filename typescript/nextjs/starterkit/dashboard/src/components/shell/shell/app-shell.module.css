@@ -6,6 +6,7 @@
   color: var(--color-text-primary);
   position: relative;
   overflow-inline: hidden;
+  overscroll-behavior: none;
 }
 
 .main {
@@ -15,6 +16,7 @@
   min-inline-size: 0;
   min-block-size: 100dvh;
   position: relative;
+  overscroll-behavior: none;
 }
 
 /* Dual sidebar variant */

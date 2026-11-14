@@ -39,8 +39,8 @@ Application Layer / Connected Pattern
   └─ Dialog Primitive (src/components/ui/dialog/)
        └─ Native <dialog> invoked via showModal()
             ├─ DialogHeader
-            │    ├─ DialogTitle (links to aria-labelledby)
-            │    └─ DialogDescription (links to aria-describedby)
+            │    ├─ DialogTitle (auto-wires aria-labelledby)
+            │    └─ DialogDescription (auto-wires aria-describedby)
             ├─ DialogBody
             │    └─ Content, interactive forms, or inner Select controls
             └─ DialogFooter
@@ -62,7 +62,7 @@ Application Layer / Connected Pattern
 To maintain architectural rigor and audit clarity, requirements are strictly divided into three tiers:
 
 ### 3.1 Tier 1: Normative Accessibility Requirements (WCAG 2.2 AA / AAA & Web Standards)
-- **Accessible Name (WCAG 4.1.2, 1.3.1)**: Every dialog must have an accessible name. The primitive requires callers to supply `aria-labelledby` referencing `DialogTitle` (or an explicit `aria-label`). A primitive cannot guarantee an accessible name on its own; this is a shared contract with the caller.
+- **Accessible Name (WCAG 4.1.2, 1.3.1)**: Every dialog must have an accessible name. `DialogTitle` and `DialogDescription` register their generated IDs with the parent `Dialog`, which wires them to `aria-labelledby` / `aria-describedby` automatically. Explicit `aria-labelledby` and `aria-describedby` props win over the auto-wired IDs, and an explicit `aria-label` suppresses `aria-labelledby`. A dialog rendered without a title must still pass an `aria-label`.
 - **Keyboard Operability & No Trap (WCAG 2.1.1, 2.1.2 Level A)**: Focus must remain inside the modal interaction context during `Tab` and `Shift+Tab`. Background page content must be inert. (Note: Escape key dismissal is an expected WAI-ARIA APG pattern behavior, distinguished from the normative WCAG 2.1.2 No Keyboard Trap criterion).
 - **Visible Keyboard Focus (WCAG 2.4.7, 2.4.11)**: Interactive elements inside the dialog must render high-contrast focus indicators meeting the 3:1 non-text contrast threshold.
 - **Color Contrast (WCAG 1.4.3, 1.4.11)**: Measured against concrete rendered tokens:
@@ -114,7 +114,7 @@ export interface DialogOpenChangeDetails {
   reason: DialogCloseReason;
 }
 
-export interface DialogProps extends Omit<ComponentPropsWithRef<'dialog'>, 'open' | 'onClose'> {
+export interface DialogBaseProps extends Omit<ComponentPropsWithRef<'dialog'>, 'open' | 'onClose'> {
   /**
    * Controlled open state.
    */
@@ -158,21 +158,22 @@ export interface DialogProps extends Omit<ComponentPropsWithRef<'dialog'>, 'open
   returnFocusRef?: RefObject<HTMLElement | null>;
 
   /**
-   * Whether to display an optional top-corner icon close button.
-   * @default false
-   */
-  showCloseButton?: boolean;
-
-  /**
-   * Accessible label for the optional top-corner close button.
-   * Mandatory when showCloseButton is true.
-   */
-  closeLabel?: string;
-
-  /**
    * Dialog children (typically DialogHeader, DialogBody, DialogFooter).
    */
   children?: ReactNode;
+}
+
+export type DialogCloseButtonProps =
+  | {
+      showCloseButton: true;
+      closeLabel: string;
+    }
+  | {
+      showCloseButton?: false;
+      closeLabel?: string;
+    };
+
+export type DialogProps = DialogBaseProps & DialogCloseButtonProps;
 }
 
 export interface DialogHeaderProps extends ComponentPropsWithRef<'div'> {}
@@ -187,9 +188,22 @@ export interface DialogTitleProps extends ComponentPropsWithRef<'h2'> {
 
 export interface DialogDescriptionProps extends ComponentPropsWithRef<'p'> {}
 
-export interface DialogBodyProps extends ComponentPropsWithRef<'div'> {}
+export interface DialogBodyProps extends ComponentPropsWithRef<'div'> {
+  /**
+   * Whether the body acts as an internal scroll container.
+   * Set to false for short forms containing dropdowns or popovers.
+   * @default true
+   */
+  scrollable?: boolean;
+}
 
-export interface DialogFooterProps extends ComponentPropsWithRef<'div'> {}
+export interface DialogFooterProps extends ComponentPropsWithRef<'div'> {
+  /**
+   * Footer background treatment.
+   * @default 'seamless'
+   */
+  background?: 'seamless' | 'docked';
+}
 ```
 
 ### 4.2 Prop Behavior Matrix
@@ -205,8 +219,8 @@ export interface DialogFooterProps extends ComponentPropsWithRef<'div'> {}
 | `returnFocusRef` | `RefObject<HTMLElement>` | `undefined` | Target for explicit focus restoration. |
 | `showCloseButton` | `boolean` | `false` | Renders optional top-corner close button. |
 | `closeLabel` | `string` | `undefined` | Accessible label for the optional close button. |
-| `aria-labelledby` | `string` | `undefined` | Associates heading ID (`DialogTitle`). |
-| `aria-describedby`| `string` | `undefined` | Associates description ID (`DialogDescription`). |
+| `aria-labelledby` | `string` | auto (`DialogTitle` id) | Overrides the auto-wired title association. |
+| `aria-describedby`| `string` | auto (`DialogDescription` id) | Overrides the auto-wired description association. |
 | `ref` | `Ref<HTMLDialogElement>` | `undefined` | Forwards to native `HTMLDialogElement`. |
 
 ---
@@ -407,14 +421,16 @@ Managing a controlled native `<dialog>` in React requires careful synchronizatio
 /* Body */
 .body {
   flex: 1 1 auto;
+  min-block-size: 0;
   padding-inline: var(--space-6);
   padding-block: var(--space-5);
-  overflow-y: auto;
+  overflow-block: auto;
   overscroll-behavior: contain;
 }
 
 /* Footer */
 .footer {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -422,7 +438,19 @@ Managing a controlled native `<dialog>` in React requires careful synchronizatio
   padding-inline: var(--space-6);
   padding-block: var(--space-4);
   border-block-start: 1px solid var(--color-border-subtle);
+  background-color: transparent;
+}
+
+.footerSeamless {
+  background-color: transparent;
+}
+
+.footerDocked {
   background-color: var(--color-surface);
+}
+
+.header + .footer {
+  border-block-start: none;
 }
 
 /* Optional Top-Corner Close Button */
@@ -529,6 +557,8 @@ The gallery at `/gallery/dialog` demonstrates realistic usage patterns with comp
    - Handles disconnected elements without error.
 4. **Accessible Label Association**:
    - Verifies `aria-labelledby` and `aria-describedby` reach the native `<dialog>`.
+   - Verifies `DialogTitle` / `DialogDescription` auto-wire their IDs when no explicit aria props are passed.
+   - Verifies explicit `aria-label` suppresses the auto-wired `aria-labelledby`.
 
 ### 10.2 Playwright Browser Tests (`e2e/dialog.spec.ts`)
 1. **Top-Layer Visibility & Modal State**:
@@ -561,7 +591,7 @@ The gallery at `/gallery/dialog` demonstrates realistic usage patterns with comp
 - [ ] Native `<dialog>` + `showModal()` foundation agreed upon.
 - [ ] Controlled API (`open: boolean`, `onOpenChange`) with explicit reasons defined.
 - [ ] Native event reconciliation (`cancel`, `close`, `method="dialog"`) specified.
-- [ ] Accessible name contract (`aria-labelledby` / `DialogTitle`) clearly assigned to caller.
+- [ ] Accessible name verified: `DialogTitle` auto-wires `aria-labelledby`, or an explicit `aria-label` is supplied when no title is rendered.
 - [ ] Focus restoration contract (including removed trigger fallback) defined.
 - [ ] Product choices (backdrop dismissal off by default, optional close button) clearly separated from WCAG standards.
 - [ ] Verified actual rendered tokens (`#141414`, `#FAFAFA`, `#ffffff`, zero Dashboard shadows).

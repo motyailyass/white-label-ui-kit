@@ -1,4 +1,4 @@
-/*
+/**
  * White Label UI Kit — Dialog Gallery Studio Styles
  * 100% CSS Logical Properties, Zero Dashboard Shadows.
  */
@@ -10,9 +10,10 @@
   justify-content: center;
   inline-size: 100%;
   max-inline-size: 100%;
+  padding-block: var(--space-4);
 }
 
-/* Simulated In-Canvas Dialog Surface (Rendered inline for live styling & inspection) */
+/* In-Canvas Dialog Surface (Rendered for live inspection & token measurement) */
 .inlineDialogCard {
   box-sizing: border-box;
   display: flex;
@@ -23,11 +24,9 @@
   background-color: var(--color-surface-raised);
   border: 1px solid var(--color-border-subtle);
   color: var(--color-text-primary);
-  overflow: hidden;
+  overflow: visible;
   position: relative;
-  transition:
-    inline-size var(--transition-normal),
-    border-radius var(--transition-fast);
+  transition: inline-size var(--transition-normal);
 }
 
 .inlineDialogCard[data-size="sm"] {
@@ -43,96 +42,44 @@
 }
 
 .inlineDialogCard[data-size="xl"] {
-  inline-size: min(100%, 860px);
+  inline-size: min(100%, 960px);
 }
 
 .inlineDialogCard[data-size="full"] {
   inline-size: 100%;
 }
 
-.inlineHeader {
-  flex-shrink: 0;
+.inlineDialogCard > form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  padding-inline: var(--space-6);
-  padding-block: var(--space-5);
-  position: relative;
-}
-
-.inlineHeaderWithSep {
-  border-block-end: 1px solid var(--color-border-subtle);
-}
-
-.inlineTitle {
-  margin: 0;
-  font-family: inherit;
-  font-size: var(--font-size-xl);
-  line-height: var(--line-height-tight);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-}
-
-.inlineDescription {
-  margin: 0;
-  font-family: inherit;
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-normal);
-  color: var(--color-text-secondary);
-}
-
-.inlineCloseButton {
-  position: absolute;
-  inset-block-start: var(--space-4);
-  inset-inline-end: var(--space-4);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  inline-size: var(--control-height-sm);
-  block-size: var(--control-height-sm);
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-control);
-  background: transparent;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  outline: none;
-}
-
-.inlineCloseButton:hover {
-  background-color: var(--color-primary-subtle);
-  color: var(--color-text-primary);
-}
-
-.inlineCloseButton:focus-visible {
-  outline: var(--focus-ring-width) solid var(--color-border-focus);
-  outline-offset: var(--focus-ring-offset);
-}
-
-.inlineBody {
   flex: 1 1 auto;
   min-block-size: 0;
-  padding-inline: var(--space-6);
-  padding-block: var(--space-5);
-  overflow-block: auto;
-  overscroll-behavior: contain;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+  inline-size: 100%;
 }
 
-.inlineFooter {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding-inline: var(--space-6);
-  padding-block: var(--space-4);
-  background-color: var(--color-surface);
+/* Header, Body & Footer Separator Overrides with Balanced Spacing Rhythm */
+.headerNoBorder {
+  border-block-end: none !important;
+  padding-block-start: var(--space-6);
+  padding-block-end: 0;
 }
 
-.inlineFooterWithSep {
-  border-block-start: 1px solid var(--color-border-subtle);
+.bodyNoBorder {
+  padding-block-start: var(--space-4);
+  padding-block-end: var(--space-6);
+}
+
+.footerNoBorder {
+  border-block-start: none !important;
+  padding-block-start: var(--space-5);
+  padding-block-end: var(--space-6);
+}
+
+/* Direct header-to-footer rhythm when body is omitted (e.g. Confirmation Dialog) */
+.headerNoBorder + .footerNoBorder,
+.header + .footerNoBorder {
+  padding-block-start: var(--space-6);
+  padding-block-end: var(--space-6);
 }
 
 /* Footer Button Layout Variants */
@@ -166,10 +113,24 @@
   inline-size: 100%;
 }
 
+/* Inner Body Elements for Archetypes */
+.dialogMessage {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+}
+
+.formContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
 .fieldGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-1-5);
 }
 
 .fieldLabel {
@@ -208,6 +169,7 @@
   font-size: var(--font-size-xs);
   line-height: 1rem;
   font-weight: var(--font-weight-medium);
+  margin-block-end: var(--space-4);
 }
 
 .sidebarActionBtn {
@@ -215,68 +177,9 @@
   justify-content: center;
 }
 
-/* Hidden container for internal E2E test element assertions without polluting visual UI */
-.hiddenVault {
-  display: none !important;
-}
-
-.vaultTitle {
-  font-size: var(--font-size-xs);
-  line-height: 1rem;
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-secondary);
-  margin-block: 0;
-  margin-inline: 0;
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-}
-
-.vaultGrid {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.longContentBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  max-block-size: 15rem;
-  overflow-block: auto;
-}
-
-.table {
+.controlDivider {
+  border: none;
+  border-block-start: 1px solid var(--color-border-subtle);
+  margin-block: var(--space-2);
   inline-size: 100%;
-  border-collapse: collapse;
-}
-
-.th {
-  text-align: start;
-  padding-inline: var(--space-3);
-  padding-block: var(--space-2);
-  border-block-end: 1px solid var(--color-border-subtle);
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-}
-
-.td {
-  padding-inline: var(--space-3);
-  padding-block: var(--space-2);
-  border-block-end: 1px solid var(--color-border-subtle);
-  font-size: var(--font-size-sm);
-}
-
-.statusCard {
-  padding-inline: var(--space-4);
-  padding-block: var(--space-3);
-  border-radius: var(--radius-control);
-  background-color: var(--color-surface-raised);
-  border: 1px solid var(--color-border-subtle);
-}
-
-.statusText {
-  font-size: var(--font-size-xs);
-  margin-block: 0;
-  margin-inline: 0;
 }

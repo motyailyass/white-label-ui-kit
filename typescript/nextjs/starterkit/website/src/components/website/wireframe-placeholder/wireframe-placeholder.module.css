@@ -1,0 +1,65 @@
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  background-color: var(--color-surface-placeholder);
+  border-radius: var(--radius-feature);
+  overflow: hidden;
+  position: relative;
+  user-select: none;
+}
+
+.placeholder[data-rounded="md"] {
+  border-radius: var(--radius-md);
+}
+
+.placeholder[data-rounded="lg"] {
+  border-radius: var(--radius-lg);
+}
+
+.placeholder[data-rounded="xl"] {
+  border-radius: var(--radius-xl);
+}
+
+.placeholder[data-rounded="2xl"] {
+  border-radius: var(--radius-2xl);
+}
+
+.placeholder[data-rounded="feature"] {
+  border-radius: var(--radius-feature);
+}
+
+.placeholder[data-rounded="full"] {
+  border-radius: var(--radius-full);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-placeholder-icon);
+}
+
+.icon {
+  inline-size: auto;
+  block-size: auto;
+}
+
+.label {
+  font-size: var(--typography-supporting-size);
+  line-height: var(--typography-supporting-line-height);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-placeholder-icon);
+  opacity: 0.9;
+}

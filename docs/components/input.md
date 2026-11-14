@@ -203,7 +203,7 @@ The kit enforces a **48×48px minimum interaction target** (`--control-touch-tar
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Resting** | Editable input | `--color-control-bg` | `--color-border-control` | `--color-text-primary` | None |
 | **Hover** | `:hover:not(:disabled):not(:read-only)` | `--color-control-bg` | `--color-border-control` (stable; no independent hover border emphasis) | `--color-text-primary` | None |
-| **Focus** | `:focus-visible` / `:focus` | `--color-control-bg` | `--color-border-focus` | `--color-text-primary` | `var(--focus-ring-width) solid var(--color-border-focus)` with `var(--focus-ring-offset)` (0ms immediate) |
+| **Focus** | `:focus-visible` / `:focus` | `--color-control-bg` | `--color-border-focus` | `--color-text-primary` | `1px solid var(--color-border-focus)` flush outline (`outline-offset: 0`), yielding exactly 2px visual focus thickness without floating gap |
 | **Invalid** | `aria-invalid="true"` | `--color-control-bg` | `--color-danger` (stable across hover) | `--color-text-primary` | Focus ring and border transition to `--color-danger` |
 | **Disabled** | `disabled` / `aria-disabled="true"` | `--color-control-disabled-bg` | `--color-border-disabled` | `--color-text-disabled` | None (`cursor: not-allowed`) |
 | **Read-Only** | `readOnly` / `aria-readonly="true"` | `--color-surface-subtle` | `--color-border-subtle` | `--color-text-secondary` | Focusable; subtle focus indicator |
@@ -390,11 +390,11 @@ function FieldExample() {
   --_control-line-height: var(--control-line-height-2xl);
 }
 
-/* Focus State (Immediate 0ms Visible Outline) */
+/* Focus State (2px Modern Balanced Focus: 1px border + 1px flush outline) */
 .input:focus-visible,
 .input:focus {
-  outline: var(--focus-ring-width) solid var(--color-border-focus);
-  outline-offset: var(--focus-ring-offset);
+  outline: 1px solid var(--color-border-focus);
+  outline-offset: 0;
   border-color: var(--color-border-focus);
   transition: none;
 }
@@ -407,7 +407,8 @@ function FieldExample() {
 .input[aria-invalid='true']:focus-visible,
 .input[aria-invalid='true']:focus {
   border-color: var(--color-danger);
-  outline-color: var(--color-danger);
+  outline: 1px solid var(--color-danger);
+  outline-offset: 0;
   transition: none;
 }
 

@@ -84,14 +84,14 @@
 .inputContainer {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-2);
   inline-size: 100%;
   box-sizing: border-box;
   min-block-size: var(--_control-height);
   padding-inline-start: var(--_control-padding-inline);
   padding-inline-end: var(--space-2);
-  padding-block: var(--space-1);
+  padding-block: calc((var(--_control-height) - 1.5rem - 2px) / 2);
   border-radius: var(--radius-control);
   background-color: var(--color-control-bg);
   border: 1px solid var(--color-border-control);
@@ -104,9 +104,10 @@
 
 .inputContainer:focus-within,
 .inputContainer.focused {
-  outline: var(--focus-ring-width) solid var(--color-border-focus);
-  outline-offset: var(--focus-ring-offset);
+  outline: 1px solid var(--color-border-focus);
+  outline-offset: 0;
   border-color: var(--color-border-focus);
+  transition: none;
 }
 
 .inputContainer.invalid {
@@ -115,8 +116,10 @@
 
 .inputContainer.invalid:focus-within,
 .inputContainer.invalid.focused {
-  outline-color: var(--color-danger);
+  outline: 1px solid var(--color-danger);
+  outline-offset: 0;
   border-color: var(--color-danger);
+  transition: none;
 }
 
 .inputContainer.disabled {
@@ -132,7 +135,7 @@
   align-items: center;
   justify-content: center;
   inline-size: var(--_control-icon-size);
-  block-size: var(--_control-icon-size);
+  min-block-size: 1.5rem;
   color: var(--color-text-secondary);
   flex-shrink: 0;
 }
@@ -150,6 +153,7 @@
   gap: var(--space-1);
   flex: 1;
   min-inline-size: 0;
+  min-block-size: 1.5rem;
 }
 
 .chip {
@@ -250,13 +254,16 @@
   gap: var(--space-0-5);
   margin-inline-start: auto;
   flex-shrink: 0;
+  min-block-size: 1.5rem;
 }
 
 .actionButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-1);
+  padding: 0;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
   border: none;
   background: transparent;
   color: var(--color-text-secondary);
@@ -273,8 +280,8 @@
 }
 
 .actionButton:focus-visible {
-  outline: var(--focus-ring-width) solid var(--color-border-focus);
-  outline-offset: var(--focus-ring-offset);
+  outline: 1px solid var(--color-border-focus);
+  outline-offset: 0;
 }
 
 .actionButton svg {
@@ -294,11 +301,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  inline-size: var(--_control-icon-size);
-  block-size: var(--_control-icon-size);
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
   color: var(--color-text-secondary);
   animation: spin 0.8s linear infinite;
-  margin-inline-end: var(--space-1);
 }
 
 .spinner svg {

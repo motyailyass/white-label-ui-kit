@@ -9,6 +9,7 @@ import {
   TokyoHero,
   TokyoNavbar,
   TokyoPricing,
+  TokyoProcess,
 } from '../sections';
 import styles from './tokyo-templates.module.css';
 
@@ -33,10 +34,13 @@ export function SaasLandingTemplate({
       <TokyoNavbar brandName={brandName} onCtaClick={onCtaClick} linkAs={linkAs} />
 
       <main>
-        {/* 2. Hero Section with Interactive Mockup */}
+        {/* 2. Hero Section with 2-Column Wireframe & Filter Bar */}
         <TokyoHero title={heroTitle} subtitle={heroSubtitle} linkAs={linkAs} />
 
-        {/* 3. Tokyo Bento Grid Features */}
+        {/* 3. 3-Step Process Flow (Image 1 Blueprint) */}
+        <TokyoProcess />
+
+        {/* 4. Tokyo Bento Grid Features */}
         <TokyoBentoGrid />
 
         {/* 4. Predictable Pricing Plans */}

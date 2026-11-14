@@ -20,10 +20,12 @@
 
 html {
   min-block-size: 100%;
+  overscroll-behavior: none;
 }
 
 body {
   min-block-size: 100dvh;
+  overscroll-behavior: none;
   background-color: var(--color-bg-base);
   color: var(--color-text-primary);
   font-family: var(--font-family-sans);

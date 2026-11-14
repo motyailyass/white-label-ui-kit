@@ -12,6 +12,7 @@ export {
   type DialogBodyProps,
   type DialogDescriptionProps,
   type DialogFooterProps,
+  type DialogFooterBackground,
   type DialogHeaderProps,
   type DialogTitleProps,
 } from './dialog';

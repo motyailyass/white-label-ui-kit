@@ -361,7 +361,7 @@ Switch.displayName = 'Switch';
   padding: 0;
   opacity: 0;
   cursor: pointer;
-  z-index: 1;
+  z-index: var(--_z-layer-raised);
   box-sizing: border-box;
 }
 
@@ -516,31 +516,23 @@ Switch.displayName = 'Switch';
 
 ---
 
-## 7. Connected Pattern Specification (`SwitchGallery`)
+## 7. Interactive Studio Gallery Specifications (`/gallery/switch`)
 
-The pattern `SwitchGallery` (`components/patterns/switch-gallery/`) demonstrates:
-1. **Overview & Product Defaults**: Demonstrates omitted size consuming local product defaults (`md` in Dashboard, `xl` in Website).
-2. **Six-Step Sizing Scale**: Renders `xs`, `sm`, `md`, `lg`, `xl`, and `2xl` with default-size geometry parity specimens.
-3. **Controlled Mode**: Demonstrates `checked` and `onChange` with readable live state feedback.
-4. **Uncontrolled Mode & Form Reset**: Demonstrates `defaultChecked` restoring initial values upon native form reset.
-5. **Operational States & Combined Precedence**: Demonstrates resting unchecked, resting checked, hover, disabled unchecked, disabled checked, invalid unchecked, invalid checked, and invalid disabled.
-6. **Required Validation & Accessible Relationships**:
-   - Optional setting switches start off and remain **valid** without errors.
-   - Required switch example starts clean (`requiredError: false`).
-   - Triggering validation action sets error only if unchecked.
-   - Checking the switch clears the error immediately.
-7. **Independent Switches & Disabled Fieldset**: Demonstrates independent switch toggles and native inheritance of `<fieldset disabled>`.
-8. **Localization, RTL & Long Labels**:
-   - Complete EN, FR, and AR dictionaries driving all presentation text, state labels, descriptions, and route metadata (`metaTitle`, `metaDescription`).
-   - Stable accessible labels linked via `<label htmlFor={id}>`.
-   - Arabic specimen in `<div dir="rtl">` testing natural inline-start/end placement.
-   - Nested `<div dir="ltr">` inside RTL region testing correct direction restoration.
-   - Mixed LTR technical ID isolated via `<BidiText dir="ltr">SENS-84920-X</BidiText>`.
-   - Multi-line wrapping text preserving target hitbox dimensions without clipping.
-   - Locale switching preserves switch checked/unchecked state without resets (storing status IDs rather than localized strings).
-9. **Touch Targets & Active Theme Parity**: Demonstrates comfortable touch targets (min 48px) and active theme specimen cards using real scoped tokens with zero dashboard shadows.
-10. **Form Submit & Reset Lifecycles**: Native form submission asserting `FormData` entries (`'on'` or explicit value when checked, omitted when unchecked or disabled), pending simulation timer, and timer cancellation on reset/unmount.
-11. **Code Usage Examples**: Copyable snippets for standard uncontrolled and controlled usage.
+The interactive gallery lives in `src/components/patterns/switch-gallery/` and routes at `/gallery/switch` in both Dashboard and Website:
+1. **Interactive Stage & Six Density Sizes**:
+   - Single specimen canvas with responsive `.fieldGroup` and `.fieldRow` layout (`align-items: center`).
+   - All 6 sizes view grid (`xs`, `sm`, `md`, `lg`, `xl`, `2xl`) demonstrating target decoupling and immediate thumb toggle.
+2. **Domain Quick Presets & Orthogonal States**:
+   - **Push Notifications**: Real-time incident alerts with helper text.
+   - **Two-Factor Authentication**: Hardware security key (FIDO2) enforcement.
+   - **Usage Analytics**: Performance and crash telemetry tracking toggle.
+   - **Real-Time Autosave**: Continuous cloud document buffer synchronization.
+   - **Maintenance Mode**: Cluster traffic draining toggle.
+   - *Orthogonal interaction state*: Any preset can be toggled to `Resting`, `Invalid` (empty required toggle with accessible alert), or `Disabled` via the sidebar. Toggling the switch ON dynamically clears the error.
+3. **Live Geometry Inspector & Token Export**:
+   - Real-time DOM bounding box measurements (`min-block-size`, `inline-size`, `trackWidth`, `trackHeight`, `thumbSize`, `background-color`, `border`, `border-radius`).
+   - Dynamic JSX and CSS module code snippet generation ready for AI coding agents.
+   - Full token inspection across color themes, viewport touch policies, and LTR/RTL bidirectional script rendering.
 
 ---
 

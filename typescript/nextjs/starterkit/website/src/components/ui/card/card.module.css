@@ -1,0 +1,229 @@
+/**
+ * Card Primitive Styles
+ *
+ * White-label pure primitive styles.
+ * 100% CSS logical properties, semantic tokens, zero dashboard shadows.
+ */
+
+/* =============================================================================
+   Card Root Container
+   ============================================================================= */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+/* Fallback padding for direct children when compound compartments are not used */
+.card:not(:has(> .header)):not(:has(> .content)):not(:has(> .footer)) {
+  padding-inline: var(--_card-padding-inline);
+  padding-block: var(--_card-padding-block);
+}
+
+.card:not(.paddingNone):not(:has(> .header)):not(:has(> .content)):not(:has(> .footer)) {
+  gap: var(--space-4);
+}
+
+/* =============================================================================
+   Surface Variants (International Standards)
+   ============================================================================= */
+
+/* 1. Default: Crisp bordered surface */
+.variantDefault {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-subtle);
+}
+
+/* 2. Subtle: Soft tinted filled surface */
+.variantSubtle {
+  background-color: var(--color-surface-subtle);
+  border-color: var(--color-border-subtle);
+}
+
+/* 3. Raised: Elevated surface with reinforced definition */
+.variantRaised {
+  background-color: var(--color-surface-raised);
+  border-color: var(--color-border-strong);
+}
+
+/* 4. Interactive: Clickable surface with hover & active feedback */
+.variantInteractive {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-subtle);
+  cursor: pointer;
+  user-select: none;
+}
+
+.interactive {
+  cursor: pointer;
+  user-select: none;
+}
+
+.interactive:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+}
+
+.interactive:active {
+  background-color: var(--color-surface-active);
+}
+
+.interactive:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* =============================================================================
+   Padding Density Scale
+   ============================================================================= */
+
+.paddingNone {
+  --_card-padding-inline: 0;
+  --_card-padding-block: 0;
+}
+
+.paddingSm {
+  --_card-padding-inline: var(--space-3);
+  --_card-padding-block: var(--space-3);
+}
+
+.paddingMd {
+  --_card-padding-inline: var(--space-5);
+  --_card-padding-block: var(--space-5);
+}
+
+.paddingLg {
+  --_card-padding-inline: var(--space-6);
+  --_card-padding-block: var(--space-6);
+}
+
+@media (min-width: 48rem) {
+  .paddingLg {
+    --_card-padding-inline: var(--space-8);
+    --_card-padding-block: var(--space-8);
+  }
+}
+
+/* =============================================================================
+   Compartment Styles
+   ============================================================================= */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-inline: var(--_card-padding-inline);
+  padding-block: var(--_card-padding-block);
+  box-sizing: border-box;
+}
+
+.header:not(.headerDivider) {
+  padding-block-end: var(--space-2);
+}
+
+.headerDivider {
+  border-block-end: 1px solid var(--color-border-subtle);
+}
+
+.title {
+  font-size: var(--typography-card-title-size, var(--font-size-base));
+  font-weight: var(--typography-card-title-weight, var(--font-weight-semibold));
+  line-height: var(--typography-card-title-line-height, var(--line-height-snug));
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.title:lang(ar) {
+  font-family: var(--font-family-arabic), var(--font-family-sans);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.title:lang(en),
+.title:lang(fr) {
+  font-family: var(--font-family-sans);
+}
+
+.description {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.description:lang(ar) {
+  font-family: var(--font-family-arabic), var(--font-family-sans);
+  line-height: var(--line-height-arabic-normal);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.description:lang(en),
+.description:lang(fr) {
+  font-family: var(--font-family-sans);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1 1 auto;
+  padding-inline: var(--_card-padding-inline);
+  padding-block: var(--_card-padding-block);
+  box-sizing: border-box;
+}
+
+/* When header without divider immediately precedes content, prevent redundant gap */
+.header:not(.headerDivider) + .content {
+  padding-block-start: 0;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block-start: auto;
+  padding-inline: var(--_card-padding-inline);
+  padding-block: var(--_card-padding-block);
+  box-sizing: border-box;
+}
+
+/* When content immediately precedes footer without divider, prevent redundant gap */
+.content + .footer:not(.footerDivider) {
+  padding-block-start: 0;
+}
+
+.footerDivider {
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+
+/* Footer Alignments */
+.footerAlignEnd {
+  justify-content: flex-end;
+}
+
+.footerAlignBetween {
+  justify-content: space-between;
+}
+
+.footerAlignStart {
+  justify-content: flex-start;
+}
+
+.footerAlignStretch {
+  inline-size: 100%;
+}
+
+.footerAlignStretch > * {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}

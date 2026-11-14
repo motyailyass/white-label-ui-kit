@@ -13,6 +13,11 @@
 
   --color-surface-hover: var(--color-neutral-2);
   --color-surface-active: var(--color-neutral-2);
+
+  /* Wireframe Blueprint Surface & Placeholder Tokens */
+  --color-surface-wireframe: #d9e2ec;
+  --color-surface-placeholder: #94a3b8;
+  --color-placeholder-icon: #ffffff;
 }
 
 :root[data-theme="dark"] {
@@ -24,4 +29,9 @@
 
   --color-surface-hover: var(--color-neutral-6);
   --color-surface-active: var(--color-neutral-6);
+
+  /* Wireframe Blueprint Surface & Placeholder Tokens */
+  --color-surface-wireframe: #18202a;
+  --color-surface-placeholder: #334155;
+  --color-placeholder-icon: rgb(255 255 255 / 85%);
 }

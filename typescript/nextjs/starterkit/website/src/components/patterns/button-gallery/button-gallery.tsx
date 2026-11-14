@@ -2,12 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Icon, type IconName } from '@/components/icons';
-import {
-  Button,
-  type ButtonProps,
-  type ButtonVariant,
-  type ControlSize,
-} from '@/components/ui';
+import { Button, type ButtonProps, type ButtonVariant, type ControlSize } from '@/components/ui';
+import type { TranslationKey } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { useI18n, useTheme } from '@/providers';
 import {
@@ -27,6 +23,14 @@ export type ButtonStageView = 'single' | 'all-sizes';
 export type ButtonTouchTarget = 'auto' | 'comfortable';
 export type ButtonSpecimenDirection = 'ltr' | 'rtl';
 
+const VARIANT_LABELS: Record<ButtonVariant, TranslationKey> = {
+  primary: 'common.studio.optVariantPrimary',
+  secondary: 'common.studio.optVariantSecondary',
+  subtle: 'common.studio.optVariantSubtle',
+  ghost: 'common.studio.optVariantGhost',
+  danger: 'common.studio.optVariantDanger',
+};
+
 export interface ButtonGalleryProps {
   linkComponent?: StudioLinkComponent;
 }
@@ -44,7 +48,6 @@ export function ButtonGallery({ linkComponent }: ButtonGalleryProps) {
   const [fullWidth, setFullWidth] = useState(false);
   const [interactionState, setInteractionState] = useState<ButtonInteractionState>('resting');
   const [touchTarget, setTouchTarget] = useState<ButtonTouchTarget>('auto');
-  const [buttonType, setButtonType] = useState<'button' | 'submit' | 'reset'>('button');
 
   // Live specimen ref for computed specs measurement
   const specimenRef = useRef<HTMLButtonElement | null>(null);
@@ -72,7 +75,6 @@ export function ButtonGallery({ linkComponent }: ButtonGalleryProps) {
     variant,
     size,
     touchTarget,
-    buttonType,
     interactionState,
     iconMode,
     fullWidth,
@@ -89,7 +91,6 @@ export function ButtonGallery({ linkComponent }: ButtonGalleryProps) {
     setFullWidth(false);
     setInteractionState('resting');
     setTouchTarget('auto');
-    setButtonType('button');
   }, []);
 
   const isLoading = interactionState === 'loading';
@@ -107,7 +108,8 @@ export function ButtonGallery({ linkComponent }: ButtonGalleryProps) {
   const endIconSlot = hasEndIcon ? renderIcon('arrow-right') : undefined;
 
   // Active specimen label text based on specimen direction
-  const sampleLabelText = specimenDir === 'rtl' ? 'حفظ التغييرات' : t('common.studio.btnSampleLabel');
+  const sampleLabelText =
+    specimenDir === 'rtl' ? 'حفظ التغييرات' : t('common.studio.btnSampleLabel');
 
   // Generate dynamic standalone JSX Snippet
   const jsxSnippet = useMemo(() => {
@@ -115,7 +117,6 @@ export function ButtonGallery({ linkComponent }: ButtonGalleryProps) {
     if (variant !== 'secondary') propsList.push(`variant="${variant}"`);
     if (size !== 'default') propsList.push(`size="${size}"`);
     if (touchTarget !== 'auto') propsList.push(`touchTarget="${touchTarget}"`);
-    if (buttonType !== 'button') propsList.push(`type="${buttonType}"`);
     if (isLoading) propsList.push('loading');
     if (isDisabled) propsList.push('disabled');
     if (hasStartIcon) propsList.push('startIcon={<Icon name="check" />}');
@@ -146,7 +147,6 @@ export function ButtonGallery({ linkComponent }: ButtonGalleryProps) {
     variant,
     size,
     touchTarget,
-    buttonType,
     isLoading,
     isDisabled,
     hasStartIcon,
@@ -195,7 +195,6 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
           { label: 'variant', value: variant },
           { label: 'size', value: size },
           { label: 'touchTarget', value: touchTarget },
-          { label: 'type', value: buttonType },
           { label: 'loading', value: isLoading ? 'true' : 'false' },
           { label: 'disabled', value: isDisabled ? 'true' : 'false' },
         ],
@@ -207,7 +206,10 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
             label: '--radius-control',
             value: 'var(--radius-control) (Product Preset: 6px / 8px)',
           },
-          { label: 'Width Mode', value: fullWidth ? '100% (CSS Layout Override)' : 'Auto (Intrinsic)' },
+          {
+            label: 'Width Mode',
+            value: fullWidth ? '100% (CSS Layout Override)' : 'Auto (Intrinsic)',
+          },
           { label: 'Icon Layout', value: iconMode },
           { label: 'Specimen Direction', value: specimenDir.toUpperCase() },
         ],
@@ -250,7 +252,6 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
     variant,
     size,
     touchTarget,
-    buttonType,
     isLoading,
     isDisabled,
     fullWidth,
@@ -270,11 +271,11 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
   ];
 
   const variantOptions: readonly StudioSegmentedOption<ButtonVariant>[] = [
-    { value: 'primary', label: t('common.studio.optVariantPrimary'), testId: 'opt-variant-primary' },
-    { value: 'secondary', label: t('common.studio.optVariantSecondary'), testId: 'opt-variant-secondary' },
-    { value: 'subtle', label: t('common.studio.optVariantSubtle'), testId: 'opt-variant-subtle' },
-    { value: 'ghost', label: t('common.studio.optVariantGhost'), testId: 'opt-variant-ghost' },
-    { value: 'danger', label: t('common.studio.optVariantDanger'), testId: 'opt-variant-danger' },
+    { value: 'primary', label: t(VARIANT_LABELS.primary), testId: 'opt-variant-primary' },
+    { value: 'secondary', label: t(VARIANT_LABELS.secondary), testId: 'opt-variant-secondary' },
+    { value: 'subtle', label: t(VARIANT_LABELS.subtle), testId: 'opt-variant-subtle' },
+    { value: 'ghost', label: t(VARIANT_LABELS.ghost), testId: 'opt-variant-ghost' },
+    { value: 'danger', label: t(VARIANT_LABELS.danger), testId: 'opt-variant-danger' },
   ];
 
   const sizeOptions: readonly StudioSegmentedOption<ControlSize | 'default'>[] = [
@@ -308,16 +309,17 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
 
   const touchTargetOptions: readonly StudioSegmentedOption<ButtonTouchTarget>[] = [
     { value: 'auto', label: t('common.studio.touchAuto'), testId: 'opt-touch-auto' },
-    { value: 'comfortable', label: t('common.studio.touchComfortable'), testId: 'opt-touch-comfortable' },
+    {
+      value: 'comfortable',
+      label: t('common.studio.touchComfortable'),
+      testId: 'opt-touch-comfortable',
+    },
   ];
 
-  const buttonTypeOptions: readonly StudioSegmentedOption<'button' | 'submit' | 'reset'>[] = [
-    { value: 'button', label: t('common.studio.typeButton'), testId: 'opt-type-button' },
-    { value: 'submit', label: t('common.studio.typeSubmit'), testId: 'opt-type-submit' },
-    { value: 'reset', label: t('common.studio.typeReset'), testId: 'opt-type-reset' },
-  ];
-
-  const renderActiveButton = (overrideSize?: ControlSize, customTestId = 'studio-active-button') => {
+  const renderActiveButton = (
+    overrideSize?: ControlSize,
+    customTestId = 'studio-active-button',
+  ) => {
     const finalSize = overrideSize ?? resolvedSize;
     const isSingleMainSpecimen = customTestId === 'studio-active-button';
 
@@ -325,11 +327,11 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
       variant,
       size: finalSize,
       touchTarget,
-      type: buttonType,
       loading: isLoading,
       disabled: isDisabled,
       startIcon: startIconSlot,
       endIcon: endIconSlot,
+      className: fullWidth ? styles.buttonFullWidth : undefined,
       'data-testid': customTestId,
     };
 
@@ -347,10 +349,7 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
     }
 
     return (
-      <Button
-        {...commonProps}
-        ref={isSingleMainSpecimen ? specimenRef : undefined}
-      >
+      <Button {...commonProps} ref={isSingleMainSpecimen ? specimenRef : undefined}>
         {sampleLabelText}
       </Button>
     );
@@ -430,13 +429,6 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
             options={touchTargetOptions}
             onChange={setTouchTarget}
           />
-
-          <StudioSegmentedControl
-            label={t('common.studio.btnTypeLabel')}
-            value={buttonType}
-            options={buttonTypeOptions}
-            onChange={setButtonType}
-          />
         </>
       }
       inspector={
@@ -473,26 +465,18 @@ ${cssModuleSnippet ? `\n4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
           </span>
           <div className={styles.variantsCenterRow}>
             {(['primary', 'secondary', 'subtle', 'ghost', 'danger'] as const).map((v) => (
-              <div
+              <Button
                 key={v}
-                className={cn(styles.variantItemWrapper, variant === v && styles.variantItemActive)}
+                variant={v}
+                size={resolvedSize}
+                touchTarget={touchTarget}
+                startIcon={hasStartIcon ? renderIcon('check') : undefined}
+                endIcon={hasEndIcon ? renderIcon('arrow-right') : undefined}
+                onClick={() => setVariant(v)}
+                data-testid={`variant-quick-select-${v}`}
               >
-                <Button
-                  variant={v}
-                  size={resolvedSize}
-                  touchTarget={touchTarget}
-                  startIcon={hasStartIcon ? renderIcon('check') : undefined}
-                  endIcon={hasEndIcon ? renderIcon('arrow-right') : undefined}
-                  onClick={() => setVariant(v)}
-                  data-testid={`variant-quick-select-${v}`}
-                >
-                  {v === 'secondary'
-                    ? t('common.studio.optVariantSecondary')
-                    : v === 'subtle'
-                      ? t('common.studio.optVariantSubtle')
-                      : v.charAt(0).toUpperCase() + v.slice(1)}
-                </Button>
-              </div>
+                {t(VARIANT_LABELS[v])}
+              </Button>
             ))}
           </div>
         </div>

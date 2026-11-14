@@ -25,6 +25,7 @@ export interface TokyoNavbarProps extends React.HTMLAttributes<HTMLElement> {
   navAriaLabel?: string;
   mobileToggleLabel?: string;
   linkAs?: React.ElementType;
+  variant?: 'clean' | 'floating';
 }
 
 export function TokyoNavbar({
@@ -37,6 +38,7 @@ export function TokyoNavbar({
   navAriaLabel,
   mobileToggleLabel,
   linkAs,
+  variant = 'clean',
   className,
   ...props
 }: TokyoNavbarProps) {
@@ -90,7 +92,7 @@ export function TokyoNavbar({
   const CtaLink = linkAs ?? 'a';
 
   return (
-    <header className={cn(styles.wrapper, className)} {...props}>
+    <header className={cn(styles.wrapper, className)} data-variant={variant} {...props}>
       <nav className={styles.navbar} aria-label={resolvedNavLabel}>
         <BrandLink href="/" className={styles.brand}>
           <span>{resolvedBrandName}</span>
@@ -115,7 +117,8 @@ export function TokyoNavbar({
         </ul>
 
         <div className={styles.actions}>
-          <AppToolbar />
+          <AppToolbar className={styles.toolbar} />
+          <span className={styles.actionDivider} aria-hidden="true" />
           <CtaLink href={ctaHref} className={styles.ctaButton} onClick={onCtaClick}>
             {resolvedCtaLabel}
           </CtaLink>

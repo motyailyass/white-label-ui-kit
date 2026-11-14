@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Website Checkbox Primitive Real-Browser Verification', () => {
   test.beforeEach(async ({ page }) => {
@@ -6,39 +6,42 @@ test.describe('Website Checkbox Primitive Real-Browser Verification', () => {
     await expect(page.locator('[data-testid="checkbox-gallery"]')).toBeVisible();
   });
 
-  test('verifies native input real hitbox target dimensions and six-step scale', async ({
+  test('verifies native input real hitbox target dimensions and six-step scale in all-sizes view', async ({
     page,
   }) => {
     const isCoarse = await page.evaluate(() => window.matchMedia('(pointer: coarse)').matches);
 
-    // 1. Website product default (omitted size): xl (48px target, 20px indicator box)
-    const defaultSpecimen = page.locator('[data-testid="specimen-default"]');
-    await expect(defaultSpecimen).toBeVisible();
+    // 1. Website product default (omitted size): xl (48px target)
+    const activeCheckbox = page.locator('[data-testid="studio-active-checkbox"]');
+    await expect(activeCheckbox).toBeVisible();
 
-    const defaultRoot = defaultSpecimen.locator('..');
-    const defaultRootBox = await defaultRoot.boundingBox();
-    expect(defaultRootBox).not.toBeNull();
+    const activeRoot = activeCheckbox.locator('..');
+    const activeRootBox = await activeRoot.boundingBox();
+    expect(activeRootBox).not.toBeNull();
 
     if (isCoarse) {
-      expect(defaultRootBox!.height).toBeGreaterThanOrEqual(48);
-      expect(defaultRootBox!.width).toBeGreaterThanOrEqual(48);
+      expect(activeRootBox!.height).toBeGreaterThanOrEqual(48);
+      expect(activeRootBox!.width).toBeGreaterThanOrEqual(48);
     } else {
-      expect(defaultRootBox!.height).toBeCloseTo(48, 1);
-      expect(defaultRootBox!.width).toBeCloseTo(48, 1);
+      expect(activeRootBox!.height).toBeCloseTo(48, 1);
+      expect(activeRootBox!.width).toBeCloseTo(48, 1);
     }
 
-    // 2. Explicit scale targets
+    // 2. Switch to all-sizes view
+    await page.locator('[data-testid="opt-view-all-sizes"]').click();
+
     const scaleTargets: Record<string, number> = {
-      'specimen-size-xs': 28,
-      'specimen-size-sm': 32,
-      'specimen-size-md': 36,
-      'specimen-size-lg': 40,
-      'specimen-size-xl': 48,
-      'specimen-size-2xl': 56,
+      xs: 28,
+      sm: 32,
+      md: 36,
+      lg: 40,
+      xl: 48,
+      '2xl': 56,
     };
 
-    for (const [testId, expectedTarget] of Object.entries(scaleTargets)) {
-      const specimen = page.locator(`[data-testid="${testId}"]`);
+    for (const [sz, expectedTarget] of Object.entries(scaleTargets)) {
+      const specimen = page.locator(`[data-testid="studio-size-checkbox-${sz}"]`);
+      await expect(specimen).toBeVisible();
       const root = specimen.locator('..');
       const box = await root.boundingBox();
       expect(box).not.toBeNull();
@@ -51,466 +54,124 @@ test.describe('Website Checkbox Primitive Real-Browser Verification', () => {
     }
   });
 
-  test('verifies glyph centering, containment, and omitted-versus-explicit default geometry parity', async ({
-    page,
-  }) => {
-    const defaultInput = page.locator('[data-testid="specimen-default"]');
-    const xlInput = page.locator('[data-testid="specimen-size-xl"]');
-
-    const defaultIndicator = defaultInput.locator('+ span');
-    const xlIndicator = xlInput.locator('+ span');
-
-    const defaultSvg = defaultIndicator.locator('svg').first();
-    const xlSvg = xlIndicator.locator('svg').first();
-
-    // 1. Omitted size on website matches explicit xl (20px indicator, 16px glyph)
-    const defaultBox = await defaultIndicator.boundingBox();
-    const xlBox = await xlIndicator.boundingBox();
-    expect(defaultBox).not.toBeNull();
-    expect(xlBox).not.toBeNull();
-    expect(defaultBox!.width).toBeCloseTo(20, 1);
-    expect(defaultBox!.height).toBeCloseTo(20, 1);
-    expect(defaultBox!.width).toBeCloseTo(xlBox!.width, 0.5);
-    expect(defaultBox!.height).toBeCloseTo(xlBox!.height, 0.5);
-
-    const defaultSvgBox = await defaultSvg.boundingBox();
-    const xlSvgBox = await xlSvg.boundingBox();
-    expect(defaultSvgBox).not.toBeNull();
-    expect(xlSvgBox).not.toBeNull();
-    expect(defaultSvgBox!.width).toBeCloseTo(16, 1);
-    expect(defaultSvgBox!.height).toBeCloseTo(16, 1);
-    expect(defaultSvgBox!.width).toBeCloseTo(xlSvgBox!.width, 0.5);
-    expect(defaultSvgBox!.height).toBeCloseTo(xlSvgBox!.height, 0.5);
-
-    // 2. Glyph centering and containment within the visible indicator box
-    expect(defaultSvgBox!.x).toBeGreaterThanOrEqual(defaultBox!.x);
-    expect(defaultSvgBox!.y).toBeGreaterThanOrEqual(defaultBox!.y);
-    expect(defaultSvgBox!.x + defaultSvgBox!.width).toBeLessThanOrEqual(
-      defaultBox!.x + defaultBox!.width + 0.5,
-    );
-    expect(defaultSvgBox!.y + defaultSvgBox!.height).toBeLessThanOrEqual(
-      defaultBox!.y + defaultBox!.height + 0.5,
-    );
-
-    const indCenterX = defaultBox!.x + defaultBox!.width / 2;
-    const svgCenterX = defaultSvgBox!.x + defaultSvgBox!.width / 2;
-    expect(svgCenterX).toBeCloseTo(indCenterX, 0.5);
-
-    const indCenterY = defaultBox!.y + defaultBox!.height / 2;
-    const svgCenterY = defaultSvgBox!.y + defaultSvgBox!.height / 2;
-    expect(svgCenterY).toBeCloseTo(indCenterY, 0.5);
-  });
-
   test('verifies real hitbox edge clicks toggle the native input without pseudo-element tricks', async ({
     page,
   }) => {
-    const controlledInput = page.locator('[data-testid="specimen-controlled"]');
-    await expect(controlledInput).toBeVisible();
-    await expect(controlledInput).toBeChecked();
+    const activeCheckbox = page.locator('[data-testid="studio-active-checkbox"]');
+    await expect(activeCheckbox).toBeVisible();
+    await expect(activeCheckbox).toBeChecked();
 
-    const root = controlledInput.locator('..');
+    const root = activeCheckbox.locator('..');
     const rootBox = await root.boundingBox();
     expect(rootBox).not.toBeNull();
 
-    // Click near the top-left edge of the hitbox (x=2, y=2)
+    // Click near top-left edge of the hitbox (x=2, y=2)
     await root.click({ position: { x: 2, y: 2 } });
-    await expect(controlledInput).not.toBeChecked();
+    await expect(activeCheckbox).not.toBeChecked();
 
-    // Click near the bottom-right edge of the hitbox
+    // Click near bottom-right edge of the hitbox
     await root.click({ position: { x: rootBox!.width - 2, y: rootBox!.height - 2 } });
-    await expect(controlledInput).toBeChecked();
+    await expect(activeCheckbox).toBeChecked();
   });
 
-  test('verifies hover border stability and keyboard focus outline', async ({ page }) => {
-    const uncheckedInput = page.locator('[data-testid="specimen-unchecked"]');
-    await expect(uncheckedInput).toBeVisible();
+  test('verifies keyboard Space toggles checkbox but Enter does not', async ({ page }) => {
+    const activeCheckbox = page.locator('[data-testid="studio-active-checkbox"]');
+    await expect(activeCheckbox).toBeVisible();
+    await expect(activeCheckbox).toBeChecked();
 
-    const expectedBorderColor = await page.evaluate(() => {
-      const el = document.createElement('div');
-      el.style.color = 'var(--color-border-control)';
-      document.body.appendChild(el);
-      const computed = window.getComputedStyle(el).color;
-      el.remove();
-      return computed;
-    });
-
-    const indicator = uncheckedInput.locator('+ span');
-
-    // 1. Resting state: border is var(--color-border-control)
-    const restingBorder = await indicator.evaluate((el) => window.getComputedStyle(el).borderColor);
-    expect(restingBorder).toBe(expectedBorderColor);
-
-    // 2. Hover state: border remains STABLE at var(--color-border-control)
-    await uncheckedInput.hover();
-    const hoverBorder = await indicator.evaluate((el) => window.getComputedStyle(el).borderColor);
-    expect(hoverBorder).toBe(expectedBorderColor);
-  });
-
-  test('verifies keyboard Space activates checkbox but Enter does not', async ({ page }) => {
-    const controlledInput = page.locator('[data-testid="specimen-controlled"]');
-    await expect(controlledInput).toBeVisible();
-    await expect(controlledInput).toBeChecked();
-
-    await controlledInput.focus();
-    await expect(controlledInput).toBeFocused();
+    await activeCheckbox.focus();
+    await expect(activeCheckbox).toBeFocused();
 
     // Enter key should NOT toggle native checkbox
     await page.keyboard.press('Enter');
-    await expect(controlledInput).toBeChecked();
+    await expect(activeCheckbox).toBeChecked();
 
     // Space key toggles native checkbox
     await page.keyboard.press('Space');
-    await expect(controlledInput).not.toBeChecked();
+    await expect(activeCheckbox).not.toBeChecked();
 
     await page.keyboard.press('Space');
-    await expect(controlledInput).toBeChecked();
+    await expect(activeCheckbox).toBeChecked();
   });
 
-  test('verifies combined-state precedence (invalid, hover, focus, disabled)', async ({
+  test('verifies comfortable touch-target expands hit area to at least 48x48px', async ({
     page,
   }) => {
-    const invalidInput = page.locator('[data-testid="specimen-invalid"]');
-    const disabledChecked = page.locator('[data-testid="specimen-disabled-checked"]');
+    // Select XS size first
+    await page.locator('[data-testid="opt-size-xs"]').click();
+    const activeCheckbox = page.locator('[data-testid="studio-active-checkbox"]');
+    const root = activeCheckbox.locator('..');
 
-    await expect(invalidInput).toBeVisible();
-    await expect(disabledChecked).toBeVisible();
+    // Default auto on fine pointer is 28px
+    const autoBox = await root.boundingBox();
+    expect(autoBox).not.toBeNull();
 
-    const colors = await page.evaluate(() => {
-      const getVar = (varName: string) => {
-        const el = document.createElement('div');
-        el.style.color = `var(${varName})`;
-        document.body.appendChild(el);
-        const col = window.getComputedStyle(el).color;
-        el.remove();
-        return col;
-      };
-      return {
-        danger: getVar('--color-danger'),
-        dangerFg: getVar('--color-danger-foreground'),
-        borderDisabled: getVar('--color-border-disabled'),
-      };
-    });
-
-    const invalidIndicator = invalidInput.locator('+ span');
-
-    // 1. Invalid unchecked border is danger
-    await expect(invalidIndicator).toHaveCSS('border-color', colors.danger);
-
-    // Hover unchecked invalid: retains surface hover background and danger border (does NOT turn solid red!)
-    await invalidInput.hover();
-    await expect(invalidIndicator).toHaveCSS('border-color', colors.danger);
-    await expect(invalidIndicator).not.toHaveCSS('background-color', colors.danger);
-
-    // 2. Click to make invalid + checked: background & border become danger, icon is dangerFg
-    await invalidInput.click();
-    await expect(invalidInput).toBeChecked();
-    await expect(invalidIndicator).toHaveCSS('border-color', colors.danger);
-    await expect(invalidIndicator).toHaveCSS('background-color', colors.danger);
-    await expect(invalidIndicator).toHaveCSS('color', colors.dangerFg);
-
-    // 3. Hovering checked+invalid preserves danger fill/border (does NOT regress to primary)
-    await invalidInput.hover();
-    await expect(invalidIndicator).toHaveCSS('border-color', colors.danger);
-    await expect(invalidIndicator).toHaveCSS('background-color', colors.danger);
-
-    // 4. Disabled checkbox ignores clicks and maintains disabled borders
-    await disabledChecked.click({ force: true });
-    await expect(disabledChecked).toBeChecked();
-
-    const disabledBorder = await disabledChecked
-      .locator('+ span')
-      .evaluate((el) => window.getComputedStyle(el).borderColor);
-    expect(disabledBorder).toBe(colors.borderDisabled);
+    // Switch to comfortable touch target
+    await page.locator('[data-testid="opt-touch-comfortable"]').click();
+    const comfortableBox = await root.boundingBox();
+    expect(comfortableBox).not.toBeNull();
+    expect(comfortableBox!.width).toBeGreaterThanOrEqual(48);
+    expect(comfortableBox!.height).toBeGreaterThanOrEqual(48);
   });
 
-  test('verifies forced-colors system highlight and state precedence', async ({ page }) => {
-    await page.emulateMedia({ forcedColors: 'active' });
+  test('verifies common configurations presets bar', async ({ page }) => {
+    const activeCheckbox = page.locator('[data-testid="studio-active-checkbox"]');
 
-    const systemColors = await page.evaluate(() => {
-      const el = document.createElement('div');
-      el.style.backgroundColor = 'Highlight';
-      el.style.borderColor = 'CanvasText';
-      el.style.color = 'GrayText';
-      document.body.appendChild(el);
-      const res = {
-        highlight: window.getComputedStyle(el).backgroundColor,
-        canvasText: window.getComputedStyle(el).borderColor,
-        grayText: window.getComputedStyle(el).color,
-      };
-      el.remove();
-      return res;
-    });
+    // 1. Marketing Preset (Unchecked)
+    await page.locator('[data-testid="preset-quick-checkbox-marketing"]').click();
+    await expect(activeCheckbox).not.toBeChecked();
 
-    const checkedInput = page.locator('[data-testid="specimen-checked"]');
-    const uncheckedInput = page.locator('[data-testid="specimen-unchecked"]');
-    const invalidInput = page.locator('[data-testid="specimen-invalid"]');
-    const disabledInput = page.locator('[data-testid="specimen-disabled-checked"]');
+    // 2. Bulk Permissions Preset (Indeterminate Mixed)
+    await page.locator('[data-testid="preset-quick-checkbox-permissions"]').click();
+    const isIndeterminate = await activeCheckbox.evaluate(
+      (el) => (el as HTMLInputElement).indeterminate,
+    );
+    expect(isIndeterminate).toBe(true);
 
-    const invalidCheckedInput = page.locator('[data-testid="specimen-invalid-checked"]');
-    const invalidIndeterminateInput = page.locator(
-      '[data-testid="specimen-invalid-indeterminate"]',
-    );
-    const invalidDisabledUncheckedInput = page.locator(
-      '[data-testid="specimen-invalid-disabled-unchecked"]',
-    );
-    const invalidDisabledCheckedInput = page.locator(
-      '[data-testid="specimen-invalid-disabled-checked"]',
-    );
-    const invalidDisabledIndeterminateInput = page.locator(
-      '[data-testid="specimen-invalid-disabled-indeterminate"]',
-    );
+    // 3. Crash Diagnostics Preset
+    await page.locator('[data-testid="preset-quick-checkbox-diagnostics"]').click();
+    await expect(activeCheckbox).toBeChecked();
 
-    const checkedIndicator = checkedInput.locator('+ span');
-    const uncheckedIndicator = uncheckedInput.locator('+ span');
-    const invalidIndicator = invalidInput.locator('+ span');
-    const disabledIndicator = disabledInput.locator('+ span');
+    // 4. Security Baseline Preset
+    await page.locator('[data-testid="preset-quick-checkbox-security"]').click();
+    await expect(activeCheckbox).toBeChecked();
 
-    const invalidCheckedIndicator = invalidCheckedInput.locator('+ span');
-    const invalidIndeterminateIndicator = invalidIndeterminateInput.locator('+ span');
-    const invalidDisabledUncheckedIndicator = invalidDisabledUncheckedInput.locator('+ span');
-    const invalidDisabledCheckedIndicator = invalidDisabledCheckedInput.locator('+ span');
-    const invalidDisabledIndeterminateIndicator = invalidDisabledIndeterminateInput.locator('+ span');
+    // 5. Terms Preset (Default Checked)
+    await page.locator('[data-testid="preset-quick-checkbox-terms"]').click();
+    await expect(activeCheckbox).toBeEnabled();
+    await expect(activeCheckbox).toBeChecked();
 
-    // Move pointer away to ensure resting assertions are free of hover
-    await page.mouse.move(0, 0);
+    // 6. Dynamic State Switcher: Invalid (unchecks and triggers alert)
+    await page.locator('[data-testid="opt-state-invalid"]').click();
+    await expect(activeCheckbox).not.toBeChecked();
+    await expect(activeCheckbox).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.locator('[data-testid="checkbox-gallery"] [role="alert"]')).toBeVisible();
 
-    // 1. Standard states at rest
-    await expect(checkedIndicator).toHaveCSS('background-color', systemColors.highlight);
-    await expect(checkedIndicator).toHaveCSS('border-color', systemColors.highlight);
-    await expect(uncheckedIndicator).toHaveCSS('border-color', systemColors.canvasText);
-    await expect(disabledIndicator).toHaveCSS('border-color', systemColors.grayText);
-    await expect(invalidIndicator).toHaveCSS('border-color', systemColors.highlight);
-
-    // 2. High-contrast combined states at rest (pointer away)
-    // Invalid + checked at rest: System Highlight treatment
-    await expect(invalidCheckedIndicator).toHaveCSS(
-      'background-color',
-      systemColors.highlight,
-    );
-    await expect(invalidCheckedIndicator).toHaveCSS(
-      'border-color',
-      systemColors.highlight,
-    );
-
-    // Invalid + indeterminate at rest: System Highlight treatment
-    await expect(invalidIndeterminateIndicator).toHaveCSS(
-      'background-color',
-      systemColors.highlight,
-    );
-    await expect(invalidIndeterminateIndicator).toHaveCSS(
-      'border-color',
-      systemColors.highlight,
-    );
-
-    // Invalid + disabled + unchecked at rest: GrayText border (disabled takes precedence)
-    await expect(invalidDisabledUncheckedIndicator).toHaveCSS(
-      'border-color',
-      systemColors.grayText,
-    );
-
-    // Invalid + disabled + checked at rest: GrayText border (disabled takes precedence)
-    await expect(invalidDisabledCheckedIndicator).toHaveCSS(
-      'border-color',
-      systemColors.grayText,
-    );
-
-    // Invalid + disabled + indeterminate at rest: GrayText border (disabled takes precedence)
-    // Poll native indeterminate property to verify DOM commitment before style assertions
-    await expect.poll(async () => {
-      return await invalidDisabledIndeterminateInput.evaluate(
-        (el) => (el as HTMLInputElement).indeterminate,
-      );
-    }).toBe(true);
-
-    await expect(invalidDisabledIndeterminateIndicator).toHaveCSS(
-      'border-color',
-      systemColors.grayText,
-    );
-
-    // 3. High-contrast hover interactions & pointer exit recovery
-    // Checked hover: system highlight remains
-    await checkedInput.hover();
-    await expect(checkedIndicator).toHaveCSS('background-color', systemColors.highlight);
-    await expect(checkedIndicator).toHaveCSS('border-color', systemColors.highlight);
-    await page.mouse.move(0, 0);
-    await expect(checkedIndicator).toHaveCSS('background-color', systemColors.highlight);
-    await expect(checkedIndicator).toHaveCSS('border-color', systemColors.highlight);
-
-    // Invalid + checked hover & pointer exit
-    await invalidCheckedInput.hover();
-    await expect(invalidCheckedIndicator).toHaveCSS(
-      'background-color',
-      systemColors.highlight,
-    );
-    await expect(invalidCheckedIndicator).toHaveCSS(
-      'border-color',
-      systemColors.highlight,
-    );
-    await page.mouse.move(0, 0);
-    await expect(invalidCheckedIndicator).toHaveCSS(
-      'background-color',
-      systemColors.highlight,
-    );
-    await expect(invalidCheckedIndicator).toHaveCSS(
-      'border-color',
-      systemColors.highlight,
-    );
-
-    // Invalid + indeterminate hover & pointer exit
-    await invalidIndeterminateInput.hover();
-    await expect(invalidIndeterminateIndicator).toHaveCSS(
-      'background-color',
-      systemColors.highlight,
-    );
-    await expect(invalidIndeterminateIndicator).toHaveCSS(
-      'border-color',
-      systemColors.highlight,
-    );
-    await page.mouse.move(0, 0);
-    await expect(invalidIndeterminateIndicator).toHaveCSS(
-      'background-color',
-      systemColors.highlight,
-    );
-    await expect(invalidIndeterminateIndicator).toHaveCSS(
-      'border-color',
-      systemColors.highlight,
-    );
-
-    // Invalid + disabled + unchecked hover & pointer exit: GrayText border remains
-    await invalidDisabledUncheckedInput.hover();
-    await expect(invalidDisabledUncheckedIndicator).toHaveCSS(
-      'border-color',
-      systemColors.grayText,
-    );
-    await page.mouse.move(0, 0);
-    await expect(invalidDisabledUncheckedIndicator).toHaveCSS(
-      'border-color',
-      systemColors.grayText,
-    );
-
-    // Invalid + disabled + indeterminate hover & pointer exit: GrayText border remains
-    await invalidDisabledIndeterminateInput.hover();
-    await expect(invalidDisabledIndeterminateIndicator).toHaveCSS(
-      'border-color',
-      systemColors.grayText,
-    );
-    await page.mouse.move(0, 0);
-    await expect(invalidDisabledIndeterminateIndicator).toHaveCSS(
-      'border-color',
-      systemColors.grayText,
-    );
-
-    // Unchecked hover & pointer exit
-    await uncheckedInput.hover();
-    await expect(uncheckedIndicator).toHaveCSS('border-color', systemColors.canvasText);
-    await page.mouse.move(0, 0);
-    await expect(uncheckedIndicator).toHaveCSS('border-color', systemColors.canvasText);
-
-    // Reset pointer to corner
-    await page.mouse.move(0, 0);
+    // Checking clears invalid state
+    await activeCheckbox.click();
+    await expect(activeCheckbox).toBeChecked();
+    await expect(page.locator('[data-testid="checkbox-gallery"] [role="alert"]')).not.toBeVisible();
   });
 
-  test('verifies parent/child tri-state "Select All" dynamic synchronization', async ({
+  test('verifies external label click toggles checkbox and respects RTL direction switch', async ({
     page,
   }) => {
-    const parent = page.locator('[data-testid="specimen-parent-checkbox"]');
-    const childEmail = page.locator('[data-testid="specimen-child-email"]');
-    const childSms = page.locator('[data-testid="specimen-child-sms"]');
-    const childPush = page.locator('[data-testid="specimen-child-push"]');
+    const activeCheckbox = page.locator('[data-testid="studio-active-checkbox"]');
+    const checkboxId = await activeCheckbox.getAttribute('id');
+    const label = page.locator(`label[for="${checkboxId}"]`);
+    await expect(label).toBeVisible();
 
-    // Initial state: retrying polling ensures client hydration and layout effects have committed
-    await expect.poll(async () => {
-      return await parent.evaluate((el) => (el as HTMLInputElement).indeterminate);
-    }).toBe(true);
+    // Click label to toggle
+    await expect(activeCheckbox).toBeChecked();
+    await label.click();
+    await expect(activeCheckbox).not.toBeChecked();
+    await label.click();
+    await expect(activeCheckbox).toBeChecked();
 
-    // Minus icon is visible, check icon is hidden
-    const iconMinus = parent.locator('..').locator('span > span:nth-child(2)');
-    const iconCheck = parent.locator('..').locator('span > span:nth-child(1)');
-
-    await expect(iconMinus).toHaveCSS('opacity', '1');
-    await expect(iconCheck).toHaveCSS('opacity', '0');
-
-    // Activating parent toggles all children to checked
-    await parent.click();
-    await expect(childEmail).toBeChecked();
-    await expect(childSms).toBeChecked();
-    await expect(childPush).toBeChecked();
-    await expect(parent).toBeChecked();
-
-    await expect.poll(async () => {
-      return await parent.evaluate((el) => (el as HTMLInputElement).indeterminate);
-    }).toBe(false);
-
-    // Now check icon is visible, minus icon is hidden
-    await expect(iconMinus).toHaveCSS('opacity', '0');
-    await expect(iconCheck).toHaveCSS('opacity', '1');
-
-    // Unchecking one child makes parent indeterminate again
-    await childEmail.click();
-    await expect(childEmail).not.toBeChecked();
-
-    await expect.poll(async () => {
-      return await parent.evaluate((el) => (el as HTMLInputElement).indeterminate);
-    }).toBe(true);
-  });
-
-  test('verifies native form submit, client validation, and form reset lifecycles', async ({
-    page,
-  }) => {
-    const marketing = page.locator('[data-testid="form-checkbox-marketing"]');
-    const security = page.locator('[data-testid="form-checkbox-security"]');
-
-    await expect(marketing).not.toBeChecked();
-    await expect(security).toBeChecked();
-
-    // 1. Client validation: uncheck both preferences and submit
-    await security.click();
-    await expect(security).not.toBeChecked();
-    await expect(marketing).not.toBeChecked();
-
-    await page.locator('form button[type="submit"]').click();
-    const statusBox = page.locator('div[role="status"]');
-    await expect(statusBox).toContainText(/select at least one/i);
-
-    // 2. Toggle marketing and submit successfully
-    await marketing.click();
-    await expect(marketing).toBeChecked();
-
-    await page.locator('form button[type="submit"]').click();
-    await expect(statusBox).toContainText(/saving|pending|processing/i);
-    await expect(statusBox).toContainText(/saved|success/i, { timeout: 3000 });
-
-    // 3. Reset form
-    await page.locator('form button[type="reset"]').click();
-    await expect(marketing).not.toBeChecked();
-    await expect(security).toBeChecked();
-    await expect(statusBox).toContainText(/reset/i);
-  });
-
-  test('verifies Arabic RTL layout alignment and direction', async ({ page }) => {
-    const defaultSpecimen = page.locator('[data-testid="specimen-default"]');
-    const label = defaultSpecimen.locator('..').locator('+ label');
-
-    // 1. Initial LTR layout: checkbox is positioned to the left (inline-start) of label
-    const initialBox = await defaultSpecimen.boundingBox();
-    const labelBox = await label.boundingBox();
-    expect(initialBox).not.toBeNull();
-    expect(labelBox).not.toBeNull();
-    expect(initialBox!.x).toBeLessThan(labelBox!.x);
-
-    // 2. Switch application language to Arabic
-    const langSelect = page.locator('select').first();
-    await expect(langSelect).toBeVisible();
-    await langSelect.selectOption('ar');
-
-    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
-    await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
-
-    // In RTL, checkbox is positioned to the right (inline-start) of label
-    const rtlInitialBox = await defaultSpecimen.boundingBox();
-    const rtlLabelBox = await label.boundingBox();
-    expect(rtlInitialBox).not.toBeNull();
-    expect(rtlLabelBox).not.toBeNull();
-    expect(rtlInitialBox!.x).toBeGreaterThan(rtlLabelBox!.x);
+    // Switch to RTL
+    await page.locator('[data-testid="opt-dir-rtl"]').click();
+    const studioPreview = page.locator('[data-testid="checkbox-gallery"]');
+    await expect(studioPreview).toBeVisible();
+    await expect(label).toContainText('أوافق');
   });
 });

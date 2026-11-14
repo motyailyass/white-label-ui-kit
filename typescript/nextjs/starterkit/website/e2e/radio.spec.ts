@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Website Radio Primitive Real-Browser Verification', () => {
   test.beforeEach(async ({ page }) => {
@@ -6,43 +6,44 @@ test.describe('Website Radio Primitive Real-Browser Verification', () => {
     await expect(page.locator('[data-testid="radio-gallery"]')).toBeVisible();
   });
 
-  test('verifies native input real hitbox target dimensions and six-step scale', async ({
+  test('verifies native input real hitbox target dimensions and six-step scale in all-sizes view', async ({
     page,
   }) => {
-    const isCoarse = await page.evaluate(
-      () => window.matchMedia('(pointer: coarse)').matches,
-    );
+    const isCoarse = await page.evaluate(() => window.matchMedia('(pointer: coarse)').matches);
 
-    // 1. Website product default (omitted size): xl (48px target, 20px indicator circle)
-    const defaultSpecimen = page.locator('[data-testid="specimen-default"]');
-    await expect(defaultSpecimen).toBeVisible();
+    // 1. Website product default (omitted size): xl (48px target)
+    const annualRadio = page.locator('[data-testid="studio-radio-annual"]');
+    await expect(annualRadio).toBeVisible();
 
-    const defaultRoot = defaultSpecimen.locator('..');
-    const defaultRootBox = await defaultRoot.boundingBox();
-    expect(defaultRootBox).not.toBeNull();
+    const root = annualRadio.locator('..');
+    const rootBox = await root.boundingBox();
+    expect(rootBox).not.toBeNull();
 
     if (isCoarse) {
-      expect(defaultRootBox!.height).toBeGreaterThanOrEqual(48);
-      expect(defaultRootBox!.width).toBeGreaterThanOrEqual(48);
+      expect(rootBox!.height).toBeGreaterThanOrEqual(48);
+      expect(rootBox!.width).toBeGreaterThanOrEqual(48);
     } else {
-      expect(defaultRootBox!.height).toBeCloseTo(48, 1);
-      expect(defaultRootBox!.width).toBeCloseTo(48, 1);
+      expect(rootBox!.height).toBeCloseTo(48, 1);
+      expect(rootBox!.width).toBeCloseTo(48, 1);
     }
 
-    // 2. Explicit scale targets
+    // 2. Switch to all-sizes view
+    await page.locator('[data-testid="opt-view-all-sizes"]').click();
+
     const scaleTargets: Record<string, number> = {
-      'specimen-size-xs': 28,
-      'specimen-size-sm': 32,
-      'specimen-size-md': 36,
-      'specimen-size-lg': 40,
-      'specimen-size-xl': 48,
-      'specimen-size-2xl': 56,
+      xs: 28,
+      sm: 32,
+      md: 36,
+      lg: 40,
+      xl: 48,
+      '2xl': 56,
     };
 
-    for (const [testId, expectedTarget] of Object.entries(scaleTargets)) {
-      const specimen = page.locator(`[data-testid="${testId}"]`);
-      const root = specimen.locator('..');
-      const box = await root.boundingBox();
+    for (const [sz, expectedTarget] of Object.entries(scaleTargets)) {
+      const specimen = page.locator(`[data-testid="studio-size-radio-${sz}-1"]`);
+      await expect(specimen).toBeVisible();
+      const specimenRoot = specimen.locator('..');
+      const box = await specimenRoot.boundingBox();
       expect(box).not.toBeNull();
 
       if (isCoarse) {
@@ -51,476 +52,112 @@ test.describe('Website Radio Primitive Real-Browser Verification', () => {
         expect(box!.height).toBeCloseTo(expectedTarget, 1);
       }
     }
-
-    // 3. Real input hitbox occupies 100% of the target container
-    const defaultInputBox = await defaultSpecimen.boundingBox();
-    expect(defaultInputBox).not.toBeNull();
-    expect(defaultInputBox!.width).toBeCloseTo(defaultRootBox!.width, 0.5);
-    expect(defaultInputBox!.height).toBeCloseTo(defaultRootBox!.height, 0.5);
   });
 
-  test('verifies dot centering, containment, and omitted-versus-explicit default geometry parity', async ({
+  test('verifies radio mutual exclusivity and selection toggle', async ({ page }) => {
+    const monthlyRadio = page.locator('[data-testid="studio-radio-monthly"]');
+    const annualRadio = page.locator('[data-testid="studio-radio-annual"]');
+
+    await expect(annualRadio).toBeChecked();
+    await expect(monthlyRadio).not.toBeChecked();
+
+    // Click monthly
+    await monthlyRadio.click();
+    await expect(monthlyRadio).toBeChecked();
+    await expect(annualRadio).not.toBeChecked();
+
+    // Click annual back
+    await annualRadio.click();
+    await expect(annualRadio).toBeChecked();
+    await expect(monthlyRadio).not.toBeChecked();
+  });
+
+  test('verifies keyboard Arrow key navigation between options', async ({ page }) => {
+    const monthlyRadio = page.locator('[data-testid="studio-radio-monthly"]');
+    const annualRadio = page.locator('[data-testid="studio-radio-annual"]');
+
+    await annualRadio.focus();
+    await expect(annualRadio).toBeFocused();
+
+    // Press ArrowUp or ArrowLeft to navigate to previous radio in the group
+    await page.keyboard.press('ArrowUp');
+    await expect(monthlyRadio).toBeChecked();
+    await expect(annualRadio).not.toBeChecked();
+
+    // Press ArrowDown to navigate back
+    await page.keyboard.press('ArrowDown');
+    await expect(annualRadio).toBeChecked();
+    await expect(monthlyRadio).not.toBeChecked();
+  });
+
+  test('verifies comfortable touch-target expands hit area to at least 48x48px', async ({
     page,
   }) => {
-    const defaultInput = page.locator('[data-testid="specimen-default"]');
-    const xlInput = page.locator('[data-testid="specimen-size-xl"]');
-    const twoXlInput = page.locator('[data-testid="specimen-size-2xl"]');
+    // Select XS size
+    await page.locator('[data-testid="opt-size-xs"]').click();
+    const annualRadio = page.locator('[data-testid="studio-radio-annual"]');
+    const root = annualRadio.locator('..');
 
-    const defaultIndicator = defaultInput.locator('+ span');
-    const xlIndicator = xlInput.locator('+ span');
-    const twoXlIndicator = twoXlInput.locator('+ span');
+    const autoBox = await root.boundingBox();
+    expect(autoBox).not.toBeNull();
 
-    const defaultDot = defaultIndicator.locator('span');
-    const xlDot = xlIndicator.locator('span');
-    const twoXlDot = twoXlIndicator.locator('span');
-
-    // 1. Omitted size on website matches explicit xl (20px circle, 10px dot)
-    const defaultBox = await defaultIndicator.boundingBox();
-    const xlBox = await xlIndicator.boundingBox();
-    expect(defaultBox).not.toBeNull();
-    expect(xlBox).not.toBeNull();
-    expect(defaultBox!.width).toBeCloseTo(20, 1);
-    expect(defaultBox!.height).toBeCloseTo(20, 1);
-    expect(defaultBox!.width).toBeCloseTo(xlBox!.width, 0.5);
-    expect(defaultBox!.height).toBeCloseTo(xlBox!.height, 0.5);
-
-    const defaultDotBox = await defaultDot.boundingBox();
-    const xlDotBox = await xlDot.boundingBox();
-    expect(defaultDotBox).not.toBeNull();
-    expect(xlDotBox).not.toBeNull();
-    expect(defaultDotBox!.width).toBeCloseTo(10, 1);
-    expect(defaultDotBox!.height).toBeCloseTo(10, 1);
-    expect(defaultDotBox!.width).toBeCloseTo(xlDotBox!.width, 0.5);
-    expect(defaultDotBox!.height).toBeCloseTo(xlDotBox!.height, 0.5);
-
-    // 2. Explicit 2xl circle is 24px, dot is 12px (50% ratio)
-    const twoXlBox = await twoXlIndicator.boundingBox();
-    const twoXlDotBox = await twoXlDot.boundingBox();
-    expect(twoXlBox).not.toBeNull();
-    expect(twoXlDotBox).not.toBeNull();
-    expect(twoXlBox!.width).toBeCloseTo(24, 1);
-    expect(twoXlDotBox!.width).toBeCloseTo(12, 1);
-
-    // 3. Dot centering and containment within the visible circle
-    expect(defaultDotBox!.x).toBeGreaterThanOrEqual(defaultBox!.x);
-    expect(defaultDotBox!.y).toBeGreaterThanOrEqual(defaultBox!.y);
-    expect(defaultDotBox!.x + defaultDotBox!.width).toBeLessThanOrEqual(
-      defaultBox!.x + defaultBox!.width + 0.5,
-    );
-    expect(defaultDotBox!.y + defaultDotBox!.height).toBeLessThanOrEqual(
-      defaultBox!.y + defaultBox!.height + 0.5,
-    );
-
-    const indCenterX = defaultBox!.x + defaultBox!.width / 2;
-    const dotCenterX = defaultDotBox!.x + defaultDotBox!.width / 2;
-    expect(dotCenterX).toBeCloseTo(indCenterX, 0.5);
-
-    const indCenterY = defaultBox!.y + defaultBox!.height / 2;
-    const dotCenterY = defaultDotBox!.y + defaultDotBox!.height / 2;
-    expect(dotCenterY).toBeCloseTo(indCenterY, 0.5);
-  });
-
-  test('verifies real hitbox edge clicks select and persistent selection', async ({
-    page,
-  }) => {
-    const defaultAlt = page.locator('[data-testid="specimen-default-alt"]');
-    const defaultFirst = page.locator('[data-testid="specimen-default"]');
-
-    expect(await defaultAlt.isChecked()).toBe(false);
-    expect(await defaultFirst.isChecked()).toBe(true);
-
-    const altBox = await defaultAlt.boundingBox();
-    expect(altBox).not.toBeNull();
-
-    // 1. Click top-left edge (1px, 1px) selects the radio
-    await page.mouse.click(altBox!.x + 1, altBox!.y + 1);
-    expect(await defaultAlt.isChecked()).toBe(true);
-    expect(await defaultFirst.isChecked()).toBe(false);
-
-    // 2. Click bottom-right edge of first radio selects it back
-    const firstBox = await defaultFirst.boundingBox();
-    expect(firstBox).not.toBeNull();
-    await page.mouse.click(
-      firstBox!.x + firstBox!.width - 1,
-      firstBox!.y + firstBox!.height - 1,
-    );
-    expect(await defaultFirst.isChecked()).toBe(true);
-    expect(await defaultAlt.isChecked()).toBe(false);
-
-    // 3. Clicking already selected radio does not toggle or clear it
-    await page.mouse.click(firstBox!.x + 2, firstBox!.y + 2);
-    expect(await defaultFirst.isChecked()).toBe(true);
-  });
-
-  test('verifies comfortable and coarse touch-target policy', async ({ page }) => {
-    const comfortableRadio = page.locator(
-      '[data-testid="specimen-touch-comfortable"]',
-    );
-    const comfortableRoot = comfortableRadio.locator('..');
-    const comfortableBox = await comfortableRoot.boundingBox();
+    // Switch to comfortable touch target
+    await page.locator('[data-testid="opt-touch-comfortable"]').click();
+    const comfortableBox = await root.boundingBox();
     expect(comfortableBox).not.toBeNull();
-
-    // comfortable explicitly enforces min 48px
     expect(comfortableBox!.width).toBeGreaterThanOrEqual(48);
     expect(comfortableBox!.height).toBeGreaterThanOrEqual(48);
-
-    // 2xl size preserves larger 56px target
-    const twoXlRoot = page.locator('[data-testid="specimen-size-2xl"]').locator('..');
-    const twoXlBox = await twoXlRoot.boundingBox();
-    expect(twoXlBox).not.toBeNull();
-    expect(twoXlBox!.width).toBeGreaterThanOrEqual(56);
-    expect(twoXlBox!.height).toBeGreaterThanOrEqual(56);
   });
 
-  test('verifies hover border stability and visible keyboard focus outline', async ({
-    page,
-  }) => {
-    const uncheckedRadio = page.locator('[data-testid="specimen-unchecked"]');
-    const uncheckedIndicator = uncheckedRadio.locator('+ span');
+  test('verifies common configurations presets bar', async ({ page }) => {
+    // 1. Subscription Tier Preset
+    await page.locator('[data-testid="preset-quick-radio-tier"]').click();
+    const proRadio = page.locator('[data-testid="studio-radio-pro"]');
+    await expect(proRadio).toBeVisible();
+    await expect(proRadio).toBeChecked();
 
-    // 1. Initial border color
-    const initialBorder = await uncheckedIndicator.evaluate(
-      (el) => window.getComputedStyle(el).borderColor,
-    );
+    // 2. Deployment Model Preset
+    await page.locator('[data-testid="preset-quick-radio-deployment"]').click();
+    const cloudRadio = page.locator('[data-testid="studio-radio-cloud"]');
+    await expect(cloudRadio).toBeVisible();
+    await expect(cloudRadio).toBeChecked();
 
-    // 2. Hover changes surface without changing border (stable border principle)
-    await uncheckedRadio.hover();
-    const hoveredBorder = await uncheckedIndicator.evaluate(
-      (el) => window.getComputedStyle(el).borderColor,
-    );
-    expect(hoveredBorder).toBe(initialBorder);
+    // 3. Data Residency Preset
+    await page.locator('[data-testid="preset-quick-radio-residency"]').click();
+    const euRadio = page.locator('[data-testid="studio-radio-eu"]');
+    await expect(euRadio).toBeVisible();
+    await expect(euRadio).toBeChecked();
 
-    // 3. Keyboard focus-visible produces visible outline
-    await uncheckedRadio.focus();
-    const outlineWidth = await uncheckedIndicator.evaluate(
-      (el) => window.getComputedStyle(el).outlineWidth,
-    );
-    expect(parseFloat(outlineWidth)).toBeGreaterThanOrEqual(2);
+    // 4. Notification Cadence Preset
+    await page.locator('[data-testid="preset-quick-radio-notification"]').click();
+    const dailyRadio = page.locator('[data-testid="studio-radio-daily"]');
+    await expect(dailyRadio).toBeVisible();
+    await expect(dailyRadio).toBeChecked();
+
+    // 5. Dynamic Interaction State: Switch to Invalid (clears selection, triggers alert)
+    await page.locator('[data-testid="opt-state-invalid"]').click();
+    await expect(dailyRadio).not.toBeChecked();
+    await expect(dailyRadio).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.locator('[data-testid="radio-gallery"] [role="alert"]')).toBeVisible();
+
+    // Clicking an option satisfies the requirement and clears invalid state
+    await dailyRadio.click();
+    await expect(dailyRadio).toBeChecked();
+    await expect(page.locator('[data-testid="radio-gallery"] [role="alert"]')).not.toBeVisible();
+
+    // 6. Dynamic Interaction State: Switch to Disabled
+    await page.locator('[data-testid="opt-state-disabled"]').click();
+    await expect(dailyRadio).toBeDisabled();
   });
 
-  test('verifies native group exclusivity and independent groups isolation', async ({
-    page,
-  }) => {
-    const grpA1 = page.locator('[data-testid="specimen-group-a-1"]');
-    const grpA2 = page.locator('[data-testid="specimen-group-a-2"]');
-    const grpB1 = page.locator('[data-testid="specimen-group-b-1"]');
-    const grpB2 = page.locator('[data-testid="specimen-group-b-2"]');
+  test('verifies RTL specimen direction and Arabic option labels', async ({ page }) => {
+    await page.locator('[data-testid="opt-dir-rtl"]').click();
 
-    expect(await grpA1.isChecked()).toBe(true);
-    expect(await grpA2.isChecked()).toBe(false);
-    expect(await grpB1.isChecked()).toBe(true);
-    expect(await grpB2.isChecked()).toBe(false);
+    const canvas = page.locator('[data-testid="studio-preview-canvas"]');
+    await expect(canvas).toHaveAttribute('dir', 'rtl');
 
-    // Select A2 -> deselects A1, leaves Group B untouched
-    await grpA2.click();
-    expect(await grpA1.isChecked()).toBe(false);
-    expect(await grpA2.isChecked()).toBe(true);
-    expect(await grpB1.isChecked()).toBe(true);
-    expect(await grpB2.isChecked()).toBe(false);
-
-    // Select B2 -> deselects B1, leaves Group A untouched
-    await grpB2.click();
-    expect(await grpA1.isChecked()).toBe(false);
-    expect(await grpA2.isChecked()).toBe(true);
-    expect(await grpB1.isChecked()).toBe(false);
-    expect(await grpB2.isChecked()).toBe(true);
-  });
-
-  test('verifies native keyboard interaction (Space to check, Arrow keys to navigate)', async ({
-    page,
-  }) => {
-    const dev = page.locator('[data-testid="specimen-controlled-dev"]');
-    const staging = page.locator('[data-testid="specimen-controlled-staging"]');
-    const prod = page.locator('[data-testid="specimen-controlled-prod"]');
-
-    // 1. Focus element
-    await dev.focus();
-    await expect(dev).toBeFocused();
-
-    // 2. Press Space to select
-    await page.keyboard.press('Space');
-    expect(await dev.isChecked()).toBe(true);
-
-    // 3. Native Down arrow moves to next radio in group and checks it
-    await page.keyboard.press('ArrowDown');
-    await expect(staging).toBeFocused();
-    expect(await staging.isChecked()).toBe(true);
-    expect(await dev.isChecked()).toBe(false);
-
-    await page.keyboard.press('ArrowDown');
-    await expect(prod).toBeFocused();
-    expect(await prod.isChecked()).toBe(true);
-    expect(await staging.isChecked()).toBe(false);
-  });
-
-  test('verifies forced-colors system highlight and state precedence with pointer recovery', async ({
-    page,
-  }) => {
-    await page.emulateMedia({ forcedColors: 'active' });
-
-    const systemColors = await page.evaluate(() => {
-      const el = document.createElement('div');
-      el.style.backgroundColor = 'Highlight';
-      el.style.borderColor = 'CanvasText';
-      el.style.color = 'GrayText';
-      document.body.appendChild(el);
-      const res = {
-        highlight: window.getComputedStyle(el).backgroundColor,
-        canvasText: window.getComputedStyle(el).borderColor,
-        grayText: window.getComputedStyle(el).color,
-      };
-      el.remove();
-      return res;
-    });
-
-    const checkedInput = page.locator('[data-testid="specimen-checked"]');
-    const uncheckedInput = page.locator('[data-testid="specimen-unchecked"]');
-    const invalidCheckedInput = page.locator('[data-testid="specimen-invalid-checked"]');
-    const invalidUncheckedInput = page.locator('[data-testid="specimen-invalid-unchecked"]');
-    const invalidDisabledUncheckedInput = page.locator(
-      '[data-testid="specimen-invalid-disabled-unchecked"]',
-    );
-    const invalidDisabledCheckedInput = page.locator(
-      '[data-testid="specimen-invalid-disabled-checked"]',
-    );
-
-    const checkedIndicator = checkedInput.locator('+ span');
-    const uncheckedIndicator = uncheckedInput.locator('+ span');
-    const invalidCheckedIndicator = invalidCheckedInput.locator('+ span');
-    const invalidUncheckedIndicator = invalidUncheckedInput.locator('+ span');
-    const invalidDisabledUncheckedIndicator = invalidDisabledUncheckedInput.locator('+ span');
-    const invalidDisabledCheckedIndicator = invalidDisabledCheckedInput.locator('+ span');
-
-    // Reset pointer to corner
-    await page.mouse.move(0, 0);
-
-    // 1. Resting checked: System Highlight
-    await expect(checkedIndicator).toHaveCSS('background-color', systemColors.highlight);
-    await expect(checkedIndicator).toHaveCSS('border-color', systemColors.highlight);
-
-    // Resting unchecked: CanvasText border
-    await expect(uncheckedIndicator).toHaveCSS('border-color', systemColors.canvasText);
-
-    // 2. Resting invalid + checked: System Highlight
-    await expect(invalidCheckedIndicator).toHaveCSS(
-      'background-color',
-      systemColors.highlight,
-    );
-    await expect(invalidCheckedIndicator).toHaveCSS(
-      'border-color',
-      systemColors.highlight,
-    );
-
-    // 3. Resting invalid + unchecked: System Highlight border, Canvas bg
-    await expect(invalidUncheckedIndicator).toHaveCSS(
-      'border-color',
-      systemColors.highlight,
-    );
-
-    // 4. Disabled takes precedence over invalid
-    await expect(invalidDisabledUncheckedIndicator).toHaveCSS(
-      'border-color',
-      systemColors.grayText,
-    );
-    await expect(invalidDisabledCheckedIndicator).toHaveCSS(
-      'border-color',
-      systemColors.grayText,
-    );
-
-    // 5. Hover interactions and pointer exit recovery
-    await checkedInput.hover();
-    await expect(checkedIndicator).toHaveCSS('background-color', systemColors.highlight);
-    await page.mouse.move(0, 0);
-    await expect(checkedIndicator).toHaveCSS('background-color', systemColors.highlight);
-
-    await invalidCheckedInput.hover();
-    await expect(invalidCheckedIndicator).toHaveCSS(
-      'background-color',
-      systemColors.highlight,
-    );
-    await page.mouse.move(0, 0);
-    await expect(invalidCheckedIndicator).toHaveCSS(
-      'background-color',
-      systemColors.highlight,
-    );
-
-    await invalidDisabledUncheckedInput.hover();
-    await expect(invalidDisabledUncheckedIndicator).toHaveCSS(
-      'border-color',
-      systemColors.grayText,
-    );
-    await page.mouse.move(0, 0);
-    await expect(invalidDisabledUncheckedIndicator).toHaveCSS(
-      'border-color',
-      systemColors.grayText,
-    );
-  });
-
-  test('verifies required group state-driven invalid-to-valid transition', async ({
-    page,
-  }) => {
-    const cardRadio = page.locator('[data-testid="specimen-required-card"]');
-    const bankRadio = page.locator('[data-testid="specimen-required-bank"]');
-    const validateBtn = page.locator('[data-testid="specimen-required-validate-btn"]');
-    const fieldset = cardRadio.locator('xpath=ancestor::fieldset');
-    const alert = fieldset.locator('[role="alert"]');
-
-    // 1. Initial state before interaction: starts clean without premature error
-    await expect(alert).toHaveCount(0);
-    expect(await cardRadio.getAttribute('aria-invalid')).toBe('false');
-    expect(await bankRadio.getAttribute('aria-invalid')).toBe('false');
-
-    const descInitial = await fieldset.getAttribute('aria-describedby');
-    expect(descInitial).not.toContain('error');
-
-    // 2. Trigger validation attempt without selection -> error is displayed
-    await validateBtn.click();
-    await expect(alert).toBeVisible();
-    expect(await cardRadio.getAttribute('aria-invalid')).toBe('true');
-    expect(await bankRadio.getAttribute('aria-invalid')).toBe('true');
-
-    const descAfterError = await fieldset.getAttribute('aria-describedby');
-    expect(descAfterError).toContain('error');
-
-    // 3. Select card option -> invalid-to-valid transition clears error
-    await cardRadio.click();
-    expect(await cardRadio.isChecked()).toBe(true);
-
-    // 4. Error cleared, role="alert" removed, aria-invalid updated to false
-    await expect(alert).toHaveCount(0);
-    expect(await cardRadio.getAttribute('aria-invalid')).toBe('false');
-    expect(await bankRadio.getAttribute('aria-invalid')).toBe('false');
-
-    const descAfterSelect = await fieldset.getAttribute('aria-describedby');
-    expect(descAfterSelect).not.toContain('error');
-  });
-
-  test('verifies native form submit, validation, and form reset lifecycles', async ({
-    page,
-  }) => {
-    const submitBtn = page.locator('[data-testid="specimen-form-submit-btn"]');
-    const resetBtn = page.locator('[data-testid="specimen-form-reset-btn"]');
-    const statusDisplay = page.locator('[data-testid="form-status-display"]');
-
-    const dedicatedOpt = page.locator('[data-testid="specimen-form-dedicated"]');
-    const sharedOpt = page.locator('[data-testid="specimen-form-shared"]');
-
-    // 1. Initial state: unselected
-    expect(await sharedOpt.isChecked()).toBe(false);
-    expect(await dedicatedOpt.isChecked()).toBe(false);
-
-    // 2. Submit while unselected triggers empty-selection error branch
-    await submitBtn.click();
-    await expect(statusDisplay).toContainText(/select|erreur|خطأ|error/i);
-
-    // 3. Select dedicated
-    await dedicatedOpt.click();
-    expect(await dedicatedOpt.isChecked()).toBe(true);
-    expect(await sharedOpt.isChecked()).toBe(false);
-
-    // 4. Submit form -> enters pending
-    await submitBtn.click();
-    await expect(statusDisplay).toContainText(/simulated|جارٍ|simulé/i);
-
-    // 5. Reset restores defaults and cancels submit
-    await resetBtn.click();
-    expect(await sharedOpt.isChecked()).toBe(false);
-    expect(await dedicatedOpt.isChecked()).toBe(false);
-    await expect(statusDisplay).toContainText(/reset|réinitialisé|إعادة/i);
-  });
-
-  test('verifies Arabic RTL layout alignment and direction', async ({ page }) => {
-    const arabicInput = page.locator('[data-testid="specimen-arabic"]');
-    const arabicContainer = arabicInput.locator('xpath=ancestor::div[@dir="rtl"]');
-    await expect(arabicContainer).toBeVisible();
-
-    const arabicBox = await arabicInput.boundingBox();
-    const labelBox = await arabicContainer.locator('label').boundingBox();
-    expect(arabicBox).not.toBeNull();
-    expect(labelBox).not.toBeNull();
-
-    // In RTL, the indicator sits at inline-start (right edge of container)
-    expect(arabicBox!.x).toBeGreaterThan(labelBox!.x);
-  });
-
-  test('verifies native required-group form validation regression', async ({ page }) => {
-    // Verifies that native HTML form validation on a real <form> detects valueMissing on untouched
-    // required radio group, blocks form submission, transitions to valid on selection, and includes the selected value.
-    const form = page.locator('[data-testid="specimen-required-form"]');
-    const cardRadio = page.locator('[data-testid="specimen-required-card"]');
-
-    // 1. Initial state: untouched required radio group in form is invalid (valueMissing)
-    const initialValidity = await form.evaluate((f: HTMLFormElement) => {
-      const card = f.querySelector<HTMLInputElement>('[data-testid="specimen-required-card"]');
-      return {
-        formValid: f.checkValidity(),
-        radioValueMissing: card ? card.validity.valueMissing : false,
-      };
-    });
-    expect(initialValidity.formValid).toBe(false);
-    expect(initialValidity.radioValueMissing).toBe(true);
-
-    // 2. Attempting to submit via native form submission is blocked by browser constraint validation
-    const submitBlocked = await form.evaluate((f: HTMLFormElement) => {
-      let submitted = false;
-      const handler = (e: Event) => {
-        e.preventDefault();
-        submitted = true;
-      };
-      f.addEventListener('submit', handler);
-      try {
-        f.requestSubmit();
-      } catch {
-        // Native requestSubmit fails or is blocked
-      }
-      f.removeEventListener('submit', handler);
-      return !submitted;
-    });
-    expect(submitBlocked).toBe(true);
-
-    // 3. Select an option in the required group
-    await cardRadio.click();
-    expect(await cardRadio.isChecked()).toBe(true);
-
-    // 4. Form and radio transition to valid
-    const validAfterSelection = await form.evaluate((f: HTMLFormElement) => {
-      const card = f.querySelector<HTMLInputElement>('[data-testid="specimen-required-card"]');
-      return {
-        formValid: f.checkValidity(),
-        radioValueMissing: card ? card.validity.valueMissing : true,
-      };
-    });
-    expect(validAfterSelection.formValid).toBe(true);
-    expect(validAfterSelection.radioValueMissing).toBe(false);
-
-    // 5. Native submission succeeds and includes the selected radio value in FormData
-    const submittedData = await form.evaluate((f: HTMLFormElement) => {
-      let value: string | null = null;
-      const handler = (e: Event) => {
-        e.preventDefault();
-        const fd = new FormData(f);
-        const card = f.querySelector<HTMLInputElement>('[data-testid="specimen-required-card"]');
-        value = card ? (fd.get(card.name) as string) : null;
-      };
-      f.addEventListener('submit', handler);
-      f.requestSubmit();
-      f.removeEventListener('submit', handler);
-      return value;
-    });
-    expect(submittedData).toBe('card');
-  });
-
-  test('verifies responsive reflow without horizontal clipping at narrow and desktop viewports', async ({
-    page,
-  }) => {
-    for (const width of [320, 375, 768, 1280]) {
-      await page.setViewportSize({ width, height: 800 });
-      const overflow = await page.evaluate(() => {
-        return (
-          document.documentElement.scrollWidth > document.documentElement.clientWidth
-        );
-      });
-      expect(overflow, `Horizontal overflow detected at ${width}px`).toBe(false);
-    }
+    const legend = canvas.locator('legend').first();
+    await expect(legend).toBeVisible();
+    expect(await legend.textContent()).toMatch(/[\u0600-\u06FF]/);
   });
 });

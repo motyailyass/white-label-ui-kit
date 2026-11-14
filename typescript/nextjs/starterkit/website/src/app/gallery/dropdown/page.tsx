@@ -6,8 +6,8 @@ import { getServerI18nState } from '../../i18n-server';
 export async function generateMetadata(): Promise<Metadata> {
   const { locale } = await getServerI18nState('en');
   return {
-    title: translate(defaultMessages, locale, 'common.dropdownGallery.metaTitle'),
-    description: translate(defaultMessages, locale, 'common.dropdownGallery.metaDescription'),
+    title: translate(defaultMessages, locale, 'common.studio.dropdownTitle'),
+    description: translate(defaultMessages, locale, 'common.studio.dropdownSubtitle'),
   };
 }
 

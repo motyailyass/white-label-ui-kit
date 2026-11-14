@@ -1,0 +1,9 @@
+.shell {
+  block-size: 100dvh;
+  overflow: hidden;
+}
+
+.main {
+  block-size: 100dvh;
+  overflow: hidden;
+}

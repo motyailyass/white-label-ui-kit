@@ -57,7 +57,10 @@ describe('Combobox Primitive — Single Select', () => {
     const canadaOption = screen.getByText('Canada');
     await user.click(canadaOption);
 
-    expect(handleValueChange).toHaveBeenCalledWith('ca', expect.objectContaining({ label: 'Canada' }));
+    expect(handleValueChange).toHaveBeenCalledWith(
+      'ca',
+      expect.objectContaining({ label: 'Canada' }),
+    );
     expect((input as HTMLInputElement).value).toBe('Canada');
     expect(input.getAttribute('aria-expanded')).toBe('false');
   });
@@ -83,7 +86,10 @@ describe('Combobox Primitive — Single Select', () => {
 
     // Enter commits Germany
     await user.keyboard('{Enter}');
-    expect(handleValueChange).toHaveBeenCalledWith('de', expect.objectContaining({ label: 'Germany' }));
+    expect(handleValueChange).toHaveBeenCalledWith(
+      'de',
+      expect.objectContaining({ label: 'Germany' }),
+    );
     expect((input as HTMLInputElement).value).toBe('Germany');
     expect(input.getAttribute('aria-expanded')).toBe('false');
   });
@@ -172,6 +178,7 @@ describe('Combobox Primitive — Multi-Select (Tags / Chips Mode)', () => {
         multiple
         options={testOptions}
         defaultValue={['us', 'ca']}
+        removeChipAriaLabel={(label) => `Remove ${label}`}
       />,
     );
     expect(screen.getByText('United States')).toBeDefined();
@@ -183,19 +190,16 @@ describe('Combobox Primitive — Multi-Select (Tags / Chips Mode)', () => {
   it('allows picking multiple options without closing popup immediately', async () => {
     const user = userEvent.setup();
     const handleValueChange = vi.fn();
-    render(
-      <Combobox
-        multiple
-        options={testOptions}
-        onValueChange={handleValueChange}
-      />,
-    );
+    render(<Combobox multiple options={testOptions} onValueChange={handleValueChange} />);
     const input = screen.getByRole('combobox');
     await user.click(input);
 
     // Pick United States
     await user.click(screen.getByText('United States'));
-    expect(handleValueChange).toHaveBeenCalledWith(['us'], [expect.objectContaining({ value: 'us' })]);
+    expect(handleValueChange).toHaveBeenCalledWith(
+      ['us'],
+      [expect.objectContaining({ value: 'us' })],
+    );
     expect(input.getAttribute('aria-expanded')).toBe('true'); // Stays open!
 
     // Pick Germany
@@ -217,13 +221,17 @@ describe('Combobox Primitive — Multi-Select (Tags / Chips Mode)', () => {
         multiple
         options={testOptions}
         defaultValue={['us', 'ca']}
+        removeChipAriaLabel={(label) => `Remove ${label}`}
         onValueChange={handleValueChange}
       />,
     );
     const removeBtn = screen.getByRole('button', { name: /remove united states/i });
     await user.click(removeBtn);
 
-    expect(handleValueChange).toHaveBeenCalledWith(['ca'], [expect.objectContaining({ value: 'ca' })]);
+    expect(handleValueChange).toHaveBeenCalledWith(
+      ['ca'],
+      [expect.objectContaining({ value: 'ca' })],
+    );
   });
 
   it('removes the last selected chip on Backspace when the search input is empty', async () => {
@@ -234,6 +242,7 @@ describe('Combobox Primitive — Multi-Select (Tags / Chips Mode)', () => {
         multiple
         options={testOptions}
         defaultValue={['us', 'ca']}
+        removeChipAriaLabel={(label) => `Remove ${label}`}
         onValueChange={handleValueChange}
       />,
     );
@@ -242,6 +251,9 @@ describe('Combobox Primitive — Multi-Select (Tags / Chips Mode)', () => {
     expect((input as HTMLInputElement).value).toBe('');
 
     await user.keyboard('{Backspace}');
-    expect(handleValueChange).toHaveBeenCalledWith(['us'], [expect.objectContaining({ value: 'us' })]);
+    expect(handleValueChange).toHaveBeenCalledWith(
+      ['us'],
+      [expect.objectContaining({ value: 'us' })],
+    );
   });
 });

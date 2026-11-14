@@ -38,6 +38,9 @@ jobs:
       - name: Verify Dashboard shadow prohibition policy
         run: pnpm run check:shadows
 
+      - name: Verify 'use client' directives in UI primitives
+        run: pnpm run check:client
+
       - name: Verify code formatting
         run: pnpm run format:check
 

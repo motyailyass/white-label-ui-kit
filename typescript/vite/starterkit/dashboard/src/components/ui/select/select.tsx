@@ -59,70 +59,68 @@ export interface SelectProps
   readOnly?: never;
 }
 
-export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  function Select(
-    {
-      size,
-      touchTarget = 'auto',
-      showIcon = true,
-      className,
-      style,
-      selectClassName,
-      selectStyle,
-      disabled = false,
-      dir,
-      children,
-      // Filter unsupported / forbidden attributes before runtime spread
-      multiple: _ignoredMultiple,
-      readOnly: _ignoredReadOnly,
-      ...props
-    },
-    ref,
-  ) {
-    const resolvedWrapperStyle: CSSProperties | undefined =
-      selectStyle?.width != null || selectStyle?.inlineSize != null
-        ? {
-            ...(selectStyle.width != null && style?.width == null
-              ? { width: selectStyle.width }
-              : {}),
-            ...(selectStyle.inlineSize != null && style?.inlineSize == null
-              ? { inlineSize: selectStyle.inlineSize }
-              : {}),
-            ...style,
-          }
-        : style;
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
+  {
+    size,
+    touchTarget = 'auto',
+    showIcon = true,
+    className,
+    style,
+    selectClassName,
+    selectStyle,
+    disabled = false,
+    dir,
+    children,
+    // Filter unsupported / forbidden attributes before runtime spread
+    multiple: _ignoredMultiple,
+    readOnly: _ignoredReadOnly,
+    ...props
+  },
+  ref,
+) {
+  const resolvedWrapperStyle: CSSProperties | undefined =
+    selectStyle?.width != null || selectStyle?.inlineSize != null
+      ? {
+          ...(selectStyle.width != null && style?.width == null
+            ? { width: selectStyle.width }
+            : {}),
+          ...(selectStyle.inlineSize != null && style?.inlineSize == null
+            ? { inlineSize: selectStyle.inlineSize }
+            : {}),
+          ...style,
+        }
+      : style;
 
-    return (
-      <span
-        className={cn(styles.root, className)}
-        style={resolvedWrapperStyle}
+  return (
+    <span
+      className={cn(styles.root, className)}
+      style={resolvedWrapperStyle}
+      data-size={size}
+      data-touch-target={touchTarget}
+      data-disabled={disabled ? 'true' : undefined}
+      data-show-icon={showIcon ? 'true' : 'false'}
+      dir={dir}
+    >
+      <select
+        {...props}
+        ref={ref}
+        dir={dir}
+        disabled={disabled}
         data-size={size}
         data-touch-target={touchTarget}
-        data-disabled={disabled ? 'true' : undefined}
         data-show-icon={showIcon ? 'true' : 'false'}
-        dir={dir}
+        className={cn(styles.select, selectClassName)}
+        style={selectStyle}
       >
-        <select
-          {...props}
-          ref={ref}
-          dir={dir}
-          disabled={disabled}
-          data-size={size}
-          data-touch-target={touchTarget}
-          data-show-icon={showIcon ? 'true' : 'false'}
-          className={cn(styles.select, selectClassName)}
-          style={selectStyle}
-        >
-          {children}
-        </select>
-        {showIcon && (
-          <span className={styles.arrow} aria-hidden="true">
-            <Icon name="chevron-down" />
-          </span>
-        )}
-      </span>
-    );
-  },
-);
+        {children}
+      </select>
+      {showIcon && (
+        <span className={styles.arrow} aria-hidden="true">
+          <Icon name="chevron-down" />
+        </span>
+      )}
+    </span>
+  );
+});
 
 Select.displayName = 'Select';

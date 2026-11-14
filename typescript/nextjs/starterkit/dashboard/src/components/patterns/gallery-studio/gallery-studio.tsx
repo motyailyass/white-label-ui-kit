@@ -21,6 +21,9 @@ import styles from './gallery-studio.module.css';
 
 export type StudioRouteId =
   | 'hub'
+  | 'accordion'
+  | 'alert'
+  | 'alert-dialog'
   | 'button'
   | 'input'
   | 'combobox'
@@ -33,7 +36,42 @@ export type StudioRouteId =
   | 'popover'
   | 'dropdown'
   | 'tooltip'
-  | 'badge';
+  | 'badge'
+  | 'avatar'
+  | 'card'
+  | 'tabs'
+  | 'label'
+  | 'separator'
+  | 'spinner'
+  | 'skeleton'
+  | 'breadcrumb'
+  | 'stat-card'
+  | 'sheet'
+  | 'toast'
+  | 'pagination'
+  | 'data-table'
+  | 'progress'
+  | 'command-palette'
+  | 'empty-state'
+  | 'date-picker'
+  | 'kbd'
+  | 'status-dot'
+  | 'aspect-ratio'
+  | 'input-otp'
+  | 'slider'
+  | 'toggle'
+  | 'collapsible'
+  | 'stepper'
+  | 'timeline'
+  | 'hover-card'
+  | 'context-menu'
+  | 'scroll-area'
+  | 'resizable-panel'
+  | 'file-upload'
+  | 'filter-bar'
+  | 'tree-view'
+  | 'navigation-menu'
+  | 'chart';
 
 export interface StudioNavLinkProps {
   href: string;
@@ -52,7 +90,16 @@ function DefaultStudioAnchor({ href, className, children, ...rest }: StudioNavLi
   );
 }
 
-export type StudioRadiusPreset = 'preset' | 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+export type StudioRadiusPreset =
+  | 'preset'
+  | 'none'
+  | 'xs'
+  | 'sm'
+  | 'md'
+  | 'lg'
+  | 'xl'
+  | '2xl'
+  | 'full';
 
 export interface GalleryStudioLayoutProps {
   activeRoute: StudioRouteId;
@@ -102,12 +149,7 @@ export function GalleryStudioLayout({
           <div className={styles.headerActions}>
             <LanguageSwitcher size="sm" />
             <ThemeSwitcher size="sm" />
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={onReset}
-              data-testid="studio-reset-btn"
-            >
+            <Button size="sm" variant="secondary" onClick={onReset} data-testid="studio-reset-btn">
               {t('common.studio.resetDefaults')}
             </Button>
           </div>
@@ -121,7 +163,6 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'hub' ? 'page' : undefined}
               >
-                <Icon name="home" />
                 <span>{t('common.studio.navOverview')}</span>
               </LinkSlot>
             </li>
@@ -131,7 +172,6 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'button' ? 'page' : undefined}
               >
-                <Icon name="sliders" />
                 <span>{t('common.studio.navButton')}</span>
               </LinkSlot>
             </li>
@@ -141,7 +181,6 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'input' ? 'page' : undefined}
               >
-                <Icon name="search" />
                 <span>{t('common.studio.compInput')}</span>
               </LinkSlot>
             </li>
@@ -151,7 +190,6 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'combobox' ? 'page' : undefined}
               >
-                <Icon name="sliders" />
                 <span>{t('common.studio.compCombobox')}</span>
               </LinkSlot>
             </li>
@@ -161,7 +199,6 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'textarea' ? 'page' : undefined}
               >
-                <Icon name="align-left" />
                 <span>{t('common.studio.compTextarea')}</span>
               </LinkSlot>
             </li>
@@ -171,7 +208,6 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'select' ? 'page' : undefined}
               >
-                <Icon name="chevron-down" />
                 <span>{t('common.studio.compSelect')}</span>
               </LinkSlot>
             </li>
@@ -181,7 +217,6 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'checkbox' ? 'page' : undefined}
               >
-                <Icon name="check" />
                 <span>{t('common.studio.compCheckbox')}</span>
               </LinkSlot>
             </li>
@@ -191,7 +226,6 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'radio' ? 'page' : undefined}
               >
-                <Icon name="bookmark" />
                 <span>{t('common.studio.compRadio')}</span>
               </LinkSlot>
             </li>
@@ -201,7 +235,6 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'switch' ? 'page' : undefined}
               >
-                <Icon name="sliders" />
                 <span>{t('common.studio.compSwitch')}</span>
               </LinkSlot>
             </li>
@@ -211,7 +244,6 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'dialog' ? 'page' : undefined}
               >
-                <Icon name="feature" />
                 <span>{t('common.studio.navDialog')}</span>
               </LinkSlot>
             </li>
@@ -221,7 +253,6 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'popover' ? 'page' : undefined}
               >
-                <Icon name="inbox" />
                 <span>{t('common.studio.compPopover')}</span>
               </LinkSlot>
             </li>
@@ -231,7 +262,6 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'dropdown' ? 'page' : undefined}
               >
-                <Icon name="menu" />
                 <span>{t('common.studio.compDropdown')}</span>
               </LinkSlot>
             </li>
@@ -241,7 +271,6 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'tooltip' ? 'page' : undefined}
               >
-                <Icon name="bookmark" />
                 <span>{t('common.studio.compTooltip')}</span>
               </LinkSlot>
             </li>
@@ -251,8 +280,349 @@ export function GalleryStudioLayout({
                 className={styles.navLink}
                 aria-current={activeRoute === 'badge' ? 'page' : undefined}
               >
-                <Icon name="feature" />
                 <span>{t('common.studio.compBadge')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/avatar"
+                className={styles.navLink}
+                aria-current={activeRoute === 'avatar' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compAvatar')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/card"
+                className={styles.navLink}
+                aria-current={activeRoute === 'card' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compCard')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/tabs"
+                className={styles.navLink}
+                aria-current={activeRoute === 'tabs' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compTabs')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/accordion"
+                className={styles.navLink}
+                aria-current={activeRoute === 'accordion' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compAccordion')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/alert"
+                className={styles.navLink}
+                aria-current={activeRoute === 'alert' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compAlert')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/alert-dialog"
+                className={styles.navLink}
+                aria-current={activeRoute === 'alert-dialog' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compAlertDialog')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/label"
+                className={styles.navLink}
+                aria-current={activeRoute === 'label' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compLabel')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/separator"
+                className={styles.navLink}
+                aria-current={activeRoute === 'separator' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compSeparator')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/spinner"
+                className={styles.navLink}
+                aria-current={activeRoute === 'spinner' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compSpinner')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/skeleton"
+                className={styles.navLink}
+                aria-current={activeRoute === 'skeleton' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compSkeleton')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/breadcrumb"
+                className={styles.navLink}
+                aria-current={activeRoute === 'breadcrumb' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compBreadcrumb')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/stat-card"
+                className={styles.navLink}
+                aria-current={activeRoute === 'stat-card' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compStatCard')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/sheet"
+                className={styles.navLink}
+                aria-current={activeRoute === 'sheet' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compSheet')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/toast"
+                className={styles.navLink}
+                aria-current={activeRoute === 'toast' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compToast')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/pagination"
+                className={styles.navLink}
+                aria-current={activeRoute === 'pagination' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compPagination')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/data-table"
+                className={styles.navLink}
+                aria-current={activeRoute === 'data-table' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compDataTable')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/progress"
+                className={styles.navLink}
+                aria-current={activeRoute === 'progress' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compProgress')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/command-palette"
+                className={styles.navLink}
+                aria-current={activeRoute === 'command-palette' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compCommandPalette')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/empty-state"
+                className={styles.navLink}
+                aria-current={activeRoute === 'empty-state' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compEmptyState')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/date-picker"
+                className={styles.navLink}
+                aria-current={activeRoute === 'date-picker' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compDatePicker')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/kbd"
+                className={styles.navLink}
+                aria-current={activeRoute === 'kbd' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compKbd')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/status-dot"
+                className={styles.navLink}
+                aria-current={activeRoute === 'status-dot' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compStatusDot')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/aspect-ratio"
+                className={styles.navLink}
+                aria-current={activeRoute === 'aspect-ratio' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compAspectRatio')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/input-otp"
+                className={styles.navLink}
+                aria-current={activeRoute === 'input-otp' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compInputOtp')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/slider"
+                className={styles.navLink}
+                aria-current={activeRoute === 'slider' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compSlider')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/toggle"
+                className={styles.navLink}
+                aria-current={activeRoute === 'toggle' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compToggle')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/collapsible"
+                className={styles.navLink}
+                aria-current={activeRoute === 'collapsible' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compCollapsible')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/stepper"
+                className={styles.navLink}
+                aria-current={activeRoute === 'stepper' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compStepper')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/timeline"
+                className={styles.navLink}
+                aria-current={activeRoute === 'timeline' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compTimeline')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/hover-card"
+                className={styles.navLink}
+                aria-current={activeRoute === 'hover-card' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compHoverCard')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/context-menu"
+                className={styles.navLink}
+                aria-current={activeRoute === 'context-menu' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compContextMenu')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/scroll-area"
+                className={styles.navLink}
+                aria-current={activeRoute === 'scroll-area' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compScrollArea')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/resizable-panel"
+                className={styles.navLink}
+                aria-current={activeRoute === 'resizable-panel' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compResizablePanel')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/file-upload"
+                className={styles.navLink}
+                aria-current={activeRoute === 'file-upload' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compFileUpload')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/filter-bar"
+                className={styles.navLink}
+                aria-current={activeRoute === 'filter-bar' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compFilterBar')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/tree-view"
+                className={styles.navLink}
+                aria-current={activeRoute === 'tree-view' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compTreeView')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/navigation-menu"
+                className={styles.navLink}
+                aria-current={activeRoute === 'navigation-menu' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compNavigationMenu')}</span>
+              </LinkSlot>
+            </li>
+            <li>
+              <LinkSlot
+                href="/gallery/chart"
+                className={styles.navLink}
+                aria-current={activeRoute === 'chart' ? 'page' : undefined}
+              >
+                <span>{t('common.studio.compChart')}</span>
               </LinkSlot>
             </li>
           </ul>
@@ -287,9 +657,7 @@ export function GalleryStudioLayout({
             </h2>
           </div>
 
-          <div className={styles.controlsBody}>
-            {controls}
-          </div>
+          <div className={styles.controlsBody}>{controls}</div>
         </aside>
       </div>
 
@@ -309,6 +677,7 @@ export interface StudioSegmentedControlProps<T extends string> {
   value: T;
   options: readonly StudioSegmentedOption<T>[];
   onChange: (next: T) => void;
+  columns?: 2 | 3;
 }
 
 export function StudioSegmentedControl<T extends string>({
@@ -316,6 +685,7 @@ export function StudioSegmentedControl<T extends string>({
   value,
   options,
   onChange,
+  columns,
 }: StudioSegmentedControlProps<T>) {
   const labelId = useId();
   return (
@@ -323,7 +693,12 @@ export function StudioSegmentedControl<T extends string>({
       <span id={labelId} className={styles.controlLabel}>
         {label}
       </span>
-      <div role="group" aria-labelledby={labelId} className={styles.segmentedGroup}>
+      <div
+        role="group"
+        aria-labelledby={labelId}
+        className={styles.segmentedGroup}
+        data-columns={columns}
+      >
         {options.map((opt) => (
           <button
             key={opt.value}
@@ -391,12 +766,7 @@ export interface StudioToggleRowProps {
   testId?: string;
 }
 
-export function StudioToggleRow({
-  label,
-  checked,
-  onCheckedChange,
-  testId,
-}: StudioToggleRowProps) {
+export function StudioToggleRow({ label, checked, onCheckedChange, testId }: StudioToggleRowProps) {
   const switchId = useId();
   return (
     <div className={styles.toggleRow}>
@@ -789,14 +1159,14 @@ export function GalleryHub({ linkComponent: LinkSlot = DefaultStudioAnchor }: Ga
       desc: t('common.studio.popoverCardDesc'),
       href: '/gallery/popover',
       icon: 'inbox' as const,
-      isStudio: false,
+      isStudio: true,
     },
     {
       title: t('common.studio.dropdownTitle'),
       desc: t('common.studio.dropdownCardDesc'),
       href: '/gallery/dropdown',
       icon: 'menu' as const,
-      isStudio: false,
+      isStudio: true,
     },
     {
       title: t('common.studio.tooltipTitle'),
@@ -810,6 +1180,272 @@ export function GalleryHub({ linkComponent: LinkSlot = DefaultStudioAnchor }: Ga
       desc: t('common.studio.badgeCardDesc'),
       href: '/gallery/badge',
       icon: 'feature' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.avatarTitle'),
+      desc: t('common.studio.avatarCardDesc'),
+      href: '/gallery/avatar',
+      icon: 'anonymous' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.cardTitle'),
+      desc: t('common.studio.cardCardDesc'),
+      href: '/gallery/card',
+      icon: 'folder' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.tabsTitle'),
+      desc: t('common.studio.tabsCardDesc'),
+      href: '/gallery/tabs',
+      icon: 'bookmark' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.accordionTitle'),
+      desc: t('common.studio.accordionCardDesc'),
+      href: '/gallery/accordion',
+      icon: 'chevron-down' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.alertTitle'),
+      desc: t('common.studio.alertCardDesc'),
+      href: '/gallery/alert',
+      icon: 'warning' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.alertDialogTitle'),
+      desc: t('common.studio.alertDialogCardDesc'),
+      href: '/gallery/alert-dialog',
+      icon: 'feature' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.labelTitle'),
+      desc: t('common.studio.labelCardDesc'),
+      href: '/gallery/label',
+      icon: 'sliders' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.separatorTitle'),
+      desc: t('common.studio.separatorCardDesc'),
+      href: '/gallery/separator',
+      icon: 'sliders' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.spinnerTitle'),
+      desc: t('common.studio.spinnerCardDesc'),
+      href: '/gallery/spinner',
+      icon: 'refresh' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.skeletonTitle'),
+      desc: t('common.studio.skeletonCardDesc'),
+      href: '/gallery/skeleton',
+      icon: 'folder' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.breadcrumbTitle'),
+      desc: t('common.studio.breadcrumbCardDesc'),
+      href: '/gallery/breadcrumb',
+      icon: 'chevron-down' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.statCardTitle'),
+      desc: t('common.studio.statCardCardDesc'),
+      href: '/gallery/stat-card',
+      icon: 'feature' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.sheetTitle'),
+      desc: t('common.studio.sheetCardDesc'),
+      href: '/gallery/sheet',
+      icon: 'sidebar' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.toastTitle'),
+      desc: t('common.studio.toastCardDesc'),
+      href: '/gallery/toast',
+      icon: 'bell' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.paginationTitle'),
+      desc: t('common.studio.paginationCardDesc'),
+      href: '/gallery/pagination',
+      icon: 'arrow-right' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.dataTableTitle'),
+      desc: t('common.studio.dataTableCardDesc'),
+      href: '/gallery/data-table',
+      icon: 'sliders' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.progressTitle'),
+      desc: t('common.studio.progressCardDesc'),
+      href: '/gallery/progress',
+      icon: 'task' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.commandPaletteTitle'),
+      desc: t('common.studio.commandPaletteCardDesc'),
+      href: '/gallery/command-palette',
+      icon: 'search' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.emptyStateTitle'),
+      desc: t('common.studio.emptyStateCardDesc'),
+      href: '/gallery/empty-state',
+      icon: 'folder' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.datePickerTitle'),
+      desc: t('common.studio.datePickerCardDesc'),
+      href: '/gallery/date-picker',
+      icon: 'calendar' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.kbdTitle'),
+      desc: t('common.studio.kbdCardDesc'),
+      href: '/gallery/kbd',
+      icon: 'feature' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.statusDotTitle'),
+      desc: t('common.studio.statusDotCardDesc'),
+      href: '/gallery/status-dot',
+      icon: 'task' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.aspectRatioTitle'),
+      desc: t('common.studio.aspectRatioCardDesc'),
+      href: '/gallery/aspect-ratio',
+      icon: 'feature' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.inputOtpTitle'),
+      desc: t('common.studio.inputOtpCardDesc'),
+      href: '/gallery/input-otp',
+      icon: 'task' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.sliderTitle'),
+      desc: t('common.studio.sliderCardDesc'),
+      href: '/gallery/slider',
+      icon: 'sliders' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.toggleTitle'),
+      desc: t('common.studio.toggleCardDesc'),
+      href: '/gallery/toggle',
+      icon: 'feature' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.collapsibleTitle'),
+      desc: t('common.studio.collapsibleCardDesc'),
+      href: '/gallery/collapsible',
+      icon: 'layers' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.stepperTitle'),
+      desc: t('common.studio.stepperCardDesc'),
+      href: '/gallery/stepper',
+      icon: 'workflow' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.timelineTitle'),
+      desc: t('common.studio.timelineCardDesc'),
+      href: '/gallery/timeline',
+      icon: 'clock' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.hoverCardTitle'),
+      desc: t('common.studio.hoverCardCardDesc'),
+      href: '/gallery/hover-card',
+      icon: 'feature' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.contextMenuTitle'),
+      desc: t('common.studio.contextMenuCardDesc'),
+      href: '/gallery/context-menu',
+      icon: 'menu' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.scrollAreaTitle'),
+      desc: t('common.studio.scrollAreaCardDesc'),
+      href: '/gallery/scroll-area',
+      icon: 'sliders' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.resizablePanelTitle'),
+      desc: t('common.studio.resizablePanelCardDesc'),
+      href: '/gallery/resizable-panel',
+      icon: 'layout-align-left' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.fileUploadTitle'),
+      desc: t('common.studio.fileUploadCardDesc'),
+      href: '/gallery/file-upload',
+      icon: 'upload' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.filterBarTitle'),
+      desc: t('common.studio.filterBarCardDesc'),
+      href: '/gallery/filter-bar',
+      icon: 'search' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.treeViewTitle'),
+      desc: t('common.studio.treeViewCardDesc'),
+      href: '/gallery/tree-view',
+      icon: 'folder' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.navigationMenuTitle'),
+      desc: t('common.studio.navigationMenuCardDesc'),
+      href: '/gallery/navigation-menu',
+      icon: 'menu' as const,
+      isStudio: true,
+    },
+    {
+      title: t('common.studio.chartTitle'),
+      desc: t('common.studio.chartCardDesc'),
+      href: '/gallery/chart',
+      icon: 'dashboard' as const,
       isStudio: true,
     },
   ];
@@ -842,12 +1478,7 @@ export function GalleryHub({ linkComponent: LinkSlot = DefaultStudioAnchor }: Ga
             <div className={styles.hubCardTop}>
               <div className={styles.hubCardTitleRow}>
                 <h3 className={styles.hubCardTitle}>{card.title}</h3>
-                <span
-                  className={cn(
-                    styles.studioPill,
-                    !card.isStudio && styles.galleryPill,
-                  )}
-                >
+                <span className={cn(styles.studioPill, !card.isStudio && styles.galleryPill)}>
                   {card.isStudio
                     ? t('common.studio.badgeInteractiveStudio')
                     : t('common.studio.badgePrimitiveGallery')}
@@ -857,9 +1488,7 @@ export function GalleryHub({ linkComponent: LinkSlot = DefaultStudioAnchor }: Ga
             </div>
             <LinkSlot href={card.href} className={styles.hubLinkBtn}>
               <span>
-                {card.isStudio
-                  ? t('common.studio.openStudio')
-                  : t('common.studio.openGallery')}
+                {card.isStudio ? t('common.studio.openStudio') : t('common.studio.openGallery')}
               </span>
               <Icon name="arrow-right" />
             </LinkSlot>

@@ -1,9 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Icon } from '@/components/icons';
 import {
   Button,
+  Combobox,
+  type ComboboxOption,
   type ControlSize,
   Dialog,
   DialogBody,
@@ -13,7 +15,6 @@ import {
   type DialogSize,
   DialogTitle,
   Input,
-  Select,
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { useI18n, useTheme } from '@/providers';
@@ -21,7 +22,6 @@ import {
   GalleryCodeInspector,
   GalleryStudioLayout,
   type StudioLinkComponent,
-  type StudioRadiusPreset,
   StudioSegmentedControl,
   type StudioSegmentedOption,
   StudioSelectField,
@@ -39,53 +39,82 @@ export interface DialogGalleryProps {
   linkComponent?: StudioLinkComponent;
 }
 
+interface DialogPresetDef {
+  id: DialogArchetype;
+  labelKey:
+    | 'common.studio.dlgPresetStandard'
+    | 'common.studio.dlgPresetConfirmation'
+    | 'common.studio.dlgPresetForm'
+    | 'common.studio.dlgPresetScrollable';
+  defaultSize: DialogSize;
+  defaultSeparators: DialogSeparators;
+  defaultFooterLayout: DialogFooterLayout;
+  defaultFooterBg: 'seamless' | 'docked';
+}
+
+const DIALOG_PRESETS: readonly DialogPresetDef[] = [
+  {
+    id: 'standard',
+    labelKey: 'common.studio.dlgPresetStandard',
+    defaultSize: 'md',
+    defaultSeparators: 'default',
+    defaultFooterLayout: 'end',
+    defaultFooterBg: 'seamless',
+  },
+  {
+    id: 'confirmation',
+    labelKey: 'common.studio.dlgPresetConfirmation',
+    defaultSize: 'sm',
+    defaultSeparators: 'none',
+    defaultFooterLayout: 'split',
+    defaultFooterBg: 'seamless',
+  },
+  {
+    id: 'form',
+    labelKey: 'common.studio.dlgPresetForm',
+    defaultSize: 'md',
+    defaultSeparators: 'default',
+    defaultFooterLayout: 'end',
+    defaultFooterBg: 'seamless',
+  },
+  {
+    id: 'scrollable',
+    labelKey: 'common.studio.dlgPresetScrollable',
+    defaultSize: 'lg',
+    defaultSeparators: 'default',
+    defaultFooterLayout: 'between',
+    defaultFooterBg: 'docked',
+  },
+];
+
 export function DialogGallery({ linkComponent }: DialogGalleryProps) {
   const { t, locale, direction } = useI18n();
   const { resolvedTheme } = useTheme();
 
   // Studio Variant Controls
   const [specimenDir, setSpecimenDir] = useState<'ltr' | 'rtl'>('ltr');
-  const [archetype, setArchetype] = useState<DialogArchetype>('standard');
-  const [size, setSize] = useState<DialogSize>('md');
-  const [separators, setSeparators] = useState<DialogSeparators>('default');
-  const [footerLayout, setFooterLayout] = useState<DialogFooterLayout>('end');
+  const [archetype, setArchetype] = useState<DialogArchetype>('confirmation');
+  const [size, setSize] = useState<DialogSize>('sm');
+  const [separators, setSeparators] = useState<DialogSeparators>('none');
+  const [footerLayout, setFooterLayout] = useState<DialogFooterLayout>('split');
+  const [footerBackground, setFooterBackground] = useState<'seamless' | 'docked'>('seamless');
   const [footerBtnSize, setFooterBtnSize] = useState<ControlSize | 'default'>('default');
-  const [radiusPreset, setRadiusPreset] = useState<StudioRadiusPreset>('preset');
   const [showCloseButton, setShowCloseButton] = useState(true);
   const [closeOnBackdropClick, setCloseOnBackdropClick] = useState(false);
   const [preventEscapeClose, setPreventEscapeClose] = useState(false);
 
-  // Live top-layer modal test state
+  // Live top-layer modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [feedbackToast, setFeedbackToast] = useState<string | null>(null);
 
   // Form Fields inside Dialog
-  const [workspaceInput, setWorkspaceInput] = useState('Core Production Workspace');
+  const [workspaceInput, setWorkspaceInput] = useState('Acme Production');
   const [memberName, setMemberName] = useState('');
   const [memberRole, setMemberRole] = useState('editor');
 
-  // E2E Test Compatibility State
-  const [basicOpen, setBasicOpen] = useState(false);
-  const [basicWorkspaceName, setBasicWorkspaceName] = useState('Core Production Workspace');
-  const [basicSavedStatus, setBasicSavedStatus] = useState<string | null>(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
   const confirmCancelRef = useRef<HTMLButtonElement>(null);
-  const [formOpen, setFormOpen] = useState(false);
-  const [formStatus, setFormStatus] = useState<string>('');
-  const [nestedOpen, setNestedOpen] = useState(false);
-  const [nestedRegion, setNestedRegion] = useState('');
-  const [longOpen, setLongOpen] = useState(false);
-  const [activeSize, setActiveSize] = useState<DialogSize | null>(null);
-  const [backdropOpen, setBackdropOpen] = useState(false);
-  const [closeBtnOpen, setCloseBtnOpen] = useState(false);
-  const [pendingOpen, setPendingOpen] = useState(false);
-  const [isPending, setIsPending] = useState(false);
-  const [pendingStatus, setPendingStatus] = useState<string>('');
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [rowDeleted, setRowDeleted] = useState(false);
-  const fallbackHeadingRef = useRef<HTMLHeadingElement>(null);
-
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const baseId = useId();
 
   const triggerToast = useCallback((msg: string) => {
     setFeedbackToast(msg);
@@ -101,25 +130,28 @@ export function DialogGallery({ linkComponent }: DialogGalleryProps) {
     };
   }, []);
 
+  const handleArchetypeChange = useCallback((nextArchetype: DialogArchetype) => {
+    const preset = DIALOG_PRESETS.find((p) => p.id === nextArchetype) ?? DIALOG_PRESETS[0];
+    setArchetype(preset.id);
+    setSize(preset.defaultSize);
+    setSeparators(preset.defaultSeparators);
+    setFooterLayout(preset.defaultFooterLayout);
+    setFooterBackground(preset.defaultFooterBg);
+  }, []);
+
   const handleReset = useCallback(() => {
     setSpecimenDir('ltr');
-    setArchetype('standard');
-    setSize('md');
-    setSeparators('default');
-    setFooterLayout('end');
+    handleArchetypeChange('confirmation');
     setFooterBtnSize('default');
-    setRadiusPreset('preset');
     setShowCloseButton(true);
     setCloseOnBackdropClick(false);
     setPreventEscapeClose(false);
-  }, []);
+  }, [handleArchetypeChange]);
 
   const hasHeaderSeparator = separators === 'default' || separators === 'header-only';
   const hasFooterSeparator = separators === 'default' || separators === 'footer-only';
-
   const footerSizeProp = footerBtnSize === 'default' ? undefined : footerBtnSize;
 
-  // Footer layout class mapping
   const getFooterLayoutClass = (layout: DialogFooterLayout) => {
     switch (layout) {
       case 'split':
@@ -156,22 +188,21 @@ export function DialogGallery({ linkComponent }: DialogGalleryProps) {
 
     const footerClassProp =
       footerClasses.length > 0 ? ` className={cn(${footerClasses.join(', ')})}` : '';
+    const footerBgProp = footerBackground === 'docked' ? ' background="docked"' : '';
     const btnSizeProp = footerBtnSize !== 'default' ? ` size="${footerBtnSize}"` : '';
 
     return `<Dialog ${dialogProps.join(' ')}>
   <DialogHeader${headerClass}>
-    <DialogTitle>${archetype === 'confirmation' ? 'Delete Environment?' : 'Workspace Configuration'}</DialogTitle>
-    <DialogDescription>
-      ${archetype === 'confirmation' ? 'This action is irreversible.' : 'Update your workspace settings.'}
-    </DialogDescription>
+    <DialogTitle>${archetype === 'confirmation' ? 'Delete project?' : 'Edit workspace'}</DialogTitle>
+    ${archetype !== 'confirmation' ? '<DialogDescription>Update your workspace details.</DialogDescription>' : ''}
   </DialogHeader>
   <DialogBody>
-    {/* Body Content */}
+    ${archetype === 'confirmation' ? '<p>This project and all its resources will be permanently removed.</p>' : '{/* Form controls */}'}
   </DialogBody>
-  <DialogFooter${footerClassProp}>
+  <DialogFooter${footerBgProp}${footerClassProp}>
     <Button variant="secondary"${btnSizeProp} onClick={handleCancel}>Cancel</Button>
     <Button variant="${archetype === 'confirmation' ? 'danger' : 'primary'}"${btnSizeProp} onClick={handleConfirm}>
-      ${archetype === 'confirmation' ? 'Delete' : 'Save Changes'}
+      ${archetype === 'confirmation' ? 'Delete project' : 'Save'}
     </Button>
   </DialogFooter>
 </Dialog>`;
@@ -183,6 +214,7 @@ export function DialogGallery({ linkComponent }: DialogGalleryProps) {
     hasHeaderSeparator,
     hasFooterSeparator,
     footerLayout,
+    footerBackground,
     footerBtnSize,
     archetype,
   ]);
@@ -190,10 +222,6 @@ export function DialogGallery({ linkComponent }: DialogGalleryProps) {
   // Generate dynamic CSS Module snippet
   const cssModuleSnippet = useMemo(() => {
     const rules: string[] = [];
-
-    if (radiusPreset !== 'preset') {
-      rules.push(`.dialogCustomSurface {\n  --radius-dialog: var(--radius-${radiusPreset});\n}`);
-    }
 
     if (!hasHeaderSeparator) {
       rules.push('.headerNoBorder {\n  border-block-end: none;\n}');
@@ -229,41 +257,28 @@ export function DialogGallery({ linkComponent }: DialogGalleryProps) {
 
     if (rules.length === 0) return null;
     return rules.join('\n\n');
-  }, [radiusPreset, hasHeaderSeparator, hasFooterSeparator, footerLayout]);
+  }, [hasHeaderSeparator, hasFooterSeparator, footerLayout]);
 
-  // Generate AI Agent Prompt
   const aiAgentPrompt = useMemo(() => {
-    return `You are composing a Dialog using the white-label UI Kit. Follow these exact instructions:
+    return `You are composing an accessible modal Dialog using the white-label UI Kit. Follow these exact instructions:
 
-1. Import primitives from their root barrels:
+1. Import primitives from root barrel:
    import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter, Button } from '@/components/ui';
-   import { cn } from '@/lib/cn';
 
-2. Render the Dialog with controlled open state and native accessibility:
+2. Usage:
    ${jsxSnippet}
 
-3. Structural & Styling Guidelines:
-   - Header Separator: ${hasHeaderSeparator ? 'Enabled (border-block-end: 1px solid var(--color-border-subtle))' : 'Disabled (border-block-end: none)'}.
-   - Footer Separator: ${hasFooterSeparator ? 'Enabled (border-block-start: 1px solid var(--color-border-subtle))' : 'Disabled (border-block-start: none)'}.
-   - Footer Button Layout: ${footerLayout === 'split' ? '50/50 central equal split across both action buttons.' : `${footerLayout} alignment.`}
-   - Max Inline Size (size): ${size}.
-   - Surface Radius Token: ${radiusPreset === 'preset' ? 'var(--radius-dialog) (default 12px dashboard, 16px website)' : `var(--radius-${radiusPreset})`}.
+3. Structural & Styling Invariants:
+   - Built on native <dialog> and showModal() in the browser Top Layer.
+   - 100% CSS logical properties (inline-size, block-size, padding-inline, padding-block).
+   - Zero dashboard shadows: visual depth via surface steps (--color-surface-raised) and borders (--color-border-subtle).
+   - Size: ${size} (sm: 400px, md: 540px, lg: 720px, xl: 960px, full: 100vw).
+   - Surface Radius: var(--radius-dialog) (governed by design tokens: 12px dashboard, 16px website).
    - Close Button: ${showCloseButton ? 'showCloseButton with caller-supplied closeLabel (strictly required for accessible name).' : 'Omitted.'}
-   - Backdrop Dismissal: ${closeOnBackdropClick ? 'Enabled via closeOnBackdropClick={true}' : 'Disabled by default to prevent accidental form loss.'}
-   - Zero physical CSS properties (no left, right, top, bottom, width, margin-left). 100% logical properties. Zero dashboard shadows.
+   - Backdrop Dismissal: ${closeOnBackdropClick ? 'Enabled via closeOnBackdropClick={true}' : 'Disabled by default to protect form inputs.'}
 
 ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
-  }, [
-    jsxSnippet,
-    hasHeaderSeparator,
-    hasFooterSeparator,
-    footerLayout,
-    size,
-    radiusPreset,
-    showCloseButton,
-    closeOnBackdropClick,
-    cssModuleSnippet,
-  ]);
+  }, [jsxSnippet, size, showCloseButton, closeOnBackdropClick, cssModuleSnippet]);
 
   // Computed Specifications table
   const specGroups: readonly StudioSpecGroup[] = useMemo(() => {
@@ -275,6 +290,7 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
           { label: 'Archetype', value: archetype },
           { label: 'Separators', value: separators },
           { label: 'Footer Layout', value: footerLayout },
+          { label: 'Footer Background', value: footerBackground },
           { label: 'Footer Btn Size', value: footerBtnSize },
           { label: 'showCloseButton', value: showCloseButton ? 'true' : 'false' },
         ],
@@ -284,7 +300,7 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
         items: [
           {
             label: '--radius-dialog',
-            value: radiusPreset === 'preset' ? 'var(--radius-dialog)' : `var(--radius-${radiusPreset})`,
+            value: 'var(--radius-dialog)',
           },
           { label: 'Backdrop Scrim', value: 'var(--color-overlay)' },
           { label: 'Surface Step', value: 'var(--color-surface-raised)' },
@@ -306,9 +322,9 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
     archetype,
     separators,
     footerLayout,
+    footerBackground,
     footerBtnSize,
     showCloseButton,
-    radiusPreset,
     hasHeaderSeparator,
     hasFooterSeparator,
     locale,
@@ -317,19 +333,27 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
     t,
   ]);
 
-  // Option Matrices
+  // Option Matrices (Strictly Localized via t())
   const archetypeOptions: readonly StudioSegmentedOption<DialogArchetype>[] = [
-    { value: 'standard', label: 'Standard', testId: 'opt-arch-standard' },
-    { value: 'confirmation', label: 'Danger', testId: 'opt-arch-confirm' },
-    { value: 'form', label: 'Form', testId: 'opt-arch-form' },
-    { value: 'scrollable', label: 'Scroll', testId: 'opt-arch-scroll' },
+    { value: 'standard', label: t('common.studio.dlgPresetStandard'), testId: 'opt-arch-standard' },
+    {
+      value: 'confirmation',
+      label: t('common.studio.dlgPresetConfirmation'),
+      testId: 'opt-arch-confirm',
+    },
+    { value: 'form', label: t('common.studio.dlgPresetForm'), testId: 'opt-arch-form' },
+    {
+      value: 'scrollable',
+      label: t('common.studio.dlgPresetScrollable'),
+      testId: 'opt-arch-scroll',
+    },
   ];
 
   const sizeOptions: readonly StudioSegmentedOption<DialogSize>[] = [
     { value: 'sm', label: 'SM (400px)', testId: 'opt-dlg-size-sm' },
     { value: 'md', label: 'MD (540px)', testId: 'opt-dlg-size-md' },
     { value: 'lg', label: 'LG (720px)', testId: 'opt-dlg-size-lg' },
-    { value: 'xl', label: 'XL (860px)', testId: 'opt-dlg-size-xl' },
+    { value: 'xl', label: 'XL (960px)', testId: 'opt-dlg-size-xl' },
     { value: 'full', label: 'Full', testId: 'opt-dlg-size-full' },
   ];
 
@@ -348,6 +372,15 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
     { value: 'stacked', label: t('common.studio.footerStacked') },
   ];
 
+  const footerBgOptions: readonly StudioSegmentedOption<'seamless' | 'docked'>[] = [
+    {
+      value: 'seamless',
+      label: t('common.studio.footerBgSeamless'),
+      testId: 'opt-foot-bg-seamless',
+    },
+    { value: 'docked', label: t('common.studio.footerBgDocked'), testId: 'opt-foot-bg-docked' },
+  ];
+
   const footerBtnSizeOptions: readonly StudioSegmentedOption<ControlSize | 'default'>[] = [
     { value: 'default', label: 'Def', testId: 'opt-foot-size-def' },
     { value: 'sm', label: 'SM', testId: 'opt-foot-size-sm' },
@@ -355,59 +388,45 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
     { value: 'lg', label: 'LG', testId: 'opt-foot-size-lg' },
   ];
 
-  const radiusOptions: readonly StudioSelectOption<StudioRadiusPreset>[] = [
-    { value: 'preset', label: t('common.studio.radiusPreset') },
-    { value: 'none', label: t('common.studio.radiusNone') },
-    { value: 'xs', label: t('common.studio.radiusXs') },
-    { value: 'sm', label: t('common.studio.radiusSm') },
-    { value: 'md', label: t('common.studio.radiusMd') },
-    { value: 'lg', label: t('common.studio.radiusLg') },
-    { value: 'xl', label: t('common.studio.radiusXl') },
-    { value: '2xl', label: t('common.studio.radius2xl') },
-  ];
+  const roleComboboxOptions: ComboboxOption[] = useMemo(
+    () => [
+      { value: 'admin', label: t('common.studio.formRoleAdmin') },
+      { value: 'editor', label: t('common.studio.formRoleEditor') },
+      { value: 'viewer', label: t('common.studio.formRoleViewer') },
+    ],
+    [t],
+  );
 
-  // Render Inner Content based on Archetype
+  // Render Inner Content using Real Compound Primitives (Zero text redundancy)
   const renderDialogContent = (isModal: boolean) => {
+    const handleClose = () => {
+      if (isModal) setIsModalOpen(false);
+      triggerToast(t('common.studio.dlgToastClosed'));
+    };
+
     switch (archetype) {
       case 'confirmation':
         return (
           <>
-            <div
-              className={cn(styles.inlineHeader, hasHeaderSeparator && styles.inlineHeaderWithSep)}
-            >
-              {showCloseButton && (
-                <button
-                  type="button"
-                  className={styles.inlineCloseButton}
-                  onClick={() => {
-                    if (isModal) setIsModalOpen(false);
-                    triggerToast('Closed');
-                  }}
-                  aria-label="Close"
-                >
-                  <Icon name="close" />
-                </button>
-              )}
-              <h3 className={styles.inlineTitle}>{t('common.studio.confTitle')}</h3>
-              <p className={styles.inlineDescription}>{t('common.studio.confDesc')}</p>
-            </div>
-            <div className={styles.inlineBody}>
-              <p>{t('common.studio.confDesc')}</p>
-            </div>
-            <div
+            <DialogHeader className={cn(!hasHeaderSeparator && styles.headerNoBorder)}>
+              <DialogTitle>{t('common.studio.confTitle')}</DialogTitle>
+              <DialogDescription className={styles.dialogMessage}>
+                {t('common.studio.confDesc')}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter
+              background={footerBackground}
               className={cn(
-                styles.inlineFooter,
-                hasFooterSeparator && styles.inlineFooterWithSep,
+                !hasFooterSeparator && styles.footerNoBorder,
                 getFooterLayoutClass(footerLayout),
               )}
             >
               <Button
+                ref={isModal ? confirmCancelRef : undefined}
                 variant="secondary"
                 size={footerSizeProp}
-                onClick={() => {
-                  if (isModal) setIsModalOpen(false);
-                  triggerToast(t('common.cancel'));
-                }}
+                onClick={handleClose}
+                data-testid="dialog-cancel-btn"
               >
                 {t('common.cancel')}
               </Button>
@@ -415,13 +434,14 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
                 variant="danger"
                 size={footerSizeProp}
                 onClick={() => {
-                  if (isModal) setIsModalOpen(false);
+                  handleClose();
                   triggerToast(t('common.studio.confConfirm'));
                 }}
+                data-testid="dialog-confirm-btn"
               >
                 {t('common.studio.confConfirm')}
               </Button>
-            </div>
+            </DialogFooter>
           </>
         );
 
@@ -430,62 +450,51 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              if (isModal) setIsModalOpen(false);
+              handleClose();
               triggerToast(t('common.studio.formSubmittedToast'));
             }}
           >
-            <div
-              className={cn(styles.inlineHeader, hasHeaderSeparator && styles.inlineHeaderWithSep)}
+            <DialogHeader className={cn(!hasHeaderSeparator && styles.headerNoBorder)}>
+              <DialogTitle>{t('common.studio.formTitle')}</DialogTitle>
+              <DialogDescription>{t('common.studio.formDesc')}</DialogDescription>
+            </DialogHeader>
+            <DialogBody
+              scrollable={false}
+              className={cn(!hasHeaderSeparator && styles.bodyNoBorder)}
             >
-              {showCloseButton && (
-                <button
-                  type="button"
-                  className={styles.inlineCloseButton}
-                  onClick={() => {
-                    if (isModal) setIsModalOpen(false);
-                    triggerToast(t('common.studio.formCanceledToast'));
-                  }}
-                  aria-label="Close"
-                >
-                  <Icon name="close" />
-                </button>
-              )}
-              <h3 className={styles.inlineTitle}>{t('common.studio.formTitle')}</h3>
-              <p className={styles.inlineDescription}>{t('common.studio.formDesc')}</p>
-            </div>
-            <div className={styles.inlineBody}>
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel} htmlFor="studio-form-name">
-                  {t('common.studio.formNameLabel')}
-                </label>
-                <Input
-                  id="studio-form-name"
-                  value={memberName}
-                  onChange={(e) => setMemberName(e.target.value)}
-                  placeholder={t('common.studio.formNamePlaceholder')}
-                  required
-                />
+              <div className={styles.formContent}>
+                <div className={styles.fieldGroup}>
+                  <label className={styles.fieldLabel} htmlFor={`${baseId}-form-name`}>
+                    {t('common.studio.formNameLabel')}
+                  </label>
+                  <Input
+                    id={`${baseId}-form-name`}
+                    value={memberName}
+                    onChange={(e) => setMemberName(e.target.value)}
+                    placeholder={t('common.studio.formNamePlaceholder')}
+                    required
+                    data-testid="dialog-form-name-input"
+                  />
+                </div>
+                <div className={styles.fieldGroup}>
+                  <label className={styles.fieldLabel} htmlFor={`${baseId}-form-role`}>
+                    {t('common.studio.formRoleLabel')}
+                  </label>
+                  <Combobox
+                    id={`${baseId}-form-role`}
+                    options={roleComboboxOptions}
+                    value={memberRole}
+                    onValueChange={(val) => setMemberRole(val as string)}
+                    clearable={false}
+                    data-testid="dialog-form-role-select"
+                  />
+                </div>
               </div>
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel} htmlFor="studio-form-role">
-                  {t('common.studio.formRoleLabel')}
-                </label>
-                <Select
-                  id="studio-form-role"
-                  value={memberRole}
-                  onChange={(e) => setMemberRole(e.target.value)}
-                  required
-                >
-                  <option value="admin">{t('common.studio.formRoleAdmin')}</option>
-                  <option value="editor">{t('common.studio.formRoleEditor')}</option>
-                  <option value="viewer">{t('common.studio.formRoleViewer')}</option>
-                </Select>
-              </div>
-            </div>
-            <div
+            </DialogBody>
+            <DialogFooter
+              background={footerBackground}
               className={cn(
-                styles.inlineFooter,
-                hasFooterSeparator && styles.inlineFooterWithSep,
+                !hasFooterSeparator && styles.footerNoBorder,
                 getFooterLayoutClass(footerLayout),
               )}
             >
@@ -494,42 +503,33 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
                 variant="secondary"
                 size={footerSizeProp}
                 onClick={() => {
-                  if (isModal) setIsModalOpen(false);
+                  handleClose();
                   triggerToast(t('common.studio.formCanceledToast'));
                 }}
+                data-testid="dialog-cancel-btn"
               >
                 {t('common.cancel')}
               </Button>
-              <Button type="submit" variant="primary" size={footerSizeProp}>
+              <Button
+                type="submit"
+                variant="primary"
+                size={footerSizeProp}
+                data-testid="dialog-submit-btn"
+              >
                 {t('common.studio.formSubmit')}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         );
 
       case 'scrollable':
         return (
           <>
-            <div
-              className={cn(styles.inlineHeader, hasHeaderSeparator && styles.inlineHeaderWithSep)}
-            >
-              {showCloseButton && (
-                <button
-                  type="button"
-                  className={styles.inlineCloseButton}
-                  onClick={() => {
-                    if (isModal) setIsModalOpen(false);
-                    triggerToast('Closed');
-                  }}
-                  aria-label="Close"
-                >
-                  <Icon name="close" />
-                </button>
-              )}
-              <h3 className={styles.inlineTitle}>{t('common.studio.scrollTitle')}</h3>
-              <p className={styles.inlineDescription}>{t('common.studio.scrollDesc')}</p>
-            </div>
-            <div className={styles.inlineBody}>
+            <DialogHeader className={cn(!hasHeaderSeparator && styles.headerNoBorder)}>
+              <DialogTitle>{t('common.studio.scrollTitle')}</DialogTitle>
+              <DialogDescription>{t('common.studio.scrollDesc')}</DialogDescription>
+            </DialogHeader>
+            <DialogBody data-testid="dialog-scroll-body">
               <div className={styles.scrollableParagraphs}>
                 <p>{t('common.studio.scrollParagraph1')}</p>
                 <p>{t('common.studio.scrollParagraph2')}</p>
@@ -537,21 +537,19 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
                 <p>{t('common.studio.scrollParagraph4')}</p>
                 <p>{t('common.studio.scrollParagraph5')}</p>
               </div>
-            </div>
-            <div
+            </DialogBody>
+            <DialogFooter
+              background={footerBackground}
               className={cn(
-                styles.inlineFooter,
-                hasFooterSeparator && styles.inlineFooterWithSep,
+                !hasFooterSeparator && styles.footerNoBorder,
                 getFooterLayoutClass(footerLayout),
               )}
             >
               <Button
                 variant="secondary"
                 size={footerSizeProp}
-                onClick={() => {
-                  if (isModal) setIsModalOpen(false);
-                  triggerToast(t('common.cancel'));
-                }}
+                onClick={handleClose}
+                data-testid="dialog-cancel-btn"
               >
                 {t('common.cancel')}
               </Button>
@@ -559,65 +557,52 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
                 variant="primary"
                 size={footerSizeProp}
                 onClick={() => {
-                  if (isModal) setIsModalOpen(false);
+                  handleClose();
                   triggerToast(t('common.studio.scrollAccept'));
                 }}
+                data-testid="dialog-accept-btn"
               >
                 {t('common.studio.scrollAccept')}
               </Button>
-            </div>
+            </DialogFooter>
           </>
         );
 
       default:
         return (
           <>
-            <div
-              className={cn(styles.inlineHeader, hasHeaderSeparator && styles.inlineHeaderWithSep)}
+            <DialogHeader className={cn(!hasHeaderSeparator && styles.headerNoBorder)}>
+              <DialogTitle>{t('common.studio.stdTitle')}</DialogTitle>
+              <DialogDescription>{t('common.studio.stdDesc')}</DialogDescription>
+            </DialogHeader>
+            <DialogBody
+              scrollable={false}
+              className={cn(!hasHeaderSeparator && styles.bodyNoBorder)}
             >
-              {showCloseButton && (
-                <button
-                  type="button"
-                  className={styles.inlineCloseButton}
-                  onClick={() => {
-                    if (isModal) setIsModalOpen(false);
-                    triggerToast('Closed');
-                  }}
-                  aria-label="Close"
-                >
-                  <Icon name="close" />
-                </button>
-              )}
-              <h3 className={styles.inlineTitle}>{t('common.studio.stdTitle')}</h3>
-              <p className={styles.inlineDescription}>{t('common.studio.stdDesc')}</p>
-            </div>
-            <div className={styles.inlineBody}>
-              <p>{t('common.studio.stdBodyText')}</p>
               <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel} htmlFor="studio-std-input">
+                <label className={styles.fieldLabel} htmlFor={`${baseId}-std-input`}>
                   {t('common.studio.stdFieldLabel')}
                 </label>
                 <Input
-                  id="studio-std-input"
+                  id={`${baseId}-std-input`}
                   value={workspaceInput}
                   onChange={(e) => setWorkspaceInput(e.target.value)}
+                  data-testid="dialog-workspace-input"
                 />
               </div>
-            </div>
-            <div
+            </DialogBody>
+            <DialogFooter
+              background={footerBackground}
               className={cn(
-                styles.inlineFooter,
-                hasFooterSeparator && styles.inlineFooterWithSep,
+                !hasFooterSeparator && styles.footerNoBorder,
                 getFooterLayoutClass(footerLayout),
               )}
             >
               <Button
                 variant="secondary"
                 size={footerSizeProp}
-                onClick={() => {
-                  if (isModal) setIsModalOpen(false);
-                  triggerToast(t('common.cancel'));
-                }}
+                onClick={handleClose}
+                data-testid="dialog-cancel-btn"
               >
                 {t('common.cancel')}
               </Button>
@@ -625,13 +610,14 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
                 variant="primary"
                 size={footerSizeProp}
                 onClick={() => {
-                  if (isModal) setIsModalOpen(false);
+                  handleClose();
                   triggerToast(t('common.studio.stdSavedToast'));
                 }}
+                data-testid="dialog-save-btn"
               >
                 {t('common.studio.stdConfirm')}
               </Button>
-            </div>
+            </DialogFooter>
           </>
         );
     }
@@ -643,450 +629,17 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
       title={t('common.studio.dlgTitle')}
       subtitle={t('common.studio.dlgSubtitle')}
       testId="dialog-gallery"
-      radiusPreset={radiusPreset}
       previewDir={specimenDir}
       onReset={handleReset}
       linkComponent={linkComponent}
-      stageFooter={
-        <div className={styles.hiddenVault} aria-hidden="true">
-          {/* Real Modal Dialog Trigger Specimen Vault (preserves 100% of e2e/dialog.spec.ts assertions) */}
-          <section aria-label="E2E Specimen Contracts">
-            <h4 className={styles.vaultTitle}>Real Modal Verification Vault</h4>
-            <div className={styles.vaultGrid}>
-              <Button
-                data-testid="basic-dialog-trigger"
-                onClick={() => setBasicOpen(true)}
-              >
-                Open Basic Dialog
-              </Button>
-              <Button
-                variant="danger"
-                data-testid="confirmation-dialog-trigger"
-                onClick={() => setConfirmOpen(true)}
-              >
-                Open Confirmation Dialog
-              </Button>
-              <Button
-                data-testid="form-dialog-trigger"
-                onClick={() => setFormOpen(true)}
-              >
-                Open Form Dialog
-              </Button>
-              <Button
-                data-testid="nested-select-dialog-trigger"
-                onClick={() => setNestedOpen(true)}
-              >
-                Open Nested Select Dialog
-              </Button>
-              <Button
-                data-testid="long-dialog-trigger"
-                onClick={() => setLongOpen(true)}
-              >
-                Open Long Dialog
-              </Button>
-              <Button
-                data-testid="size-trigger-sm"
-                onClick={() => setActiveSize('sm')}
-              >
-                SM
-              </Button>
-              <Button
-                data-testid="size-trigger-md"
-                onClick={() => setActiveSize('md')}
-              >
-                MD
-              </Button>
-              <Button
-                data-testid="size-trigger-lg"
-                onClick={() => setActiveSize('lg')}
-              >
-                LG
-              </Button>
-              <Button
-                data-testid="size-trigger-xl"
-                onClick={() => setActiveSize('xl')}
-              >
-                XL
-              </Button>
-              <Button
-                data-testid="backdrop-dialog-trigger"
-                onClick={() => setBackdropOpen(true)}
-              >
-                Backdrop Dismiss
-              </Button>
-              <Button
-                data-testid="close-button-dialog-trigger"
-                onClick={() => setCloseBtnOpen(true)}
-              >
-                Close Button Specimen
-              </Button>
-              <Button
-                data-testid="pending-dialog-trigger"
-                onClick={() => setPendingOpen(true)}
-              >
-                Pending Save
-              </Button>
-            </div>
-
-            {basicSavedStatus && (
-              <div className={styles.statusCard} data-testid="basic-status-row">
-                <p className={styles.statusText}>{basicSavedStatus}</p>
-              </div>
-            )}
-            {formStatus && (
-              <div className={styles.statusCard}>
-                <p data-testid="form-status-text" className={styles.statusText}>
-                  {formStatus}
-                </p>
-              </div>
-            )}
-
-            {!rowDeleted ? (
-              <table className={styles.table} data-testid="resource-table">
-                <thead>
-                  <tr>
-                    <th className={styles.th}>Resource</th>
-                    <th className={styles.th}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr data-testid="table-resource-row">
-                    <td className={styles.td}>Production Cluster Node</td>
-                    <td className={styles.td}>
-                      <Button
-                        variant="danger"
-                        data-testid="delete-row-trigger-btn"
-                        onClick={() => setDeleteDialogOpen(true)}
-                      >
-                        Delete
-                      </Button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            ) : (
-              <div className={styles.statusCard}>
-                <p data-testid="row-deleted-msg" className={styles.statusText}>
-                  Resource deleted
-                </p>
-              </div>
-            )}
-            <h2
-              ref={fallbackHeadingRef}
-              id="section-fallback-heading"
-              tabIndex={-1}
-              data-testid="fallback-table-heading"
-              className="sr-only"
-            >
-              Fallback Table Heading
-            </h2>
-          </section>
-
-          {/* Interactive Native Modals for E2E Specimens */}
-          <Dialog
-            open={basicOpen}
-            onOpenChange={(o) => setBasicOpen(o)}
-            data-testid="basic-dialog"
-          >
-            <DialogHeader>
-              <DialogTitle>Basic Modal</DialogTitle>
-              <DialogDescription>Basic dialog specimen for inertness check</DialogDescription>
-            </DialogHeader>
-            <DialogBody>
-              <Input
-                data-testid="basic-workspace-input"
-                value={basicWorkspaceName}
-                onChange={(e) => setBasicWorkspaceName(e.target.value)}
-              />
-            </DialogBody>
-            <DialogFooter>
-              <Button
-                variant="secondary"
-                data-testid="basic-dialog-cancel-btn"
-                onClick={() => setBasicOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                data-testid="basic-dialog-save-btn"
-                onClick={() => {
-                  setBasicSavedStatus(`saved successfully (${basicWorkspaceName})`);
-                  setBasicOpen(false);
-                }}
-              >
-                Save
-              </Button>
-            </DialogFooter>
-          </Dialog>
-
-          <Dialog
-            open={confirmOpen}
-            onOpenChange={(o) => setConfirmOpen(o)}
-            initialFocusRef={confirmCancelRef}
-            data-testid="confirmation-dialog"
-          >
-            <DialogHeader>
-              <DialogTitle>Confirm Delete</DialogTitle>
-              <DialogDescription>Irreversible confirmation action</DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                ref={confirmCancelRef}
-                variant="secondary"
-                data-testid="confirm-cancel-btn"
-                onClick={() => setConfirmOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="danger"
-                data-testid="confirm-delete-btn"
-                onClick={() => setConfirmOpen(false)}
-              >
-                Delete
-              </Button>
-            </DialogFooter>
-          </Dialog>
-
-          <Dialog
-            open={formOpen}
-            onOpenChange={(o) => setFormOpen(o)}
-            data-testid="form-dialog"
-          >
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setFormStatus('submitted successfully');
-                setFormOpen(false);
-              }}
-              data-testid="dialog-form"
-            >
-              <DialogHeader>
-                <DialogTitle>Form Dialog</DialogTitle>
-              </DialogHeader>
-              <DialogBody>
-                <Input
-                  data-testid="form-name-input"
-                  placeholder="Name"
-                  required
-                />
-                <Select data-testid="form-role-select" required>
-                  <option value="">Role</option>
-                  <option value="editor">Editor</option>
-                </Select>
-              </DialogBody>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  data-testid="form-cancel-btn"
-                  onClick={() => {
-                    setFormStatus('canceled');
-                    setFormOpen(false);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" variant="primary" data-testid="form-submit-btn">
-                  Submit
-                </Button>
-              </DialogFooter>
-            </form>
-          </Dialog>
-
-          <Dialog
-            open={nestedOpen}
-            onOpenChange={(o) => setNestedOpen(o)}
-            data-testid="nested-select-dialog"
-          >
-            <DialogHeader>
-              <DialogTitle>Nested Select Dialog</DialogTitle>
-            </DialogHeader>
-            <DialogBody>
-              <Select
-                data-testid="nested-select-element"
-                value={nestedRegion}
-                onChange={(e) => setNestedRegion(e.target.value)}
-              >
-                <option value="">Choose region</option>
-                <option value="eu-central">EU Central</option>
-              </Select>
-            </DialogBody>
-            <DialogFooter>
-              <Button
-                variant="secondary"
-                data-testid="nested-dialog-close-btn"
-                onClick={() => setNestedOpen(false)}
-              >
-                Close
-              </Button>
-            </DialogFooter>
-          </Dialog>
-
-          <Dialog
-            open={longOpen}
-            onOpenChange={(o) => setLongOpen(o)}
-            data-testid="long-dialog"
-          >
-            <DialogHeader>
-              <DialogTitle>Long Content Dialog</DialogTitle>
-            </DialogHeader>
-            <DialogBody data-testid="long-dialog-body">
-              <div className={styles.longContentBody}>
-                {Array.from({ length: 20 }, (_, i) => (
-                  <p key={i}>Scrollable legal policy paragraph {i + 1}</p>
-                ))}
-              </div>
-            </DialogBody>
-            <DialogFooter>
-              <Button
-                variant="primary"
-                data-testid="long-dialog-accept-btn"
-                onClick={() => setLongOpen(false)}
-              >
-                Accept
-              </Button>
-            </DialogFooter>
-          </Dialog>
-
-          {activeSize && (
-            <Dialog
-              open={Boolean(activeSize)}
-              onOpenChange={() => setActiveSize(null)}
-              size={activeSize}
-              data-testid={`dialog-size-${activeSize}`}
-            >
-              <DialogHeader>
-                <DialogTitle>Size {activeSize}</DialogTitle>
-              </DialogHeader>
-              <DialogBody>
-                <p>Size prop {activeSize}</p>
-              </DialogBody>
-              <DialogFooter>
-                <Button variant="secondary" onClick={() => setActiveSize(null)}>
-                  Close
-                </Button>
-              </DialogFooter>
-            </Dialog>
-          )}
-
-          <Dialog
-            open={backdropOpen}
-            onOpenChange={(o) => setBackdropOpen(o)}
-            closeOnBackdropClick={true}
-            data-testid="backdrop-dialog"
-          >
-            <DialogHeader>
-              <DialogTitle>Backdrop Scrim Specimen</DialogTitle>
-            </DialogHeader>
-            <DialogBody>
-              <p>Click outside to dismiss</p>
-            </DialogBody>
-            <DialogFooter>
-              <Button
-                variant="secondary"
-                data-testid="backdrop-dialog-close-btn"
-                onClick={() => setBackdropOpen(false)}
-              >
-                Close
-              </Button>
-            </DialogFooter>
-          </Dialog>
-
-          <Dialog
-            open={closeBtnOpen}
-            onOpenChange={(o) => setCloseBtnOpen(o)}
-            showCloseButton={true}
-            closeLabel="Close"
-            data-testid="close-button-dialog"
-          >
-            <DialogHeader>
-              <DialogTitle>Top Corner Close Button</DialogTitle>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="secondary" onClick={() => setCloseBtnOpen(false)}>
-                Close
-              </Button>
-            </DialogFooter>
-          </Dialog>
-
-          <Dialog
-            open={pendingOpen}
-            onOpenChange={(o) => setPendingOpen(o)}
-            preventEscapeClose={isPending}
-            data-testid="pending-dialog"
-          >
-            <DialogHeader>
-              <DialogTitle>Pending Save</DialogTitle>
-            </DialogHeader>
-            <DialogBody>
-              <p>Locked escape test</p>
-              {pendingStatus && (
-                <p data-testid="pending-status-text">{pendingStatus}</p>
-              )}
-            </DialogBody>
-            <DialogFooter>
-              <Button
-                variant="secondary"
-                disabled={isPending}
-                data-testid="pending-cancel-btn"
-                onClick={() => setPendingOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                disabled={isPending}
-                data-testid="pending-start-btn"
-                onClick={() => {
-                  setIsPending(true);
-                  setPendingStatus('Migration in progress');
-                  setTimeout(() => {
-                    setIsPending(false);
-                    setPendingStatus('Migration complete');
-                  }, 1200);
-                }}
-              >
-                Start Save
-              </Button>
-            </DialogFooter>
-          </Dialog>
-
-          <Dialog
-            open={deleteDialogOpen}
-            onOpenChange={(o) => setDeleteDialogOpen(o)}
-            data-testid="delete-row-dialog"
-          >
-            <DialogHeader>
-              <DialogTitle>Delete Row</DialogTitle>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                variant="danger"
-                data-testid="confirm-row-delete-btn"
-                onClick={() => {
-                  setRowDeleted(true);
-                  setDeleteDialogOpen(false);
-                  setTimeout(() => {
-                    fallbackHeadingRef.current?.focus();
-                  }, 50);
-                }}
-              >
-                Confirm Delete
-              </Button>
-            </DialogFooter>
-          </Dialog>
-        </div>
-      }
       controls={
         <>
           <StudioSegmentedControl
             label={t('common.studio.specimenDirectionLabel')}
             value={specimenDir}
             options={[
-              { value: 'ltr', label: t('common.studio.specimenDirLtr') },
-              { value: 'rtl', label: t('common.studio.specimenDirRtl') },
+              { value: 'ltr', label: t('common.studio.specimenDirLtr'), testId: 'opt-dir-ltr' },
+              { value: 'rtl', label: t('common.studio.specimenDirRtl'), testId: 'opt-dir-rtl' },
             ]}
             onChange={setSpecimenDir}
           />
@@ -1108,7 +661,7 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
             label={t('common.studio.dlgPresetLabel')}
             value={archetype}
             options={archetypeOptions}
-            onChange={setArchetype}
+            onChange={handleArchetypeChange}
           />
 
           <StudioSegmentedControl
@@ -1137,18 +690,17 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
           />
 
           <StudioSegmentedControl
+            label={t('common.studio.footerBgLabel')}
+            value={footerBackground}
+            options={footerBgOptions}
+            onChange={setFooterBackground}
+          />
+
+          <StudioSegmentedControl
             label={t('common.studio.dlgFooterBtnSizeLabel')}
             value={footerBtnSize}
             options={footerBtnSizeOptions}
             onChange={setFooterBtnSize}
-          />
-
-          <StudioSelectField
-            label={t('common.studio.dlgRadiusLabel')}
-            value={radiusPreset}
-            options={radiusOptions}
-            onChange={setRadiusPreset}
-            testId="select-dialog-radius"
           />
 
           <hr className={styles.controlDivider} />
@@ -1193,6 +745,8 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
             <Icon name="check" />
           </div>
         )}
+
+        {/* Focused, Clean In-Canvas Dialog Specimen */}
         <div
           className={styles.inlineDialogCard}
           data-size={size}
@@ -1202,13 +756,16 @@ ${cssModuleSnippet ? `4. CSS Module overrides:\n${cssModuleSnippet}` : ''}`;
         </div>
       </div>
 
-      {/* Real Top-Layer Modal Triggered from Stage Action */}
+      {/* Real Top-Layer Modal Triggered from Sidebar Button */}
       <Dialog
         open={isModalOpen}
         onOpenChange={(open) => setIsModalOpen(open)}
         size={size}
+        showCloseButton={showCloseButton}
+        closeLabel={t('common.close')}
         closeOnBackdropClick={closeOnBackdropClick}
         preventEscapeClose={preventEscapeClose}
+        initialFocusRef={archetype === 'confirmation' ? confirmCancelRef : undefined}
         data-testid="studio-live-modal"
       >
         {renderDialogContent(true)}

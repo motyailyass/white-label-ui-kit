@@ -1,0 +1,322 @@
+/**
+ * Sheet (Drawer) Primitive Stylesheet
+ *
+ * White-label pure drawer/sheet primitive.
+ * 100% CSS logical properties, semantic tokens, zero dashboard shadows.
+ */
+
+/* =============================================================================
+   Native <dialog> Host & Backdrop
+   ============================================================================= */
+
+.dialog {
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  inline-size: 100%;
+  block-size: 100dvh;
+  max-inline-size: 100%;
+  max-block-size: 100dvh;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.dialog:not([open]) {
+  display: none;
+}
+
+.dialog::backdrop {
+  background-color: var(--color-overlay);
+  animation: fadeIn var(--motion-duration-fast) var(--motion-ease-enter);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translate3d(-100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    transform: translate3d(0, -100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* =============================================================================
+   Sheet Panel Surface
+   ============================================================================= */
+
+.panel {
+  /* Local stacking contract: private layer, isolated from the document scale. */
+  isolation: isolate;
+  --_z-layer-overlay: 2;
+
+  position: fixed;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+  outline: none;
+  z-index: var(--z-drawer);
+}
+
+/* =============================================================================
+   Anchor Positions & Sizing Scale
+   ============================================================================= */
+
+/* Inline End (Right in LTR, Left in RTL) */
+.side_inline_end {
+  inset-block: 0;
+  inset-inline-end: 0;
+  inline-size: var(--_sheet-size, 400px);
+  max-inline-size: 100%;
+  block-size: 100dvh;
+  border-inline-start: 1px solid var(--color-border-subtle);
+  animation: slideInFromRight var(--motion-duration-normal) var(--motion-ease-enter);
+}
+
+:dir(rtl) .side_inline_end {
+  animation-name: slideInFromLeft;
+}
+
+/* Inline Start (Left in LTR, Right in RTL) */
+.side_inline_start {
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: var(--_sheet-size, 400px);
+  max-inline-size: 100%;
+  block-size: 100dvh;
+  border-inline-end: 1px solid var(--color-border-subtle);
+  animation: slideInFromLeft var(--motion-duration-normal) var(--motion-ease-enter);
+}
+
+:dir(rtl) .side_inline_start {
+  animation-name: slideInFromRight;
+}
+
+/* Top Banner */
+.side_top {
+  inset-inline: 0;
+  inset-block-start: 0;
+  block-size: var(--_sheet-size, 320px);
+  max-block-size: 100dvh;
+  inline-size: 100%;
+  border-block-end: 1px solid var(--color-border-subtle);
+  animation: slideInFromTop var(--motion-duration-normal) var(--motion-ease-enter);
+}
+
+/* Bottom Sheet */
+.side_bottom {
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: var(--_sheet-size, 320px);
+  max-block-size: 100dvh;
+  inline-size: 100%;
+  border-block-start: 1px solid var(--color-border-subtle);
+  animation: slideInFromBottom var(--motion-duration-normal) var(--motion-ease-enter);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog::backdrop {
+    animation: none;
+  }
+  .panel {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Sizing Variables */
+.size_sm {
+  --_sheet-size: 320px;
+}
+
+.size_md {
+  --_sheet-size: 400px;
+}
+
+.size_lg {
+  --_sheet-size: 540px;
+}
+
+.size_xl {
+  --_sheet-size: 720px;
+}
+
+.size_full {
+  --_sheet-size: 100%;
+}
+
+/* Top & Bottom Size Overrides */
+.side_top.size_sm,
+.side_bottom.size_sm {
+  --_sheet-size: 200px;
+}
+
+.side_top.size_md,
+.side_bottom.size_md {
+  --_sheet-size: 320px;
+}
+
+.side_top.size_lg,
+.side_bottom.size_lg {
+  --_sheet-size: 480px;
+}
+
+.side_top.size_xl,
+.side_bottom.size_xl {
+  --_sheet-size: 640px;
+}
+
+/* =============================================================================
+   Compound Header, Body & Footer
+   ============================================================================= */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block: var(--space-5);
+  padding-inline-start: var(--space-6);
+  padding-inline-end: calc(var(--space-6) + 2rem);
+  border-block-end: 1px solid var(--color-border-subtle);
+  flex-shrink: 0;
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.title {
+  font-family: inherit;
+  font-size: var(--typography-card-title-size, var(--font-size-lg));
+  line-height: var(--typography-card-title-line-height, 1.5rem);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.description {
+  font-family: inherit;
+  font-size: var(--typography-supporting-size, var(--font-size-sm));
+  line-height: var(--typography-supporting-line-height, 1.25rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-secondary);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.closeButton {
+  position: absolute;
+  inset-block-start: var(--space-4);
+  inset-inline-end: var(--space-4);
+  z-index: var(--_z-layer-overlay);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border-radius: var(--radius-control);
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.closeButton::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--space-2) * -1);
+}
+
+.closeButton:hover {
+  background-color: var(--color-ghost-hover);
+  color: var(--color-text-primary);
+}
+
+.closeButton:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-block: var(--space-6);
+  padding-inline: var(--space-6);
+  box-sizing: border-box;
+  min-block-size: 0;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+  padding-inline: var(--space-6);
+  border-block-start: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface);
+  flex-shrink: 0;
+}
+
+/* Arabic script typography & diacritic clearance */
+.title:lang(ar),
+.description:lang(ar),
+.body:lang(ar) {
+  font-family: var(--font-family-arabic);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.body:lang(ar) {
+  line-height: var(--line-height-arabic-normal);
+}

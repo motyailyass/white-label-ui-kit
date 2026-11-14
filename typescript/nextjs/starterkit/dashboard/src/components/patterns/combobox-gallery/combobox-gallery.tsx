@@ -1,23 +1,15 @@
 'use client';
 
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Icon } from '@/components/icons';
 import {
+  Button,
   Combobox,
   type ComboboxItems,
   type ComboboxOption,
   type ComboboxOptionGroup,
   type ControlSize,
 } from '@/components/ui';
-import { cn } from '@/lib/cn';
 import { useI18n, useTheme } from '@/providers';
 import {
   GalleryCodeInspector,
@@ -40,46 +32,105 @@ export interface ComboboxGalleryProps {
   linkComponent?: StudioLinkComponent;
 }
 
-const sampleFlatOptions: ComboboxOption[] = [
-  { value: 'us', label: 'United States', description: 'North America · USD' },
-  { value: 'ca', label: 'Canada', description: 'North America · CAD' },
-  { value: 'gb', label: 'United Kingdom', description: 'Europe · GBP' },
-  { value: 'de', label: 'Germany', description: 'Europe · EUR' },
-  { value: 'fr', label: 'France', description: 'Europe · EUR' },
-  { value: 'jp', label: 'Japan', description: 'Asia · JPY' },
-  { value: 'au', label: 'Australia', description: 'Oceania · AUD' },
-  { value: 'br', label: 'Brazil', description: 'South America · BRL', disabled: true },
-  { value: 'ae', label: 'United Arab Emirates', description: 'Middle East · AED' },
+interface LocalizedOptionDef {
+  value: string;
+  labels: Record<'en' | 'fr' | 'ar', string>;
+  descriptions: Record<'en' | 'fr' | 'ar', string>;
+  disabled?: boolean;
+}
+
+interface LocalizedGroupDef {
+  labels: Record<'en' | 'fr' | 'ar', string>;
+  options: LocalizedOptionDef[];
+}
+
+const RAW_OPTIONS: readonly LocalizedOptionDef[] = [
+  {
+    value: 'us',
+    labels: { en: 'United States', fr: 'États-Unis', ar: 'الولايات المتحدة' },
+    descriptions: {
+      en: 'North America · USD',
+      fr: 'Amérique du Nord · USD',
+      ar: 'أمريكا الشمالية · دولار',
+    },
+  },
+  {
+    value: 'ca',
+    labels: { en: 'Canada', fr: 'Canada', ar: 'كندا' },
+    descriptions: {
+      en: 'North America · CAD',
+      fr: 'Amérique du Nord · CAD',
+      ar: 'أمريكا الشمالية · دولار كندي',
+    },
+  },
+  {
+    value: 'gb',
+    labels: { en: 'United Kingdom', fr: 'Royaume-Uni', ar: 'المملكة المتحدة' },
+    descriptions: { en: 'Europe · GBP', fr: 'Europe · GBP', ar: 'أوروبا · جنيه إسترليني' },
+  },
+  {
+    value: 'de',
+    labels: { en: 'Germany', fr: 'Allemagne', ar: 'ألمانيا' },
+    descriptions: { en: 'Europe · EUR', fr: 'Europe · EUR', ar: 'أوروبا · يورو' },
+  },
+  {
+    value: 'fr',
+    labels: { en: 'France', fr: 'France', ar: 'فرنسا' },
+    descriptions: { en: 'Europe · EUR', fr: 'Europe · EUR', ar: 'أوروبا · يورو' },
+  },
+  {
+    value: 'jp',
+    labels: { en: 'Japan', fr: 'Japon', ar: 'اليابان' },
+    descriptions: { en: 'Asia · JPY', fr: 'Asie · JPY', ar: 'آسيا · ين ياباني' },
+  },
+  {
+    value: 'au',
+    labels: { en: 'Australia', fr: 'Australie', ar: 'أستراليا' },
+    descriptions: { en: 'Oceania · AUD', fr: 'Océanie · AUD', ar: 'أوقيانوسيا · دولار أسترالي' },
+  },
+  {
+    value: 'br',
+    labels: { en: 'Brazil', fr: 'Brésil', ar: 'البرازيل' },
+    descriptions: {
+      en: 'South America · BRL',
+      fr: 'Amérique du Sud · BRL',
+      ar: 'أمريكا الجنوبية · ريال',
+    },
+    disabled: true,
+  },
+  {
+    value: 'ae',
+    labels: {
+      en: 'United Arab Emirates',
+      fr: 'Émirats arabes unis',
+      ar: 'الإمارات العربية المتحدة',
+    },
+    descriptions: { en: 'Middle East · AED', fr: 'Moyen-Orient · AED', ar: 'الشرق الأوسط · درهم' },
+  },
 ];
 
-const sampleGroupedOptions: ComboboxOptionGroup[] = [
+const RAW_GROUPS: readonly LocalizedGroupDef[] = [
   {
-    label: 'North America',
-    options: [
-      { value: 'us', label: 'United States', description: 'USD' },
-      { value: 'ca', label: 'Canada', description: 'CAD' },
-    ],
+    labels: { en: 'North America', fr: 'Amérique du Nord', ar: 'أمريكا الشمالية' },
+    options: [RAW_OPTIONS[0], RAW_OPTIONS[1]],
   },
   {
-    label: 'Europe',
-    options: [
-      { value: 'gb', label: 'United Kingdom', description: 'GBP' },
-      { value: 'de', label: 'Germany', description: 'EUR' },
-      { value: 'fr', label: 'France', description: 'EUR' },
-    ],
+    labels: { en: 'Europe', fr: 'Europe', ar: 'أوروبا' },
+    options: [RAW_OPTIONS[2], RAW_OPTIONS[3], RAW_OPTIONS[4]],
   },
   {
-    label: 'Asia & Middle East',
-    options: [
-      { value: 'jp', label: 'Japan', description: 'JPY' },
-      { value: 'ae', label: 'United Arab Emirates', description: 'AED' },
-    ],
+    labels: { en: 'Asia & Middle East', fr: 'Asie et Moyen-Orient', ar: 'آسيا والشرق الأوسط' },
+    options: [RAW_OPTIONS[5], RAW_OPTIONS[8]],
   },
 ];
 
 export function ComboboxGallery({ linkComponent }: ComboboxGalleryProps) {
   const { t, locale, direction } = useI18n();
   const { resolvedTheme } = useTheme();
+
+  const activeLang = useMemo(() => {
+    return (locale === 'fr' || locale === 'ar' ? locale : 'en') as 'en' | 'fr' | 'ar';
+  }, [locale]);
 
   // Studio Interactive State
   const [specimenDir, setSpecimenDir] = useState<ComboboxSpecimenDirection>('ltr');
@@ -104,22 +155,36 @@ export function ComboboxGallery({ linkComponent }: ComboboxGalleryProps) {
     radius: string;
   } | null>(null);
 
-  useEffect(() => {
-    if (specimenRef.current) {
-      const parent = specimenRef.current.parentElement;
-      if (parent) {
-        const s = window.getComputedStyle(parent);
-        const rect = parent.getBoundingClientRect();
-        setMeasuredSpecs({
-          height: `${Math.round(rect.height)}px`,
-          width: `${Math.round(rect.width)}px`,
-          bg: s.backgroundColor,
-          border: `${s.borderWidth} ${s.borderStyle} ${s.borderColor}`,
-          radius: s.borderRadius,
-        });
-      }
-    }
-  }, [selectionMode, size, touchTarget, interactionState, hasStartIcon, specimenDir, resolvedTheme]);
+  const resolveText = useCallback(
+    (map: Record<'en' | 'fr' | 'ar', string>) => {
+      if (specimenDir === 'rtl') return map.ar;
+      return map[activeLang] ?? map.en;
+    },
+    [activeLang, specimenDir],
+  );
+
+  const localizedFlatOptions: ComboboxOption[] = useMemo(() => {
+    return RAW_OPTIONS.map((opt) => ({
+      value: opt.value,
+      label: resolveText(opt.labels),
+      description: resolveText(opt.descriptions),
+      disabled: opt.disabled,
+    }));
+  }, [resolveText]);
+
+  const localizedGroupedOptions: ComboboxOptionGroup[] = useMemo(() => {
+    return RAW_GROUPS.map((grp) => ({
+      label: resolveText(grp.labels),
+      options: grp.options.map((opt) => ({
+        value: opt.value,
+        label: resolveText(opt.labels),
+        description: resolveText(opt.descriptions),
+        disabled: opt.disabled,
+      })),
+    }));
+  }, [resolveText]);
+
+  const currentOptions: ComboboxItems = isGrouped ? localizedGroupedOptions : localizedFlatOptions;
 
   const handleReset = useCallback(() => {
     setSpecimenDir('ltr');
@@ -141,58 +206,44 @@ export function ComboboxGallery({ linkComponent }: ComboboxGalleryProps) {
   const isDisabled = interactionState === 'disabled';
 
   const baseId = useId();
-  const activeInputId = `${baseId}-combobox-input`;
+  const activeInputId = `${baseId}-combobox`;
 
   const activePlaceholder =
     specimenDir === 'rtl' ? 'ابحث عن دولة...' : t('common.studio.comboboxSamplePlaceholder');
   const activeLabelText =
     specimenDir === 'rtl' ? 'الدولة المحددة' : t('common.studio.comboboxSampleLabel');
 
-  const currentOptions: ComboboxItems = isGrouped ? sampleGroupedOptions : sampleFlatOptions;
+  useEffect(() => {
+    if (specimenRef.current) {
+      const container = specimenRef.current.closest('div[class*="inputContainer"]');
+      if (container) {
+        const s = window.getComputedStyle(container);
+        const rect = container.getBoundingClientRect();
+        setMeasuredSpecs({
+          height: `${Math.round(rect.height)}px`,
+          width: `${Math.round(rect.width)}px`,
+          bg: s.backgroundColor,
+          border: `${s.borderWidth} ${s.borderStyle} ${s.borderColor}`,
+          radius: s.borderRadius,
+        });
+      }
+    }
+  }, [
+    selectionMode,
+    size,
+    touchTarget,
+    interactionState,
+    specimenDir,
+    resolvedTheme,
+    singleValue,
+    multiValues,
+    isGrouped,
+  ]);
 
-  // Segmented control options
-  const dirOptions: readonly StudioSegmentedOption<ComboboxSpecimenDirection>[] = [
-    { value: 'ltr', label: t('common.studio.specimenDirLtr'), testId: 'opt-dir-ltr' },
-    { value: 'rtl', label: t('common.studio.specimenDirRtl'), testId: 'opt-dir-rtl' },
-  ];
-
-  const modeOptions: readonly StudioSegmentedOption<ComboboxSelectionMode>[] = [
-    { value: 'single', label: 'Single Select', testId: 'opt-mode-single' },
-    { value: 'multiple', label: 'Multi-Select (Tags)', testId: 'opt-mode-multiple' },
-  ];
-
-  const sizeOptions: readonly StudioSegmentedOption<ControlSize | 'default'>[] = [
-    { value: 'default', label: 'Def', testId: 'opt-size-default' },
-    { value: 'xs', label: 'XS', testId: 'opt-size-xs' },
-    { value: 'sm', label: 'SM', testId: 'opt-size-sm' },
-    { value: 'md', label: 'MD', testId: 'opt-size-md' },
-    { value: 'lg', label: 'LG', testId: 'opt-size-lg' },
-    { value: 'xl', label: 'XL', testId: 'opt-size-xl' },
-    { value: '2xl', label: '2XL', testId: 'opt-size-2xl' },
-  ];
-
-  const viewOptions: readonly StudioSegmentedOption<ComboboxStageView>[] = [
-    { value: 'single', label: t('common.studio.viewSingle'), testId: 'opt-view-single' },
-    { value: 'all-sizes', label: t('common.studio.viewAllSizes'), testId: 'opt-view-all-sizes' },
-  ];
-
-  const stateOptions: readonly StudioSegmentedOption<ComboboxInteractionState>[] = [
-    { value: 'resting', label: t('common.studio.optStateResting'), testId: 'opt-state-resting' },
-    { value: 'invalid', label: t('common.studio.optStateInvalid'), testId: 'opt-state-invalid' },
-    { value: 'loading', label: t('common.studio.stateLoading'), testId: 'opt-state-loading' },
-    { value: 'disabled', label: t('common.studio.optStateDisabled'), testId: 'opt-state-disabled' },
-  ];
-
-  const touchTargetOptions: readonly StudioSegmentedOption<ComboboxTouchTarget>[] = [
-    { value: 'auto', label: t('common.studio.touchAuto'), testId: 'opt-touch-auto' },
-    { value: 'comfortable', label: t('common.studio.touchComfortable'), testId: 'opt-touch-comfortable' },
-  ];
-
-  // Dynamic JSX Snippet
+  // Dynamic Standalone Code Snippet
   const jsxSnippet = useMemo(() => {
-    const isMulti = selectionMode === 'multiple';
-    const propsList: string[] = ['options={countryOptions}'];
-    if (isMulti) propsList.push('multiple');
+    const propsList: string[] = [];
+    if (selectionMode === 'multiple') propsList.push('multiple');
     if (size !== 'default') propsList.push(`size="${size}"`);
     if (touchTarget !== 'auto') propsList.push(`touchTarget="${touchTarget}"`);
     if (isInvalid) propsList.push('invalid');
@@ -200,52 +251,58 @@ export function ComboboxGallery({ linkComponent }: ComboboxGalleryProps) {
     if (isDisabled) propsList.push('disabled');
     if (isClearable) propsList.push('clearable');
     if (hasStartIcon) propsList.push('startIcon={<Icon name="search" />}');
-    propsList.push(isMulti ? 'value={selectedCountries}' : 'value={country}');
-    propsList.push(isMulti ? 'onValueChange={setSelectedCountries}' : 'onValueChange={setCountry}');
+    propsList.push(`placeholder="${activePlaceholder}"`);
+    propsList.push('clearAriaLabel="Clear selection"');
+    propsList.push('toggleAriaLabel="Toggle options"');
 
-    const propsStr = `\n  ${propsList.join('\n  ')}\n`;
+    const valueStr =
+      selectionMode === 'multiple'
+        ? `value={${JSON.stringify(multiValues)}}`
+        : `value="${singleValue}"`;
 
-    return `import { useState } from 'react';
-import { Combobox, type ComboboxOption } from '@/components/ui';
-${hasStartIcon ? `import { Icon } from '@/components/icons';\n` : ''}
-export function CountrySelect() {
-  const [${isMulti ? "selectedCountries, setSelectedCountries] = useState<string[]>(['us', 'ca'])" : "country, setCountry] = useState('us')"};
+    const propsStr = propsList.length > 0 ? `\n  ${propsList.join('\n  ')}` : '';
 
-  return (
-    <Combobox${propsStr}/>
-  );
-}`;
-  }, [selectionMode, size, touchTarget, isInvalid, isLoading, isDisabled, isClearable, hasStartIcon]);
+    return `import { Combobox } from '@/components/ui';${hasStartIcon ? "\nimport { Icon } from '@/components/icons';" : ''}
 
-  const cssModuleSnippet = `/* Custom sizing & container integration */
-.comboboxContainer {
-  inline-size: 100%;
-  max-inline-size: 28rem;
-}
-`;
+<Combobox
+  options={${isGrouped ? 'groupedOptions' : 'countryOptions'}}
+  ${valueStr}${propsStr}
+  onValueChange={(val) => setValue(val)}
+/>`;
+  }, [
+    selectionMode,
+    size,
+    touchTarget,
+    isInvalid,
+    isLoading,
+    isDisabled,
+    isClearable,
+    hasStartIcon,
+    activePlaceholder,
+    singleValue,
+    multiValues,
+    isGrouped,
+  ]);
 
-  // AI Agent Prompt
+  const cssModuleSnippet = `.wrapper {\n  inline-size: 100%;\n  max-inline-size: 28rem;\n}`;
+
   const aiAgentPrompt = useMemo(() => {
-    const isMulti = selectionMode === 'multiple';
-    return `Implement a white-label filterable Combobox component using the kit's pure Combobox primitive:
+    return `You are implementing an accessible Combobox widget using the project's white-label UI Kit. Follow these exact rules:
 
-\`\`\`tsx
-${jsxSnippet}
-\`\`\`
+1. Import pure primitive:
+   import { Combobox } from '@/components/ui';
 
-Requirements & Tokens:
-- Pure UI Boundary: Consume \`@/components/ui/combobox\` directly.
-- Selection Mode: ${isMulti ? 'Multi-Select (Tags / Chips Mode with backspace removal)' : 'Single-Select'}.
-- Sizing: ${size === 'default' ? 'Product default (md = 36px in dashboard, xl = 48px in website)' : `Explicit size="${size}"`}.
-- Touch Target Policy: ${touchTarget === 'auto' ? 'Auto (coarse pointer 48×48px expansion)' : 'Comfortable (48×48px enforced)'}.
-- State: ${interactionState}.
-- Features: Clearable = ${isClearable}, StartIcon = ${hasStartIcon}, Grouped = ${isGrouped}.
-- WAI-ARIA: Combobox role with roving activedescendant focus, listbox popup, and escape dismiss.
-- Direction: Logical properties only; full RTL/LTR bi-directional support.
-`;
-  }, [jsxSnippet, selectionMode, size, touchTarget, interactionState, isClearable, hasStartIcon, isGrouped]);
+2. Usage:
+   ${jsxSnippet}
 
-  // Measured Spec Groups
+3. Architectural Invariants:
+   - Zero physical CSS properties (inline-size, block-size, padding-inline, padding-block).
+   - 100% shadow-free in dashboard routes.
+   - 2px balanced focus contract (zero floating gap).
+   - WAI-ARIA 1.2 compliant (role="combobox", role="listbox", aria-activedescendant).
+   - Size: ${size === 'default' ? 'Product default (md = 36px in dashboard, xl = 48px in website)' : `Explicit size="${size}"`}.`;
+  }, [jsxSnippet, size]);
+
   const specGroups: readonly StudioSpecGroup[] = useMemo(() => {
     return [
       {
@@ -254,45 +311,27 @@ Requirements & Tokens:
           { label: 'mode', value: selectionMode },
           { label: 'size', value: size },
           { label: 'touchTarget', value: touchTarget },
-          { label: 'state', value: interactionState },
-          { label: 'clearable', value: isClearable ? 'true' : 'false' },
           { label: 'grouped', value: isGrouped ? 'true' : 'false' },
-        ],
-      },
-      {
-        title: t('common.studio.specCategoryTokens'),
-        items: [
-          {
-            label: '--radius-control',
-            value: 'var(--radius-control) (Product Preset: 6px / 8px)',
-          },
-          { label: 'Z-Index Layer', value: 'var(--z-dropdown) (200)' },
-          { label: 'Specimen Direction', value: specimenDir.toUpperCase() },
+          { label: 'clearable', value: isClearable ? 'true' : 'false' },
+          { label: 'state', value: interactionState },
         ],
       },
       {
         title: t('common.studio.specCategoryMeasured'),
         items: [
-          {
-            label: t('common.studio.specMinBlockSize'),
-            value: measuredSpecs ? measuredSpecs.height : 'Measuring...',
-          },
-          {
-            label: 'Rendered Inline Size (Width)',
-            value: measuredSpecs ? measuredSpecs.width : 'Measuring...',
-          },
-          {
-            label: 'Computed Background',
-            value: measuredSpecs ? measuredSpecs.bg : 'Measuring...',
-          },
-          {
-            label: 'Computed Border',
-            value: measuredSpecs ? measuredSpecs.border : 'Measuring...',
-          },
-          {
-            label: t('common.studio.specRadius'),
-            value: measuredSpecs ? measuredSpecs.radius : 'Measuring...',
-          },
+          { label: 'Trigger Height', value: measuredSpecs?.height ?? '—' },
+          { label: 'Trigger Width', value: measuredSpecs?.width ?? '—' },
+          { label: 'Background Color', value: measuredSpecs?.bg ?? '—' },
+          { label: 'Border', value: measuredSpecs?.border ?? '—' },
+          { label: 'Border Radius', value: measuredSpecs?.radius ?? '—' },
+        ],
+      },
+      {
+        title: t('common.studio.specCategoryTokens'),
+        items: [
+          { label: '--radius-control', value: 'var(--radius-control) (6px / 8px)' },
+          { label: '--z-dropdown', value: 'var(--z-dropdown) (200)' },
+          { label: 'Specimen Direction', value: specimenDir.toUpperCase() },
         ],
       },
       {
@@ -308,62 +347,103 @@ Requirements & Tokens:
     selectionMode,
     size,
     touchTarget,
-    interactionState,
-    isClearable,
     isGrouped,
-    specimenDir,
+    isClearable,
+    interactionState,
     measuredSpecs,
-    t,
+    specimenDir,
     locale,
     direction,
     resolvedTheme,
+    t,
   ]);
+
+  // Sidebar Controls Options
+  const dirOptions: readonly StudioSegmentedOption<ComboboxSpecimenDirection>[] = [
+    { value: 'ltr', label: t('common.studio.specimenDirLtr'), testId: 'opt-dir-ltr' },
+    { value: 'rtl', label: t('common.studio.specimenDirRtl'), testId: 'opt-dir-rtl' },
+  ];
+
+  const modeOptions: readonly StudioSegmentedOption<ComboboxSelectionMode>[] = [
+    { value: 'single', label: t('common.studio.comboboxModeSingle'), testId: 'opt-mode-single' },
+    { value: 'multiple', label: t('common.studio.comboboxModeMulti'), testId: 'opt-mode-multi' },
+  ];
+
+  const sizeOptions: readonly StudioSegmentedOption<ControlSize | 'default'>[] = [
+    { value: 'default', label: 'Def', testId: 'opt-size-default' },
+    { value: 'xs', label: 'XS', testId: 'opt-size-xs' },
+    { value: 'sm', label: 'SM', testId: 'opt-size-sm' },
+    { value: 'md', label: 'MD', testId: 'opt-size-md' },
+    { value: 'lg', label: 'LG', testId: 'opt-size-lg' },
+    { value: 'xl', label: 'XL', testId: 'opt-size-xl' },
+    { value: '2xl', label: '2XL', testId: 'opt-size-2xl' },
+  ];
+
+  const stateOptions: readonly StudioSegmentedOption<ComboboxInteractionState>[] = [
+    { value: 'resting', label: t('common.studio.optStateResting'), testId: 'opt-state-resting' },
+    { value: 'invalid', label: t('common.studio.optStateInvalid'), testId: 'opt-state-invalid' },
+    { value: 'loading', label: t('common.studio.stateLoading'), testId: 'opt-state-loading' },
+    { value: 'disabled', label: t('common.studio.optStateDisabled'), testId: 'opt-state-disabled' },
+  ];
+
+  const viewOptions: readonly StudioSegmentedOption<ComboboxStageView>[] = [
+    { value: 'single', label: t('common.studio.viewSingle'), testId: 'opt-view-single' },
+    { value: 'all-sizes', label: t('common.studio.viewAllSizes'), testId: 'opt-view-all-sizes' },
+  ];
+
+  const touchTargetOptions: readonly StudioSegmentedOption<ComboboxTouchTarget>[] = [
+    { value: 'auto', label: t('common.studio.touchAuto'), testId: 'opt-touch-auto' },
+    {
+      value: 'comfortable',
+      label: t('common.studio.touchComfortable'),
+      testId: 'opt-touch-comfortable',
+    },
+  ];
 
   const allSizesList: readonly ControlSize[] = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
 
-  const renderActiveCombobox = (overrideSize?: ControlSize, customRef = false) => {
+  const renderActiveCombobox = (overrideSize?: ControlSize, isMain = false) => {
+    const commonProps = {
+      options: currentOptions,
+      size: overrideSize ?? resolvedSize,
+      touchTarget,
+      invalid: isInvalid,
+      loading: isLoading,
+      disabled: isDisabled,
+      clearable: isClearable,
+      startIcon: hasStartIcon ? <Icon name="search" /> : undefined,
+      placeholder: activePlaceholder,
+      emptyMessage: t('common.studio.comboboxEmpty'),
+      loadingMessage: t('common.studio.comboboxLoading'),
+      clearAriaLabel: t('common.studio.comboboxClearAria'),
+      toggleAriaLabel: t('common.studio.comboboxToggleAria'),
+      removeChipAriaLabel: (label: string) =>
+        `${t('common.studio.comboboxRemoveChipAria')} ${label}`,
+    };
+
     if (selectionMode === 'multiple') {
       return (
         <Combobox
-          ref={customRef ? specimenRef : undefined}
-          id={activeInputId}
+          {...commonProps}
           multiple
-          options={currentOptions}
+          ref={isMain ? specimenRef : undefined}
+          id={isMain ? activeInputId : undefined}
           value={multiValues}
           onValueChange={(vals) => setMultiValues(vals)}
-          size={overrideSize ?? resolvedSize}
-          touchTarget={touchTarget}
-          invalid={isInvalid}
-          loading={isLoading}
-          disabled={isDisabled}
-          clearable={isClearable}
-          startIcon={hasStartIcon ? <Icon name="search" /> : undefined}
-          placeholder={activePlaceholder}
-          emptyMessage={t('common.studio.comboboxEmpty')}
-          clearAriaLabel={t('common.studio.comboboxClearAria')}
-          toggleAriaLabel={t('common.studio.comboboxToggleAria')}
+          data-testid={isMain ? 'studio-active-combobox' : `studio-size-combobox-${overrideSize}`}
         />
       );
     }
 
     return (
       <Combobox
-        ref={customRef ? specimenRef : undefined}
-        id={activeInputId}
-        options={currentOptions}
+        {...commonProps}
+        multiple={false}
+        ref={isMain ? specimenRef : undefined}
+        id={isMain ? activeInputId : undefined}
         value={singleValue}
         onValueChange={(val) => setSingleValue(val)}
-        size={overrideSize ?? resolvedSize}
-        touchTarget={touchTarget}
-        invalid={isInvalid}
-        loading={isLoading}
-        disabled={isDisabled}
-        clearable={isClearable}
-        startIcon={hasStartIcon ? <Icon name="search" /> : undefined}
-        placeholder={activePlaceholder}
-        emptyMessage={t('common.studio.comboboxEmpty')}
-        clearAriaLabel={t('common.studio.comboboxClearAria')}
-        toggleAriaLabel={t('common.studio.comboboxToggleAria')}
+        data-testid={isMain ? 'studio-active-combobox' : `studio-size-combobox-${overrideSize}`}
       />
     );
   };
@@ -387,7 +467,7 @@ Requirements & Tokens:
           />
 
           <StudioSegmentedControl
-            label="Selection Mode"
+            label={t('common.studio.comboboxSelectionModeLabel')}
             value={selectionMode}
             options={modeOptions}
             onChange={setSelectionMode}
@@ -428,21 +508,21 @@ Requirements & Tokens:
           <hr className={styles.controlDivider} />
 
           <StudioToggleRow
-            label="Grouped Options"
+            label={t('common.studio.comboboxGroupedLabel')}
             checked={isGrouped}
             onCheckedChange={setIsGrouped}
             testId="toggle-combobox-grouped"
           />
 
           <StudioToggleRow
-            label="Clearable Button"
+            label={t('common.studio.comboboxClearableLabel')}
             checked={isClearable}
             onCheckedChange={setIsClearable}
             testId="toggle-combobox-clearable"
           />
 
           <StudioToggleRow
-            label="Leading Search Icon"
+            label={t('common.studio.comboboxStartIconLabel')}
             checked={hasStartIcon}
             onCheckedChange={setHasStartIcon}
             testId="toggle-combobox-start-icon"
@@ -470,10 +550,10 @@ Requirements & Tokens:
               {renderActiveCombobox(undefined, true)}
               <span className={isInvalid ? styles.fieldError : styles.fieldHelper}>
                 {isInvalid
-                  ? 'Please select a valid option from the list.'
+                  ? t('common.studio.comboboxSampleError')
                   : selectionMode === 'multiple'
-                    ? 'Search and pick multiple countries. Press backspace to remove tags.'
-                    : 'Type to filter options or use arrow keys.'}
+                    ? t('common.studio.comboboxSampleMultiHelper')
+                    : t('common.studio.comboboxSampleHelper')}
               </span>
             </div>
           </div>
@@ -487,6 +567,85 @@ Requirements & Tokens:
             ))}
           </div>
         )}
+
+        {/* Clean, centered Quick Configuration Presets */}
+        <div className={styles.variantsCenterSection}>
+          <span className={styles.variantsCenterLabel}>
+            {t('common.studio.comboboxQuickPresetsTitle')}
+          </span>
+          <div className={styles.variantsCenterRow}>
+            {[
+              {
+                id: 'single',
+                labelKey: 'common.studio.comboboxPresetSingle' as const,
+                apply: () => {
+                  setSelectionMode('single');
+                  setInteractionState('resting');
+                  setIsGrouped(false);
+                  setSingleValue('us');
+                },
+                isActive:
+                  selectionMode === 'single' && !isGrouped && interactionState === 'resting',
+              },
+              {
+                id: 'multi',
+                labelKey: 'common.studio.comboboxPresetMulti' as const,
+                apply: () => {
+                  setSelectionMode('multiple');
+                  setInteractionState('resting');
+                  setIsGrouped(false);
+                  setMultiValues(['us', 'ca']);
+                },
+                isActive: selectionMode === 'multiple' && interactionState === 'resting',
+              },
+              {
+                id: 'grouped',
+                labelKey: 'common.studio.comboboxPresetGrouped' as const,
+                apply: () => {
+                  setSelectionMode('single');
+                  setIsGrouped(true);
+                  setInteractionState('resting');
+                  setSingleValue('us');
+                },
+                isActive: isGrouped && interactionState === 'resting',
+              },
+              {
+                id: 'loading',
+                labelKey: 'common.studio.comboboxPresetLoading' as const,
+                apply: () => {
+                  setInteractionState('loading');
+                },
+                isActive: interactionState === 'loading',
+              },
+              {
+                id: 'invalid',
+                labelKey: 'common.studio.comboboxPresetInvalid' as const,
+                apply: () => {
+                  setInteractionState('invalid');
+                },
+                isActive: interactionState === 'invalid',
+              },
+              {
+                id: 'disabled',
+                labelKey: 'common.studio.comboboxPresetDisabled' as const,
+                apply: () => {
+                  setInteractionState('disabled');
+                },
+                isActive: interactionState === 'disabled',
+              },
+            ].map((preset) => (
+              <Button
+                key={preset.id}
+                variant={preset.isActive ? 'primary' : 'secondary'}
+                size="sm"
+                data-testid={`preset-quick-select-${preset.id}`}
+                onClick={preset.apply}
+              >
+                {t(preset.labelKey)}
+              </Button>
+            ))}
+          </div>
+        </div>
       </div>
     </GalleryStudioLayout>
   );

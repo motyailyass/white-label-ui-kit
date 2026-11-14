@@ -1,14 +1,16 @@
 {
   "name": "@starterkit/monorepo",
   "private": true,
+  "license": "MIT",
   "packageManager": "pnpm@12.16.1",
   "scripts": {
     "sync:shared": "node scripts/sync-shared.mjs",
     "sync:shared:check": "node scripts/sync-shared.mjs --check",
     "check:shadows": "node scripts/check-dashboard-shadows.mjs",
+    "check:client": "node scripts/check-client-directives.mjs",
     "lint": "pnpm --recursive run lint",
     "type-check": "pnpm --recursive run type-check",
-    "test": "pnpm --recursive run test",
+    "test": "pnpm --recursive --workspace-concurrency=1 run test",
     "build": "pnpm --recursive run build",
     "format": "pnpm --recursive run format",
     "format:check": "pnpm --recursive run format:check",

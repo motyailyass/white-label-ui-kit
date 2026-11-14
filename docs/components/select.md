@@ -348,15 +348,14 @@ Disabled > Invalid > Focus > Hover > Rest
    - **Neutral border remains stable** (`1px solid var(--color-border-control)`).
 3. **Focus (`:focus-visible`)**:
    - Border: `1px solid var(--color-border-focus)`
-   - Outline: `var(--focus-ring-width) solid var(--color-border-focus)`
-   - Outline offset: `var(--focus-ring-offset)`
+   - Outline: `1px solid var(--color-border-focus)` flush outline (`outline-offset: 0`), yielding exactly 2px visual focus thickness without floating gap (Modern balanced / HeroUI style).
    - Takes precedence over hover border.
 4. **Invalid (`[aria-invalid="true"]`)**:
    - Border: `1px solid var(--color-danger)`
    - Retains danger border during hover.
 5. **Invalid + Focus (`[aria-invalid="true"]:focus-visible`)**:
    - Border: `1px solid var(--color-danger)`
-   - Outline: `var(--focus-ring-width) solid var(--color-danger)`
+   - Outline: `1px solid var(--color-danger)` flush outline (`outline-offset: 0`).
    - Retains danger border and danger outline during hover.
 6. **Disabled (`:disabled`)**:
    - Background: `var(--color-control-disabled-bg)`
@@ -517,11 +516,11 @@ In `@media (forced-colors: active)`:
   border-color: var(--color-border-control);
 }
 
-/* Focus State (Immediate 0ms Visible Outline) */
+/* Focus State (Immediate 0ms Visible Outline, 2px Modern Balanced Contract) */
 .select:focus-visible,
 .select:focus {
-  outline: var(--focus-ring-width) solid var(--color-border-focus);
-  outline-offset: var(--focus-ring-offset);
+  outline: 1px solid var(--color-border-focus);
+  outline-offset: 0;
   border-color: var(--color-border-focus);
   transition: none;
 }
@@ -533,8 +532,9 @@ In `@media (forced-colors: active)`:
 
 .select[aria-invalid="true"]:focus-visible,
 .select[aria-invalid="true"]:focus {
+  outline: 1px solid var(--color-danger);
+  outline-offset: 0;
   border-color: var(--color-danger);
-  outline-color: var(--color-danger);
   transition: none;
 }
 
@@ -792,19 +792,19 @@ export { Select, type SelectProps } from './select';
 
 ---
 
-## 10. Demonstration Gallery Specifications (`/gallery/select`)
+## 10. Interactive Studio Gallery Specifications (`/gallery/select`)
 
-Create a connected `SelectGallery` pattern with:
-1. **Overview & Product Default**: Omitted size specimen proving local product default parity (`md` in Dashboard, `xl` in Website).
-2. **Six-Step Scale**: `xs` through `2xl` with explicit default parity verification.
-3. **Controlled Selection**: Demonstrates controlled `value` and `onChange` with localized feedback.
-4. **Uncontrolled Selection & Reset**: Demonstrates native `defaultValue` and form reset restoration.
-5. **State Matrix**: Resting, hover, focus, invalid, disabled, and combined precedence specimens.
-6. **Required Validation & Optional Choice**: Real native required-form validation and separately demonstrated application error relationships with no premature alert.
-7. **Option Groups**: Shows `<optgroup>` and individual disabled `<option>` items.
-8. **Bidirectional Layout**: EN/FR/AR specimens, Arabic font stack clearance, and nested direction override (`dir="ltr"` inside Arabic page).
-9. **Touch Target Verification**: Comfortable target and active theme tokens.
-10. **Async Form Simulation**: Pending state, reset cancellation, timer cleanup on unmount as well as reset, duplicate submission guard, and status ID storage.
+The interactive studio gallery presents live verification and developer tooling for the `Select` primitive in both starters:
+1. **Interactive Stage**: Live single specimen and all-sizes grid (`xs` to `2xl`) responsive views.
+2. **Common Configurations Presets Bar**:
+   - **Deployment Region**: Default production select with token-spaced chevron.
+   - **Account Role**: Required administrative role selector.
+   - **Billing Currency**: Dropdown with financial currencies (`USD`, `EUR`, `GBP`, `AED`).
+   - **Without Chevron**: Minimal select (`showIcon={false}`) with symmetrical logical padding.
+   - **Invalid**: Mandatory environment selector with `aria-invalid="true"` and error message.
+   - **Disabled**: Locked cluster selector in native `disabled` state.
+3. **Ergonomic Controls**: 6-step size switch, fine vs. comfortable touch targets (48×48px), full-width toggle, and LTR/RTL specimen switch.
+4. **AI Agent Prompt & Code Inspector**: Live copyable JSX, wrapper CSS Module snippet, and measured DOM geometry (computed height, width, background, border, radius).
 
 ---
 

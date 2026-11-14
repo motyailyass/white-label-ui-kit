@@ -38,6 +38,7 @@ export function WaitlistTemplate({
           primaryCtaHref="#join"
           secondaryCtaLabel={t('website.waitlist.roadmapCta')}
           secondaryCtaHref="#roadmap"
+          showFilterBar={false}
           linkAs={linkAs}
         />
       </main>

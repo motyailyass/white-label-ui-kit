@@ -23,12 +23,9 @@
   justify-content: center;
   min-block-size: 22rem;
   inline-size: 100%;
-  padding: var(--space-6);
+  padding-inline: var(--space-6);
+  padding-block: var(--space-6);
   box-sizing: border-box;
-}
-
-.canvasRtl {
-  direction: rtl;
 }
 
 .stageCard {
@@ -39,15 +36,17 @@
   gap: var(--space-6);
   max-inline-size: 34rem;
   inline-size: 100%;
-  padding: var(--space-8);
+  padding-inline: var(--space-8);
+  padding-block: var(--space-8);
   border-radius: var(--radius-card);
   border: 1px dashed var(--color-border-subtle);
   background-color: var(--color-surface-subtle);
 }
 
 .stageHelpText {
+  margin: 0;
   font-size: var(--font-size-xs);
-  line-height: 1.25rem;
+  line-height: var(--line-height-normal);
   color: var(--color-text-secondary);
   text-align: center;
 }
@@ -71,11 +70,12 @@
 }
 
 .skipDelayHeader {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-1);
   font-size: var(--font-size-xs);
-  line-height: 1.25rem;
+  line-height: var(--line-height-normal);
   color: var(--color-text-secondary);
   text-align: center;
 }
@@ -87,7 +87,8 @@
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-control);
-  padding: var(--space-1);
+  padding-inline: var(--space-1);
+  padding-block: var(--space-1);
 }
 
 .actionPill {
@@ -100,7 +101,9 @@
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-control);
   color: var(--color-text-primary);
+  font-family: inherit;
   font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
   cursor: pointer;
   outline: none;
   transition:

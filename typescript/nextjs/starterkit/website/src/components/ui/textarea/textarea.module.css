@@ -3,11 +3,13 @@
   --_control-line-height: var(--control-line-height-default);
   --_control-padding-inline: var(--control-padding-default);
   --_control-padding-block: var(--control-padding-block-default);
+  --_control-min-height: var(--control-height-default);
 
   box-sizing: border-box;
   display: block;
   inline-size: 100%;
   min-inline-size: 0;
+  min-block-size: var(--_control-min-height);
   padding-inline: var(--_control-padding-inline);
   padding-block: var(--_control-padding-block);
   border-radius: var(--radius-control);
@@ -21,10 +23,31 @@
   text-align: start;
   overflow-block: auto;
   resize: vertical;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-subtle) transparent;
   transition:
     border-color var(--transition-fast),
     background-color var(--transition-fast),
     color var(--transition-fast);
+}
+
+/* Custom Sleek Scrollbar */
+.textarea::-webkit-scrollbar {
+  inline-size: 6px;
+  block-size: 6px;
+}
+
+.textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.textarea::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-subtle);
+  border-radius: var(--radius-full);
+}
+
+.textarea::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text-secondary);
 }
 
 /* Explicit Six-Step Density Bindings */
@@ -33,6 +56,7 @@
   --_control-line-height: var(--control-line-height-xs);
   --_control-padding-inline: var(--control-padding-xs);
   --_control-padding-block: var(--control-padding-block-xs);
+  --_control-min-height: var(--control-height-xs);
 }
 
 .textarea[data-size="sm"] {
@@ -40,6 +64,7 @@
   --_control-line-height: var(--control-line-height-sm);
   --_control-padding-inline: var(--control-padding-sm);
   --_control-padding-block: var(--control-padding-block-sm);
+  --_control-min-height: var(--control-height-sm);
 }
 
 .textarea[data-size="md"] {
@@ -47,6 +72,7 @@
   --_control-line-height: var(--control-line-height-md);
   --_control-padding-inline: var(--control-padding-md);
   --_control-padding-block: var(--control-padding-block-md);
+  --_control-min-height: var(--control-height-md);
 }
 
 .textarea[data-size="lg"] {
@@ -54,6 +80,7 @@
   --_control-line-height: var(--control-line-height-lg);
   --_control-padding-inline: var(--control-padding-lg);
   --_control-padding-block: var(--control-padding-block-lg);
+  --_control-min-height: var(--control-height-lg);
 }
 
 .textarea[data-size="xl"] {
@@ -61,6 +88,7 @@
   --_control-line-height: var(--control-line-height-xl);
   --_control-padding-inline: var(--control-padding-xl);
   --_control-padding-block: var(--control-padding-block-xl);
+  --_control-min-height: var(--control-height-xl);
 }
 
 .textarea[data-size="2xl"] {
@@ -68,6 +96,7 @@
   --_control-line-height: var(--control-line-height-2xl);
   --_control-padding-inline: var(--control-padding-2xl);
   --_control-padding-block: var(--control-padding-block-2xl);
+  --_control-min-height: var(--control-height-2xl);
 }
 
 /* Touch-Target Policy */
@@ -83,11 +112,11 @@
   }
 }
 
-/* Focus State (Immediate 0ms Visible Outline) */
+/* Focus State (Immediate 0ms Visible Outline, 2px Modern Balanced Contract) */
 .textarea:focus-visible,
 .textarea:focus {
-  outline: var(--focus-ring-width) solid var(--color-border-focus);
-  outline-offset: var(--focus-ring-offset);
+  outline: 1px solid var(--color-border-focus);
+  outline-offset: 0;
   border-color: var(--color-border-focus);
   transition: none;
 }
@@ -118,8 +147,9 @@
 .textarea[aria-invalid="true"]:focus,
 .textarea:read-only:not(:disabled)[aria-invalid="true"]:focus-visible,
 .textarea:read-only:not(:disabled)[aria-invalid="true"]:focus {
+  outline: 1px solid var(--color-danger);
+  outline-offset: 0;
   border-color: var(--color-danger);
-  outline-color: var(--color-danger);
   transition: none;
 }
 

@@ -37,7 +37,7 @@
 /* Floating Surface Box */
 .surface {
   position: fixed;
-  z-index: var(--z-dropdown); /* 200 */
+  z-index: var(--z-overlay); /* 300 */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -130,7 +130,7 @@
 
 /* Coarse touch target expander */
 .closeButton::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: -8px;
 }

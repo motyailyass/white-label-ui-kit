@@ -77,6 +77,7 @@ Tokens, Presets & Foundation (styles/tokens/*, styles/{dashboard,website}/*, i18
 
 ## 10. Z-Index & Overlay Stacking Hierarchy
 - **Shared 10-step semantic scale**: Strictly 10 monotonically ascending layers: `--z-base` (0), `--z-raised` (10), `--z-sticky` (100), `--z-dropdown` (200), `--z-overlay` (300), `--z-drawer` (310), `--z-modal-backdrop` (400), `--z-modal` (410), `--z-toast` (500), `--z-tooltip` (600). Arbitrary z-index numbers (`999`, `9999`) are strictly prohibited.
+- **Local paint order vs document layers**: The global scale orders document-level layers and overlay surfaces only. Components that stack their own descendants declare `isolation: isolate` on their root and consume private `--_z-layer-base|raised|overlay|top` values; local paint order must never leak into the global scale.
 - **Overlay ownership & stacking contexts**: Nested overlays (e.g., custom select popover inside a modal dialog) are scoped to the parent dialog's local stacking context, rendering above the modal surface without leaking global z-index inflation.
 - **Interaction permission vs visual elevation**: Modal backdrops (`--z-overlay` for drawers, `--z-modal-backdrop` for dialogs) explicitly intercept pointer events, enforce keyboard focus containment, and handle outside dismissal without confusing visual layering with interaction rights.
 

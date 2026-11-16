@@ -1,8 +1,20 @@
 {
   "name": "@starterkit/monorepo",
+  "version": "0.1.0",
   "private": true,
   "license": "MIT",
   "packageManager": "pnpm@12.16.1",
+  "bin": {
+    "wlui": "./cli/index.mjs"
+  },
+  "files": [
+    "cli/",
+    "!cli/index.test.mjs",
+    "typescript/nextjs/starterkit/dashboard/src/components/ui/",
+    "typescript/nextjs/starterkit/dashboard/src/components/icons/",
+    "typescript/nextjs/starterkit/dashboard/src/lib/",
+    "typescript/nextjs/starterkit/dashboard/src/styles/tokens/"
+  ],
   "scripts": {
     "sync:shared": "node scripts/sync-shared.mjs",
     "sync:shared:check": "node scripts/sync-shared.mjs --check",
@@ -11,7 +23,7 @@
     "build:site": "node scripts/build-gallery-site.mjs",
     "lint": "pnpm --recursive run lint",
     "type-check": "pnpm --recursive run type-check",
-    "test": "pnpm --recursive --workspace-concurrency=1 run test",
+    "test": "pnpm --recursive --workspace-concurrency=1 run test && node --test cli/index.test.mjs",
     "build": "pnpm --recursive run build",
     "format": "pnpm --recursive run format",
     "format:check": "pnpm --recursive run format:check",

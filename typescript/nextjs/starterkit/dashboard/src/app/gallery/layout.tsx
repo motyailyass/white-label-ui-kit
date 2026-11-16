@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
+import { GalleryLinkBridge } from './gallery-link-bridge';
 
 export default function GalleryLayout({ children }: { children: ReactNode }) {
   // Component studio belongs to development and test infrastructure.
@@ -8,5 +9,5 @@ export default function GalleryLayout({ children }: { children: ReactNode }) {
     notFound();
   }
 
-  return children;
+  return <GalleryLinkBridge>{children}</GalleryLinkBridge>;
 }

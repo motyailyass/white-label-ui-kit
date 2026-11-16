@@ -17,6 +17,7 @@ import { cn } from '@/lib/cn';
 import { useI18n } from '@/providers';
 import { LanguageSwitcher } from '../language-switcher';
 import { ThemeSwitcher } from '../theme-switcher';
+import { useGalleryLinkComponent } from './gallery-link-context';
 import styles from './gallery-studio.module.css';
 
 export type StudioRouteId =
@@ -124,13 +125,15 @@ export function GalleryStudioLayout({
   radiusPreset = 'preset',
   previewDir = 'ltr',
   onReset,
-  linkComponent: LinkSlot = DefaultStudioAnchor,
+  linkComponent,
   stageFooter,
   controls,
   inspector,
   children,
 }: GalleryStudioLayoutProps) {
   const { t } = useI18n();
+  const ContextLink = useGalleryLinkComponent();
+  const LinkSlot = linkComponent ?? ContextLink ?? DefaultStudioAnchor;
 
   const stageHeadingId = useId();
   const controlsHeadingId = useId();
@@ -1086,8 +1089,10 @@ export interface GalleryHubProps {
   linkComponent?: StudioLinkComponent;
 }
 
-export function GalleryHub({ linkComponent: LinkSlot = DefaultStudioAnchor }: GalleryHubProps) {
+export function GalleryHub({ linkComponent }: GalleryHubProps) {
   const { t } = useI18n();
+  const ContextLink = useGalleryLinkComponent();
+  const LinkSlot = linkComponent ?? ContextLink ?? DefaultStudioAnchor;
   const featuredId = useId();
 
   const studioCards = [

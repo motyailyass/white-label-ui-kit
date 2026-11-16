@@ -25,27 +25,6 @@ const siteDir = path.join(rootDir, 'site');
 const pagesDir = path.join(rootDir, '_pages');
 const basePath = '/white-label-ui-kit';
 
-const TEXT_EXTENSIONS = new Set(['.html', '.txt', '.js', '.json', '.rsc']);
-
-function prefixStudioLinks(dir) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const file = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      prefixStudioLinks(file);
-      continue;
-    }
-    if (!TEXT_EXTENSIONS.has(path.extname(entry.name))) continue;
-
-    const source = fs.readFileSync(file, 'utf8');
-    // GalleryStudioLayout renders plain anchors (patterns cannot import
-    // next/link), so Next never applies basePath to those hrefs.
-    const updated = source
-      .replaceAll('"/gallery', `"${basePath}/gallery`)
-      .replaceAll("'/gallery", `'${basePath}/gallery`);
-    if (updated !== source) fs.writeFileSync(file, updated);
-  }
-}
-
 console.log(`> Exporting the dashboard gallery under ${basePath}`);
 execFileSync('pnpm', ['exec', 'next', 'build'], {
   cwd: dashboardDir,
@@ -67,8 +46,6 @@ fs.cpSync(exportDir, pagesDir, { recursive: true });
 // The landing page owns `/`; the app root is only a redirect to /classic.
 fs.rmSync(path.join(pagesDir, 'index.html'));
 fs.rmSync(path.join(pagesDir, 'index.txt'));
-
-prefixStudioLinks(pagesDir);
 
 fs.cpSync(siteDir, pagesDir, { recursive: true });
 // Pages runs Jekyll by default, which drops the `_next` asset directory.

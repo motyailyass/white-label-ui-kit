@@ -19,3 +19,4 @@ export {
   StudioToggleRow,
   type StudioToggleRowProps,
 } from './gallery-studio';
+export { GalleryLinkProvider, useGalleryLinkComponent } from './gallery-link-context';

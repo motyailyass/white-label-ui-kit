@@ -58,6 +58,6 @@ Do not commit a placeholder `CNAME` or configure DNS for a domain you do not own
 
 - The gallery is the real exported application — not screenshots. Keep it that way; do not replace it with mockups.
 - Counts of 100+ components and 10+ dashboard layouts are roadmap targets, not shipped inventory.
-- Do not add an installer command until the CLI exists and has been verified.
+- The `add` CLI is covered by `cli/index.test.mjs`. Keep the README and CLI page aligned with the flags the tests cover, and keep saying that layouts and patterns still come from a starter.
 - Free core is MIT; Pro and Enterprise terms are not announced. Do not advertise pricing, customer logos, or an SLA before they exist.
 - When the license, tiers, or gallery change, update `README.md`, `site/index.html`, `site/docs.html`, and `site/cli.html` together.

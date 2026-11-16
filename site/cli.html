@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CLI — White Label UI Kit</title>
-<meta name="description" content="The White Label UI Kit CLI is planned, not released. See the manual workflow that exists today and what the CLI will cover.">
-<meta name="theme-color" content="#fafaf8"><meta property="og:title" content="CLI — White Label UI Kit"><meta property="og:description" content="One command. Your starting point. The CLI is planned, not released."><meta property="og:type" content="website">
+<meta name="description" content="Add a White Label UI Kit primitive to your React project with one command. Copies the component, its imports, icons, and tokens as plain files you own.">
+<meta name="theme-color" content="#fafaf8"><meta property="og:title" content="CLI — White Label UI Kit"><meta property="og:description" content="One command. Your component. Your project. Available now via npx from GitHub."><meta property="og:type" content="website">
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -13,62 +13,80 @@
 <main id="main">
 <section class="doc-hero wrap">
 <p class="eyebrow">CLI</p>
-<h1>One command.<br>Your starting point.</h1>
-<p>A guided setup for framework, product, layout, and brand tokens. It is being designed now — not released.</p>
-<div class="doc-meta"><span class="doc-status">Planned · not available</span><span>No npm package</span><span>No install command yet</span></div>
+<h1>One command.<br>Your component.</h1>
+<p>Add a primitive to the project you already have. It copies the component and everything it imports as plain files you own.</p>
+<div class="doc-meta"><span class="doc-status available">Available · from GitHub</span><span>No npm package yet</span><span>Primitives today</span></div>
 </section>
 <div class="doc-layout wrap">
 <nav class="doc-toc" aria-label="CLI page sections">
 <h2>On this page</h2>
 <ul>
-<li><a href="#today">Today</a></li>
-<li><a href="#planned">What it will do</a></li>
-<li><a href="#principles">What it will not do</a></li>
-<li><a href="#status">Status</a></li>
+<li><a href="#add">Add a component</a></li>
+<li><a href="#what-lands">What lands in your project</a></li>
+<li><a href="#options">Options</a></li>
+<li><a href="#limits">Limits</a></li>
+<li><a href="#manual">Without the CLI</a></li>
 </ul>
 </nav>
 <article class="doc-body">
-<div class="doc-callout"><strong>The CLI is not released.</strong><p>There is no publishable command, package, or flag to copy from this page yet. Until a release is announced on GitHub, any command claiming to install this kit is unofficial.</p></div>
 
-<section id="today" aria-labelledby="today-title">
-<h2 id="today-title">Today: the manual path</h2>
-<p>The repository is complete and usable right now. Clone it and run the starter you need:</p>
-<pre><code>git clone https://github.com/motyailyass/white-label-ui-kit.git
-cd white-label-ui-kit
-pnpm install
-
-cd typescript/nextjs/starterkit/dashboard
-pnpm dev</code></pre>
-<p>To start a new product, copy the starter directory you want into your own repository. Keep the local preset, tokens, and components you need; delete the rest. The code is MIT licensed and has no runtime dependency on this repository.</p>
-<p>Full instructions: <a href="./docs.html#quick-start">documentation quick start</a>.</p>
+<section id="add" aria-labelledby="add-title">
+<h2 id="add-title">Add a component</h2>
+<p>Run this inside your React project — Next.js or Vite, it does not matter:</p>
+<pre><code>npx github:motyailyass/white-label-ui-kit list
+npx github:motyailyass/white-label-ui-kit add button</code></pre>
+<p>The package is not on npm yet, so <code>npx</code> pulls the repository directly. Nothing is installed into your app; the command writes files and exits.</p>
+<p>Because npm has no package name here, pin a ref when you want a stable copy:</p>
+<pre><code>npx github:motyailyass/white-label-ui-kit#main add button</code></pre>
 </section>
 
-<section id="planned" aria-labelledby="planned-title">
-<h2 id="planned-title">What it will do</h2>
-<p>The intended flow is three choices, then source files written into your repository:</p>
-<ol>
-<li><strong>Framework</strong> — Next.js App Router or Vite with React.</li>
-<li><strong>Product</strong> — dashboard, website, or both, with a starting layout.</li>
-<li><strong>Identity</strong> — brand accent, radius and density preset, and initial locale.</li>
-</ol>
-<p>The result is the same source you would get from copying a starter: editable files, owned by you. The CLI removes the copy-and-delete step, not the ownership.</p>
-</section>
-
-<section id="principles" aria-labelledby="principles-title">
-<h2 id="principles-title">What it will not do</h2>
+<section id="what-lands" aria-labelledby="what-lands-title">
+<h2 id="what-lands-title">What lands in your project</h2>
+<p>For <code>add button</code>, that is the component plus what it actually imports:</p>
 <ul>
-<li>No runtime dependency and no locked component registry — generated code is your code.</li>
-<li>No telemetry or account requirement for the free tier.</li>
-<li>No hidden brand badge. Trademark and license notices still apply.</li>
-<li>No Pro components. Premium offerings are delivered separately under commercial terms.</li>
+<li><code>components/ui/button/</code> — component, CSS module, barrel.</li>
+<li><code>components/ui/control-sizing.ts</code> — the shared control-size contract.</li>
+<li><code>components/icons/</code> — the Icon wrapper and registry.</li>
+<li><code>lib/cn.ts</code> — class name helper.</li>
+<li><code>styles/tokens/</code> — written only if you do not have it yet.</li>
+</ul>
+<p>Imports are rewritten to your real <code>@/*</code> alias when one is found in <code>tsconfig.json</code> or <code>jsconfig.json</code>. If none exists, the files keep <code>@/</code> and the command tells you the <code>paths</code> entry to add.</p>
+<p>Then it prints the two things a file copy cannot do for you: the token <code>@import</code> line for your global stylesheet, and the package install command for <code>@hugeicons/react</code> and <code>@hugeicons/core-free-icons</code> if they are missing.</p>
+<p>Existing files are left alone. Tokens are never overwritten, because you will customize them.</p>
+</section>
+
+<section id="options" aria-labelledby="options-title">
+<h2 id="options-title">Options</h2>
+<table class="doc-table">
+<thead><tr><th scope="col">Flag</th><th scope="col">What it does</th></tr></thead>
+<tbody>
+<tr><td><code>--cwd &lt;dir&gt;</code></td><td>Target another project instead of the current directory.</td></tr>
+<tr><td><code>--dry-run</code></td><td>Print the file plan, write nothing.</td></tr>
+<tr><td><code>--force</code></td><td>Overwrite files that already exist. Tokens still stay untouched.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="limits" aria-labelledby="limits-title">
+<h2 id="limits-title">Limits, stated plainly</h2>
+<ul>
+<li><strong>Primitives only.</strong> A dashboard layout or a connected pattern needs the app shell, providers, and translations. The command tells you so and points at the starter instead of half-installing one.</li>
+<li><strong>One component at a time.</strong> Adding several is several commands.</li>
+<li><strong>No guided starter setup yet.</strong> Choosing framework, product, layout, and brand tokens in one flow is the next milestone.</li>
+<li><strong>No version pinning by package.</strong> Pin a git ref until a package is published.</li>
 </ul>
 </section>
 
-<section id="status" aria-labelledby="status-title">
-<h2 id="status-title">Status</h2>
-<p>The CLI has no release date. It ships after the free core is stable, so the generated output does not churn under early adopters. Command names and flags are not final, which is why none are published here.</p>
-<p>Watch the repository for milestones — releases are announced there and nowhere else.</p>
-<div class="doc-next"><a class="button primary" href="https://github.com/motyailyass/white-label-ui-kit">Follow the build <span aria-hidden="true">↗</span></a><a class="button secondary" href="./docs.html">Read the docs</a><a class="button secondary" href="./gallery/">Open the gallery</a></div>
+<section id="manual" aria-labelledby="manual-title">
+<h2 id="manual-title">Without the CLI</h2>
+<p>Copy a starter, or copy the pieces by hand. The starter path is still the fastest way to get a complete dashboard or website:</p>
+<pre><code>git clone https://github.com/motyailyass/white-label-ui-kit.git
+cp -R white-label-ui-kit/typescript/nextjs/starterkit/dashboard ~/code/my-app
+cd ~/code/my-app
+pnpm install
+pnpm dev</code></pre>
+<p>Full instructions: <a href="./docs.html#quick-start">documentation quick start</a>. The code is MIT licensed and has no runtime dependency on this repository.</p>
+<div class="doc-next"><a class="button primary" href="https://github.com/motyailyass/white-label-ui-kit">Browse the source <span aria-hidden="true">↗</span></a><a class="button secondary" href="./docs.html">Read the docs</a><a class="button secondary" href="./gallery/">Open the gallery</a></div>
 </section>
 </article>
 </div>

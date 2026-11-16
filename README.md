@@ -11,9 +11,9 @@ A React UI foundation that runs in **Next.js App Router** and **Vite** from one 
 [![React 19](https://img.shields.io/badge/React-19-202521?style=flat-square)](https://react.dev)
 [![RTL ready](https://img.shields.io/badge/RTL-supported-202521?style=flat-square)](docs/standards/RTL_AND_I18N.md)
 
-**[Live gallery](https://motyailyass.github.io/white-label-ui-kit/gallery/)** · **[Documentation](https://motyailyass.github.io/white-label-ui-kit/docs.html)** · **[CLI status](https://motyailyass.github.io/white-label-ui-kit/cli.html)** · **[Issues](https://github.com/motyailyass/white-label-ui-kit/issues)**
+**[Live gallery](https://motyailyass.github.io/white-label-ui-kit/gallery/)** · **[Documentation](https://motyailyass.github.io/white-label-ui-kit/docs.html)** · **[CLI](https://motyailyass.github.io/white-label-ui-kit/cli.html)** · **[Issues](https://github.com/motyailyass/white-label-ui-kit/issues)**
 
-**Early development.** The gallery is live. The CLI, npm package, and premium offerings are not released.
+**Early development.** The gallery is live and the CLI runs from GitHub. The npm package and premium offerings are not released.
 
 </div>
 
@@ -66,26 +66,28 @@ pnpm dev
 
 Both starters install and build on their own. No monorepo, no workspace file, no link back to this repository.
 
-## Add only what you need
+## Add one component to your app
 
-Copying a whole starter is the reliable path today. Adding single pieces to an existing app works, but a primitive is rarely one folder — `Button` also needs the icon registry, the `cn` helper, `control-sizing.ts`, and the token stylesheet.
+Already have a React project? Add a primitive with one command:
 
 ```bash
-cp -R white-label-ui-kit/typescript/nextjs/starterkit/dashboard/src/components/ui/button \
-      src/components/ui/button
+npx github:motyailyass/white-label-ui-kit list
+npx github:motyailyass/white-label-ui-kit add button
 ```
 
-Then bring what it imports:
+It copies plain files into your `src/`: the component, anything it imports, the icon registry, the `cn` helper, `control-sizing.ts`, and the token stylesheet if you do not have it yet. Then it tells you the two things a file copy cannot do for you — the token `@import` line and any missing packages (`@hugeicons/...`).
 
-- `src/components/icons` — the `<Icon>` wrapper and registry.
-- `src/lib/cn` — class name helper.
-- `src/components/ui/control-sizing.ts` — the shared control-size contract.
-- `src/styles/tokens` — imported once from your global stylesheet.
-- The `@/*` path alias in `tsconfig.json` (Vite: `resolve.alias`).
+```bash
+add <primitive> --cwd <dir>   # target another project
+add <primitive> --dry-run     # show what would be copied
+add <primitive> --force       # overwrite existing files
+```
 
-That list is exactly what the CLI will automate. Until it exists, the honest shortcut is: copy a starter, keep what you need, delete the rest.
+Your `@/*` alias is detected and imports are rewritten to match. There is no runtime dependency and no generated wrapper: what lands in your project is what you edit.
 
-> **CLI — planned, not released.** The goal is one command that adds a primitive, a dashboard layout, or a whole starter into the project you already have, pulling the pieces above with it and writing plain files you own. No command is published here because none of them work yet. Watch [releases](https://github.com/motyailyass/white-label-ui-kit/releases) — that is the only place a release is announced. [CLI status →](https://motyailyass.github.io/white-label-ui-kit/cli.html)
+**Scope today:** primitives. A dashboard layout or a connected pattern needs the app shell, providers, and translations — those still come from copying a starter. Doing it by hand works too: copy the folder plus the same dependencies, or start from a starter and delete what you do not need.
+
+> **CLI — available from GitHub, npm pending.** `npx github:motyailyass/white-label-ui-kit` pulls this repository directly, so there is nothing to publish yet. A package name and a guided `init` for whole starters come after the free core is stable. [CLI guide →](https://motyailyass.github.io/white-label-ui-kit/cli.html)
 
 ## Why teams pick it
 
@@ -124,7 +126,8 @@ typescript/
 │   └── website/src      # website starter, shared core mirrored in
 └── vite/starterkit/
     └── dashboard/src    # Vite host of the same core
-site/                    # landing, docs, CLI status pages
+cli/                     # add command: copies primitives into an existing app
+site/                    # landing, docs, CLI pages
 scripts/                 # shared-core sync, policy checks, Pages build
 docs/standards/          # architecture, RTL, commercial standards
 ```

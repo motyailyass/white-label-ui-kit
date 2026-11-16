@@ -52,7 +52,7 @@ pnpm dev
 # Vite dashboard (mirrored core, single overview screen)
 cd typescript/vite/starterkit/dashboard
 pnpm dev</code></pre>
-<p>There is no published npm package and no released CLI yet. Copy the starter you need, then keep the files you want — the kit is designed to be edited, not imported as a locked dependency.</p>
+<p>There is no published npm package yet. Add a primitive to an existing project with <code>npx github:motyailyass/white-label-ui-kit add button</code> (<a href="./cli.html">CLI guide</a>), or copy the starter you need and keep the files you want — the kit is designed to be edited, not imported as a locked dependency.</p>
 </section>
 
 <section id="repository-map" aria-labelledby="repository-map-title">
@@ -145,6 +145,7 @@ pnpm run sync:shared:check   # fail on drift (CI gate)</code></pre>
 <tr><td><code>pnpm run check:shadows</code></td><td>Repository root</td></tr>
 <tr><td><code>pnpm run check:client</code></td><td>Repository root</td></tr>
 <tr><td><code>pnpm run format:check</code></td><td>Repository root</td></tr>
+<tr><td><code>node --test cli/index.test.mjs</code></td><td>Repository root (CLI)</td></tr>
 </tbody>
 </table>
 <p>Run the smallest check first. The full gate above runs before handoff and in CI.</p>

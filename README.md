@@ -2,136 +2,147 @@
 
 # White Label UI Kit
 
-### Your product. Your brand. A stronger starting point.
+**Your product. Your brand. A stronger starting point.**
 
-A React UI foundation for dashboards and websites—built around brand freedom, native RTL, and a shared core for Next.js and Vite.
+A white-label React UI foundation for dashboards and websites. One shared core, Next.js and Vite hosts, first-class RTL, and no required kit badge.
 
-**React + TypeScript · CSS Modules · Semantic tokens · RTL-first**
+[![CI](https://github.com/motyailyass/white-label-ui-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/motyailyass/white-label-ui-kit/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-202521?style=flat-square)](LICENSE)
+[![React 19](https://img.shields.io/badge/React-19-202521?style=flat-square)](https://react.dev)
+[![RTL ready](https://img.shields.io/badge/RTL-supported-202521?style=flat-square)](docs/standards/RTL_AND_I18N.md)
 
-[Explore the vision](#one-foundation-multiple-starting-points) · [Roadmap](#building-in-the-open) · [Free & premium](#free-foundation-premium-depth)
+**[Live gallery](https://motyailyass.github.io/white-label-ui-kit/gallery/)** · **[Documentation](https://motyailyass.github.io/white-label-ui-kit/docs.html)** · **[CLI status](https://motyailyass.github.io/white-label-ui-kit/cli.html)** · **[Issues](https://github.com/motyailyass/white-label-ui-kit/issues)**
 
-**Early development — not a stable release.**
+**Early development.** The gallery is live; the CLI, npm package, and premium offerings are not released.
 
 </div>
 
 ---
 
-## Build your product, not someone else's identity
+## See it, not a screenshot
 
-Start with a neutral foundation and make it unmistakably yours. White Label UI Kit is being built for developers shipping their own products, agencies delivering client work, and teams building larger applications.
+The gallery runs the real kit: 51 mounted component pages with working keyboard behavior, theme switching, and English, French, and Arabic UI. Change direction to RTL and watch the layout, icons, and typography respond.
 
-The goal: less time rebuilding interfaces, more time building what makes your product different.
+**[Open the live gallery →](https://motyailyass.github.io/white-label-ui-kit/gallery/)**
 
-- **Your visual identity.** Semantic design tokens for color, typography, spacing, density, radii, and elevation.
-- **Your application architecture.** Pure React primitives, separate from routing, business logic, forms, and server state.
-- **Your audience.** Arabic, English, and French are the initial localization targets, with RTL considered from the beginning.
-- **Your starting point.** Dashboard, website, or both; Next.js or Vite.
+## What you get today
 
-No required visible kit badge is intended. Applicable license and third-party notices must still be preserved.
-
-## One foundation. Multiple starting points.
-
-| Choose your host | Choose your project | Make it yours |
-| --- | --- | --- |
-| Next.js | Dashboard | Brand tokens and theme |
-| Vite | Website | Layout and navigation |
-| Either framework | Dashboard + website | Locale and direction |
-
-**Planned CLI experience:** one command opens a setup flow to select a framework, project type, and starting layout. The CLI is not released; there is no public installer command yet.
-
-Reusable UI is intended to share one React foundation across both hosts. Framework-specific integration belongs at the application boundary—not inside reusable primitives.
-
-## A catalog built to grow
-
-The full product roadmap targets:
-
-- **100+ UI components:** a broad catalog spanning foundational controls and advanced interfaces.
-- **10+ dashboard layouts:** multiple starting structures for different application needs.
-- **Website starters and templates:** ready-to-adapt foundations for product and business websites.
-- **Free and premium collections:** a useful public foundation, with additional depth for professional teams.
-
-**These are roadmap targets, not a claim of shipped inventory.** A directory or scaffold does not mean a component is complete, tested, or release-ready.
-
-## Architecture with intention
-
-| Principle | Approach |
+| | |
 | --- | --- |
-| Owned UI | Internally authored React markup, styles, and behavior; no third-party UI/headless runtime in core primitives |
-| Native styling | CSS Modules and native custom properties; no Tailwind or CSS-in-JS runtime |
-| Brand freedom | Semantic token contract rather than brand-specific styling baked into components |
-| Clean boundaries | Core primitives accept props; application patterns handle providers and feature integrations |
-| Framework portability | No Next.js imports in reusable UI; host-specific wiring stays at the edge |
-| Bidirectional by design | Logical CSS, bidi isolation, directional icon handling, and native Intl formatting |
-| Quality gates | Vitest/Testing Library and Playwright are the intended component and browser testing layers |
+| **55 UI primitives** | Buttons, inputs, selects, dialogs, menus, tables, charts, and more — authored in-house, no headless dependency |
+| **51 component galleries** | Every primitive mounted with variants, states, and controls you can operate |
+| **4 dashboard layouts** | Classic, dual-sidebar, three-column inspector, and a layout playground |
+| **1 website template** | Tokyo landing template composed from the same primitives |
+| **Next.js + Vite** | One shared core, canonical in Next.js and mirrored to Vite |
+| **English · French · Arabic** | Typed translations, locale-aware formatting, and derived RTL |
 
-These are engineering standards and release goals, not certification of current accessibility or test coverage.
+## Why this kit
 
-Read the [technical standards](docs/standards/TECH_STACK.md), [RTL & internationalization architecture](docs/standards/RTL_AND_I18N.md), and [commercial & pro component catalog roadmap](docs/standards/COMMERCIAL_AND_PRO_CATALOG.md).
+- **Brand first, not brand locked.** Semantic tokens for color, type, spacing, radius, and motion. No visible kit badge is required.
+- **Owned UI.** No Radix, Tailwind, or CSS-in-JS in the core. Markup, behavior, and CSS Modules live in this repository.
+- **Clean boundaries.** Primitives take props and emit events. Routing, data fetching, forms, and i18n bindings stay outside them.
+- **RTL as a foundation.** Logical CSS properties, bidi-isolated tokens, mirrored directional icons, and Arabic typography rules.
+- **Accessible by contract.** Sequential headings, honest landmarks, focus traps, 48px touch targets, and reduced-motion support are engineering rules, not extras.
 
-## Free foundation. Premium depth.
+## Quick start
 
-The intended model is **a free open-source core with paid premium offerings**, not a blanket charge simply because a user is a business.
+Requires **Node.js 22+** and **pnpm 12**. There is no CLI and no npm package yet — clone the repository and use a starter directly.
 
-| Offering | Intended scope | Status |
-| --- | --- | --- |
-| Free | Useful core UI and starter foundations | MIT |
-| Pro | Additional components, layouts, and templates | Planned |
-| Companies & agencies | Premium offerings with terms suited to teams, client delivery, and larger organizations | Planned |
+```bash
+corepack enable
+git clone https://github.com/motyailyass/white-label-ui-kit.git
+cd white-label-ui-kit
+pnpm install
+```
 
-The exact free/premium split, pricing, support commitments, seat rules, and client redistribution rights are not finalized. The 100+ component and 10+ dashboard targets refer to the overall roadmap, not the free tier alone.
+Run the dashboard (canonical shared source) at [localhost:3001](http://localhost:3001):
 
-### License status
+```bash
+cd typescript/nextjs/starterkit/dashboard
+pnpm dev
+```
 
-The free core is **MIT licensed** — see [LICENSE](LICENSE). You may use, modify, and redistribute it commercially, provided the copyright and permission notices are preserved.
+Or the website at [localhost:3000](http://localhost:3000):
 
-- [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) — bundled fonts and icon set
-- [TRADEMARK.md](TRADEMARK.md) — the code is MIT; the name and logo are not
-- [CONTRIBUTING.md](CONTRIBUTING.md) — DCO sign-off, checks, and testing expectations
+```bash
+cd typescript/nextjs/starterkit/website
+pnpm dev
+```
 
-Pro and Companies & agencies offerings are distributed separately under commercial terms and are not covered by the MIT license. Those terms will be published with the offerings.
+To start a product, copy the starter directory into your repository and keep what you need. The code is MIT licensed and has no runtime dependency on this repository.
 
-## Building in the open
-
-| Area | Current public-repository position |
-| --- | --- |
-| Next.js starters | Dashboard and website source directories are present |
-| Dashboard foundations | Shell, layouts, providers, and i18n source are present; readiness is not certified |
-| Component catalog | Early implementation; full catalog is not released |
-| Vite starters | Product target; parity and release readiness are not verified in this public snapshot |
-| One-command setup | Planned; no released CLI |
-| Free/premium catalog and licensing | Free core MIT; premium terms being defined |
-
-Local development may be ahead of the public repository. Published releases—not screenshots or folder counts—will establish supported functionality.
-
-### Delivery priorities
-
-1. Establish the token, component, localization, and host-integration contracts.
-2. Build and verify the component catalog and representative dashboard/website flows.
-3. Validate Next.js and Vite starters against the shared foundation.
-4. Deliver the CLI, documentation, gallery, and release process.
-5. Publish the free/premium feature matrix and license terms.
-
-## Explore the source
+## Inside the repository
 
 ```text
 typescript/
-└── nextjs/starterkit/
-    ├── dashboard/      # Dashboard reference application
-    └── website/        # Website reference application
-docs/standards/         # Engineering and localization standards
-site/                   # Standalone GitHub Pages landing page
+├── nextjs/starterkit/
+│   ├── dashboard/src    # Canonical shared source + dashboard layouts + gallery
+│   └── website/src      # Website starter (shared core mirrored in)
+└── vite/starterkit/
+    └── dashboard/src    # Vite mirror of the same core
+site/                    # Public site: landing, docs, CLI status
+scripts/                 # Shared-code sync, policy checks, Pages build
+docs/standards/          # Architecture, RTL, and commercial standards
 ```
 
-For local exploration, see each application's `package.json` and repository standards. The documented workflow uses `pnpm dev`, `pnpm lint`, `pnpm type-check`, `pnpm test`, and `pnpm build` from an application directory. A successful clean install/build has not been verified by this documentation update.
+Shared files are edited in `dashboard/src` and mirrored outward:
+
+```bash
+pnpm run sync:shared          # mirror into website + Vite
+pnpm run sync:shared:check    # fail on drift
+```
+
+## Documentation
+
+| Document | Contents |
+| --- | --- |
+| **[Documentation site](https://motyailyass.github.io/white-label-ui-kit/docs.html)** | Quick start, repository map, tokens, RTL, testing, publishing |
+| [Technical standards](docs/standards/TECH_STACK.md) | Stack, layers, boundaries, and quality rules |
+| [RTL & i18n architecture](docs/standards/RTL_AND_I18N.md) | Locale, direction, bidi, and Arabic typography |
+| [Commercial catalog](docs/standards/COMMERCIAL_AND_PRO_CATALOG.md) | Free/Pro/Enterprise tiers and packaging |
+| [Contributing](CONTRIBUTING.md) | Issue-first workflow, checks, and DCO sign-off |
+
+## Free core, paid depth
+
+The free core is **MIT licensed** and stays that way. Paid tiers add depth for teams that need it — not permission to use the free tier.
+
+| Offering | Scope | Status |
+| --- | --- | --- |
+| **Free** | Primitives, layouts, tokens, RTL, gallery, Next.js + Vite | **MIT — available now** |
+| **Pro** | Advanced components, more layouts, application blocks | Planned |
+| **Enterprise & agencies** | Client redistribution, multi-brand tooling, SLA and support | Planned |
+
+Pricing, seat rules, and support commitments are not announced. The 100+ component and 10+ layout totals are whole-product roadmap targets, not counts of the free tier.
+
+## Quality gates
+
+Every change runs through:
+
+```bash
+pnpm lint          # per app
+pnpm type-check    # per app
+pnpm test          # per app: Vitest + React Testing Library
+pnpm test:e2e      # dashboard and website: Playwright
+
+pnpm run sync:shared:check   # zero drift
+pnpm run check:shadows       # dashboard stays shadow-free
+pnpm run check:client        # client boundaries
+pnpm run format:check
+```
+
+Bug fixes ship with a regression test. Overlays and layout behavior get Playwright coverage.
+
+## License
+
+- [LICENSE](LICENSE) — MIT. Use, modify, and redistribute commercially; keep the notices.
+- [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) — bundled Geist and Noto Sans Arabic fonts, Hugeicons free set.
+- [TRADEMARK.md](TRADEMARK.md) — the code is MIT; the name and logo are not.
+- Pro and Enterprise offerings are licensed separately under commercial terms.
 
 ## Follow the project
 
-Star or watch this repository for progress and releases. Have a use case, accessibility concern, or layout request? [Open an issue](https://github.com/motyailyass/white-label-ui-kit/issues).
-
-Please discuss substantial changes before implementing them. Contribution and licensing policies are documented in [CONTRIBUTING.md](CONTRIBUTING.md) and [LICENSE](LICENSE).
+Star or watch the repository for releases. Have a use case, accessibility concern, or layout request? [Open an issue](https://github.com/motyailyass/white-label-ui-kit/issues).
 
 ---
 
-**A foundation for your brand—not a brand you have to work around.**
-
-Maintainers: see [GitHub Pages setup](docs/GITHUB_PAGES.md) to publish the landing site and later connect a custom domain.
+**A foundation for your brand — not a brand you have to work around.**

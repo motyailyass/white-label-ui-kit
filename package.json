@@ -8,6 +8,7 @@
     "sync:shared:check": "node scripts/sync-shared.mjs --check",
     "check:shadows": "node scripts/check-dashboard-shadows.mjs",
     "check:client": "node scripts/check-client-directives.mjs",
+    "build:site": "node scripts/build-gallery-site.mjs",
     "lint": "pnpm --recursive run lint",
     "type-check": "pnpm --recursive run type-check",
     "test": "pnpm --recursive --workspace-concurrency=1 run test",

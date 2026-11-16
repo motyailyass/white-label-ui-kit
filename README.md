@@ -4,7 +4,7 @@
 
 **Your product. Your brand. A stronger starting point.**
 
-A white-label React UI foundation for dashboards and websites. One shared core, Next.js and Vite hosts, first-class RTL, and no required kit badge.
+A React UI foundation that runs in **Next.js App Router** and **Vite** from one shared core. Dashboards, website sections, themes, and RTL you own — not a component library you rent.
 
 [![CI](https://github.com/motyailyass/white-label-ui-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/motyailyass/white-label-ui-kit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-202521?style=flat-square)](LICENSE)
@@ -13,79 +13,123 @@ A white-label React UI foundation for dashboards and websites. One shared core, 
 
 **[Live gallery](https://motyailyass.github.io/white-label-ui-kit/gallery/)** · **[Documentation](https://motyailyass.github.io/white-label-ui-kit/docs.html)** · **[CLI status](https://motyailyass.github.io/white-label-ui-kit/cli.html)** · **[Issues](https://github.com/motyailyass/white-label-ui-kit/issues)**
 
-**Early development.** The gallery is live; the CLI, npm package, and premium offerings are not released.
+**Early development.** The gallery is live. The CLI, npm package, and premium offerings are not released.
 
 </div>
 
 ---
 
-## See it, not a screenshot
+## One foundation. Two hosts.
 
-The gallery runs the real kit: 51 mounted component pages with working keyboard behavior, theme switching, and English, French, and Arabic UI. Change direction to RTL and watch the layout, icons, and typography respond.
+Pick the host your team already ships with. The primitives, tokens, providers, and layouts are identical — only the app shell differs.
 
-**[Open the live gallery →](https://motyailyass.github.io/white-label-ui-kit/gallery/)**
+| | **Next.js starter** | **Vite starter** |
+| --- | --- | --- |
+| **Host** | Next.js App Router, React 19 | Vite, React 19 |
+| **Best for** | A full product: server rendering, routing, dashboard and website together | Fast local dev, SPA tools, embedded admin panels |
+| **Ships with** | 4 dashboard layouts, 55 primitives, 51 galleries, Tokyo website template | The same core in a single dashboard overview |
+| **Copy this folder** | `typescript/nextjs/starterkit/dashboard` | `typescript/vite/starterkit/dashboard` |
+
+The connection is the **shared core**, not a runtime dependency: the same `components/ui`, `components/icons`, `providers`, `i18n`, and `styles/tokens` exist in both starters. Build a screen in Next.js and the Vite app has the same building blocks, with the same RTL rules and the same control sizing.
+
+That core is **copied, not imported**. Each starter owns its files, its `package.json`, and its build. Nothing here imports a sibling folder or a private package — copy one starter and it runs at your path.
+
+## Start in Next.js
+
+Node.js 22+ and pnpm 12. This gives you a normal Next.js app in your own directory:
+
+```bash
+corepack enable
+git clone https://github.com/motyailyass/white-label-ui-kit.git
+cp -R white-label-ui-kit/typescript/nextjs/starterkit/dashboard ~/code/acme-dashboard
+cd ~/code/acme-dashboard
+pnpm install
+pnpm dev        # http://localhost:3001
+```
+
+From here it is your project: rename it, delete the demo screens, change the tokens. The repository you cloned is no longer involved.
+
+Want the marketing site starter instead? Copy `typescript/nextjs/starterkit/website` the same way — it runs at [localhost:3000](http://localhost:3000) and has the Tokyo landing template.
+
+## Start in Vite
+
+Same core, Vite toolchain, one dashboard overview to build from:
+
+```bash
+corepack enable
+git clone https://github.com/motyailyass/white-label-ui-kit.git
+cp -R white-label-ui-kit/typescript/vite/starterkit/dashboard ~/code/acme-admin
+cd ~/code/acme-admin
+pnpm install
+pnpm dev
+```
+
+Both starters install and build on their own. No monorepo, no workspace file, no link back to this repository.
+
+## Add only what you need
+
+Copying a whole starter is the reliable path today. Adding single pieces to an existing app works, but a primitive is rarely one folder — `Button` also needs the icon registry, the `cn` helper, `control-sizing.ts`, and the token stylesheet.
+
+```bash
+cp -R white-label-ui-kit/typescript/nextjs/starterkit/dashboard/src/components/ui/button \
+      src/components/ui/button
+```
+
+Then bring what it imports:
+
+- `src/components/icons` — the `<Icon>` wrapper and registry.
+- `src/lib/cn` — class name helper.
+- `src/components/ui/control-sizing.ts` — the shared control-size contract.
+- `src/styles/tokens` — imported once from your global stylesheet.
+- The `@/*` path alias in `tsconfig.json` (Vite: `resolve.alias`).
+
+That list is exactly what the CLI will automate. Until it exists, the honest shortcut is: copy a starter, keep what you need, delete the rest.
+
+> **CLI — planned, not released.** The goal is one command that adds a primitive, a dashboard layout, or a whole starter into the project you already have, pulling the pieces above with it and writing plain files you own. No command is published here because none of them work yet. Watch [releases](https://github.com/motyailyass/white-label-ui-kit/releases) — that is the only place a release is announced. [CLI status →](https://motyailyass.github.io/white-label-ui-kit/cli.html)
+
+## Why teams pick it
+
+- **Launch-looking UI on day one.** Dashboard shells, tables, charts, dialogs, and forms that already look designed — then you change the tokens and it looks like you.
+- **RTL is not a retrofit.** Arabic is a first-class locale: logical CSS everywhere, mirrored directional icons, bidi-isolated numbers and IDs, Arabic typography with the line height diacritics need. Switch the language in the live gallery and watch it hold.
+- **Nothing to license at runtime.** No Radix, Tailwind, or CSS-in-JS in the core. No kit badge, no telemetry, no account. The files you copy are the product.
+- **One design language, many products.** Semantic tokens per product preset: the dashboard stays compact and shadow-free, the website goes comfortable and editorial. Both from the same primitives.
+- **Accessibility as a rule, not a checklist.** Heading order, honest landmarks, focus traps, 48px touch targets, and reduced-motion fallbacks are enforced by tests and review.
 
 ## What you get today
 
 | | |
 | --- | --- |
-| **55 UI primitives** | Buttons, inputs, selects, dialogs, menus, tables, charts, and more — authored in-house, no headless dependency |
+| **55 UI primitives** | Buttons, inputs, selects, dialogs, menus, tables, charts, and more — authored in-house |
 | **51 component galleries** | Every primitive mounted with variants, states, and controls you can operate |
 | **4 dashboard layouts** | Classic, dual-sidebar, three-column inspector, and a layout playground |
 | **1 website template** | Tokyo landing template composed from the same primitives |
-| **Next.js + Vite** | One shared core, canonical in Next.js and mirrored to Vite |
 | **English · French · Arabic** | Typed translations, locale-aware formatting, and derived RTL |
 
-## Why this kit
+Roadmap totals of 100+ components and 10+ layouts describe the whole product, not the free tier.
 
-- **Brand first, not brand locked.** Semantic tokens for color, type, spacing, radius, and motion. No visible kit badge is required.
-- **Owned UI.** No Radix, Tailwind, or CSS-in-JS in the core. Markup, behavior, and CSS Modules live in this repository.
-- **Clean boundaries.** Primitives take props and emit events. Routing, data fetching, forms, and i18n bindings stay outside them.
-- **RTL as a foundation.** Logical CSS properties, bidi-isolated tokens, mirrored directional icons, and Arabic typography rules.
-- **Accessible by contract.** Sequential headings, honest landmarks, focus traps, 48px touch targets, and reduced-motion support are engineering rules, not extras.
+## See it, not a screenshot
 
-## Quick start
+The gallery is the real kit: 51 mounted pages with working keyboard behavior, theme switching, and English, French, and Arabic UI.
 
-Requires **Node.js 22+** and **pnpm 12**. There is no CLI and no npm package yet — clone the repository and use a starter directly.
-
-```bash
-corepack enable
-git clone https://github.com/motyailyass/white-label-ui-kit.git
-cd white-label-ui-kit
-pnpm install
-```
-
-Run the dashboard (canonical shared source) at [localhost:3001](http://localhost:3001):
-
-```bash
-cd typescript/nextjs/starterkit/dashboard
-pnpm dev
-```
-
-Or the website at [localhost:3000](http://localhost:3000):
-
-```bash
-cd typescript/nextjs/starterkit/website
-pnpm dev
-```
-
-To start a product, copy the starter directory into your repository and keep what you need. The code is MIT licensed and has no runtime dependency on this repository.
+**[Open the live gallery →](https://motyailyass.github.io/white-label-ui-kit/gallery/)**
 
 ## Inside the repository
+
+You only need this map if you are reading or contributing to the source. Once you copy a starter, this structure is not part of your app.
 
 ```text
 typescript/
 ├── nextjs/starterkit/
-│   ├── dashboard/src    # Canonical shared source + dashboard layouts + gallery
-│   └── website/src      # Website starter (shared core mirrored in)
+│   ├── dashboard/src    # canonical core + dashboard layouts + gallery
+│   └── website/src      # website starter, shared core mirrored in
 └── vite/starterkit/
-    └── dashboard/src    # Vite mirror of the same core
-site/                    # Public site: landing, docs, CLI status
-scripts/                 # Shared-code sync, policy checks, Pages build
-docs/standards/          # Architecture, RTL, and commercial standards
+    └── dashboard/src    # Vite host of the same core
+site/                    # landing, docs, CLI status pages
+scripts/                 # shared-core sync, policy checks, Pages build
+docs/standards/          # architecture, RTL, commercial standards
 ```
 
-Shared files are edited in `dashboard/src` and mirrored outward:
+Updating the core is a maintainer job, not a user step. Shared files are edited once in `dashboard/src` and mirrored:
 
 ```bash
 pnpm run sync:shared          # mirror into website + Vite
@@ -112,7 +156,7 @@ The free core is **MIT licensed** and stays that way. Paid tiers add depth for t
 | **Pro** | Advanced components, more layouts, application blocks | Planned |
 | **Enterprise & agencies** | Client redistribution, multi-brand tooling, SLA and support | Planned |
 
-Pricing, seat rules, and support commitments are not announced. The 100+ component and 10+ layout totals are whole-product roadmap targets, not counts of the free tier.
+Pricing, seat rules, and support commitments are not announced.
 
 ## Quality gates
 
